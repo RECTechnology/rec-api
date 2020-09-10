@@ -20,6 +20,7 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
     const TREASURE_WITHDRAWAL_EXPIRATION_INTERVAL = "+1 day";
     const TREASURE_WITHDRAWAL_STATUS_APPROVED = "approved";
     const STATUS_PENDING = "pending";
+    const STATUS_CANCELED = "canceled";
     const TREASURE_WITHDRAWAL_STATUS_REJECTED = "rejected";
 
     use StatefulTrait;
@@ -30,9 +31,10 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
      *     initial="created",
      *     choices={
      *          "created"={"to"={"pending"}},
-     *          "pending"={"to"={"approved", "expired"}},
+     *          "pending"={"to"={"approved", "expired", "canceled"}},
      *          "approved"={"final"=true},
-     *          "expired"={"final"=true}
+     *          "expired"={"final"=true},
+     *          "canceled"={"final"=true}
      *      }
      * )
      * @Serializer\Groups({"admin"})
@@ -107,6 +109,9 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
      * @Serializer\Groups({"admin"})
      */
     public function isApproved(){
+        if($this->status == self::STATUS_APPROVED) return true;
+        if($this->status == self::STATUS_CANCELED) return false;
+
         $minimum_validations = floor($this->validations->count() * self::MINIMUM_TREASURE_WITHDRAWAL_VALIDATIONS_RATE);
         $validation_count = 0;
         /** @var TreasureWithdrawalValidation $validation */

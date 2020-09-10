@@ -3,8 +3,6 @@
 namespace Test\FinancialApiBundle\Admin\TreasureWithdrawal;
 
 use App\FinancialApiBundle\Entity\TreasureWithdrawal;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Test\FinancialApiBundle\Admin\AdminApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
@@ -15,15 +13,6 @@ use Test\FinancialApiBundle\Utils\MongoDBTrait;
 class TreasureWithdrawalTest extends AdminApiTest {
 
     use MongoDBTrait;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $mailer = $this->createMock(\Swift_Mailer::class);
-        $mailer->method('send')->willReturn(null);
-        $this->override('mailer', $mailer);
-    }
 
     function testFullProcess(){
 
