@@ -10,6 +10,7 @@ parameters:
     mailer_host:       $MAILER_HOST
     mailer_user:       $MAILER_USERNAME
     mailer_password:   $MAILER_PASSWORD
+    mailer_from:       $MAILER_FROM
 
     no_reply_email:    $MAILER_FROM
 
