@@ -70,7 +70,8 @@ class TreasureWithdrawalValidationSubscriber implements EventSubscriber {
                 ),
                 'text/html'
             );
-            $message->setFrom($this->container->getParameter('no_reply_email'));
+            $message->addFrom($this->container->getParameter('no_reply_email'));
+            $message->addTo($validation->getEmail());
             $this->mailer->send($message);
             $validation->setStatus(TreasureWithdrawalValidation::STATUS_SENT);
             $args->getObjectManager()->flush();
