@@ -18,7 +18,7 @@ class TreasureWithdrawalTest extends AdminApiTest {
 
         $amount = 34 * 1e8;
 
-        $rootAfter = $this->getRootAccount();
+        $rootBefore = $this->getRootAccount();
 
         $withdrawal = $this->createWithdrawal($amount);
         self::assertEquals(TreasureWithdrawal::STATUS_PENDING, $withdrawal->status);
@@ -29,7 +29,7 @@ class TreasureWithdrawalTest extends AdminApiTest {
             $withdrawal = $this->fetchWithdrawal($withdrawal);
             self::assertEquals(TreasureWithdrawal::STATUS_PENDING, $withdrawal->status);
         }
-        $this->validateEmail($withdrawal->validations[0], 'bad_token', 400);
+        $this->validateEmail($withdrawal->validations[0], 'this_token_is_invalid', 400);
         $withdrawal = $this->fetchWithdrawal($withdrawal);
         self::assertEquals(TreasureWithdrawal::STATUS_PENDING, $withdrawal->status);
 
@@ -39,9 +39,9 @@ class TreasureWithdrawalTest extends AdminApiTest {
         self::assertEquals(TreasureWithdrawal::STATUS_APPROVED, $withdrawal->status);
 
         $this->runCommand('rec:crypto:check');
-        $rootBefore = $this->getRootAccount();
+        $rootAfter = $this->getRootAccount();
 
-        self::assertEquals($rootAfter->wallets[0]->available + $amount, $rootBefore->wallets[0]->available);
+        self::assertEquals($rootBefore->wallets[0]->available + $amount, $rootAfter->wallets[0]->available);
     }
 
     private function fetchWithdrawal($withdrawal){

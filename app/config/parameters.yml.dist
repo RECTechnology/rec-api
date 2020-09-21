@@ -101,7 +101,7 @@ parameters:
     withdrawal_url: 'https://preapibm.blockroot.com/withdrawal/v1/'
 
 #list ot three admins emails who must confirm the treasure withdrawal
-    list_emails: '["uno","dos","res"]'
+    list_emails: '["uno@example.com","dos@example.com","res@example.com"]'
 
 #list of authorized admins who can log in support panel
     authorized_admins:
