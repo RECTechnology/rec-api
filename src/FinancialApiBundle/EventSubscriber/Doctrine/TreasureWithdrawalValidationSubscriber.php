@@ -10,6 +10,7 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 use Swift_Mailer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Templating\EngineInterface;
 
 /**
@@ -27,6 +28,9 @@ class TreasureWithdrawalValidationSubscriber implements EventSubscriber {
     /** @var ContainerInterface */
     private $container;
 
+    /** @var TokenStorageInterface */
+    private $tokenStorage;
+
 
     /**
      * TreasureWithdrawalSubscriber constructor.
@@ -34,11 +38,12 @@ class TreasureWithdrawalValidationSubscriber implements EventSubscriber {
      * @param EngineInterface $templating
      * @param ContainerInterface $container
      */
-    public function __construct(Swift_Mailer $mailer, EngineInterface $templating, ContainerInterface $container)
+    public function __construct(Swift_Mailer $mailer, EngineInterface $templating, ContainerInterface $container, TokenStorageInterface $tokenStorage)
     {
         $this->mailer = $mailer;
         $this->templating = $templating;
         $this->container = $container;
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -62,11 +67,16 @@ class TreasureWithdrawalValidationSubscriber implements EventSubscriber {
         if($validation instanceof TreasureWithdrawalValidation){
             $panelUrl = $this->container->getParameter('base_panel_url');
             $link = $panelUrl . "/validate_withdrawal/" . $validation->getId() . "?token=" . $validation->getToken();
+            $amount = $validation->getWithdrawal()->getAmount() / 100000000;
+            $date = $validation->getWithdrawal()->getCreated();
+            $name = $this->tokenStorage->getToken()->getUsername();
             $message = new \Swift_Message(
                 "Treasure Withdrawal Confirmation",
                 $this->templating->render(
                     'FinancialApiBundle:Email:central_withdrawal.html.twig',
-                    ['link' => $link ]
+                    ['link' => $link, 'name' => $name, 'amount' => $amount, 'day' => $date->format("d"),
+                        'month' => $date->format("m"), 'year' => $date->format("Y"), 'hour' => $date->format("H"),
+                        'minutes' => $date->format("i"), 'seconds' => $date->format("s") ]
                 ),
                 'text/html'
             );

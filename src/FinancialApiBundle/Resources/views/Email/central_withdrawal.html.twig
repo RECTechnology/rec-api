@@ -83,8 +83,11 @@
 
     <div>
         <div>
-            <h3>To withdraw recs from central account click the link below:</h3>
-            <a href="{{ link }}"> Validate </a>
+            <h3>El usuario {{name}} ha solicitado una retirada de {{amount}} Recs desde la Cuenta del Tesoro a la
+                cuenta central de Novact el dia {{day}}/{{month}}/{{year}} a las {{hour}}:{{minutes}}:{{seconds}} para
+                aprobar esta solicitud debes hacer click en el enlace que aparece en este email. Cuando todos los
+                administradores aprueben esta soliciutd, se realizará la operación, sino, esta caducará en 24h.</h3>
+            <a href="{{ link }}"> Click aquí para aprobar operación </a>
         </div>
 
     </div>

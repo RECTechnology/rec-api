@@ -85,4 +85,18 @@ class TreasureWithdrawalTest extends AdminApiTest {
         $rootId = self::createClient()->getContainer()->getParameter('id_group_root');
         return $this->rest('GET', "/admin/v3/accounts/{$rootId}");
     }
+    function testEmailContent(){
+        $templating = self::$kernel->getContainer()->get("templating");
+        $message =  $templating->render(
+            'FinancialApiBundle:Email:central_withdrawal.html.twig',
+            ['link' => "http://google.com", 'name' => 'test_user', 'amount' => '55', 'day' => "31",
+                'month' => "12", 'year' => "2020", 'hour' => "23",
+                'minutes' => "59", 'seconds' => "58"]
+        );
+        self::assertStringContainsString('El usuario test_user ha solicitado una retirada de 55 Recs desde la Cuenta del Tesoro a la
+                cuenta central de Novact el dia 31/12/2020 a las 23:59:58 para
+                aprobar esta solicitud debes hacer click en el enlace que aparece en este email. Cuando todos los
+                administradores aprueben esta soliciutd, se realizará la operación, sino, esta caducará en 24h.', $message);
+
+    }
 }
