@@ -12,6 +12,7 @@ use Swift_Mailer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Templating\EngineInterface;
+use DateTimeZone;
 
 /**
  * Class TreasureWithdrawalValidationSubscriber
@@ -67,8 +68,9 @@ class TreasureWithdrawalValidationSubscriber implements EventSubscriber {
         if($validation instanceof TreasureWithdrawalValidation){
             $panelUrl = $this->container->getParameter('base_panel_url');
             $link = $panelUrl . "/validate_withdrawal/" . $validation->getId() . "?token=" . $validation->getToken();
-            $amount = $validation->getWithdrawal()->getAmount() / 100000000;
+            $amount = $validation->getWithdrawal()->getAmount();
             $date = $validation->getWithdrawal()->getCreated();
+            $date = $date->setTimezone(new DateTimeZone('Europe/Madrid'));
             $name = $this->tokenStorage->getToken()->getUsername();
             $message = new \Swift_Message(
                 "Treasure Withdrawal Confirmation",
