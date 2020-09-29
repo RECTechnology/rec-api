@@ -21,6 +21,7 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
     const STATUS_DONE = 'done';
     const STATUS_REFUNDED = 'refunded';
     const STATUS_REFUNDING = 'refunding';
+    const STATUS_FAILED = 'failed';
 
     const EXPIRE_TIME = 600;
 
@@ -38,9 +39,10 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
      * @var string $status
      * @ORM\Column(type="string")
      * @StatusProperty(choices={
-     *     "in-progress"={"to"={"done", "expired"}},
+     *     "in-progress"={"to"={"done", "expired", "failed"}},
      *     "done"={"to"={"refunded"}},
      *     "expired"={"final"=true},
+     *     "failed"={"final"=true},
      *     "refunded"={"final"=true},
      * }, initial_statuses={"in-progress"})
      * @Serializer\Groups({"public"})
@@ -202,6 +204,24 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
      */
     private $refund_transaction_id;
 
+    /**
+     * @ORM\Column(type="integer")
+     * @Serializer\Groups({"public"})
+     */
+    private $retries = 0;
+
+    public function incrementRetries(): void
+    {
+        $this->retries += 1;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRetries()
+    {
+        return $this->retries;
+    }
 
     /**
      * @return mixed

@@ -163,6 +163,25 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->signOut();
         return $resp;
     }
+    private function payOrderWrongPin($order)
+    {
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = "/methods/v1/out/rec";
+        $resp = $this->rest(
+            'POST',
+            $route,
+            [
+                'address' => $order->payment_address,
+                'amount' => $order->amount,
+                'concept' => 'Testing pay',
+                'pin' => '1313'
+            ],
+            [],
+            400
+        );
+        $this->signOut();
+        return $resp;
+    }
 
     private function listPosOrders($pos)
     {
@@ -189,6 +208,31 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
                 'signature' => $signature
             ]
         );
+    }
+    function testPayWrongPinRetry()
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $account = $this->getOneAccount();
+        $pos = $this->createPos($account);
+        $this->activatePos($pos);
+        $this->listPosOrders($pos);
+
+        $this->signOut();
+        $sample_url = "https://rec.barcelona";
+        $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
+        $this->paymentOrderHasRequiredData($order);
+        /** @var PaymentOrder $order */
+        $order = $this->readPaymentOrder($order);
+        $this->paymentOrderHasRequiredData($order);
+        $this->setClientIp($this->faker->ipv4);
+
+        $this->payOrderWrongPin($order);
+        $this->payOrderWrongPin($order);
+        $this->payOrderWrongPin($order);
+        $tx = $this->payOrderWrongPin($order);
+        self::assertEquals("Failed payment transaction", $tx->message);
+        echo $tx->message;
+
     }
 
 }

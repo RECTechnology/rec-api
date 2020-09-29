@@ -131,7 +131,7 @@ class IncomingController2 extends RestApiController{
             throw new HttpException(400, 'Param amount not found or incorrect');
         }
         $logger->info('(' . $group_id . ')(T) CHECK AMOUNT');
-
+        $orderRepo = $em->getRepository(PaymentOrder::class);
         if($type == 'out'){
             if($wallet->getAvailable() < $amount) {
                 throw new HttpException(400, 'Not funds enough');
@@ -140,17 +140,34 @@ class IncomingController2 extends RestApiController{
             if($amount < $method->getMinimumAmount()){
                 throw new HttpException(400, 'Amount under minimum');
             }
-
+            $order = $orderRepo->findOneBy(
+                ['payment_address' => $data['address']]
+            );
+            if ($order and $order->getStatus() == PaymentOrder::STATUS_FAILED){
+                throw new HttpException(400, 'Failed payment transaction');
+            };
             if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>-1){
                 $pin = $data['pin'];
                 if($user->getPIN()!=$pin){
+                    if ($order) {
+                        $order->incrementRetries();
+                        if ($order->getRetries() > 2) {
+                            $order->setStatus(PaymentOrder::STATUS_FAILED);
+                        }
+                        $em->persist($order);
+                        $em->flush();
+                        $em->getConnection()->commit();
+                    }
                     throw new HttpException(400, 'Incorrect Pin');
                 }
+
             }
             else{
                 throw new HttpException(400, 'Param pin not found or incorrect');
+
             }
         }
+
         $logger->info('(' . $group_id . ')(T) CHECK PIN');
 
         $transaction = Transaction::createFromRequestIP($ip);
@@ -166,7 +183,6 @@ class IncomingController2 extends RestApiController{
         else{
             $transaction->setUser($user_id);
         }
-
         $transaction->setGroup($group->getId());
         $transaction->setVersion($version_number);
         $transaction->setType($type);
@@ -298,7 +314,6 @@ class IncomingController2 extends RestApiController{
         }
         $logger->info('(' . $group_id . ')(T) SET DATA IN');
         $transaction->setDataIn($dataIn);
-
         $logger->info('(' . $group_id . ')(T) FEES');
         //$fee_handler = $this->container->get('net.app.commons.fee_manipulator');
         //$group_commission = $fee_handler->getMethodFees($group, $method);
@@ -346,7 +361,6 @@ class IncomingController2 extends RestApiController{
         if(isset($data['internal_tx']) && $data['internal_tx']=='1') {
             $transaction->setInternal(true);
         }
-
         if($type == 'out'){
             $logger->info('(' . $group_id . ')(T) OUT');
             if(isset($data['internal_out']) && $data['internal_out']=='1') {
@@ -399,7 +413,6 @@ class IncomingController2 extends RestApiController{
 
                 throw new HttpException(404, 'Destination address does not exists');
             }
-
             $logger->info('(' . $group_id . ')(T) DEFINE PAYMENT DATA');
             $payment_info['orig_address'] = $group->getRecAddress();
             $payment_info['orig_nif'] = $user->getDNI();
@@ -417,7 +430,6 @@ class IncomingController2 extends RestApiController{
             //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
             $em->flush();
-
             try {
                 $logger->info('(' . $group_id . ')(T) INIT SEND');
                 $payment_info = $method->send($payment_info);

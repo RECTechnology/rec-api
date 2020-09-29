@@ -85,5 +85,20 @@ class TransactionsTest extends BaseApiTest {
         );
 
     }
-
+    function testPay1RecWrongPinToStoreShouldReturn400(){
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = "/methods/v1/out/rec";
+        $response = $this->rest(
+            'POST',
+            $route,
+            [
+                'address' => $this->store->rec_address,
+                'amount' => 1e8,
+                'concept' => 'Testing concept',
+                'pin' => '1313'
+            ],
+            [],
+            400
+        );
+    }
 }
