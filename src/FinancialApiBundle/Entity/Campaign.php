@@ -18,11 +18,13 @@ class Campaign extends AppObject {
 
     /**
      * @ORM\Column(type="datetime")
+     * @Serializer\Groups({"admin"})
      */
     protected $init_date;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Serializer\Groups({"admin"})
      */
     protected $end_date;
 
