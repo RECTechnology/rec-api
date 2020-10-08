@@ -55,6 +55,7 @@ class Group extends BaseGroup implements Uploadable
         $this->ibans = new ArrayCollection();
         $this->company_token = uniqid();
         $this->on_map = 1;
+        $this->campaigns = new ArrayCollection();
 
         if ($this->access_key == null) {
             $this->access_key = sha1(random_bytes(32));
@@ -464,6 +465,13 @@ class Group extends BaseGroup implements Uploadable
      * @Serializer\Groups({"admin"})
      */
     private $on_map;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Campaign", inversedBy="accounts")
+     * @Serializer\Groups({"admin"})
+     */
+    private $campaigns;
+
 
     /**
      * @return string
@@ -1591,4 +1599,21 @@ class Group extends BaseGroup implements Uploadable
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getCampaigns()
+    {
+        return $this->campaigns;
+    }
+
+    /**
+     * @param mixed $campaigns
+     */
+    public function setCampaigns($campaigns): void
+    {
+        $this->campaigns = $campaigns;
+    }
+
 }
