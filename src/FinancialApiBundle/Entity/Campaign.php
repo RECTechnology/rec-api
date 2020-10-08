@@ -38,7 +38,7 @@ class Campaign extends AppObject {
     private $balance;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="campaigns")
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="campaigns")
      * @Serializer\Groups({"admin"})
      */
     private $accounts;
