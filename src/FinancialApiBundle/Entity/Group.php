@@ -468,6 +468,7 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Campaign", inversedBy="accounts")
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"admin"})
      */
     private $campaigns;

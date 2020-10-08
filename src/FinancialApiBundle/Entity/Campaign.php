@@ -28,17 +28,20 @@ class Campaign extends AppObject {
 
     /**
      * @ORM\Column(type="string")
+     * @Serializer\Groups({"admin"})
      */
     protected $name;
 
 
     /**
      * @ORM\Column(type="float")
+     * @Serializer\Groups({"admin"})
      */
     private $balance;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="campaigns")
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"admin"})
      */
     private $accounts;
