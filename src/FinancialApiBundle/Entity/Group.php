@@ -467,7 +467,7 @@ class Group extends BaseGroup implements Uploadable
     private $on_map;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Campaign", inversedBy="accounts")
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Campaign", inversedBy="accounts", cascade={"remove"})
      * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"admin"})
      */
@@ -1615,6 +1615,18 @@ class Group extends BaseGroup implements Uploadable
     public function setCampaigns($campaigns): void
     {
         $this->campaigns = $campaigns;
+    }
+
+    /**
+     * @param Campaign $campaign
+     * @throws PreconditionFailedException
+     */
+    public function delCampaign(Campaign $campaign)
+    {
+        if (!$this->campaigns->contains($campaign)) {
+            throw new PreconditionFailedException("Campaign not related to this Account");
+        }
+        $this->campaigns->removeElement($campaign);
     }
 
 }

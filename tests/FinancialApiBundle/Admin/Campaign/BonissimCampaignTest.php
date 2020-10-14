@@ -41,13 +41,7 @@ class BonissimCampaignTest extends AdminApiTest {
         return $content;
     }
 
-
-    function testGetCampaigns(){
-        $this->createCampaign();
-        $campaigns = $this->getFromRoute('/admin/v3/campaigns');
-    }
-
-    function testAccountCampaigns(){
+    function testDeleteRelation(){
         $this->createCampaign();
         $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => 'Bonissim']);
@@ -67,8 +61,25 @@ class BonissimCampaignTest extends AdminApiTest {
                 self::assertCount(1, $account->getCampaigns());
             }
         }
-        $rest_campaigns = $this->getFromRoute('/admin/v3/campaigns');
-        self::assertCount($user_private_accounts, $rest_campaigns['data']['elements'][0]['accounts']);
 
+        $route = '/admin/v3/accounts/2/campaigns/1';
+        $resp = $this->requestJson('DELETE', $route);
+        self::assertEquals(204, $resp->getStatusCode());
+        $rest_campaigns = $this->getFromRoute('/admin/v3/campaigns');
+        self::assertCount($user_private_accounts - 1, $rest_campaigns['data']['elements'][0]['accounts']);
+        $rest_group = $this->getFromRoute('/admin/v3/group/2');
+        self::assertCount(0, $rest_group['data']['campaigns']);
     }
+
+    function testAddRelation(){
+        $this->createCampaign();
+        $resp = $this->requestJson('POST', '/admin/v3/accounts/2/campaigns', ["id" => 1]);
+        self::assertEquals(201, $resp->getStatusCode());
+
+        $resp = $this->requestJson('GET', '/admin/v3/accounts/2');
+        self::assertEquals(200, $resp->getStatusCode());
+        $content = json_decode($resp->getContent(), true);
+        self::assertCount(1, $content["data"]['campaigns']);
+    }
+
 }

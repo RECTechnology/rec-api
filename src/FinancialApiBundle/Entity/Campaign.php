@@ -42,7 +42,7 @@ class Campaign extends AppObject {
     private $balance;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="campaigns")
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="campaigns", cascade={"remove"})
      * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"admin"})
      */
