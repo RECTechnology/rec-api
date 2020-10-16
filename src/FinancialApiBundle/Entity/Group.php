@@ -467,7 +467,7 @@ class Group extends BaseGroup implements Uploadable
     private $on_map;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Campaign", inversedBy="accounts", cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Campaign", inversedBy="accounts")
      * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"admin"})
      */

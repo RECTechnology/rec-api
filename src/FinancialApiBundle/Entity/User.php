@@ -248,6 +248,13 @@ class User extends BaseUser implements Uploadable {
      */
     private $created;
 
+    /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     * @Groups({"admin"})
+     */
+    private $private_tos_campaign = false;
+
 
     public function getAccessKey(){
         return $this->access_key;
@@ -775,5 +782,23 @@ class User extends BaseUser implements Uploadable {
     {
         $this->locale = $locale;
     }
+
+    /**
+     * @return int
+     */
+    public function getPrivateTosCampaign(): int
+    {
+        return $this->private_tos_campaign;
+    }
+
+    /**
+     * @param int $private_tos_campaign
+     */
+    public function setPrivateTosCampaign(int $private_tos_campaign): void
+    {
+        $this->private_tos_campaign = $private_tos_campaign;
+    }
+
+
 
 }
