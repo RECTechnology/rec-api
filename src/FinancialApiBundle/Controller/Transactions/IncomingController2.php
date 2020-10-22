@@ -23,6 +23,8 @@ use App\FinancialApiBundle\Controller\Google2FA;
 
 class IncomingController2 extends RestApiController{
 
+    const CAMPAIGN_NAME = 'Li toca al barri';
+
     /**
      * @Rest\View
      * @param Request $request
@@ -580,6 +582,9 @@ class IncomingController2 extends RestApiController{
         else { // this is executed in the normal call (non recursive)
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
             $logger->info('(' . $group_id . ')(T) FINAL');
+
+            //create bonissim account
+            $this->checkCampaign($em, $method_cname, $amount, $user_id);
 
             return $this->methodTransaction(201, $transaction, "Done");
         }
@@ -1213,6 +1218,23 @@ class IncomingController2 extends RestApiController{
     private function _getCurrentCompany(User $user){
         $group = $user->getActiveGroup();
         return $group;
+    }
+
+    /**
+     * @param EntityManagerInterface $em
+     * @param $method_cname
+     * @param $amount
+     * @param $user_id
+     */
+    private function checkCampaign(EntityManagerInterface $em, $method_cname, $amount, $user_id): void
+    {
+        $campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
+            'name' => $this::CAMPAIGN_NAME
+        ));
+
+        if (isset($campaign) && $method_cname == "lemonway" && $amount >= 5000) {
+            $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, $this::CAMPAIGN_NAME);
+        }
     }
 
 }

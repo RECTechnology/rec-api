@@ -37,6 +37,14 @@ class Group extends BaseGroup implements Uploadable
     const SERIALIZATION_GROUPS_ADMIN   =         ['admin', 'manager', 'user', 'public'];
     const SERIALIZATION_GROUPS_ROOT    = ['root', 'admin', 'manager', 'user', 'public'];
 
+    const ACCOUNT_TYPE_PRIVATE = 'PRIVATE';
+    const ACCOUNT_TYPE_ORGANIZATION = 'COMPANY';
+    const ACCOUNT_SUBTYPE_NORMAL = 'NORMAL';
+    const ACCOUNT_SUBTYPE_BMINCOME = 'BMINCOME';
+    const ACCOUNT_SUBTYPE_WHOLESALE = 'WHOLESALE';
+    const ACCOUNT_SUBTYPE_RETAILER = 'RETAILER';
+
+
     /**
      * Group constructor.
      * @throws \Exception
@@ -472,6 +480,52 @@ class Group extends BaseGroup implements Uploadable
      * @Serializer\Groups({"admin"})
      */
     private $campaigns;
+
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Serializer\Groups({"admin"})
+     */
+    private $redeemable_amount = 0;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Serializer\Groups({"admin"})
+     */
+    private $rewarded_amount = 0;
+
+    /**
+     * @return mixed
+     */
+    public function getRedeemableAmount()
+    {
+        return $this->redeemable_amount;
+    }
+
+    /**
+     * @param mixed $redeemable_amount
+     */
+    public function setRedeemableAmount($redeemable_amount)
+    {
+        $this->redeemable_amount = $redeemable_amount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRewardedAmount()
+    {
+        return $this->rewarded_amount;
+    }
+
+    /**
+     * @param mixed
+     */
+    public function setRewardedAmount($rewarded_amount)
+    {
+        $this->rewarded_amount = $rewarded_amount;
+    }
+
 
 
     /**

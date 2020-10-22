@@ -114,13 +114,20 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $kyc->setEmail($user->getEmail());
             $orm->persist($kyc);
         }
-        $wallet = new UserWallet();
-        $wallet->setCurrency('REC');
-        $wallet->setAvailable(100e8);
-        $wallet->setBalance(100e8);
-        $wallet->setGroup($account);
+        $recWallet = new UserWallet();
+        $recWallet->setCurrency('REC');
+        $recWallet->setAvailable(100e8);
+        $recWallet->setBalance(100e8);
+        $recWallet->setGroup($account);
 
-        $orm->persist($wallet);
+        $eurWallet = new UserWallet();
+        $eurWallet->setCurrency('EUR');
+        $eurWallet->setAvailable(0);
+        $eurWallet->setBalance(0);
+        $eurWallet->setGroup($account);
+
+        $orm->persist($recWallet);
+        $orm->persist($eurWallet);
         $orm->persist($account);
         $orm->persist($user);
         $orm->persist($userAccount);

@@ -15,9 +15,9 @@ use Test\FinancialApiBundle\Admin\AdminApiTest;
  */
 class BonissimCampaignTest extends AdminApiTest {
 
-    private function createCampaign(){
+    private function createCampaign($campaign_name){
         $campaign = new Campaign();
-        $campaign->setName("Bonissim");
+        $campaign->setName($campaign_name);
         $campaign->setBalance(100 * 1e8);
 
         $format = 'Y-m-d H:i:s';
@@ -42,9 +42,9 @@ class BonissimCampaignTest extends AdminApiTest {
     }
 
     function testDeleteRelation(){
-        $this->createCampaign();
+        $this->createCampaign('Li toca al barri');
         $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
-        $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => 'Bonissim']);
+        $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => 'Li toca al barri']);
 
         $user_accounts = $em->getRepository(Group::class)->findBy(['kyc_manager' => 2]);
         $campaign_accounts = $campaign->getAccounts();
@@ -72,7 +72,7 @@ class BonissimCampaignTest extends AdminApiTest {
     }
 
     function testAddRelation(){
-        $this->createCampaign();
+        $this->createCampaign('Li toca al barri');
         $resp = $this->requestJson('POST', '/admin/v3/accounts/2/campaigns', ["id" => 1]);
         self::assertEquals(201, $resp->getStatusCode());
 
@@ -82,13 +82,23 @@ class BonissimCampaignTest extends AdminApiTest {
         self::assertCount(1, $content["data"]['campaigns']);
     }
 
+
+    function testCreateBonissimAcount(){
+        $this->createCampaign('Li toca al barri');
+        $this->client->getKernel()->getContainer()->get('bonissim_service')->CreateBonissimAccount(1, 'Li toca al barri');
+
+        $resp = $this->requestJson('GET', '/admin/v3/campaigns', ["name" => 'Li toca al barri']);
+        self::assertEquals(200, $resp->getStatusCode());
+
+        $resp = $this->requestJson('GET', '/user/v1/account');
+   }
+  
     function testSetUserTOS(){
         $user = $this->getFromRoute('/admin/v3/user/1');
         self::assertFalse($user['data']['private_tos_campaign']);
         $resp = $this->requestJson('PUT', '/admin/v3/user/1', ["private_tos_campaign" => 1]);
         $user = $this->getFromRoute('/admin/v3/user/1');
         self::assertTrue($user['data']['private_tos_campaign']);
-
     }
 
 }
