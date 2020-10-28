@@ -48,6 +48,19 @@ class Campaign extends AppObject {
      */
     private $accounts;
 
+
+    /**
+     * @ORM\Column(type="float")
+     * @Serializer\Groups({"admin"})
+     */
+    private $min=50;
+
+    /**
+     * @ORM\Column(type="float")
+     * @Serializer\Groups({"admin"})
+     */
+    private $max=1000;
+
     /**
      * @return mixed
      */
@@ -149,6 +162,38 @@ class Campaign extends AppObject {
     public function setAccounts($accounts): void
     {
         $this->accounts = $accounts;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMin()
+    {
+        return $this->min;
+    }
+
+    /**
+     * @param mixed $min
+     */
+    public function setMin($min): void
+    {
+        $this->min = $min;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMax()
+    {
+        return $this->max;
+    }
+
+    /**
+     * @param mixed $max
+     */
+    public function setMax($max): void
+    {
+        $this->max = $max;
     }
 
 

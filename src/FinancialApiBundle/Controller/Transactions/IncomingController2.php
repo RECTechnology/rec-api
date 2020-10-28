@@ -1232,7 +1232,7 @@ class IncomingController2 extends RestApiController{
             'name' => $this::CAMPAIGN_NAME
         ));
 
-        if (isset($campaign) && $method_cname == "lemonway" && $amount >= 5000) {
+        if (isset($campaign) && $method_cname == "lemonway" && $amount >= $campaign->getMin() * 100) {
             $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, $this::CAMPAIGN_NAME);
         }
     }
