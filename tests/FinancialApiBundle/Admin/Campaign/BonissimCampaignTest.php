@@ -102,7 +102,11 @@ class BonissimCampaignTest extends AdminApiTest {
 
     function testCreateBonissimAcount(){
         $this->createCampaign(Campaign::BONISSIM_CAMPAIGN_NAME);
-        $this->client->getKernel()->getContainer()->get('bonissim_service')->CreateBonissimAccount(1, Campaign::BONISSIM_CAMPAIGN_NAME);
+        $user_id = 1;
+        $route = "/admin/v3/user/{$user_id}";
+        $resp = $this->rest('PUT', $route, ['private_tos_campaign' => true]);
+        self::assertTrue($resp->private_tos_campaign);
+        $this->client->getKernel()->getContainer()->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME);
 
         $resp = $this->requestJson('GET', '/admin/v3/campaigns', ["name" => Campaign::BONISSIM_CAMPAIGN_NAME]);
         self::assertEquals(200, $resp->getStatusCode());

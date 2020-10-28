@@ -589,7 +589,7 @@ class IncomingController2 extends RestApiController{
             $logger->info('(' . $group_id . ')(T) FINAL');
 
             //create bonissim account
-            $this->checkCampaign($em, $method_cname, $amount, $user_id);
+            $this->checkCampaign($em, $method_cname, $amount, $user_id, $group);
 
             return $this->methodTransaction(201, $transaction, "Done");
         }
@@ -1230,18 +1230,20 @@ class IncomingController2 extends RestApiController{
      * @param $method_cname
      * @param $amount
      * @param $user_id
+     * @param $group
      */
-    private function checkCampaign(EntityManagerInterface $em, $method_cname, $amount, $user_id): void
+    private function checkCampaign(EntityManagerInterface $em, $method_cname, $amount, $user_id, $group): void
     {
         $campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
 
             'name' => Campaign::BONISSIM_CAMPAIGN_NAME
         ));
-
-        $bonissim_private_account = $em->getRepository(Group::class)
-            ->findOneBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME, 'kyc_manager' => $user_id]);
-        if (!isset($bonissim_private_account) && isset($campaign) && $method_cname == "lemonway" && $amount >= $campaign->getMin() * 100) {
-            $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME);
+        if($group->getType() == Group::ACCOUNT_TYPE_PRIVATE) {
+            $bonissim_private_account = $em->getRepository(Group::class)
+                ->findOneBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME, 'kyc_manager' => $user_id]);
+            if (!isset($bonissim_private_account) && isset($campaign) && $method_cname == "lemonway" && $amount >= $campaign->getMin() * 100) {
+                $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME);
+            }
         }
     }
 

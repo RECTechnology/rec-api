@@ -16,6 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use App\FinancialApiBundle\Document\Transaction;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class BonissimAccountService {
@@ -33,6 +34,10 @@ class BonissimAccountService {
         $em = $this->container->get('doctrine.orm.entity_manager');
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => $campaign_name]);
         $user = $em->getRepository(User::class)->findOneBy(['id' => $user_id]);
+
+        if(!$user->getPrivateTosCampaign()){
+            throw new HttpException(400, Campaign::BONISSIM_CAMPAIGN_NAME.'terms not accepted.');
+        }
 
         $account = new Group();
         $account->setName($campaign_name);
@@ -81,8 +86,6 @@ class BonissimAccountService {
         $account_campaigns = $account->getCampaigns();
         $account_campaigns->add($campaign);
         $account->setCampaigns($account_campaigns);
-
-
 
         $em->persist($user);
         $em->persist($campaign);

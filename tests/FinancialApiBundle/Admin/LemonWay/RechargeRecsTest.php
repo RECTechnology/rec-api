@@ -37,6 +37,11 @@ class RechargeRecsTest extends AdminApiTest {
         $user_id = 1;
         $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $user_pin = $em->getRepository(User::class)->findOneBy(['id' => 1])->getPin();
+
+        $route = "/admin/v3/user/{$user_id}";
+        $resp = $this->rest('PUT', $route, ['private_tos_campaign' => true]);
+        self::assertTrue($resp->private_tos_campaign);
+
         $private_account_id = $em->getRepository(Group::class)
             ->findOneBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $user_id])->getId();
         $company_account_id = $em->getRepository(Group::class)
