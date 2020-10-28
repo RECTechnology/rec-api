@@ -1,6 +1,7 @@
 <?php
 namespace App\FinancialApiBundle\DependencyInjection\Transactions;
 
+use App\FinancialApiBundle\Controller\BaseApiV2Controller;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
@@ -42,7 +43,7 @@ class BonissimAccountService {
         $account->setCif($user->getDNI());
         $account->setActive(true);
         $account->setEmail($user->getEmail());
-        $account->setRoles([]);
+        $account->setRoles([BaseApiV2Controller::ROLE_ORGANIZATION]);
         $account->setKycManager($user);
         $account->setType($account::ACCOUNT_TYPE_PRIVATE);
         $account->setSubtype($account::ACCOUNT_SUBTYPE_NORMAL);
@@ -76,6 +77,7 @@ class BonissimAccountService {
         $em->persist($campaign);
         $em->persist($wallet);
         $em->persist($account);
+        $em->persist($userAccount);
         $em->flush();
 
     }

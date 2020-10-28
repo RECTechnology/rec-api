@@ -1229,11 +1229,13 @@ class IncomingController2 extends RestApiController{
     private function checkCampaign(EntityManagerInterface $em, $method_cname, $amount, $user_id): void
     {
         $campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
-            'name' => $this::CAMPAIGN_NAME
+            'name' => self::CAMPAIGN_NAME
         ));
 
-        if (isset($campaign) && $method_cname == "lemonway" && $amount >= $campaign->getMin() * 100) {
-            $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, $this::CAMPAIGN_NAME);
+        $bonissim_private_account = $em->getRepository(Group::class)
+            ->findOneBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => self::CAMPAIGN_NAME, 'kyc_manager' => $user_id]);
+        if (!isset($bonissim_private_account) && isset($campaign) && $method_cname == "lemonway" && $amount >= $campaign->getMin() * 100) {
+            $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, self::CAMPAIGN_NAME);
         }
     }
 
