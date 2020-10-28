@@ -4,8 +4,12 @@ namespace Test\FinancialApiBundle\Pos;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\Notifier;
+use App\FinancialApiBundle\Entity\Campaign;
+use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\Notification;
 use App\FinancialApiBundle\Entity\PaymentOrder;
+use App\FinancialApiBundle\Entity\User;
+use DateTime;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
@@ -47,6 +51,8 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $pos = $this->createPos($account);
         $this->activatePos($pos);
         $this->listPosOrders($pos);
+
+        $all = $this->rest('GET', "/admin/v3/accounts");
 
         $this->signOut();
         $sample_url = "https://rec.barcelona";
@@ -231,8 +237,87 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->payOrderWrongPin($order);
         $tx = $this->payOrderWrongPin($order);
         self::assertEquals("Failed payment transaction", $tx->message);
-        echo $tx->message;
-
     }
 
+    function testBonissimAccountPaysToBonissimCommerceShouldSuccess(){
+        $this->setClientIp($this->faker->ipv4);
+
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+
+        // getting commerce list
+        $commerces =  $this->rest('GET', "/user/v3/accounts?campaigns=1&type=COMPANY");
+        self::assertGreaterThanOrEqual(1, count($commerces));
+        $commerce = $commerces[0];
+
+        // getting user's owned accounts
+        $myAccounts = $this->rest('GET', '/user/v1/companies');
+        $foundBonissimAccount = false;
+        foreach($myAccounts as $account) {
+            // checking if the account has campaings
+            if (!$foundBonissimAccount && count($account->company->campaigns) > 0) {
+                self::assertEquals(Campaign::BONISSIM_CAMPAIGN_NAME, $account->company->campaigns[0]->name);
+                $foundBonissimAccount = true;
+                // changing the active account for the current user
+                $this->rest('PUT', '/user/v1/activegroup', ['group_id' => $account->company->id]);
+
+                //pay to commerce
+                $this->rest(
+                    'POST',
+                    '/methods/v1/out/rec',
+                    [
+                        'address' => $commerce->rec_address,
+                        'amount' => 1e8,
+                        'concept' => 'Testing concept',
+                        'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+                    ]
+                );
+            }
+        }
+        self::assertTrue($foundBonissimAccount);
+    }
+
+    function testBonissimAccountPaysToBonissimCommerceShouldFail(){
+        $this->setClientIp($this->faker->ipv4);
+
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+
+        // getting commerce list
+        $commerces =  $this->rest('GET', "/user/v3/accounts?type=COMPANY");
+        self::assertGreaterThanOrEqual(1, count($commerces));
+
+        foreach($commerces as $commerce) {
+            if($commerce->name != Campaign::BONISSIM_CAMPAIGN_NAME){
+                $not_bonissim_account = $commerce;
+            }
+        }
+        self::assertTrue(isset($not_bonissim_account));
+
+        // getting user's owned accounts
+        $myAccounts = $this->rest('GET', '/user/v1/companies');
+        $foundBonissimAccount = false;
+        foreach($myAccounts as $account) {
+            // checking if the account has campaings
+            if (!$foundBonissimAccount && count($account->company->campaigns) > 0) {
+                self::assertEquals(Campaign::BONISSIM_CAMPAIGN_NAME, $account->company->campaigns[0]->name);
+                $foundBonissimAccount = true;
+                // changing the active account for the current user
+                $this->rest('PUT', '/user/v1/activegroup', ['group_id' => $account->company->id]);
+
+                //pay to commerce
+                $this->rest(
+                    'POST',
+                    '/methods/v1/out/rec',
+                    [
+                        'address' => $not_bonissim_account->rec_address,
+                        'amount' => 1e8,
+                        'concept' => 'Testing concept',
+                        'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+                    ],
+                    [],
+                    400
+                );
+            }
+        }
+        self::assertTrue($foundBonissimAccount);
+    }
 }

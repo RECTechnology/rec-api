@@ -33,28 +33,18 @@ class RechargeRecsTest extends AdminApiTest {
 
     }
 
-    private function createCampaign(){
-        $campaign = new Campaign();
-        $campaign->setName("Li toca al barri");
-        $campaign->setBalance(100 * 1e8);
-
-        $format = 'Y-m-d H:i:s';
-        $campaign->setInitDate(DateTime::createFromFormat($format, '2020-10-15 00:00:00'));
-        $campaign->setEndDate(DateTime::createFromFormat($format, '2020-11-15 00:00:00'));
-        $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
-        $em->persist($campaign);
-        $em->flush();
-
-    }
-
     function testLemonTransfer(){
-        $this->createCampaign();
+        $user_id = 1;
         $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $user_pin = $em->getRepository(User::class)->findOneBy(['id' => 1])->getPin();
+        $private_account_id = $em->getRepository(Group::class)
+            ->findOneBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $user_id])->getId();
+        $company_account_id = $em->getRepository(Group::class)
+            ->findOneBy(['type' => Group::ACCOUNT_TYPE_ORGANIZATION, 'kyc_manager' => $user_id])->getId();
         $data = ['status' => Transaction::$STATUS_RECEIVED,
-            'company_id' => 3,
+            'company_id' => $private_account_id,
             'amount' => 6000,
-            'commerce_id' => 4,
+            'commerce_id' => $company_account_id,
             'concept' => 'test recharge',
             'pin' => $user_pin,
             'save_card' => 0];
@@ -68,7 +58,7 @@ class RechargeRecsTest extends AdminApiTest {
         $this->override('net.app.in.lemonway.v1', $lw);
 
 
-        $rest_group1 = $this->requestJson('GET', '/admin/v3/group/3');
+        $rest_group1 = $this->requestJson('GET', '/admin/v3/group/'.$private_account_id);
         $before = json_decode($rest_group1->getContent(), true);
 
         $route = '/methods/v1/in/lemonway';
@@ -81,7 +71,7 @@ class RechargeRecsTest extends AdminApiTest {
         $this->runCommand('rec:crypto:check');
 
 
-        $rest_group2 = $this->requestJson('GET', '/admin/v3/group/3');
+        $rest_group2 = $this->requestJson('GET', '/admin/v3/group/'.$private_account_id);
         $after = json_decode($rest_group2->getContent(), true);
         self::assertEquals($before["data"]["wallets"][0]["balance"] + $data['amount'] * 1e6,
             $after["data"]["wallets"][0]["balance"]);
@@ -90,7 +80,7 @@ class RechargeRecsTest extends AdminApiTest {
         self::assertEquals(200, $rest_account->getStatusCode());
 
         $account_content = json_decode($rest_account->getContent(), true);
-        self::assertEquals("Li toca al barri", $account_content["data"]["elements"][0]['name']);
+        self::assertEquals(Campaign::BONISSIM_CAMPAIGN_NAME, $account_content["data"]["elements"][0]['name']);
 
 
     }

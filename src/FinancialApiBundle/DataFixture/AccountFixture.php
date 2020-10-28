@@ -4,6 +4,7 @@
 namespace App\FinancialApiBundle\DataFixture;
 
 use App\FinancialApiBundle\Controller\BaseApiV2Controller;
+use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
@@ -37,8 +38,18 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $user = $orm->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
 
-        //This user has a private USER account, and a bmincomer account
+        //This user has a private USER account, a bonissim account and a bmincomer account
         $this->createAccount($orm, $faker, $user);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user,
+            [],
+            self::ACCOUNT_TYPE_PRIVATE,
+            self::ACCOUNT_SUBTYPE_BMINCOME,
+            1,
+            Campaign::BONISSIM_CAMPAIGN_NAME
+        );
         $this->createAccount(
             $orm,
             $faker,
@@ -52,7 +63,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $admin = $orm->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_ADMIN_CREDENTIALS['username']]);
 
-        //This user has an ADMIN account, a RETAILER and WHOLESALE accounts
+        //This user has an ADMIN account, a RETAILER (bonissim) and WHOLESALE accounts
         $this->createAccount($orm, $faker, $admin, [BaseApiV2Controller::ROLE_SUPER_ADMIN]);
         $this->createAccount(
             $orm,
@@ -61,7 +72,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             [BaseApiV2Controller::ROLE_ORGANIZATION],
             self::ACCOUNT_TYPE_ORGANIZATION,
             self::ACCOUNT_SUBTYPE_RETAILER,
-            2
+            2,
+            Campaign::BONISSIM_CAMPAIGN_NAME
         );
         $this->createAccount(
             $orm,
@@ -84,13 +96,19 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
      * @param array $roles
      * @param string $type
      * @param string $subtype
+     * @param string $name
      * @param int $tier
      * @throws \Exception
      */
-    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles = [], string $type = self::ACCOUNT_TYPE_PRIVATE, string $subtype = self::ACCOUNT_SUBTYPE_NORMAL, int $tier = 1){
+    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles = [], string $type = self::ACCOUNT_TYPE_PRIVATE, string $subtype = self::ACCOUNT_SUBTYPE_NORMAL, int $tier = 1, string $name = null){
 
         $account = new Account();
-        $account->setName($faker->name);
+
+        if (isset($name)){
+            $account->setName($name);
+        }else{
+            $account->setName($faker->name);
+        }
         $account->setRecAddress($faker->shuffle('abcdefghijklmnopqrstuvwxyz0123456789'));
         $account->setMethodsList(['rec']);
         $account->setCif('B' . $faker->shuffle('01234567'));

@@ -2,10 +2,14 @@
 
 namespace App\FinancialApiBundle\Controller\Transactions;
 
+use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Exception\AppException;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpOption\None;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,8 +26,6 @@ use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Controller\Google2FA;
 
 class IncomingController2 extends RestApiController{
-
-    const CAMPAIGN_NAME = 'Li toca al barri';
 
     /**
      * @Rest\View
@@ -169,6 +171,9 @@ class IncomingController2 extends RestApiController{
 
             }
         }
+
+        //check bonissim payment
+        $this->checkCampaignConstraint($data, $group, $type, $method_cname);
 
         $logger->info('(' . $group_id . ')(T) CHECK PIN');
 
@@ -1229,13 +1234,48 @@ class IncomingController2 extends RestApiController{
     private function checkCampaign(EntityManagerInterface $em, $method_cname, $amount, $user_id): void
     {
         $campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
-            'name' => self::CAMPAIGN_NAME
+
+            'name' => Campaign::BONISSIM_CAMPAIGN_NAME
         ));
 
         $bonissim_private_account = $em->getRepository(Group::class)
-            ->findOneBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => self::CAMPAIGN_NAME, 'kyc_manager' => $user_id]);
+            ->findOneBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME, 'kyc_manager' => $user_id]);
         if (!isset($bonissim_private_account) && isset($campaign) && $method_cname == "lemonway" && $amount >= $campaign->getMin() * 100) {
-            $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, self::CAMPAIGN_NAME);
+            $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME);
+        }
+    }
+
+    /**
+     * @param $params
+     * @param object|null $group
+     * @param $type
+     * @param $method_cname
+     */
+    private function checkCampaignConstraint($params, ?object $group, $type, $method_cname): void
+    {
+        if($method_cname == "rec" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE){
+            /** @var EntityManagerInterface $em */
+            $em = $this->getDoctrine()->getManager();
+            $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
+
+            $orderRepo = $em->getRepository(PaymentOrder::class);
+            $accountRepo = $em->getRepository(Group::class);
+            /** @var PaymentOrder $order */
+            $order = $orderRepo->findOneBy([
+                'payment_address' => $params['address'],
+                'status' => PaymentOrder::STATUS_IN_PROGRESS
+            ]);
+
+            // check if it is a POS payment or not
+            /** @var Group $destination */
+            $destination = $order? $order->getPos()->getAccount(): $accountRepo->findOneBy(['rec_address' => $params['address']]);
+
+            $sender_campaigns = $accountRepo->find($group->getId())->getCampaigns();
+            $reciver_campaigns = $accountRepo->find($destination->getId())->getCampaigns();
+
+            if ($sender_campaigns->contains($campaign) && !$reciver_campaigns->contains($campaign)) {
+                throw new AppException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+            }
         }
     }
 

@@ -12,25 +12,27 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Campaign extends AppObject {
 
+    const BONISSIM_CAMPAIGN_NAME = 'Li toca al barri';
+
     public function __construct() {
         $this->accounts = new ArrayCollection();
     }
 
     /**
      * @ORM\Column(type="datetime")
-     * @Serializer\Groups({"admin"})
+     * @Serializer\Groups({"public"})
      */
     protected $init_date;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Serializer\Groups({"admin"})
+     * @Serializer\Groups({"public"})
      */
     protected $end_date;
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"admin"})
+     * @Serializer\Groups({"public"})
      */
     protected $name;
 

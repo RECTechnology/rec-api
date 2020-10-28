@@ -5,6 +5,7 @@ use App\FinancialApiBundle\Controller\BaseApiV2Controller;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
 use App\FinancialApiBundle\Entity\UserWallet;
@@ -45,14 +46,22 @@ class BonissimAccountService {
         $account->setEmail($user->getEmail());
         $account->setRoles([BaseApiV2Controller::ROLE_ORGANIZATION]);
         $account->setKycManager($user);
-        $account->setType($account::ACCOUNT_TYPE_PRIVATE);
-        $account->setSubtype($account::ACCOUNT_SUBTYPE_NORMAL);
+        $account->setType(Group::ACCOUNT_TYPE_PRIVATE);
+        $account->setSubtype(Group::ACCOUNT_SUBTYPE_NORMAL);
         $account->setTier(1);
 
         $userAccount = new UserGroup();
         $userAccount->setGroup($account);
         $userAccount->setUser($user);
         $userAccount->setRoles(['ROLE_ADMIN']); //User is admin in the account
+
+        if(!$user->getKycValidations()) {
+            $kyc = new KYC();
+            $kyc->setUser($user);
+            $kyc->setName($user->getName());
+            $kyc->setEmail($user->getEmail());
+            $em->persist($kyc);
+        }
 
 
         $wallets = new ArrayCollection();
@@ -74,6 +83,8 @@ class BonissimAccountService {
         $account->setCampaigns($account_campaigns);
 
 
+
+        $em->persist($user);
         $em->persist($campaign);
         $em->persist($wallet);
         $em->persist($account);

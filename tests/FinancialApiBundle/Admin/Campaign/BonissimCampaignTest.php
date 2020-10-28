@@ -42,52 +42,69 @@ class BonissimCampaignTest extends AdminApiTest {
     }
 
     function testDeleteRelation(){
-        $this->createCampaign('Li toca al barri');
-        $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
-        $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => 'Li toca al barri']);
+        $campaign = $this->rest('GET', "/admin/v3/campaigns?name=".Campaign::BONISSIM_CAMPAIGN_NAME)[0];
+        self::assertTrue(isset($campaign));
+        $bonissim_account = $this->rest('GET', "/admin/v3/accounts?campaigns=".$campaign->id)[0];
+        self::assertTrue(isset($bonissim_account));
 
-        $user_accounts = $em->getRepository(Group::class)->findBy(['kyc_manager' => 2]);
-        $campaign_accounts = $campaign->getAccounts();
-        $user_private_accounts = 0;
-        foreach ($user_accounts as $account){
-            $account_campaigns = $account->getCampaigns();
-            if($account->getType() == "PRIVATE"){
-                $account_campaigns->add($campaign);
-                $campaign_accounts->add($account);
-                $em->persist($campaign);
-                $em->persist($account);
-                $em->flush();
-                $user_private_accounts += 1;
-                self::assertCount(1, $account->getCampaigns());
-            }
-        }
-
-        $route = '/admin/v3/accounts/2/campaigns/1';
+        $route = '/admin/v3/accounts/'.$bonissim_account->id.'/campaigns/'.$campaign->id;
         $resp = $this->requestJson('DELETE', $route);
         self::assertEquals(204, $resp->getStatusCode());
-        $rest_campaigns = $this->getFromRoute('/admin/v3/campaigns');
-        self::assertCount($user_private_accounts - 1, $rest_campaigns['data']['elements'][0]['accounts']);
-        $rest_group = $this->getFromRoute('/admin/v3/group/2');
-        self::assertCount(0, $rest_group['data']['campaigns']);
+
+        $campaign = $this->rest('GET', "/admin/v3/campaign/".$campaign->id);
+        self::assertTrue(isset($campaign));
+        $bonissim_account = $this->rest('GET', "/admin/v3/group/".$bonissim_account->id);
+        self::assertTrue(isset($bonissim_account));
+
+        self::assertCount(0, $bonissim_account->campaigns);
+
+        foreach($campaign->accounts as $account){
+            self::assertFalse($bonissim_account->id == $account->id);
+        }
     }
 
     function testAddRelation(){
-        $this->createCampaign('Li toca al barri');
-        $resp = $this->requestJson('POST', '/admin/v3/accounts/2/campaigns', ["id" => 1]);
+
+        $campaign = $this->rest('GET', "/admin/v3/campaigns?name=".Campaign::BONISSIM_CAMPAIGN_NAME)[0];
+        self::assertTrue(isset($campaign));
+
+        $commerces =  $this->rest('GET', "/user/v3/accounts?type=COMPANY");
+        self::assertGreaterThanOrEqual(1, count($commerces));
+
+        foreach($commerces as $commerce) {
+            if($commerce->name != Campaign::BONISSIM_CAMPAIGN_NAME){
+                $not_bonissim_account = $commerce;
+            }
+        }
+        self::assertTrue(isset($not_bonissim_account));
+
+        $route = '/admin/v3/accounts/'.$not_bonissim_account->id.'/campaigns';
+        $resp = $this->requestJson('POST', $route, ["id" => $campaign->id]);
         self::assertEquals(201, $resp->getStatusCode());
 
-        $resp = $this->requestJson('GET', '/admin/v3/accounts/2');
-        self::assertEquals(200, $resp->getStatusCode());
-        $content = json_decode($resp->getContent(), true);
-        self::assertCount(1, $content["data"]['campaigns']);
+
+        $campaign = $this->rest('GET', "/admin/v3/campaign/".$campaign->id);
+        self::assertTrue(isset($campaign));
+        $not_bonissim_account = $this->rest('GET', "/admin/v3/group/".$not_bonissim_account->id);
+        self::assertTrue(isset($not_bonissim_account));
+
+        self::assertCount(1, $not_bonissim_account->campaigns);
+
+        $relation = false;
+        foreach($campaign->accounts as $account){
+            if($not_bonissim_account->id == $account->id){
+                $relation = true;
+            }
+        }
+        self::assertTrue($relation);
     }
 
 
     function testCreateBonissimAcount(){
-        $this->createCampaign('Li toca al barri');
-        $this->client->getKernel()->getContainer()->get('bonissim_service')->CreateBonissimAccount(1, 'Li toca al barri');
+        $this->createCampaign(Campaign::BONISSIM_CAMPAIGN_NAME);
+        $this->client->getKernel()->getContainer()->get('bonissim_service')->CreateBonissimAccount(1, Campaign::BONISSIM_CAMPAIGN_NAME);
 
-        $resp = $this->requestJson('GET', '/admin/v3/campaigns', ["name" => 'Li toca al barri']);
+        $resp = $this->requestJson('GET', '/admin/v3/campaigns', ["name" => Campaign::BONISSIM_CAMPAIGN_NAME]);
         self::assertEquals(200, $resp->getStatusCode());
 
         $resp = $this->requestJson('GET', '/user/v1/account');
