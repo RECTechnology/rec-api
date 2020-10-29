@@ -46,20 +46,20 @@ class Campaign extends AppObject {
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="campaigns")
      * @Serializer\MaxDepth(2)
-     * @Serializer\Groups({"admin"})
+     * @Serializer\Groups({"public"})
      */
     private $accounts;
 
 
     /**
      * @ORM\Column(type="float")
-     * @Serializer\Groups({"admin"})
+     * @Serializer\Groups({"public"})
      */
     private $min=50;
 
     /**
      * @ORM\Column(type="float")
-     * @Serializer\Groups({"admin"})
+     * @Serializer\Groups({"public"})
      */
     private $max=1000;
 

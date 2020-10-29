@@ -1235,14 +1235,17 @@ class IncomingController2 extends RestApiController{
     private function checkCampaign(EntityManagerInterface $em, $method_cname, $amount, $user_id, $group): void
     {
         $campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
-
             'name' => Campaign::BONISSIM_CAMPAIGN_NAME
         ));
-        if($group->getType() == Group::ACCOUNT_TYPE_PRIVATE) {
-            $bonissim_private_account = $em->getRepository(Group::class)
-                ->findOneBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME, 'kyc_manager' => $user_id]);
-            if (!isset($bonissim_private_account) && isset($campaign) && $method_cname == "lemonway" && $amount >= $campaign->getMin() * 100) {
-                $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME);
+        if($group->getType() == Group::ACCOUNT_TYPE_PRIVATE && $method_cname == "lemonway" && isset($campaign)) {
+            $bonissim_private_account = $em->getRepository(Group::class)->findOneBy(array(
+                'type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $user_id, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME));
+            if (isset($bonissim_private_account)){
+                $redeemable_amount = $bonissim_private_account->getRedeemableAmount();
+                $bonissim_private_account->setRedeemableAmount( $amount / 100 + $redeemable_amount);
+            }
+            elseif($amount >= $campaign->getMin() * 100) {
+                $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME, $amount / 100);
             }
         }
     }
@@ -1277,6 +1280,9 @@ class IncomingController2 extends RestApiController{
 
             if ($sender_campaigns->contains($campaign) && !$reciver_campaigns->contains($campaign)) {
                 throw new AppException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+            }
+            if ($sender_campaigns->contains($campaign) && $destination->getType() == Group::ACCOUNT_TYPE_PRIVATE) {
+                throw new AppException(Response::HTTP_BAD_REQUEST, "This account cannot receive payments");
             }
         }
     }
