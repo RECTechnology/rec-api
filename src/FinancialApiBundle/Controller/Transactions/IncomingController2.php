@@ -1242,10 +1242,14 @@ class IncomingController2 extends RestApiController{
                 'type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $user_id, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME));
             if (isset($bonissim_private_account)){
                 $redeemable_amount = $bonissim_private_account->getRedeemableAmount();
-                $bonissim_private_account->setRedeemableAmount( $amount / 100 + $redeemable_amount);
+                $allowed_amount = min($amount / 100, $campaign->getMax() - $bonissim_private_account->getRewardedAmount());
+                $bonissim_private_account->setRedeemableAmount($allowed_amount + $redeemable_amount);
+                $em->persist($bonissim_private_account);
+                $em->flush();
             }
             elseif($amount >= $campaign->getMin() * 100) {
-                $this->container->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME, $amount / 100);
+                $this->container->get('bonissim_service')->CreateBonissimAccount($user_id,
+                    Campaign::BONISSIM_CAMPAIGN_NAME, min($amount / 100, $campaign->getMax()));
             }
         }
     }
@@ -1258,7 +1262,7 @@ class IncomingController2 extends RestApiController{
      */
     private function checkCampaignConstraint($params, ?object $group, $type, $method_cname): void
     {
-        if($method_cname == "rec" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE){
+        if($type == "out" && $method_cname == "rec" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE){
             /** @var EntityManagerInterface $em */
             $em = $this->getDoctrine()->getManager();
             $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
@@ -1278,11 +1282,15 @@ class IncomingController2 extends RestApiController{
             $sender_campaigns = $accountRepo->find($group->getId())->getCampaigns();
             $reciver_campaigns = $accountRepo->find($destination->getId())->getCampaigns();
 
-            if ($sender_campaigns->contains($campaign) && !$reciver_campaigns->contains($campaign)) {
-                throw new AppException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
-            }
-            if ($sender_campaigns->contains($campaign) && $destination->getType() == Group::ACCOUNT_TYPE_PRIVATE) {
-                throw new AppException(Response::HTTP_BAD_REQUEST, "This account cannot receive payments");
+            if ($sender_campaigns->contains($campaign)){
+                if (!$reciver_campaigns->contains($campaign)) {
+                    throw new AppException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+                }
+                if ($destination->getType() == Group::ACCOUNT_TYPE_PRIVATE) {
+                    throw new AppException(Response::HTTP_BAD_REQUEST, "This account cannot receive payments");
+                }
+                $rewarded_mount = $group->getRewardedAmount();
+                $group->setRewardedAmount($rewarded_mount + $params['amount'] / 1e8);
             }
         }
     }

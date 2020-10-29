@@ -83,12 +83,25 @@ class RechargeRecsTest extends AdminApiTest {
         //check create bonissim account
         $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=".$user_id);
         self::assertCount(1, $private_bonissim_account);
+        self::assertEquals(60, $private_bonissim_account[0]->redeemable_amount);
 
-        $rest_account = $this->requestJson('GET', '/admin/v3/accounts?campaigns=1');
-        self::assertEquals(200, $rest_account->getStatusCode());
+        $data = ['status' => Transaction::$STATUS_RECEIVED,
+            'company_id' => $private_account_id,
+            'amount' => 2000,
+            'commerce_id' => $company_account_id,
+            'concept' => 'test recharge',
+            'pin' => $user_pin,
+            'save_card' => 0];
 
-        $account_content = json_decode($rest_account->getContent(), true);
-        self::assertEquals(Campaign::BONISSIM_CAMPAIGN_NAME, $account_content["data"]["elements"][0]['name']);
+        //update mock
+        $this->useLemonWayMock($data);
+        //make first recharge
+        $this->executeRecharge($data);
+
+        //check no new bonissim account is created
+        $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=".$user_id);
+        self::assertCount(1, $private_bonissim_account);
+        self::assertEquals(80, $private_bonissim_account[0]->redeemable_amount);
 
 
     }

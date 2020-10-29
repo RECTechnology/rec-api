@@ -257,6 +257,8 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             if (!$foundBonissimAccount && count($account->company->campaigns) > 0) {
                 self::assertEquals(Campaign::BONISSIM_CAMPAIGN_NAME, $account->company->campaigns[0]->name);
                 $foundBonissimAccount = true;
+                $user_id = $account->company->kyc_manager->id;
+                $rewarded_amount = $account->company->rewarded_amount;
                 // changing the active account for the current user
                 $this->rest('PUT', '/user/v1/activegroup', ['group_id' => $account->company->id]);
 
@@ -266,7 +268,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
                     '/methods/v1/out/rec',
                     [
                         'address' => $commerce->rec_address,
-                        'amount' => 1e8,
+                        'amount' => 10e8,
                         'concept' => 'Testing concept',
                         'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
                     ]
@@ -274,6 +276,8 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             }
         }
         self::assertTrue($foundBonissimAccount);
+        $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=".$user_id);
+        self::assertEquals($rewarded_amount + 10 ,$private_bonissim_account[0]->rewarded_amount);
     }
 
     function testBonissimAccountPaysToBonissimCommerceShouldFail(){
@@ -309,7 +313,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
                     '/methods/v1/out/rec',
                     [
                         'address' => $not_bonissim_account->rec_address,
-                        'amount' => 1e8,
+                        'amount' => 10e8,
                         'concept' => 'Testing concept',
                         'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
                     ],
