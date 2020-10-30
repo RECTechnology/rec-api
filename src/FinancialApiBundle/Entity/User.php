@@ -637,7 +637,7 @@ class User extends BaseUser implements Uploadable {
      * @VirtualProperty()
      * @SerializedName("accounts")
      * @Type("array<App\FinancialApiBundle\Entity\Group>")
-     * @MaxDepth(1)
+     * @MaxDepth(3)
      * @Expose()
      * @Groups({"user"})
      *
