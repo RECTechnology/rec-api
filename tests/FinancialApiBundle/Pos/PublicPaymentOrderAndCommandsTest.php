@@ -277,7 +277,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         }
         self::assertTrue($foundBonissimAccount);
         $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=".$user_id);
-        self::assertEquals($rewarded_amount + 10 ,$private_bonissim_account[0]->rewarded_amount);
+
     }
 
     function testBonissimAccountPaysToBonissimCommerceShouldFail(){

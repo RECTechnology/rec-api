@@ -1282,15 +1282,26 @@ class IncomingController2 extends RestApiController{
             $sender_campaigns = $accountRepo->find($group->getId())->getCampaigns();
             $reciver_campaigns = $accountRepo->find($destination->getId())->getCampaigns();
 
-            if ($sender_campaigns->contains($campaign)){
-                if (!$reciver_campaigns->contains($campaign)) {
+            if ($sender_campaigns->contains($campaign)){ //sender is bonissim
+                if (!$reciver_campaigns->contains($campaign)) { // reciver is not bonissim
                     throw new AppException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
                 }
-                if ($destination->getType() == Group::ACCOUNT_TYPE_PRIVATE) {
+                if ($destination->getType() == Group::ACCOUNT_TYPE_PRIVATE) { // reciver is bonissim PRIVATE
                     throw new AppException(Response::HTTP_BAD_REQUEST, "This account cannot receive payments");
                 }
-                $rewarded_mount = $group->getRewardedAmount();
-                $group->setRewardedAmount($rewarded_mount + $params['amount'] / 1e8);
+                // reciver is bonissim
+
+            }elseif ($reciver_campaigns->contains($campaign)){ // sender is not bonissim and reciver is bonissim
+                 $user_id = $group->getKycManager()->getId();
+                 $campaign_accounts = $campaign->getAccounts();
+                 foreach($campaign_accounts as $account) {
+                     if($account->getKycManager() == $user_id){ // user has bonissim account
+                         $rewarded_mount = $group->getRewardedAmount();
+                         $group->setRewardedAmount($rewarded_mount + $params['amount'] / 1e8);
+                     }
+                }
+
+
             }
         }
     }

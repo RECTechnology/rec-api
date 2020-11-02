@@ -76,7 +76,7 @@ class User extends BaseUser implements Uploadable {
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
      * @Expose
      * @Groups({"manager"})
-     * @MaxDepth(1)
+     * @MaxDepth(3)
      */
     private $active_group = null;
 
