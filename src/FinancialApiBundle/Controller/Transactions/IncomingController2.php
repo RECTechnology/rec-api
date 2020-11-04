@@ -1240,7 +1240,7 @@ class IncomingController2 extends RestApiController{
         if($group->getType() == Group::ACCOUNT_TYPE_PRIVATE && $method_cname == "lemonway" && isset($campaign)) {
             $bonissim_private_account = $em->getRepository(Group::class)->findOneBy(array(
                 'type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $user_id, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME));
-            if (isset($bonissim_private_account)){
+            if (isset($bonissim_private_account)){ // user has bonissim account
                 $redeemable_amount = $bonissim_private_account->getRedeemableAmount();
                 $allowed_amount = min($amount / 100, $campaign->getMax() - $bonissim_private_account->getRewardedAmount());
                 $bonissim_private_account->setRedeemableAmount($allowed_amount + $redeemable_amount);
@@ -1282,6 +1282,28 @@ class IncomingController2 extends RestApiController{
             $sender_campaigns = $accountRepo->find($group->getId())->getCampaigns();
             $reciver_campaigns = $accountRepo->find($destination->getId())->getCampaigns();
 
+            $user_id = $group->getKycManager()->getId();
+
+            if (!$sender_campaigns->contains($campaign) && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE
+                && !$reciver_campaigns->contains($campaign)) { // sender and reciver accounts not in campaign
+
+                $user_private_accounts = $accountRepo->findBy(['kyc_manager' => $user_id, 'type' => Group::ACCOUNT_TYPE_PRIVATE]);
+                $user_balance = 0;
+                foreach ($user_private_accounts as $account) {
+                    if (!$account->getCampaigns()->contains($campaign)) {
+                        $user_balance = $user_balance + $account->getWallets()[0]->getBalance();
+                    } else {
+                        $bonissim_account = $account;
+                    }
+                }
+                if(isset($bonissim_account) && $bonissim_account->getRedeemableAmount() > $user_balance / 1e8){ // user has bonissim account
+                    $bonissim_account->setRedeemableAmount( $user_balance / 1e8);
+                    $em->persist($bonissim_account);
+                    $em->flush();
+                }
+
+            }
+
             if ($sender_campaigns->contains($campaign)){ //sender is bonissim
                 if (!$reciver_campaigns->contains($campaign)) { // reciver is not bonissim
                     throw new AppException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
@@ -1291,7 +1313,6 @@ class IncomingController2 extends RestApiController{
                 }
 
             }elseif ($reciver_campaigns->contains($campaign) && $destination->getType() == Group::ACCOUNT_TYPE_ORGANIZATION){ // sender is not bonissim and reciver is bonissim
-                 $user_id = $group->getKycManager()->getId();
                  $campaign_accounts = $campaign->getAccounts();
 
                  foreach($campaign_accounts as $account) {
@@ -1303,7 +1324,7 @@ class IncomingController2 extends RestApiController{
                          // send 15% from campaign account to commerce
                          $request = array();
                          $request['concept'] = $params['concept'];
-                         $request['amount'] = $params['amount'] / 100 * 15;
+                         $request['amount'] = $params['amount'] / 100 * $campaign->getRedeemablePercentage();
                          $request['pin'] = $user->getPin();
                          $request['address'] = $destination->getRecAddress();
                          $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
@@ -1311,7 +1332,7 @@ class IncomingController2 extends RestApiController{
                          // send 15% from commerce to bonissim account
                          $request = array();
                          $request['concept'] = $params['concept'];
-                         $request['amount'] = $params['amount'] / 100 * 15;
+                         $request['amount'] = $params['amount'] / 100 * $campaign->getRedeemablePercentage();
                          $request['pin'] = $user->getPin();
                          $request['address'] = $account->getRecAddress();
                          $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $destination, '127.0.0.2');

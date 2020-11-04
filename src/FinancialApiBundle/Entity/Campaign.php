@@ -13,6 +13,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Campaign extends AppObject {
 
     const BONISSIM_CAMPAIGN_NAME = 'Li toca al barri';
+    const DEFAULT_MIN = 50;
+    const DEFAULT_MAX = 1000;
+    const PERCENTAGE = 15;
 
     public function __construct() {
         $this->accounts = new ArrayCollection();
@@ -55,19 +58,25 @@ class Campaign extends AppObject {
      * @ORM\Column(type="float")
      * @Serializer\Groups({"public"})
      */
-    private $min=50;
+    private $min=self::DEFAULT_MIN;
 
     /**
      * @ORM\Column(type="float")
      * @Serializer\Groups({"public"})
      */
-    private $max=1000;
+    private $max=self::DEFAULT_MAX;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $campaign_account;
+
+    /**
+     * @ORM\Column(type="float")
+     * @Serializer\Groups({"public"})
+     */
+    private $redeemable_percentage=self::PERCENTAGE;
 
     /**
      * @return mixed
@@ -219,6 +228,23 @@ class Campaign extends AppObject {
     {
         $this->campaign_account = $campaign_account;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getRedeemablePercentage()
+    {
+        return $this->redeemable_percentage;
+    }
+
+    /**
+     * @param mixed $redeemable_percentage
+     */
+    public function setRedeemablePercentage($redeemable_percentage)
+    {
+        $this->redeemable_percentage = $redeemable_percentage;
+    }
+
 
 
 }
