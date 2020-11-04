@@ -386,7 +386,7 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\Column(type="text")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      */
     private $type = '';
 

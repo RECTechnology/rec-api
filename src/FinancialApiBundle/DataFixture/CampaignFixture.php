@@ -80,9 +80,13 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $bonissim_organization_account = $orm->getRepository(Group::class)
             ->findOneBy(['type' => Group::ACCOUNT_TYPE_ORGANIZATION, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
 
+        $ltab_account = $orm->getRepository(Group::class)
+            ->findOneBy(['name' =>"LTAB"]);
+
         $bonissim_private_account->setCampaigns([$campaign]);
         $bonissim_organization_account->setCampaigns([$campaign]);
         $campaign->setAccounts([$bonissim_private_account, $bonissim_organization_account]);
+        $campaign->setCampaignAccount($ltab_account->getId());
 
         $orm->persist($campaign);
         $orm->persist($bonissim_private_account);

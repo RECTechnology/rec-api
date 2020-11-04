@@ -1289,19 +1289,41 @@ class IncomingController2 extends RestApiController{
                 if ($destination->getType() == Group::ACCOUNT_TYPE_PRIVATE) { // reciver is bonissim PRIVATE
                     throw new AppException(Response::HTTP_BAD_REQUEST, "This account cannot receive payments");
                 }
-                // reciver is bonissim
 
-            }elseif ($reciver_campaigns->contains($campaign)){ // sender is not bonissim and reciver is bonissim
+            }elseif ($reciver_campaigns->contains($campaign) && $destination->getType() == Group::ACCOUNT_TYPE_ORGANIZATION){ // sender is not bonissim and reciver is bonissim
                  $user_id = $group->getKycManager()->getId();
                  $campaign_accounts = $campaign->getAccounts();
+
                  foreach($campaign_accounts as $account) {
-                     if($account->getKycManager() == $user_id){ // user has bonissim account
-                         $rewarded_mount = $group->getRewardedAmount();
-                         $group->setRewardedAmount($rewarded_mount + $params['amount'] / 1e8);
+                     if($account->getKycManager()->getId() == $user_id){ // user has bonissim account
+
+                         $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
+                         $user = $this->get('security.token_storage')->getToken()->getUser();
+
+                         // send 15% from campaign account to commerce
+                         $request = array();
+                         $request['concept'] = $params['concept'];
+                         $request['amount'] = $params['amount'] / 100 * 15;
+                         $request['pin'] = $user->getPin();
+                         $request['address'] = $destination->getRecAddress();
+                         $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
+
+                         // send 15% from commerce to bonissim account
+                         $request = array();
+                         $request['concept'] = $params['concept'];
+                         $request['amount'] = $params['amount'] / 100 * 15;
+                         $request['pin'] = $user->getPin();
+                         $request['address'] = $account->getRecAddress();
+                         $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $destination, '127.0.0.2');
+
+                         $redeemable_amount = $account->getRedeemableAmount();
+                         $account->setRedeemableAmount($redeemable_amount - $params['amount'] / 1e8);
+                         $rewarded_amount = $account->getRewardedAmount();
+                         $account->setRewardedAmount($rewarded_amount + $params['amount'] / 1e8);
+                         $em->persist($account);
+                         $em->flush();
                      }
                 }
-
-
             }
         }
     }

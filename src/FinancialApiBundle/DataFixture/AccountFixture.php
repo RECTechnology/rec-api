@@ -84,6 +84,17 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2
         );
+        $this->createAccount(
+            $orm,
+            $faker,
+            $admin,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_WHOLESALE,
+            2,
+            "LTAB",
+            100000e8
+        );
 
 
         $orm->flush();
@@ -98,9 +109,10 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
      * @param string $subtype
      * @param string $name
      * @param int $tier
+     * @param float $balance
      * @throws \Exception
      */
-    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles = [], string $type = self::ACCOUNT_TYPE_PRIVATE, string $subtype = self::ACCOUNT_SUBTYPE_NORMAL, int $tier = 1, string $name = null){
+    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles = [], string $type = self::ACCOUNT_TYPE_PRIVATE, string $subtype = self::ACCOUNT_SUBTYPE_NORMAL, int $tier = 1, string $name = null, float $balance=100e8){
 
         $account = new Account();
 
@@ -134,8 +146,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         }
         $recWallet = new UserWallet();
         $recWallet->setCurrency('REC');
-        $recWallet->setAvailable(100e8);
-        $recWallet->setBalance(100e8);
+        $recWallet->setAvailable($balance);
+        $recWallet->setBalance($balance);
         $recWallet->setGroup($account);
 
         $eurWallet = new UserWallet();

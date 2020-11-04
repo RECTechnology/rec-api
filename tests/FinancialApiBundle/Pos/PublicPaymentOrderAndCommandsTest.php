@@ -10,6 +10,7 @@ use App\FinancialApiBundle\Entity\Notification;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\User;
 use DateTime;
+use phpDocumentor\Reflection\Types\Self_;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
@@ -323,5 +324,103 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             }
         }
         self::assertTrue($foundBonissimAccount);
+    }
+
+    function testAccountPaysToBonissimCommerceShouldSend15P(){
+        $this->setClientIp($this->faker->ipv4);
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+
+        $campaign = $this->getAsAdmin("/admin/v3/campaign/1");
+        $campaign_account = $this->getAsAdmin("/admin/v3/group/" . $campaign->campaign_account);
+
+        $accounts =  $this->getAsAdmin("/admin/v3/accounts");
+        self::assertGreaterThanOrEqual(1, count($accounts));
+
+        $private_account = null;
+        $bonissim_private_account = null;
+        $bonissim_company_account = null;
+
+        foreach($accounts as $account) {
+            if($account->type == Group::ACCOUNT_TYPE_PRIVATE){
+                if(count($account->campaigns) == 0){
+                    $private_account = $account;
+                }
+                else{
+                    $bonissim_private_account = $account;
+                }
+            }elseif (count($account->campaigns) > 0){
+                $bonissim_company_account = $account;
+            }
+        }
+
+        self::assertTrue(isset($private_account));
+        self::assertTrue(isset($bonissim_private_account));
+        self::assertTrue(isset($bonissim_company_account));
+
+        $redeemable = 50;
+        $tx_amount = 10;
+        $bonissim_private_account = $this->setRedeemable($bonissim_private_account, $redeemable);
+
+        // changing the active account for the current user
+        $this->rest('PUT', '/user/v1/activegroup', ['group_id' => $private_account->id]);
+
+        //pay to commerce
+        $this->rest(
+            'POST',
+            '/methods/v1/out/rec',
+            [
+                'address' => $bonissim_company_account->rec_address,
+                'amount' => $tx_amount * 1e8,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+            ]
+        );
+
+        $this->runCommand('rec:crypto:check');
+
+        $_campaign_account = $this->getAsAdmin("/admin/v3/group/" . $campaign->campaign_account);
+        $_private_account = $this->getAsAdmin("/admin/v3/group/" . $private_account->id);
+        $_bonissim_private_account = $this->getAsAdmin("/admin/v3/group/" . $bonissim_private_account->id);
+        $_bonissim_company_account = $this->getAsAdmin("/admin/v3/group/" . $bonissim_company_account->id);
+
+        self::assertEquals($redeemable - $tx_amount, $_bonissim_private_account->redeemable_amount);
+        self::assertEquals($tx_amount, $_bonissim_private_account->rewarded_amount);
+
+        $payed_to_comerce = ($campaign_account->wallets[0]->balance - $_campaign_account->wallets[0]->balance);
+        self::assertEquals($tx_amount / 100 * 15e8, $payed_to_comerce);
+        $payed_to_user = ($_bonissim_private_account->wallets[0]->balance - $bonissim_private_account->wallets[0]->balance);
+        self::assertEquals($tx_amount / 100 * 15e8, $payed_to_user);
+
+    }
+
+    /**
+     * @param $bonissim_private_account
+     * @param float $redeemable
+     */
+    private function setRedeemable($bonissim_private_account, float $redeemable)
+    {
+        $this->signOut();
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $route = "/admin/v3/group/" . $bonissim_private_account->id;
+        $resp = $this->rest('PUT', $route, ["redeemable_amount" => $redeemable]);
+        $bonissim_private_account = $this->rest('GET', "/admin/v3/group/" . $bonissim_private_account->id);
+        self::assertEquals($redeemable, $bonissim_private_account->redeemable_amount);
+        $this->signOut();
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        return $bonissim_private_account;
+    }
+
+    /**
+     * @param string $route
+     */
+    private function getAsAdmin(string $route)
+    {
+        $this->signOut();
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $resp = $this->rest('GET', $route);
+        $this->signOut();
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        return $resp;
+
     }
 }

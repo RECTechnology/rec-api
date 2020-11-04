@@ -64,6 +64,12 @@ class Campaign extends AppObject {
     private $max=1000;
 
     /**
+     * @ORM\Column(type="float", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $campaign_account;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -196,6 +202,22 @@ class Campaign extends AppObject {
     public function setMax($max): void
     {
         $this->max = $max;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCampaignAccount()
+    {
+        return $this->campaign_account;
+    }
+
+    /**
+     * @param mixed $campaign_account
+     */
+    public function setCampaignAccount($campaign_account): void
+    {
+        $this->campaign_account = $campaign_account;
     }
 
 
