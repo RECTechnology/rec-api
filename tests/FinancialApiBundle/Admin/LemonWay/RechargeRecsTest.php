@@ -35,7 +35,7 @@ class RechargeRecsTest extends AdminApiTest {
 
     function testLemonTransfer(){
         $user_id = 1;
-        $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
 
         $route = "/admin/v3/user/{$user_id}";

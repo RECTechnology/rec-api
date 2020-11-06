@@ -23,7 +23,7 @@ class BonissimCampaignTest extends AdminApiTest {
         $format = 'Y-m-d H:i:s';
         $campaign->setInitDate(DateTime::createFromFormat($format, '2020-09-15 00:00:00'));
         $campaign->setEndDate(DateTime::createFromFormat($format, '2020-10-15 00:00:00'));
-        $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $em->persist($campaign);
         $em->flush();
 
@@ -106,7 +106,7 @@ class BonissimCampaignTest extends AdminApiTest {
         $route = "/admin/v3/user/{$user_id}";
         $resp = $this->rest('PUT', $route, ['private_tos_campaign' => true]);
         self::assertTrue($resp->private_tos_campaign);
-        $this->client->getKernel()->getContainer()->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME);
+        self::createClient()->getKernel()->getContainer()->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME);
 
         $resp = $this->requestJson('GET', '/admin/v3/campaigns', ["name" => Campaign::BONISSIM_CAMPAIGN_NAME]);
         self::assertEquals(200, $resp->getStatusCode());

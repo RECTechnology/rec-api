@@ -11,10 +11,10 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Yaml\Yaml;
-use Test\FinancialApiBundle\Utils\MongoDBTestInterface;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 abstract class BaseApiTest extends WebTestCase {
+
+    use TestDataFactory;
 
     const CRUD_V3_ROUTES = [
         'pos',
@@ -49,10 +49,6 @@ abstract class BaseApiTest extends WebTestCase {
 
     /** @var array $token */
     protected $token;
-
-    /** @var TestDataFactory $testFactory */
-    protected $testFactory;
-
 
     private $overrides = [];
 
@@ -150,7 +146,7 @@ abstract class BaseApiTest extends WebTestCase {
      * @param $credentials
      */
     protected function signIn($credentials){
-        $oauthClient = $this->testFactory->getOAuthClient();
+        $oauthClient = $this->getOAuthClient();
         $content = [
             'client_id' => $oauthClient->getPublicId(),
             'client_secret' => $oauthClient->getSecret(),
@@ -209,7 +205,7 @@ abstract class BaseApiTest extends WebTestCase {
     }
 
     protected function removeDatabase() {
-        $config = Yaml::parseFile($this->client->getKernel()->getRootDir() . '/../app/config/config_test.yml');
+        $config = Yaml::parseFile(self::createClient()->getKernel()->getRootDir() . '/../app/config/config_test.yml');
         $fs = new Filesystem();
         $dbUrl = $config['doctrine']['dbal']['url'];
         $dbFile = $this->resolveString(explode('::', $dbUrl)[1]);
@@ -223,7 +219,7 @@ abstract class BaseApiTest extends WebTestCase {
      * @throws \Exception
      */
     protected function runCommand(string $command, array $args = []){
-        $application = new Application($this->client->getKernel());
+        $application = new Application(self::createClient()->getKernel());
         $application->setAutoExit(false);
         $fullCommand = array_merge(['command' => $command], $args);
         $output = new BufferedOutput();
@@ -246,8 +242,6 @@ abstract class BaseApiTest extends WebTestCase {
     {
         parent::setUp();
         $this->faker = Factory::create();
-        $this->client = static::createClient();
-        $this->testFactory = new TestDataFactory($this->client);
         $this->clearDatabase();
         $this->loadFixtures();
         if(method_exists($this, 'startMongo')) $this->startMongo();
@@ -256,12 +250,11 @@ abstract class BaseApiTest extends WebTestCase {
     protected function tearDown(): void {
         if(method_exists($this, 'stopMongo')) $this->stopMongo();
         parent::tearDown();
-        $this->client = static::createClient();
         $this->removeDatabase();
     }
 
     private function getDebugDir(){
-        $cacheDir = $this->client->getContainer()->getParameter('kernel.cache_dir');
+        $cacheDir = self::createClient()->getContainer()->getParameter('kernel.cache_dir');
         $debugDir = $cacheDir . '/debug';
         if(!file_exists($debugDir)) mkdir($debugDir);
         return $debugDir;

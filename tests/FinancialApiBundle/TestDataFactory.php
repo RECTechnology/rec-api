@@ -10,26 +10,14 @@ use App\FinancialApiBundle\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 
-class TestDataFactory {
-
-    /** @var Client $client */
-    private $client;
-
-    /**
-     * TestDataFactory constructor.
-     * @param Client $client
-     */
-    public function __construct(Client $client)
-    {
-        $this->client = $client;
-    }
+trait TestDataFactory {
 
     /**
      * @return OAuthClient
      */
     public function getOAuthClient(): OAuthClient {
         /** @var EntityManagerInterface $em */
-        $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         return $em->getRepository(OAuthClient::class)->findOneBy([]);
     }
 
@@ -38,7 +26,7 @@ class TestDataFactory {
      */
     public function getTestAdmin(): User {
         /** @var EntityManagerInterface $em */
-        $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         return $em->getRepository(User::class)->findOneBy(['username' => UserFixture::TEST_ADMIN_CREDENTIALS['username']]);
     }
 
@@ -47,7 +35,7 @@ class TestDataFactory {
      */
     public function getTestUser(): User {
         /** @var EntityManagerInterface $em */
-        $em = $this->client->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         return $em->getRepository(User::class)->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
     }
 
