@@ -483,13 +483,13 @@ class Group extends BaseGroup implements Uploadable
 
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="float")
      * @Serializer\Groups({"public"})
      */
     private $redeemable_amount = 0;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="float")
      * @Serializer\Groups({"public"})
      */
     private $rewarded_amount = 0;

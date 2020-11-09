@@ -588,9 +588,6 @@ class IncomingController2 extends RestApiController{
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
             $logger->info('(' . $group_id . ')(T) FINAL');
 
-            //create bonissim account
-            $this->checkCampaign($em, $method_cname, $amount, $user_id, $group);
-
             return $this->methodTransaction(201, $transaction, "Done");
         }
     }
@@ -1232,7 +1229,7 @@ class IncomingController2 extends RestApiController{
      * @param $user_id
      * @param $group
      */
-    private function checkCampaign(EntityManagerInterface $em, $method_cname, $amount, $user_id, $group): void
+    public function checkCampaign(EntityManagerInterface $em, $method_cname, $amount, $user_id, $group): void
     {
         $campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
             'name' => Campaign::BONISSIM_CAMPAIGN_NAME

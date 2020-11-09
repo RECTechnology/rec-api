@@ -378,9 +378,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->runCommand('rec:crypto:check');
 
         $_campaign_account = $this->getAsAdmin("/admin/v3/group/" . $campaign->campaign_account);
-        $_private_account = $this->getAsAdmin("/admin/v3/group/" . $private_account->id);
         $_bonissim_private_account = $this->getAsAdmin("/admin/v3/group/" . $bonissim_private_account->id);
-        $_bonissim_company_account = $this->getAsAdmin("/admin/v3/group/" . $bonissim_company_account->id);
 
         self::assertEquals($redeemable - $tx_amount, $_bonissim_private_account->redeemable_amount);
         self::assertEquals($tx_amount, $_bonissim_private_account->rewarded_amount);
