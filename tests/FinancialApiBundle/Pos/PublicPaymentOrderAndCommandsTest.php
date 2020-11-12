@@ -277,7 +277,6 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         }
         self::assertTrue($foundBonissimAccount);
         $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=".$user_id);
-        $this->checkTransactionVendorData($commerce);
     }
 
     function testBonissimAccountPaysToBonissimCommerceShouldFail(){
@@ -474,12 +473,4 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     }
 
-    /**
-     * @param $commerce
-     */
-    private function checkTransactionVendorData($commerce): void
-    {
-        $account_data = $this->rest('GET', '/transaction/v1/vendor?address=' . $commerce->rec_address);
-        self::assertCount(4, $account_data);
-    }
 }
