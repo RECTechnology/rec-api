@@ -154,7 +154,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         $route = "/transaction/v1/vendor?address={$order->payment_address}";
         $commerce = $this->rest('GET', $route);
-        self::assertCount(5, $commerce);
+        self::assertCount(4, $commerce);
         $route = "/methods/v1/out/rec";
         $resp = $this->rest(
             'POST',
