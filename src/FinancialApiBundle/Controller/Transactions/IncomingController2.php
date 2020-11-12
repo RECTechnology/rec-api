@@ -75,7 +75,9 @@ class IncomingController2 extends RestApiController{
             }
             $data = array(
                 $destination->getName(),
-                $destination->getCompanyImage()
+                $destination->getCompanyImage(),
+                $destination->getType(),
+                $destination->getCampaigns()
             );
             return $this->restV2(200,"ok", "Vendor information", $data);
         }
