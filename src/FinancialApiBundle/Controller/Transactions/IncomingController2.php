@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Controller\Transactions;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Exception\AppException;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -1234,13 +1235,26 @@ class IncomingController2 extends RestApiController{
         $campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
             'name' => Campaign::BONISSIM_CAMPAIGN_NAME
         ));
-        if($group->getType() == Group::ACCOUNT_TYPE_PRIVATE && $method_cname == "lemonway" && isset($campaign)) {
+
+        $active_campaign = false;
+        if(isset($campaign)){
+            $init = $campaign->getInitDate();
+            $end = $campaign->getEndDate();
+            $now = new DateTime('NOW');
+            $campaign_account = $em->getRepository(Group::class)->find($campaign->getCampaignAccount());
+            $balance = $campaign_account->getWallet('REC')->getBalance() / 1e6;
+            if($init < $now && $now < $end && $amount < $balance){
+                $active_campaign = true;
+            }
+        }
+
+        if($group->getType() == Group::ACCOUNT_TYPE_PRIVATE && $method_cname == "lemonway" && $active_campaign) {
             $bonissim_private_account = $em->getRepository(Group::class)->findOneBy(array(
                 'type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $user_id, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME));
             if (isset($bonissim_private_account)){ // user has bonissim account
                 $redeemable_amount = $bonissim_private_account->getRedeemableAmount();
                 $allowed_amount = min($amount / 100, $campaign->getMax() - $bonissim_private_account->getRewardedAmount());
-                $bonissim_private_account->setRedeemableAmount($allowed_amount + $redeemable_amount);
+                $bonissim_private_account->setRedeemableAmount(min($allowed_amount + $redeemable_amount, $campaign->getMax()));
                 $em->persist($bonissim_private_account);
                 $em->flush();
             }
@@ -1318,26 +1332,22 @@ class IncomingController2 extends RestApiController{
                          $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
                          $user = $this->get('security.token_storage')->getToken()->getUser();
 
-                         // send 15% from campaign account to commerce
+                         // send 15% from campaign account to commerce and from commerce to bonissim account
                          $request = array();
                          $request['concept'] = $params['concept'];
                          $request['amount'] = $params['amount'] / 100 * $campaign->getRedeemablePercentage();
                          $request['pin'] = $user->getPin();
                          $request['address'] = $destination->getRecAddress();
+                         $request['internal_tx'] = '1';
+                         $request['destionation_id'] = $account->getId();
                          $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
 
-                         // send 15% from commerce to bonissim account
-                         $request = array();
-                         $request['concept'] = $params['concept'];
-                         $request['amount'] = $params['amount'] / 100 * $campaign->getRedeemablePercentage();
-                         $request['pin'] = $user->getPin();
-                         $request['address'] = $account->getRecAddress();
-                         $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $destination, '127.0.0.2');
 
                          $redeemable_amount = $account->getRedeemableAmount();
-                         $account->setRedeemableAmount($redeemable_amount - $params['amount'] / 1e8);
+                         $new_rewarded = min($redeemable_amount, $params['amount'] / 1e8);
+                         $account->setRedeemableAmount($redeemable_amount - $new_rewarded);
                          $rewarded_amount = $account->getRewardedAmount();
-                         $account->setRewardedAmount($rewarded_amount + $params['amount'] / 1e8);
+                         $account->setRewardedAmount($rewarded_amount + $new_rewarded);
                          $em->persist($account);
                          $em->flush();
                      }

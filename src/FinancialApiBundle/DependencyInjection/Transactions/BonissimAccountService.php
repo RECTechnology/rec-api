@@ -75,6 +75,16 @@ class BonissimAccountService {
             $wallet->setBalance(0);
             $wallet->setGroup($account);
             $wallets->add($wallet);
+            $em->persist($wallet);
+
+            $wallet = new UserWallet();
+            $wallet->setCurrency('EUR');
+            $wallet->setAvailable(0);
+            $wallet->setBalance(0);
+            $wallet->setGroup($account);
+            $wallets->add($wallet);
+            $em->persist($wallet);
+
             $account->setWallets($wallets);
 
             $campaign_accounts = $campaign->getAccounts();
@@ -87,7 +97,7 @@ class BonissimAccountService {
 
             $em->persist($user);
             $em->persist($campaign);
-            $em->persist($wallet);
+
             $em->persist($account);
             $em->persist($userAccount);
             $em->flush();

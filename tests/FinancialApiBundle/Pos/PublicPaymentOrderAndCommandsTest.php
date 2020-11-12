@@ -376,6 +376,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         );
 
         $this->runCommand('rec:crypto:check');
+        $this->runCommand('rec:crypto:check');
 
         $_campaign_account = $this->getAsAdmin("/admin/v3/group/" . $campaign->campaign_account);
         $_bonissim_private_account = $this->getAsAdmin("/admin/v3/group/" . $bonissim_private_account->id);
