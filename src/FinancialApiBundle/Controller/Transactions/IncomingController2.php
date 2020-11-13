@@ -25,8 +25,11 @@ use App\FinancialApiBundle\Entity\ServiceFee;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Controller\Google2FA;
+use App\FinancialApiBundle\Controller\SecurityTrait;
 
 class IncomingController2 extends RestApiController{
+
+    use SecurityTrait;
 
     /**
      * @Rest\View
@@ -77,8 +80,9 @@ class IncomingController2 extends RestApiController{
                 $destination->getName(),
                 $destination->getCompanyImage(),
                 $destination->getType(),
-                $destination->getCampaigns()
+                $this->secureOutput($destination->getCampaigns())
             );
+
             return $this->restV2(200,"ok", "Vendor information", $data);
         }
         throw new HttpException(400, 'Incorrect address');
