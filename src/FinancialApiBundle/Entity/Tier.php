@@ -58,6 +58,12 @@ class Tier extends AppObject {
      */
     private $children;
 
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $max_out = 0;
+
 
     public function __construct(){
         $this->document_kinds = new ArrayCollection();
@@ -161,6 +167,22 @@ class Tier extends AppObject {
     public function setChildren($children): void
     {
         $this->children = $children;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaxOut()
+    {
+        return $this->max_out;
+    }
+
+    /**
+     * @param mixed $max_out
+     */
+    public function setMaxOut($max_out): void
+    {
+        $this->max_out = $max_out;
     }
 
 }

@@ -279,7 +279,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=".$user_id);
     }
 
-    function testBonissimAccountPaysToBonissimCommerceShouldFail(){
+    function testBonissimAccountPaysToNoBonissimCommerceShouldFail(){
         $this->setClientIp($this->faker->ipv4);
 
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
@@ -450,7 +450,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         self::assertTrue(isset($company_account));
 
         $redeemable = 50000000;
-        $tx_amount = 10;
+        $tx_amount = 100;
         $bonissim_private_account = $this->setRedeemable($bonissim_private_account, $redeemable);
 
         // changing the active account for the current user
@@ -471,6 +471,33 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $_bonissim_private_account = $this->getAsAdmin("/admin/v3/group/" . $bonissim_private_account->id);
         self::assertLessThan($redeemable, $_bonissim_private_account->redeemable_amount);
 
+        //pay KYC
+        $this->payKycCheck($company_account, $tx_amount, 201);
+        $this->payKycCheck($company_account, $tx_amount, 400);
+
     }
+
+    /**
+     * @param $company_account
+     * @param int $tx_amount
+     * @param int $code
+     */
+    private function payKycCheck($company_account, int $tx_amount, int $code): void
+    {
+        $resp = $this->rest(
+            'POST',
+            '/methods/v1/out/rec',
+            [
+                'address' => $company_account->rec_address,
+                'amount' => $tx_amount * 1e8,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+            ],
+            [],
+            $code
+        );
+
+    }
+
 
 }

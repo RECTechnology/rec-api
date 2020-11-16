@@ -122,6 +122,24 @@ class IncomingController2 extends RestApiController{
         // Starting RDB transaction to avoid tx duplicates
         $em->getConnection()->beginTransaction();
 
+        $out_transaccions = $dm->getRepository(Transaction::class)->findAll();
+
+        if($type == 'out'){
+            $tier = $group->getLevel();
+            if(!isset($tier) || $tier->getMaxOut() === 0){
+                throw new HttpException(400, 'KYC max_out limit has been reached');
+            }elseif ($tier->getMaxOut() != null){
+                $out_amount = $data['amount'];
+                $out_transaccions = $dm->getRepository(Transaction::class)->findBy(['group' => $group->getId(), 'type' => 'out']);
+                foreach ($out_transaccions as $out_transaccion){
+                    $out_amount += $out_transaccion->getAmount();
+                }
+                if($out_amount / 1e8 > $tier->getMaxOut()) { // 1e8 satoshi = 1REC
+                    throw new HttpException(400, 'KYC max_out limit has been reached');
+                }
+            }
+        }
+
         $user = $em->getRepository('FinancialApiBundle:User')->find($user_id);
         $logger->info('(' . $user_id . ')(T) FIND USER');
 
@@ -574,7 +592,6 @@ class IncomingController2 extends RestApiController{
         $this->container->get('messenger')->notificate($transaction);
         $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
-
 
         if($user_id == -1 || $ip == '127.0.0.1'){ // this is executed in the recursive call
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return string');
@@ -1248,7 +1265,7 @@ class IncomingController2 extends RestApiController{
             $end = $campaign->getEndDate();
             $now = new DateTime('NOW');
             $campaign_account = $em->getRepository(Group::class)->find($campaign->getCampaignAccount());
-            $balance = $campaign_account->getWallet('REC')->getBalance() / 1e6;
+            $balance = $campaign_account->getWallet('REC')->getBalance() / 1e6;  //  1e6 = 1REC / 100
             if($init < $now && $now < $end && $amount < $balance){
                 $active_campaign = true;
             }
@@ -1279,6 +1296,7 @@ class IncomingController2 extends RestApiController{
      */
     private function checkCampaignConstraint($params, ?object $group, $type, $method_cname): void
     {
+        $satoshi_decimals = 1e8;
         if($type == "out" && $method_cname == "rec" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE){
             /** @var EntityManagerInterface $em */
             $em = $this->getDoctrine()->getManager();
@@ -1313,8 +1331,8 @@ class IncomingController2 extends RestApiController{
                         $bonissim_account = $account;
                     }
                 }
-                if(isset($bonissim_account) && $bonissim_account->getRedeemableAmount() > $user_balance / 1e8){ // user has bonissim account
-                    $bonissim_account->setRedeemableAmount( $user_balance / 1e8);
+                if(isset($bonissim_account) && $bonissim_account->getRedeemableAmount() > $user_balance / $satoshi_decimals){ // user has bonissim account
+                    $bonissim_account->setRedeemableAmount( $user_balance / $satoshi_decimals);
                     $em->persist($bonissim_account);
                     $em->flush();
                 }
@@ -1350,7 +1368,7 @@ class IncomingController2 extends RestApiController{
 
 
                          $redeemable_amount = $account->getRedeemableAmount();
-                         $new_rewarded = min($redeemable_amount, $params['amount'] / 1e8);
+                         $new_rewarded = min($redeemable_amount, $params['amount'] / $satoshi_decimals);
                          $account->setRedeemableAmount($redeemable_amount - $new_rewarded);
                          $rewarded_amount = $account->getRewardedAmount();
                          $account->setRewardedAmount($rewarded_amount + $new_rewarded);

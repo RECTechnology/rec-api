@@ -6,6 +6,7 @@ use App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\KYC;
+use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
 use App\FinancialApiBundle\Entity\UserWallet;
@@ -52,6 +53,8 @@ class BonissimAccountService {
             $account->setSubtype(Group::ACCOUNT_SUBTYPE_NORMAL);
             $account->setTier(1);
             $account->setRedeemableAmount(min($amount, $campaign->getMax()));
+            $level = $em->getRepository(Tier::class)->findOneBy(['code' => 'KYC1']);
+            $account->setLevel($level);
 
             $userAccount = new UserGroup();
             $userAccount->setGroup($account);

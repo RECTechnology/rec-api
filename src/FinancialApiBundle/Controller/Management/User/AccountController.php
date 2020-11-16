@@ -2,8 +2,11 @@
 
 namespace App\FinancialApiBundle\Controller\Management\User;
 
+use App\FinancialApiBundle\Entity\Client as OAuthClient;
+use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Exception\AppException;
 use Doctrine\Common\Annotations\AnnotationException;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use App\FinancialApiBundle\Entity\CashInTokens;
 use App\FinancialApiBundle\Entity\Group;
@@ -531,8 +534,10 @@ class AccountController extends BaseApiController {
         $company->setMethodsList($methodsList);
         $company->setLatitude($latitude);
         $company->setLongitude($longitude);
-
+        $level = $em->getRepository(Tier::class)->findOneBy(['code' => 'KYC1']);
+        $company->setLevel($level);
         $em->persist($company);
+        $em->flush();
 
         //create wallets for this company
         $currencies = Currency::$ALL_COMPLETED;

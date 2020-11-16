@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Controller\Management\Manager;
 
 use App\FinancialApiBundle\Controller\SecurityTrait;
+use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -253,6 +254,15 @@ class UsersGroupsController extends RestApiController{
         $company->setRecAddress('temp');
         $company->setMethodsList($methodsList);
         $company->setKycManager($admin);
+
+        $level = $em->getRepository(Tier::class)->findOneBy(['code' => 'KYC0']);
+        foreach ($admin->getGroups() as $group) {
+            $group_level = $group->getLevel();
+            if(isset($group_level) && $group_level->getCode() == 'KYC2'){
+                $level = $em->getRepository(Tier::class)->findOneBy(['code' => 'KYC2']);
+            }
+        }
+        $company->setLevel($level);
         $em->persist($company);
 
         //create wallets for this company

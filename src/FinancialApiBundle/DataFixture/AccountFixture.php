@@ -6,6 +6,7 @@ namespace App\FinancialApiBundle\DataFixture;
 use App\FinancialApiBundle\Controller\BaseApiV2Controller;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\KYC;
+use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
 use App\FinancialApiBundle\Entity\UserWallet;
@@ -39,7 +40,17 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
 
         //This user has a private USER account, a bonissim account and a bmincomer account
-        $this->createAccount($orm, $faker, $user);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user,
+            [],
+            self::ACCOUNT_TYPE_PRIVATE,
+            self::ACCOUNT_SUBTYPE_NORMAL,
+            1,
+            $faker->name,
+            1000e8
+        );
         $this->createAccount(
             $orm,
             $faker,
@@ -57,7 +68,9 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             [],
             self::ACCOUNT_TYPE_PRIVATE,
             self::ACCOUNT_SUBTYPE_BMINCOME,
-            1
+            1,
+            $faker->name,
+            1000e8
         );
 
         $admin = $orm->getRepository(User::class)
@@ -131,6 +144,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $account->setType($type);
         $account->setSubtype($subtype);
         $account->setTier($tier);
+        $level = $orm->getRepository(Tier::class)->findOneBy(['code' => 'KYC1']);
+        $account->setLevel($level);
 
         $userAccount = new UserGroup();
         $userAccount->setGroup($account);
@@ -166,6 +181,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     public function getDependencies(){
         return [
             UserFixture::class,
+            TierFixture::class
         ];
     }
 }
