@@ -255,11 +255,11 @@ class UsersGroupsController extends RestApiController{
         $company->setMethodsList($methodsList);
         $company->setKycManager($admin);
 
-        $level = $em->getRepository(Tier::class)->findOneBy(['code' => 'KYC0']);
+        $level = $em->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[0]]);
         foreach ($admin->getGroups() as $group) {
             $group_level = $group->getLevel();
-            if(isset($group_level) && $group_level->getCode() == 'KYC2'){
-                $level = $em->getRepository(Tier::class)->findOneBy(['code' => 'KYC2']);
+            if(isset($group_level) && $group_level->getCode() == Tier::KYC_LEVELS[2]){
+                $level = $em->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[2]]);
             }
         }
         $company->setLevel($level);

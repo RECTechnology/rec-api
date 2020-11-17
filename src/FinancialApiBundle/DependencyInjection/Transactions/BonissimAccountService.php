@@ -2,7 +2,6 @@
 namespace App\FinancialApiBundle\DependencyInjection\Transactions;
 
 use App\FinancialApiBundle\Controller\BaseApiV2Controller;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\KYC;
@@ -12,13 +11,7 @@ use App\FinancialApiBundle\Entity\UserGroup;
 use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriver;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use App\FinancialApiBundle\Document\Transaction;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Throwable;
 
 class BonissimAccountService {
 
@@ -53,8 +46,10 @@ class BonissimAccountService {
             $account->setSubtype(Group::ACCOUNT_SUBTYPE_NORMAL);
             $account->setTier(1);
             $account->setRedeemableAmount(min($amount, $campaign->getMax()));
-            $level = $em->getRepository(Tier::class)->findOneBy(['code' => 'KYC1']);
+            $level = $em->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[1]]);
             $account->setLevel($level);
+            $image = $campaign->getImageUrl();
+            $account->setCompanyImage($image);
 
             $userAccount = new UserGroup();
             $userAccount->setGroup($account);

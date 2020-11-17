@@ -3,20 +3,14 @@
 
 namespace App\FinancialApiBundle\DataFixture;
 
-use App\FinancialApiBundle\Controller\BaseApiV2Controller;
 use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\User;
-use App\FinancialApiBundle\Entity\UserGroup;
 use App\FinancialApiBundle\Entity\Campaign;
-use App\FinancialApiBundle\Entity\UserWallet;
 use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use App\FinancialApiBundle\Entity\Group as Account;
 use Faker\Factory;
-use Faker\Generator;
 
 class CampaignFixture extends Fixture implements DependentFixtureInterface {
 
@@ -58,6 +52,8 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $format = 'Y-m-d H:i:s';
         $campaign->setInitDate(DateTime::createFromFormat($format, '2020-10-15 00:00:00'));
         $campaign->setEndDate(DateTime::createFromFormat($format, '2021-11-15 00:00:00'));
+        $campaign->setImageUrl('');
+
         $orm->persist($campaign);
         $orm->flush();
         return $campaign;

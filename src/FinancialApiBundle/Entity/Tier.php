@@ -17,6 +17,8 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class Tier extends AppObject {
 
+    const KYC_LEVELS = ['KYC0', 'KYC1', 'KYC2'];
+
     /**
      * @var string $code
      * @ORM\Column(type="string", unique=true)

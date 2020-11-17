@@ -534,7 +534,7 @@ class AccountController extends BaseApiController {
         $company->setMethodsList($methodsList);
         $company->setLatitude($latitude);
         $company->setLongitude($longitude);
-        $level = $em->getRepository(Tier::class)->findOneBy(['code' => 'KYC1']);
+        $level = $em->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[1]]);
         $company->setLevel($level);
         $em->persist($company);
         $em->flush();

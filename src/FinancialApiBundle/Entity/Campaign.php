@@ -79,6 +79,18 @@ class Campaign extends AppObject {
     private $redeemable_percentage=self::PERCENTAGE;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    protected $image_url;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    protected $video_promo_url;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -243,6 +255,38 @@ class Campaign extends AppObject {
     public function setRedeemablePercentage($redeemable_percentage)
     {
         $this->redeemable_percentage = $redeemable_percentage;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getImageUrl()
+    {
+        return $this->image_url;
+    }
+
+    /**
+     * @param mixed $image_url
+     */
+    public function setImageUrl($image_url): void
+    {
+        $this->image_url = $image_url;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVideoPromoUrl()
+    {
+        return $this->video_promo_url;
+    }
+
+    /**
+     * @param mixed $video_promo_url
+     */
+    public function setVideoPromoUrl($video_promo_url): void
+    {
+        $this->video_promo_url = $video_promo_url;
     }
 
 

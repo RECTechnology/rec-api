@@ -54,6 +54,11 @@ class RechargeRecsTest extends AdminApiTest {
         self::assertGreaterThanOrEqual(1, count($private_accounts));
         $private_account_id = $private_accounts[0]->id;
 
+        $acc = $em->getRepository(Group::class)->find($private_account_id);
+        $acc->setCompanyImage('');
+        $em->persist($acc);
+        $em->flush();
+
         $company_accounts = $this->rest('GET', "/user/v3/accounts?type=COMPANY&kyc_manager=".$user_id);
         self::assertGreaterThanOrEqual(1, count($company_accounts));
         $company_account_id = $company_accounts[0]->id;

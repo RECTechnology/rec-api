@@ -3,6 +3,7 @@
 namespace Test\FinancialApiBundle\User;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Tier;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 
@@ -37,7 +38,7 @@ class UserCreateAccountsTest extends BaseApiTest
             ]
         );
         self::assertTrue(isset($resp->company));
-        self::assertEquals('KYC1', $resp->company->level->code);
+        self::assertEquals(Tier::KYC_LEVELS[1], $resp->company->level->code);
 
     }
     function testCreateNewAccountLevelIsKYC0()
@@ -59,7 +60,7 @@ class UserCreateAccountsTest extends BaseApiTest
             ]
         );
         self::assertTrue(isset($resp->company));
-        self::assertEquals('KYC0', $resp->company->level->code);
+        self::assertEquals(Tier::KYC_LEVELS[0], $resp->company->level->code);
     }
 
 }
