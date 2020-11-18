@@ -122,23 +122,7 @@ class IncomingController2 extends RestApiController{
         // Starting RDB transaction to avoid tx duplicates
         $em->getConnection()->beginTransaction();
 
-        $out_transaccions = $dm->getRepository(Transaction::class)->findAll();
-
-        if($type == 'out'){
-            $tier = $group->getLevel();
-            if(!isset($tier) || $tier->getMaxOut() === 0){
-                throw new HttpException(400, 'KYC max_out limit has been reached');
-            }elseif ($tier->getMaxOut() != null){
-                $out_amount = $data['amount'];
-                $out_transaccions = $dm->getRepository(Transaction::class)->findBy(['group' => $group->getId(), 'type' => 'out']);
-                foreach ($out_transaccions as $out_transaccion){
-                    $out_amount += $out_transaccion->getAmount();
-                }
-                if($out_amount / 1e8 > $tier->getMaxOut()) { // 1e8 satoshi = 1REC
-                    throw new HttpException(400, 'KYC max_out limit has been reached');
-                }
-            }
-        }
+        $this->ckeckKYC($type, $group, $data, $dm);
 
         $user = $em->getRepository('FinancialApiBundle:User')->find($user_id);
         $logger->info('(' . $user_id . ')(T) FIND USER');
@@ -1276,7 +1260,8 @@ class IncomingController2 extends RestApiController{
                 'type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $user_id, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME));
             if (isset($bonissim_private_account)){ // user has bonissim account
                 $redeemable_amount = $bonissim_private_account->getRedeemableAmount();
-                $allowed_amount = min($amount / 100, $campaign->getMax() - $bonissim_private_account->getRewardedAmount());
+                $allowed_amount = min($amount / 100, $campaign->getMax() -
+                    ($bonissim_private_account->getRewardedAmount() + $redeemable_amount));
                 $bonissim_private_account->setRedeemableAmount(min($allowed_amount + $redeemable_amount, $campaign->getMax()));
                 $em->persist($bonissim_private_account);
                 $em->flush();
@@ -1375,6 +1360,34 @@ class IncomingController2 extends RestApiController{
                          $em->persist($account);
                          $em->flush();
                      }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $type
+     * @param $group
+     * @param $data
+     * @param DocumentManager $dm
+     */
+    private function ckeckKYC($type, $group, $data, DocumentManager $dm): void
+    {
+        if ($type == 'out') {
+            $tier = $group->getLevel();
+            if (!isset($tier)) { // tier not setted
+                throw new HttpException(400, 'KYC max_out limit has been reached');
+            } elseif ($tier->getMaxOut() != null) {
+                $out_amount = $data['amount'];
+                if ($out_amount / 1e8 > $tier->getMaxOut()) { // 1e8 satoshi = 1REC
+                    throw new HttpException(400, 'KYC max_out limit has been reached');
+                }
+                $out_transaccions = $dm->getRepository(Transaction::class)->findBy(['group' => $group->getId(), 'type' => 'out']);
+                foreach ($out_transaccions as $out_transaccion) {
+                    $out_amount += $out_transaccion->getAmount();
+                }
+                if ($out_amount / 1e8 > $tier->getMaxOut()) {
+                    throw new HttpException(400, 'KYC max_out limit has been reached');
                 }
             }
         }

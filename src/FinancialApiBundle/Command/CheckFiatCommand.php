@@ -89,13 +89,13 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
                         sleep(1);
                         $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
                         $tx_group = $repoGroup->findOneBy(array("id" =>$transaction->getGroup()));
-                        $transactionManager->checkCampaign($em, $transaction->getMethod(), $transaction->getAmount(), $transaction->getUser(), $tx_group);
                         $output->writeln('post createTransaction');
                         sleep(1);
                         $transaction->setStatus('success');
                         $dm->persist($transaction);
                         $dm->flush();
                         $output->writeln('CHECK FIAT saved in success status');
+                        $transactionManager->checkCampaign($em, $transaction->getMethod(), $transaction->getAmount(), $transaction->getUser(), $tx_group);
                     }
                     else{
                         $output->writeln('ERROR: not commerce_id data');

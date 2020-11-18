@@ -79,16 +79,16 @@ class Campaign extends AppObject {
     private $redeemable_percentage=self::PERCENTAGE;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"public"})
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"admin"})
      */
-    protected $image_url;
+    protected $image_url='';
 
     /**
-     * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"public"})
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"admin"})
      */
-    protected $video_promo_url;
+    protected $video_promo_url='';
 
     /**
      * @return mixed
