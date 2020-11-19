@@ -1377,7 +1377,7 @@ class IncomingController2 extends RestApiController{
             $tier = $group->getLevel();
             if (!isset($tier)) { // tier not setted
                 throw new HttpException(400, 'KYC max_out limit has been reached');
-            } elseif ($tier->getMaxOut() != null) {
+            } elseif (!is_null($tier->getMaxOut())) {
                 $out_amount = $data['amount'];
                 if ($out_amount / 1e8 > $tier->getMaxOut()) { // 1e8 satoshi = 1REC
                     throw new HttpException(400, 'KYC max_out limit has been reached');

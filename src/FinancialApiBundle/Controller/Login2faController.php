@@ -13,7 +13,7 @@ class Login2faController extends RestApiController{
 
 
     public function loginAction(Request $request){
-        if(!$request->request->has('version') || $request->request->get('version')!=1) {
+        if(!$request->request->has('version') || $request->request->get('version') < 60) {
             //throw new HttpException(404, 'Must update');
         }
         $headers = array(
