@@ -34,7 +34,8 @@ RUN apt update && apt install -y \
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
 RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" > /etc/apt/sources.list.d/mongodb-org-4.2.list
 RUN apt update && apt install -y \
-    mongodb-org
+    mongodb-org \
+    mongodb-org-server=4.2.10
 
 COPY composer.lock /api/composer.lock
 COPY composer.json /api/composer.json
