@@ -13,17 +13,19 @@ class Login2faController extends RestApiController{
 
 
     public function loginAction(Request $request){
-        if(!$request->request->has('version') || !$request->request->has('platform') ) {
-            throw new HttpException(404, 'Must update');
-        } else {
-            $required_version = INF;
-            if($request->request->get('platform') == 'android'){
-                $required_version = 60;
-            } elseif ($request->request->get('platform') == 'ios'){
-                $required_version = 60;
-            }
-            if ($request->request->get('version') < $required_version) {
+        if($request->request->has('platform')) {
+            if(!$request->request->has('version') || !$request->request->has('platform') ) {
                 throw new HttpException(404, 'Must update');
+            } else {
+                $required_version = INF;
+                if($request->request->get('platform') == 'android'){
+                    $required_version = 60;
+                } elseif ($request->request->get('platform') == 'ios'){
+                    $required_version = 60;
+                }
+                if ($request->request->get('version') < $required_version) {
+                    throw new HttpException(404, 'Must update');
+                }
             }
         }
         $headers = array(
