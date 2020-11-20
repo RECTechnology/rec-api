@@ -876,6 +876,27 @@ class AccountController extends BaseApiController {
             $kyc->setDocumentFront($request->request->get('document_front'));
             $kyc->setDocumentFrontStatus('pending');
             $em->persist($kyc);
+            $document_front = $request->request->get('document_front');
+            $document_rear = '';
+            if($request->request->has('document_rear')) {
+                $document_rear = $request->request->get('document_rear');
+            }
+            $locale = $user->getLocale();
+            $params = [
+                'mail' => [
+                    'subject' => 'Documentación cuenta',
+                    'body' => 'KYC boby',
+                    'lang' => $locale
+                ],
+                'app' => [
+                    'landing' => 'rec.barcelona'
+                ],
+                'user_id' => $user->getId(),
+                'subject' => 'Documentación cuenta',
+                'document_front' => $document_front,
+                'document_rear' => $document_rear
+            ];
+            $this->_sendEmail('Documentación cuenta', 'KYC boby', 'info@rec.barcelona', 'kyc', $params);
         }
 
         if($request->request->has('document_rear') && $request->request->get('document_rear')!=''){
@@ -886,7 +907,7 @@ class AccountController extends BaseApiController {
 
         $em->flush();
 
-        return $this->restV2(204, "ok", "KYC Info saved");
+        return $this->restV2(201, "ok", "KYC Info saved");
     }
 
     /**
@@ -935,30 +956,32 @@ class AccountController extends BaseApiController {
 
     }
 
-    private function _sendEmail($subject, $body, $to, $action){
-        $from = 'no-reply@chip-chap.com';
+    private function _sendEmail($subject, $body, $to, $action, $params=null){
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         if($action == 'register'){
             $template = 'FinancialApiBundle:Email:registerconfirm.html.twig';
         }elseif($action == 'recover'){
             $template = 'FinancialApiBundle:Email:recoverpassword.html.twig';
+        }elseif($action == 'kyc'){
+            $template = 'FinancialApiBundle:Email:document_uploaded.html.twig';
         }else{
             $template = 'FinancialApiBundle:Email:registerconfirm.html.twig';
         }
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
+        if(is_null($params)){
+            $params = array();
+        }
+        $params['message'] = $body;
+        $message = \Swift_Message::newInstance();
+        $message->setSubject($subject)
             ->setFrom($from)
             ->setTo(array(
                 $to
             ))
             ->setBody(
                 $this->container->get('templating')
-                    ->render($template,
-                        array(
-                            'message'        =>  $body
-                        )
-                    )
+                    ->render($template, $params)
             )
             ->setContentType('text/html');
 
