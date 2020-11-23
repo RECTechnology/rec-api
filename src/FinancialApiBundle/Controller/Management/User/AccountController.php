@@ -976,9 +976,7 @@ class AccountController extends BaseApiController {
         $message = \Swift_Message::newInstance();
         $message->setSubject($subject)
             ->setFrom($from)
-            ->setTo(array(
-                $to
-            ))
+            ->setTo($to)
             ->setBody(
                 $this->container->get('templating')
                     ->render($template, $params)
