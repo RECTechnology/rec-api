@@ -23,8 +23,11 @@ use App\FinancialApiBundle\Financial\Currency;
 use App\FinancialApiBundle\Controller\Google2FA;
 use FOS\OAuthServerBundle\Util\Random;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
+use App\FinancialApiBundle\Controller\SecurityTrait;
 
 class AccountController extends BaseApiController {
+
+    use SecurityTrait;
 
     function getRepositoryName()
     {
@@ -658,7 +661,7 @@ class AccountController extends BaseApiController {
         $response['company'] = $company;
         $em->flush();
 
-        return $this->restV2(201,"ok", "Request successful", $response);
+        return $this->restV2(201,"ok", "Request successful", $this->secureOutput($response));
     }
 
     private function cleanString($string){
