@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [2.18.0](https://github.com/qbitartifacts/rec-api/compare/v2.17.0...v2.18.0) (2020-11-23)
+## [2.19.0](https://github.com/qbitartifacts/rec-api/compare/v2.18.0...v2.19.0) (2020-11-23)
 
 
 ### Features
