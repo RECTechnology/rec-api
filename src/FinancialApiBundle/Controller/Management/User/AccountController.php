@@ -237,7 +237,7 @@ class AccountController extends BaseApiController {
         if(!$request->request->has('phone_list')){
             throw new HttpException(400, "Missing parameters phone_list");
         }
-        $public_phone_list = [];
+        $sorted_public_phone_list = [];
 
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $my_accounts = $em->getRepository(UserGroup::class)->findBy(['user'  =>  $user]);
@@ -245,7 +245,12 @@ class AccountController extends BaseApiController {
             /** @var Group $group */
             $group = $account->getGroup();
             if($group->getActive() && $group->getId() != $user->getActiveGroup()->getId()) {
-                $public_phone_list[$group->getName()] = [$group->getRecAddress(), $group->getCompanyImage()];
+                array_push($sorted_public_phone_list, ['phone' => $user->getPhone(),
+                                                            'account' => $group->getName(),
+                                                            'address' => $group->getRecAddress(),
+                                                            'image' => $group->getCompanyImage(),
+                                                            'is_my_account' => 1
+                    ]);
             }
         }
 
@@ -266,14 +271,22 @@ class AccountController extends BaseApiController {
         foreach ($clean_phone_list as $original => $phone) {
             if(!in_array($phone, $selected)){
                 foreach($public_users as $user){
-                    if(($user->getPhone() == $phone) && $user->getActiveGroup()->getActive()){
-                        $public_phone_list[$original] = [$user->getActiveGroup()->getRecAddress(), $user->getProfileImage()];
+                    $user_clean_phone = substr(preg_replace('/[^0-9]/', '', $user->getPhone()), -9);
+                    if(($user_clean_phone == $phone) && $user->getActiveGroup()->getActive()){
+                        array_push($sorted_public_phone_list, ['phone' => $user->getPhone(),
+                                                                        'account' => $user->getActiveGroup()->getName(),
+                                                                        'address' => $user->getActiveGroup()->getRecAddress(),
+                                                                        'image' => $user->getActiveGroup()->getCompanyImage(),
+                                                                        'is_my_account' => 0
+                        ]);
+
+
                         $selected[] = $phone;
                     }
                 }
             }
         }
-        return $this->restV2(200, "ok", "List of public phones registered", $public_phone_list);
+        return $this->restV2(201, "ok", "List of public phones registered", $sorted_public_phone_list);
     }
 
     /**
