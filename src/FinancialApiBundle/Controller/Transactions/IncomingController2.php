@@ -1326,7 +1326,10 @@ class IncomingController2 extends RestApiController{
 
             if ($sender_campaigns->contains($campaign)){ //sender is bonissim
                 if (!$reciver_campaigns->contains($campaign)) { // reciver is not bonissim
-                    throw new AppException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+                    if ($group->getKycManager()->getId() != $destination->getKycManager()->getId() ||
+                        $destination->getType() != Group::ACCOUNT_TYPE_PRIVATE) { // accounts are from different user or reciver campany
+                        throw new AppException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+                    }
                 }
                 if ($destination->getType() == Group::ACCOUNT_TYPE_PRIVATE) { // reciver is bonissim PRIVATE
                     throw new AppException(Response::HTTP_BAD_REQUEST, "This account cannot receive payments");
