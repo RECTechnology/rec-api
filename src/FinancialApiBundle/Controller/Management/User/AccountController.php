@@ -897,22 +897,16 @@ class AccountController extends BaseApiController {
             if($request->request->has('document_rear')) {
                 $document_rear = $request->request->get('document_rear');
             }
-            $locale = $user->getLocale();
+
             $params = [
-                'mail' => [
-                    'subject' => 'Documentación cuenta',
-                    'body' => 'KYC boby',
-                    'lang' => $locale
-                ],
-                'app' => [
-                    'landing' => 'rec.barcelona'
-                ],
+                'mail' => ['lang' => $user->getLocale()],
                 'user_id' => $user->getId(),
-                'subject' => 'Documentación cuenta',
                 'document_front' => $document_front,
                 'document_rear' => $document_rear
             ];
-            $this->_sendEmail('Documentación cuenta', 'KYC boby', 'diego@novact.org', 'kyc', $params);
+            $to = $this->container->getParameter('kyc_email');
+            $this->_sendEmail('', null, $to, 'kyc', $params);
+
         }
 
         if($request->request->has('document_rear') && $request->request->get('document_rear')!=''){

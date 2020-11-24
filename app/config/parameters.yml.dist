@@ -125,3 +125,6 @@ parameters:
 
 # POS settings
     pos_url: https://pos.rec.barcelona
+
+# KYC notification email to admins
+    kyc_email: info@rec.barcelona

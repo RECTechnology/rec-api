@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ mail.lang }}">
 <head>
-    <title>{{ mail.subject }}</title>
+    <title>Documentación usuario</title>
     <meta charset="UTF-8">
 
     <style>
@@ -75,14 +75,14 @@
 <body>
 <header>
     <img src="https://rec.barcelona/wp-content/uploads/2018/04/logog_REC_Blanc-300x72.png" alt="REC Logo">
-    <h2>{{ mail.subject }}</h2>
+    <h2>Documentación del usuario {{ user_id }}</h2>
 </header>
 <article>
     El usuario con el id {{ user_id }} ha enviado su DNI/NIE/Pasaporte.
 
     <ul>
-        <li type="disc">Enlace frontal documento: <a href="url"> {{ document_front }} </a></li>
-        <li type="disc">Enlace verso documento: <a href="url"> {{ document_rear }} </a></li>
+        <li type="disc">Enlace frontal documento: <a href={{ document_front }}> {{ document_front }} </a></li>
+        <li type="disc">Enlace verso documento: <a href={{ document_rear }}> {{ document_rear }} </a></li>
 
     </ul>
 
@@ -93,7 +93,7 @@
     </ul>
 </article>
 <footer>
-    <a href="https://{{ app.landing }}/">{{ app.landing }}</a>
+    <a href="https://rec.barcelona/">rec.barcelona</a>
 </footer>
 </body>
 </html>

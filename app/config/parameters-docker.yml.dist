@@ -92,3 +92,5 @@ parameters:
 
     sentry_dsn: $SENTRY_DSN
     pos_url: $POS_URL
+
+    kyc_email: $KYC_EMAIL
