@@ -912,7 +912,7 @@ class AccountController extends BaseApiController {
                 'document_front' => $document_front,
                 'document_rear' => $document_rear
             ];
-            $this->_sendEmail('Documentación cuenta', 'KYC boby', 'info@rec.barcelona', 'kyc', $params);
+            $this->_sendEmail('Documentación cuenta', 'KYC boby', 'diego@novact.org', 'kyc', $params);
         }
 
         if($request->request->has('document_rear') && $request->request->get('document_rear')!=''){

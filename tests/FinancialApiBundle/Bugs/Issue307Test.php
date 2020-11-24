@@ -34,7 +34,13 @@ class Issue307Test extends BaseApiTest {
 
         $resp = $this->requestJson('POST', $route, $params);
         $content = json_decode($resp->getContent());
-        self::assertObjectHasAttribute($phone, $content->data);
+        $phone_found = false;
+        foreach ($content->data as $account_data){
+            if ($account_data->phone == $phone){
+                $phone_found = true;
+            }
+        }
+        self::assertTrue($phone_found);
     }
 
 }
