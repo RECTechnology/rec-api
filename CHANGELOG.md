@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.19.2](https://github.com/qbitartifacts/rec-api/compare/v2.19.1...v2.19.2) (2020-11-25)
+
+
+### Bug Fixes
+
+* **config:** moved kyc email to parameters instead of hardcoded ([#413](https://github.com/qbitartifacts/rec-api/issues/413)) ([45900e6](https://github.com/qbitartifacts/rec-api/commit/45900e6b45bb66f343efd0bcd121c00f686be134))
+* **deps:** updated composer deps ([d310099](https://github.com/qbitartifacts/rec-api/commit/d31009965b9e52ab7f92eb2c9cb932278654a9d1))
+* **kyc:** changed kyc destination email ([#411](https://github.com/qbitartifacts/rec-api/issues/411)) ([4809b74](https://github.com/qbitartifacts/rec-api/commit/4809b74838c88c52c7531cb05ff62788e2245830))
+* **ltab:** allow payments from ltab to private accounts ([#412](https://github.com/qbitartifacts/rec-api/issues/412)) ([ad6c96a](https://github.com/qbitartifacts/rec-api/commit/ad6c96a624a1096878b269ac5459335e39569020))
+
 ### [2.19.1](https://github.com/qbitartifacts/rec-api/compare/v2.17.0...v2.19.1) (2020-11-24)
 
 
