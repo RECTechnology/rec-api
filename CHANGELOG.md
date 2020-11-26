@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.20.1](https://github.com/qbitartifacts/rec-api/compare/v2.20.0...v2.20.1) (2020-11-26)
+
+
+### Bug Fixes
+
+* **ltab:** Ltab pays same user private account ([#417](https://github.com/qbitartifacts/rec-api/issues/417)) ([e1ed2cf](https://github.com/qbitartifacts/rec-api/commit/e1ed2cf88228f2153245d6d6a891ab5d6975b662))
+
 ## [2.20.0](https://github.com/qbitartifacts/rec-api/compare/v2.19.2...v2.20.0) (2020-11-26)
 
 
