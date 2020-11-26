@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [2.19.3](https://github.com/qbitartifacts/rec-api/compare/v2.19.2...v2.19.3) (2020-11-26)
+## [2.20.0](https://github.com/qbitartifacts/rec-api/compare/v2.19.2...v2.20.0) (2020-11-26)
+
+
+### Features
+
+* **serializer:** use secureOutput on pin update ([#416](https://github.com/qbitartifacts/rec-api/issues/416)) ([f8e3c0a](https://github.com/qbitartifacts/rec-api/commit/f8e3c0a4dcfc143133cb2b9afd0fba2f791f7708))
 
 ### [2.19.2](https://github.com/qbitartifacts/rec-api/compare/v2.19.1...v2.19.2) (2020-11-25)
 
