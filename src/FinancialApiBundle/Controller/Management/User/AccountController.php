@@ -1082,7 +1082,8 @@ class AccountController extends BaseApiController {
         $user->setPin($pin);
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "Account PIN got successfully", $user);
+        $resp = $this->secureOutput($user);
+        return $this->restV2(200,"ok", "Account PIN got successfully", $resp);
     }
 
     private function checkPhone($phone, $prefix){
