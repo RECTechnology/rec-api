@@ -94,6 +94,11 @@ class AccountsController extends CRUDController {
 
         $and->add($qb->expr()->eq('a.type', $qb->expr()->literal('COMPANY')));
 
+        $campaign = $request->query->get('campaigns');
+        if(isset($campaign)){
+            $and->add($qb->expr()->eq('cp.campaign_id', $campaign));
+        }
+
         if($account_subtype != '')
             $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
@@ -108,7 +113,7 @@ class AccountsController extends CRUDController {
                 ->where($qb->expr()->eq('o2.company', 'a.id'));
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
         }
-        $campaign = $request->query->get('campaigns');
+
         if(isset($campaign)){
             $qb = $qb
                 ->distinct()
