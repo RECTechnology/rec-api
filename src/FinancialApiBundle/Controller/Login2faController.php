@@ -13,10 +13,13 @@ class Login2faController extends RestApiController{
 
 
     public function loginAction(Request $request){
-        if($request->request->has('platform')) {
-            if(!$request->request->has('version') || !$request->request->has('platform') ) {
-                throw new HttpException(404, 'Must update');
-            } else {
+        if($request->request->has('version')) {  // panel pass
+            if(!$request->request->has('platform') ) { // older apps
+                $required_version = 60; // todo get required_version from database
+                if($request->request->get('version') < $required_version) {
+                    throw new HttpException(404, 'Must update');
+                }
+            } else { // newer apps
                 $required_version = INF;
                 if($request->request->get('platform') == 'android'){
                     $required_version = 60;
@@ -28,6 +31,7 @@ class Login2faController extends RestApiController{
                 }
             }
         }
+
         $headers = array(
             'Content-Type' => 'application/json',
             'Cache-Control' => 'no-store',
