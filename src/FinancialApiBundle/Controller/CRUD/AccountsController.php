@@ -108,13 +108,24 @@ class AccountsController extends CRUDController {
                 ->where($qb->expr()->eq('o2.company', 'a.id'));
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
         }
+        $campaign = $request->query->get('campaigns');
+        if(isset($campaign)){
+            $qb = $qb
+                ->distinct()
+                ->from(Group::class, 'a')
+                ->leftJoin('a.offers', 'o')
+                ->leftJoin('a.category', 'c')
+                ->Join('a.campaigns', 'cp')
+                ->where($and);
+        }else {
+            $qb = $qb
+                ->distinct()
+                ->from(Group::class, 'a')
+                ->leftJoin('a.offers', 'o')
+                ->leftJoin('a.category', 'c')
+                ->where($and);
+            }
 
-        $qb = $qb
-            ->distinct()
-            ->from(Group::class, 'a')
-            ->leftJoin('a.offers', 'o')
-            ->leftJoin('a.category', 'c')
-            ->where($and);
 
         $total = $qb
             ->select('count(distinct(a))')
