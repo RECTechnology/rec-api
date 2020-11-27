@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.20.2](https://github.com/qbitartifacts/rec-api/compare/v2.20.1...v2.20.2) (2020-11-27)
+
+
+### Bug Fixes
+
+* **accounts:** implemented search by campaigns ([#419](https://github.com/qbitartifacts/rec-api/issues/419)) ([7e3ed07](https://github.com/qbitartifacts/rec-api/commit/7e3ed07199981ddb2fd39b984dc1816aad71df3d))
+* **accounts:** improved search for accounts ([#420](https://github.com/qbitartifacts/rec-api/issues/420)) ([ac11428](https://github.com/qbitartifacts/rec-api/commit/ac114287041204f04fd43c359d3e562da099a0d9))
+* **login:** check version and platform at login ([#418](https://github.com/qbitartifacts/rec-api/issues/418)) ([fa7a564](https://github.com/qbitartifacts/rec-api/commit/fa7a564c46d281453b3ab91227838777354dc33b))
+
 ### [2.20.1](https://github.com/qbitartifacts/rec-api/compare/v2.20.0...v2.20.1) (2020-11-26)
 
 
