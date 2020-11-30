@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.20.3](https://github.com/qbitartifacts/rec-api/compare/v2.20.2...v2.20.3) (2020-11-30)
+
+
+### Bug Fixes
+
+* **AccountsController:** changed campaign_id for id in search where.([#421](https://github.com/qbitartifacts/rec-api/issues/421)) ([8c09198](https://github.com/qbitartifacts/rec-api/commit/8c0919832f65a9d1126c33c7b5a4936ab5bcf861))
+
 ### [2.20.2](https://github.com/qbitartifacts/rec-api/compare/v2.20.1...v2.20.2) (2020-11-27)
 
 
