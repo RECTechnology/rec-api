@@ -76,7 +76,7 @@ class TreasureWithdrawalValidationSubscriber implements EventSubscriber {
                 "Treasure Withdrawal Confirmation",
                 $this->templating->render(
                     'FinancialApiBundle:Email:central_withdrawal.html.twig',
-                    ['link' => $link, 'name' => $name, 'amount' => $amount, 'day' => $date->format("d"),
+                    ['link' => $link, 'name' => $name, 'amount' => $amount / 1e8, 'day' => $date->format("d"),
                         'month' => $date->format("m"), 'year' => $date->format("Y"), 'hour' => $date->format("H"),
                         'minutes' => $date->format("i"), 'seconds' => $date->format("s") ]
                 ),

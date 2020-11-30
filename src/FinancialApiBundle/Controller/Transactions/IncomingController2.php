@@ -1282,10 +1282,12 @@ class IncomingController2 extends RestApiController{
     private function checkCampaignConstraint($params, ?object $group, $type, $method_cname): void
     {
         $satoshi_decimals = 1e8;
-        if($type == "out" && $method_cname == "rec" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE){
-            /** @var EntityManagerInterface $em */
-            $em = $this->getDoctrine()->getManager();
-            $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+        $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
+
+        if(isset($campaign) && $campaign->getCampaignAccount() != $group->getId() && $type == "out" &&
+            $method_cname == "rec" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE){
 
             $orderRepo = $em->getRepository(PaymentOrder::class);
             $accountRepo = $em->getRepository(Group::class);

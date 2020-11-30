@@ -905,7 +905,7 @@ class AccountController extends BaseApiController {
                 'document_rear' => $document_rear
             ];
             $to = $this->container->getParameter('kyc_email');
-            $this->_sendEmail('', null, $to, 'kyc', $params);
+            $this->_sendEmail('Documentación cuenta', null, $to, 'kyc', $params);
 
         }
 
