@@ -1342,7 +1342,7 @@ class IncomingController2 extends RestApiController{
                  $campaign_accounts = $campaign->getAccounts();
 
                  foreach($campaign_accounts as $account) {
-                     if($account->getKycManager()->getId() == $user_id){ // user has bonissim account
+                     if($account->getKycManager()->getId() == $user_id  && $account->getType() == Group::ACCOUNT_TYPE_PRIVATE){ // account is bonissim and private
 
                          $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
                          $user = $this->get('security.token_storage')->getToken()->getUser();
