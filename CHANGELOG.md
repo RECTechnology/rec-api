@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.20.4](https://github.com/qbitartifacts/rec-api/compare/v2.20.3...v2.20.4) (2020-11-30)
+
+
+### Bug Fixes
+
+* **transactions:** check if rewarded account is private ([#423](https://github.com/qbitartifacts/rec-api/issues/423)) ([7ea091e](https://github.com/qbitartifacts/rec-api/commit/7ea091e7f3e8a74055ad55f4e4311f22dfccb597))
+* **withdrawals:** fixed withdrawal amount scale at mail ([#422](https://github.com/qbitartifacts/rec-api/issues/422)) ([6ee17c0](https://github.com/qbitartifacts/rec-api/commit/6ee17c0b61a4cee03b9dd2db991cb6864c373eb0))
+
 ### [2.20.3](https://github.com/qbitartifacts/rec-api/compare/v2.20.2...v2.20.3) (2020-11-30)
 
 
