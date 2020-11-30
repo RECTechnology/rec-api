@@ -96,7 +96,7 @@ class AccountsController extends CRUDController {
 
         $campaign = $request->query->get('campaigns');
         if(isset($campaign)){
-            $and->add($qb->expr()->eq('cp.campaign_id', $campaign));
+            $and->add($qb->expr()->eq('cp.id', $campaign));
         }
 
         if($account_subtype != '')
