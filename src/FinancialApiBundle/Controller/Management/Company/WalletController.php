@@ -2,8 +2,10 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Company;
 
+use App\FinancialApiBundle\Entity\Campaign;
 use DateInterval;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\RestApiController;
@@ -234,13 +236,27 @@ class WalletController extends RestApiController {
             $qb->field('group')->equals($company->getId());
         }
 
-        $transactions = $qb
-            ->field('status')->notIn(array('deleted'))
-            ->field('internal')->equals(false)
-            ->sort('updated','desc')
-            ->sort('id','desc')
-            ->getQuery()
-            ->execute();
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+        $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
+        if(isset($campaign) && $campaign->getCampaignAccount() == $company_id){
+            $transactions = $qb
+                ->field('status')->notIn(array('deleted'))
+                ->field('internal')->equals(true)
+                ->sort('updated','desc')
+                ->sort('id','desc')
+                ->getQuery()
+                ->execute();
+
+        }else{
+            $transactions = $qb
+                ->field('status')->notIn(array('deleted'))
+                ->field('internal')->equals(false)
+                ->sort('updated','desc')
+                ->sort('id','desc')
+                ->getQuery()
+                ->execute();
+        }
 
         $data = array();
         $dataCustom = array();

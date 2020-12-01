@@ -8,6 +8,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use DateInterval;
 use DateTime;
+use App\FinancialApiBundle\Controller\SecurityTrait;
 
 
 /**
@@ -15,6 +16,8 @@ use DateTime;
  * @package App\FinancialApiBundle\Controller\Management\Admin
  */
 class TransactionsController extends RestApiController {
+
+    use SecurityTrait;
 
     /**
      * @Rest\View
@@ -50,7 +53,7 @@ class TransactionsController extends RestApiController {
             'company'   =>  $company
         );
 
-        return $this->restV2(200,"ok", "Transaction found successfully", $response);
+        return $this->restV2(200,"ok", "Transaction found successfully", $this->secureOutput($response));
     }
 
     /**
