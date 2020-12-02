@@ -58,7 +58,7 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
     private $transaction_id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint")
      * @Serializer\Groups({"admin"})
      */
     private $amount;
