@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.20.5](https://github.com/qbitartifacts/rec-api/compare/v2.20.4...v2.20.5) (2020-12-02)
+
+
+### Bug Fixes
+
+* **deps:** updated composer dependencies ([88a46b1](https://github.com/qbitartifacts/rec-api/commit/88a46b1a746b2c4e78017c22bb2a40975dfa548f))
+* **transactions:** transactions list ([#424](https://github.com/qbitartifacts/rec-api/issues/424)) ([7d98b04](https://github.com/qbitartifacts/rec-api/commit/7d98b04dd8b9944d75cff082263dfefd5c017e70))
+* **treasure_withdrawal:** changed amount type from integer to bigint ([01d2f3f](https://github.com/qbitartifacts/rec-api/commit/01d2f3fbe90ca877029a0d1aefbe6fcf7e4298b8))
+
 ### [2.20.4](https://github.com/qbitartifacts/rec-api/compare/v2.20.3...v2.20.4) (2020-11-30)
 
 
