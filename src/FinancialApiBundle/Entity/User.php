@@ -153,7 +153,7 @@ class User extends BaseUser implements Uploadable {
      * @Expose
      * @Groups({"manager"})
      */
-    private $public_phone;
+    private $public_phone = True;
 
     /**
      * @ORM\Column(type="integer")
@@ -254,6 +254,13 @@ class User extends BaseUser implements Uploadable {
      * @Groups({"admin"})
      */
     private $private_tos_campaign = false;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Expose
+     * @Groups({"manager"})
+     */
+    private $disabled_at;
 
 
     public function getAccessKey(){
@@ -799,6 +806,33 @@ class User extends BaseUser implements Uploadable {
         $this->private_tos_campaign = $private_tos_campaign;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function setEnabled($boolean)
+    {
+        if($this->enabled == True and $boolean == False){
+            $this->disabled_at = new \DateTime();
+        }
+        $this->enabled = (bool) $boolean;
 
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDisabledAt()
+    {
+        return $this->disabled_at;
+    }
+
+    /**
+     * @param mixed $disabled_at
+     */
+    public function setDisabledAt($disabled_at): void
+    {
+        $this->disabled_at = $disabled_at;
+    }
 
 }

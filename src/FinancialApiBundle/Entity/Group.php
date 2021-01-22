@@ -64,6 +64,7 @@ class Group extends BaseGroup implements Uploadable
         $this->company_token = uniqid();
         $this->on_map = 1;
         $this->campaigns = new ArrayCollection();
+        $this->created = new \DateTime();
 
         if ($this->access_key == null) {
             $this->access_key = sha1(random_bytes(32));
@@ -493,6 +494,20 @@ class Group extends BaseGroup implements Uploadable
      * @Serializer\Groups({"public"})
      */
     private $rewarded_amount = 0;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Serializer\Expose
+     * @Serializer\Groups({"manager"})
+     */
+    private $created;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Serializer\Expose
+     * @Serializer\Groups({"manager"})
+     */
+    private $disabled_at;
 
     /**
      * @return mixed
@@ -1250,7 +1265,11 @@ class Group extends BaseGroup implements Uploadable
      */
     public function setActive($active)
     {
+        if($this->active == True and $active == False){
+            $this->disabled_at = new \DateTime();
+        }
         $this->active = $active;
+
     }
 
     /**
@@ -1681,6 +1700,38 @@ class Group extends BaseGroup implements Uploadable
             throw new PreconditionFailedException("Campaign not related to this Account");
         }
         $this->campaigns->removeElement($campaign);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param mixed $created
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDisabledAt()
+    {
+        return $this->disabled_at;
+    }
+
+    /**
+     * @param mixed $disabled_at
+     */
+    public function setDisabledAt($disabled_at): void
+    {
+        $this->disabled_at = $disabled_at;
     }
 
 }
