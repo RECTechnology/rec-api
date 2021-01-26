@@ -153,7 +153,7 @@ class User extends BaseUser implements Uploadable {
      * @Expose
      * @Groups({"manager"})
      */
-    private $public_phone = True;
+    private $public_phone = true;
 
     /**
      * @ORM\Column(type="integer")
@@ -811,7 +811,7 @@ class User extends BaseUser implements Uploadable {
      */
     public function setEnabled($boolean)
     {
-        if($this->enabled == True and $boolean == False){
+        if($this->enabled == true and $boolean == false){
             $this->disabled_at = new \DateTime();
         }
         $this->enabled = (bool) $boolean;

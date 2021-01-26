@@ -1265,7 +1265,7 @@ class Group extends BaseGroup implements Uploadable
      */
     public function setActive($active)
     {
-        if($this->active == True and $active == False){
+        if($this->active == true and $active == false){
             $this->disabled_at = new \DateTime();
         }
         $this->active = $active;
