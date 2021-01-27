@@ -47,7 +47,7 @@ class CreditCardFixture extends Fixture implements DependentFixtureInterface {
 
     public function getDependencies(){
         return [
-            UserFixture::class,
+            AccountFixture::class,
         ];
     }
 }
