@@ -13,6 +13,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class DelegatedChangeFixture extends Fixture implements DependentFixtureInterface {
 
+    const AMOUNT  = 5500;
+
     /**
      * Load data fixtures with the passed EntityManager
      *
@@ -23,11 +25,13 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
     {
         $dc = $this->createDelegatedChange($orm);
 
-        $exchanger = $orm->getRepository(Group::class)->findOneBy(['type' => Group::ACCOUNT_TYPE_ORGANIZATION]);
+        $exchanger = $orm->getRepository(Group::class)->findOneBy(['id' => 6]);
         $private_accounts = $orm->getRepository(Group::class)->findBy(['type' => Group::ACCOUNT_TYPE_PRIVATE]);
 
         foreach($private_accounts as $account){
-            $this->createDelegatedChangeData($orm, $dc, $exchanger, $account);
+            if(count($account->getCampaigns()) == 0){
+                $this->createDelegatedChangeData($orm, $dc, $exchanger, $account);
+            }
         }
 
     }
@@ -51,7 +55,7 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
         $dcd->setDelegatedChange($dc);
         $dcd->setExchanger($exchanger);
         $dcd->setAccount($account);
-        $dcd->setAmount(1000);
+        $dcd->setAmount(5500);
         $dcd->setStatus('new');
         $dcd->setPan('4111111111111111');
         $dcd->setExpiryDate('10/2024');

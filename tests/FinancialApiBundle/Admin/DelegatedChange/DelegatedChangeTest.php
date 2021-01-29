@@ -2,6 +2,7 @@
 
 namespace Test\FinancialApiBundle\Admin\DelegatedChange;
 
+use App\FinancialApiBundle\DataFixture\DelegatedChangeFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Financial\Methods\LemonWayMethod;
@@ -121,12 +122,12 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
 
     function testDelegatedCharge(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
-
+        $ini_account_balance = $this->rest('GET', "/admin/v3/accounts/3")->wallets[0]->balance;
         $data = ['status' => Transaction::$STATUS_RECEIVED,
             'company_id' => 1,
             'amount' => 6000,
             'commerce_id' => 2,
-            'concept' => 'test recharge',
+            'concept' => 'test delegated charge',
             'pin' => '3210',
             'save_card' => 0];
 
@@ -142,5 +143,11 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
 
         $output = $this->runCommand('rec:delegated_change:run');
         self::assertStringNotContainsString("Transaction creation failed", $output);
+        $this->runCommand('rec:fiat:check');
+        $this->runCommand('rec:crypto:check');
+        $this->runCommand('rec:crypto:check');
+
+        $end_account_balance = $this->rest('GET', "/admin/v3/accounts/3")->wallets[0]->balance;
+        $this->assertEquals($end_account_balance - $ini_account_balance, DelegatedChangeFixture::AMOUNT * 1000000);
     }
 }
