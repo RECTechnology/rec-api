@@ -56,7 +56,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             'lemonway',
             $account->getKycManager()->getId(),
             $account,
-            '127.0.0.2' # return Response, NOTE: if IP is '127.0.0.1', the return type is String, else Response
+            '127.0.0.1' # return Response, NOTE: if IP is '127.0.0.1', the return type is String, else Response
         );
 
     }
@@ -167,7 +167,13 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                         $user_pin = $dcd->getAccount()->getKycManager()->getPin();
 
                         /** @var Response $resp */
-                        $resp = $this->createLemonwayTx($dcd->getAmount(), $dcd->getAccount(), $dcd->getExchanger(), $dcd->getCreditcardId(), $user_pin);
+                        $resp = $this->createLemonwayTx(
+                            $dcd->getAmount(),
+                            $dcd->getAccount(),
+                            $dcd->getExchanger(),
+                            $dcd->getCreditcardId(),
+                            $user_pin
+                        );
                         $this->log($output, "RESP: " . print_r($resp, true));
 
                         # if received is ok
@@ -206,11 +212,11 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                             $em->persist($dcd); $em->flush();
                             $this->log(
                                 $output,
-                                "Transaction creation failed: status_code=" . $resp->getStatusCode(),
+                                "Transaction creation failed",
                                 DelegatedChangeV2Command::SEVERITY_CRITICAL
                             );
                         }
-                    } catch (HttpException $e){
+                    } catch (\Exception $e){
                         $this->log(
                             $output,
                             "Transaction creation failed: " . $e->getMessage(),

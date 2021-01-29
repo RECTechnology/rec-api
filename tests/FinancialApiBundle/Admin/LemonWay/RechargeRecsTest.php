@@ -162,6 +162,7 @@ class RechargeRecsTest extends AdminApiTest {
             ]
         );
 
-        $this->runCommand('rec:delegated_change:run');
+        $output = $this->runCommand('rec:delegated_change:run');
+        self::assertStringNotContainsString("Transaction creation failed", $output);
     }
 }
