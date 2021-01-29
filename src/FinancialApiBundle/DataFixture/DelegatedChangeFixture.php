@@ -51,7 +51,7 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
         $dcd->setDelegatedChange($dc);
         $dcd->setExchanger($exchanger);
         $dcd->setAccount($account);
-        $dcd->setAmount(10);
+        $dcd->setAmount(1000);
         $dcd->setStatus('new');
         $dcd->setPan('4111111111111111');
         $dcd->setExpiryDate('10/2024');
