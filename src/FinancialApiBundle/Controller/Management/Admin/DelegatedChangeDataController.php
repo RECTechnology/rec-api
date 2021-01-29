@@ -36,8 +36,7 @@ class DelegatedChangeDataController extends BaseApiController{
         "pan",
         "expiry_year",
         "expiry_month",
-        "cvv2",
-        "creditcard_id"
+        "cvv2"
     ];
 
     /**
