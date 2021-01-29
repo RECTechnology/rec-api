@@ -118,8 +118,7 @@ class DelegatedChangeData extends AppObject {
     private $transaction;
 
     /**
-     * @Assert\NotNull
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $creditcard_id;
