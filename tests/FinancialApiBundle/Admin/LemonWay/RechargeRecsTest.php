@@ -8,6 +8,7 @@ use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\LemonDocumentKind;
+use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Exception\AppException;
@@ -138,5 +139,29 @@ class RechargeRecsTest extends AdminApiTest {
         $this->runCommand('rec:fiat:check');
         $this->runCommand('rec:crypto:check');
         $this->runCommand('rec:crypto:check');
+    }
+
+    function testDelegatedCharge(){
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+
+        $data = ['status' => Transaction::$STATUS_RECEIVED,
+            'company_id' => 1,
+            'amount' => 6000,
+            'commerce_id' => 2,
+            'concept' => 'test recharge',
+            'pin' => '3210',
+            'save_card' => 0];
+
+        $this->useLemonWayMock($data);
+
+        $resp = $this->rest(
+            'PUT',
+            '/admin/v3/delegated_changes/1',
+            [
+                'status' => 'scheduled'
+            ]
+        );
+
+        $this->runCommand('rec:delegated_change:run');
     }
 }
