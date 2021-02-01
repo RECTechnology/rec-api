@@ -117,6 +117,12 @@ class DelegatedChangeData extends AppObject {
 
     private $transaction;
 
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $creditcard_id;
+
 
     /**
      * @return mixed
@@ -263,4 +269,21 @@ class DelegatedChangeData extends AppObject {
     {
         $this->transaction_ref = $transaction->getId();
     }
+
+    /**
+     * @return mixed
+     */
+    public function getCreditcardId()
+    {
+        return $this->creditcard_id;
+    }
+
+    /**
+     * @param mixed $creditcard_id
+     */
+    public function setCreditcardId($creditcard_id): void
+    {
+        $this->creditcard_id = $creditcard_id;
+    }
+
 }

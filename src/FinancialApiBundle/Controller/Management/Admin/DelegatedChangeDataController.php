@@ -153,6 +153,7 @@ class DelegatedChangeDataController extends BaseApiController{
                 $req->request->set('pan', $dcdArray["pan"]);
                 $req->request->set('expiry_date', $dcdArray["expiry_month"] . "/" . $dcdArray["expiry_year"]);
                 $req->request->set('cvv2', $dcdArray["cvv2"]);
+                $req->request->set('creditcard_id', $dcdArray["creditcard_id"]);
 
                 /** @var Response $resp */
                 $resp = $this->createAction($req);

@@ -5,5 +5,6 @@
 */5  *   * * * www-data timeout 300 /usr/bin/rec rec:sync:lemonway
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:expire
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:notifications:retry
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:delegated_change:run
 
 #*    *   * * * www-data find /api/web/static -name *.tmp.* -type f -mmin +10 -delete

@@ -8,6 +8,7 @@ use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\LemonDocumentKind;
+use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Exception\AppException;

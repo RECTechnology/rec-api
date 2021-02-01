@@ -35,12 +35,15 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
         ;
     }
 
-    private function createLemonwayTx($amount, Group $account, Group $exchanger){
+    private function createLemonwayTx($amount, Group $account, Group $exchanger, int $card_id, $user_pin){
 
         $params = [
             'concept' => 'Internal exchange',
             'amount' => $amount,
-            'commerce_id' => $exchanger->getId()
+            'commerce_id' => $exchanger->getId(),
+            'card_id' => $card_id,
+            'pin' => $user_pin,
+            'creditCardPertainsBeneficiary' => false
         ];
 
         /** @var IncomingController2 $txm */
@@ -53,7 +56,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             'lemonway',
             $account->getKycManager()->getId(),
             $account,
-            '127.0.0.2' # return Response, NOTE: if IP is '127.0.0.1', the return type is String, else Response
+            '127.0.0.1' # return Response, NOTE: if IP is '127.0.0.1', the return type is String, else Response
         );
 
     }
@@ -93,7 +96,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             foreach ($dc->getData() as $dcd) {
                 $this->log($output, "Processing entry: " . $dcd->getId());
                 # Card is not saved
-                if(!$dcd->getAccount()->getKycManager()->hasSavedCards()){
+                if(!$dcd->getAccount()->getKycManager()->hasSavedCards() and !$dcd->getCreditcardId()){ # TODO remove (never save cards)
                     $this->log($output, "Card is NOT saved, launching lw bot");
                     $this->log($output,"script: " . $this->getContainer()->get('kernel')->getRootDir() . "/../docker/prod/cron/pay-cli.py");
                     /** @var IncomingController2 $txm */
@@ -160,8 +163,17 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                 else {
                     $this->log($output, "Card is saved, creating lw API tx");
                     try {
+                        // get user pin
+                        $user_pin = $dcd->getAccount()->getKycManager()->getPin();
+
                         /** @var Response $resp */
-                        $resp = $this->createLemonwayTx($dcd->getAmount(), $dcd->getAccount(), $dcd->getExchanger());
+                        $resp = $this->createLemonwayTx(
+                            $dcd->getAmount(),
+                            $dcd->getAccount(),
+                            $dcd->getExchanger(),
+                            $dcd->getCreditcardId(),
+                            $user_pin
+                        );
                         $this->log($output, "RESP: " . print_r($resp, true));
 
                         # if received is ok
@@ -200,11 +212,11 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                             $em->persist($dcd); $em->flush();
                             $this->log(
                                 $output,
-                                "Transaction creation failed: status_code=" . $resp->getStatusCode(),
+                                "Transaction creation failed",
                                 DelegatedChangeV2Command::SEVERITY_CRITICAL
                             );
                         }
-                    } catch (HttpException $e){
+                    } catch (\Exception $e){
                         $this->log(
                             $output,
                             "Transaction creation failed: " . $e->getMessage(),
