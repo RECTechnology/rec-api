@@ -120,7 +120,7 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
         $this->override('net.app.in.lemonway.v1', $lw);
     }
 
-    function _testDelegatedCharge(){  // test disabled because the mock fails with $this->runCommand('rec:delegated_change:run');
+    function testDelegatedCharge(){  // test disabled because the mock fails with $this->runCommand('rec:delegated_change:run');
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $ini_account_balance = $this->rest('GET', "/admin/v3/accounts/3")->wallets[0]->balance;
         $data = ['status' => Transaction::$STATUS_RECEIVED,

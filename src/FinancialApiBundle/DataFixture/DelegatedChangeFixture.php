@@ -60,7 +60,7 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
         $dcd->setPan('4111111111111111');
         $dcd->setExpiryDate('10/2024');
         $dcd->setCvv2('000');
-        $dcd->setCreditcardId(1);
+        $dcd->setCreditcard(1);
         $orm->persist($dcd);
         $orm->flush();
         return $dcd;
