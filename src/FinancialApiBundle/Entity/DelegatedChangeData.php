@@ -121,7 +121,7 @@ class DelegatedChangeData extends AppObject {
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"admin"})
      */
-    private $creditcard_id;
+    private $creditcard;
 
 
     /**
@@ -273,17 +273,17 @@ class DelegatedChangeData extends AppObject {
     /**
      * @return mixed
      */
-    public function getCreditcardId()
+    public function getCreditcard()
     {
-        return $this->creditcard_id;
+        return $this->creditcard;
     }
 
     /**
-     * @param mixed $creditcard_id
+     * @param mixed $creditcard
      */
-    public function setCreditcardId($creditcard_id): void
+    public function setCreditcard($creditcard): void
     {
-        $this->creditcard_id = $creditcard_id;
+        $this->creditcard = $creditcard;
     }
 
 }

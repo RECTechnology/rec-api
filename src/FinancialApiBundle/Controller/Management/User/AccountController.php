@@ -578,7 +578,6 @@ class AccountController extends BaseApiController {
         $user->setRoles(array('ROLE_USER'));
         $user->setName($params['name']);
         $user->setPhone($phone);
-        $user->setPublicPhone(false);
         $user->setPrefix($prefix);
         $user->setUsername($params['username']);
         $user->setDNI($params['dni']);
