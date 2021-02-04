@@ -96,7 +96,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             foreach ($dc->getData() as $dcd) {
                 $this->log($output, "Processing entry: " . $dcd->getId());
                 # Card is not saved
-                if(!$dcd->getAccount()->getKycManager()->hasSavedCards() and !$dcd->getCreditcard()){ # TODO remove (never save cards)
+                if(!$dcd->getAccount()->getKycManager()->hasSavedCards() and $dcd->getCreditcard() == null){ # TODO remove (never save cards)
                     $this->log($output, "Card is NOT saved, launching lw bot");
                     $this->log($output,"script: " . $this->getContainer()->get('kernel')->getRootDir() . "/../docker/prod/cron/pay-cli.py");
                     /** @var IncomingController2 $txm */

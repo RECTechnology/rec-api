@@ -9,6 +9,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Admin;
 
+use App\FinancialApiBundle\Entity\Tier;
 use AssertionError;
 use DateTime;
 use Doctrine\Common\Annotations\AnnotationException;
@@ -130,19 +131,46 @@ class DelegatedChangeDataController extends BaseApiController{
         $accRepo = $this->getDoctrine()->getRepository(Group::class);
 
         try{
-            $rowCount = 1;
-            foreach ($contents as $dcdArray){
-                $account = $accRepo->findOneBy(["cif" => $dcdArray['account']]);
+            foreach ($contents as $dcdArray){  // check constraints
+                $account = $accRepo->findOneBy(["id" => $dcdArray['account']]);
                 if(!$account) throw new HttpException(
                     400,
-                    "Invalid account ID: the csv 'account' value must be the 'cif' of the user account (was not found in accounts)."
+                    "Invalid account ID: the csv 'account' value must be the 'id' of the user account (was not found in accounts)."
                 );
 
-                $exchanger = $accRepo->findOneBy(["cif" => $dcdArray['exchanger']]);
+                $exchanger = $accRepo->findOneBy(["id" => $dcdArray['exchanger']]);
                 if(!$exchanger) throw new HttpException(
                     400,
-                    "Invalid exchanger ID: the csv 'exchanger' value must be the 'cif' of the exchanger account (was not found in exchangers)."
+                    "Invalid exchanger ID: the csv 'exchanger' value must be the 'id' of the exchanger account (was not found in exchangers)."
                 );
+                $kyc_repo = $this->getDoctrine()->getRepository(Tier::class);
+                $kyc = $kyc_repo->findOneBy(['id' => $exchanger->getTier()]);
+                if ($kyc->getCode() != "KYC2"){
+                    throw new \RuntimeException(sprintf("Exchanger (%s) KYC lower than KYC2.", $exchanger->getId()));
+                }
+                if (!$exchanger->getActive()){
+                    throw new \RuntimeException(sprintf("Exchanger (%s) is not active.", $exchanger->getId()));
+                }
+                if (!$account->getActive()){
+                    throw new \RuntimeException(sprintf("Account (%s) is not active.", $account->getId()));
+                }
+                if (!$exchanger->getKycManager()->isEnabled()){
+                    throw new \RuntimeException(sprintf("Exchanger (%s) user is not enabled.", $exchanger->getId()));
+                }
+                if (!$exchanger->getKycManager()->isAccountNonLocked()){
+                    throw new \RuntimeException(sprintf("Exchanger (%s) user is locked.", $exchanger->getId()));
+                }
+                if (!$account->getKycManager()->isEnabled()){
+                    throw new \RuntimeException(sprintf("Account (%s) user is not enabled.", $account->getId()));
+                }
+                if (!$account->getKycManager()->isAccountNonLocked()){
+                    throw new \RuntimeException(sprintf("Account (%s) user is locked.", $account->getId()));
+                }
+            }
+            $rowCount = 1;
+            foreach ($contents as $dcdArray){
+                $account = $accRepo->findOneBy(["id" => $dcdArray['account']]);
+                $exchanger = $accRepo->findOneBy(["id" => $dcdArray['exchanger']]);
 
                 $req = new Request();
                 $req->setMethod("POST");
