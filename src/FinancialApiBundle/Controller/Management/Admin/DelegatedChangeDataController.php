@@ -144,27 +144,41 @@ class DelegatedChangeDataController extends BaseApiController{
                     "Invalid exchanger ID: the csv 'exchanger' value must be the 'id' of the exchanger account (was not found in exchangers)."
                 );
                 $kyc_repo = $this->getDoctrine()->getRepository(Tier::class);
-                $kyc = $kyc_repo->findOneBy(['id' => $exchanger->getTier()]);
+                $kyc = $kyc_repo->findOneBy(['id' => $exchanger->getLevel()]);
                 if ($kyc->getCode() != "KYC2"){
-                    throw new \RuntimeException(sprintf("Exchanger (%s) KYC lower than KYC2.", $exchanger->getId()));
+                    throw new HttpException(
+                        400,
+                        sprintf("Exchanger (%s) KYC lower than KYC2.", $exchanger->getId()));
                 }
                 if (!$exchanger->getActive()){
-                    throw new \RuntimeException(sprintf("Exchanger (%s) is not active.", $exchanger->getId()));
+                    throw new HttpException(
+                        400,
+                        printf("Exchanger (%s) is not active.", $exchanger->getId()));
                 }
                 if (!$account->getActive()){
-                    throw new \RuntimeException(sprintf("Account (%s) is not active.", $account->getId()));
+                    throw new HttpException(
+                        400,
+                        printf("Account (%s) is not active.", $account->getId()));
                 }
                 if (!$exchanger->getKycManager()->isEnabled()){
-                    throw new \RuntimeException(sprintf("Exchanger (%s) user is not enabled.", $exchanger->getId()));
+                    throw new HttpException(
+                        400,
+                        printf("Exchanger (%s) user is not enabled.", $exchanger->getId()));
                 }
                 if (!$exchanger->getKycManager()->isAccountNonLocked()){
-                    throw new \RuntimeException(sprintf("Exchanger (%s) user is locked.", $exchanger->getId()));
+                    throw new HttpException(
+                        400,
+                        sprintf("Exchanger (%s) user is locked.", $exchanger->getId()));
                 }
                 if (!$account->getKycManager()->isEnabled()){
-                    throw new \RuntimeException(sprintf("Account (%s) user is not enabled.", $account->getId()));
+                    throw new HttpException(
+                        400,
+                        sprintf("Account (%s) user is not enabled.", $account->getId()));
                 }
                 if (!$account->getKycManager()->isAccountNonLocked()){
-                    throw new \RuntimeException(sprintf("Account (%s) user is locked.", $account->getId()));
+                    throw new HttpException(
+                        400,
+                        sprintf("Account (%s) user is locked.", $account->getId()));
                 }
             }
             $rowCount = 1;
