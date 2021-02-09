@@ -38,6 +38,7 @@ class CreditCard{
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
+     * @Expose
      * @Groups({"manager"})
      */
     private $company;
@@ -58,13 +59,13 @@ class CreditCard{
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
      * @Groups({"manager"})
      */
     private $external_id;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Expose
      * @Groups({"manager"})
      */
     private $deleted = false;

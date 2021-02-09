@@ -171,7 +171,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                             $dcd->getAmount(),
                             $dcd->getAccount(),
                             $dcd->getExchanger(),
-                            $dcd->getCreditcard(),
+                            $dcd->getCreditcard()->getId(),
                             $user_pin
                         );
                         $this->log($output, "RESP: " . print_r($resp, true));

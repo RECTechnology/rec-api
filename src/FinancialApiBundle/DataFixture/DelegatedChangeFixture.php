@@ -4,6 +4,7 @@
 namespace App\FinancialApiBundle\DataFixture;
 
 use App\FinancialApiBundle\Entity\Campaign;
+use App\FinancialApiBundle\Entity\CreditCard;
 use App\FinancialApiBundle\Entity\DelegatedChange;
 use App\FinancialApiBundle\Entity\DelegatedChangeData;
 use App\FinancialApiBundle\Entity\Group;
@@ -27,10 +28,11 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
 
         $exchanger = $orm->getRepository(Group::class)->findOneBy(['id' => 6]);
         $private_accounts = $orm->getRepository(Group::class)->findBy(['type' => Group::ACCOUNT_TYPE_PRIVATE]);
+        $credit_card = $orm->getRepository(CreditCard::class)->findOneBy(['id' => 1]);
 
         foreach($private_accounts as $account){
             if(count($account->getCampaigns()) == 0){
-                $this->createDelegatedChangeData($orm, $dc, $exchanger, $account);
+                $this->createDelegatedChangeData($orm, $dc, $exchanger, $account, $credit_card);
             }
         }
 
@@ -50,7 +52,7 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
     /**
      * @param ObjectManager $orm
      */
-    private function createDelegatedChangeData(ObjectManager $orm, $dc, $exchanger, $account){
+    private function createDelegatedChangeData(ObjectManager $orm, $dc, $exchanger, $account, $credit_card){
         $dcd = new DelegatedChangeData();
         $dcd->setDelegatedChange($dc);
         $dcd->setExchanger($exchanger);
@@ -60,7 +62,7 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
         $dcd->setPan('4111111111111111');
         $dcd->setExpiryDate('10/2024');
         $dcd->setCvv2('000');
-        $dcd->setCreditcard(1);
+        $dcd->setCreditcard($credit_card);
         $orm->persist($dcd);
         $orm->flush();
         return $dcd;
@@ -68,7 +70,7 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
 
     public function getDependencies(){
         return [
-            AccountFixture::class,
+            CreditCardFixture::class,
         ];
     }
 }

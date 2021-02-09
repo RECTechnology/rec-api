@@ -120,7 +120,7 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
         $this->override('net.app.in.lemonway.v1', $lw);
     }
 
-    function _testDelegatedCharge(){  // test disabled because the mock fails with $this->runCommand('rec:delegated_change:run');
+    function _testDelegatedChange(){  // test disabled because the mock fails with $this->runCommand('rec:delegated_change:run');
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $ini_account_balance = $this->rest('GET', "/admin/v3/accounts/3")->wallets[0]->balance;
         $data = ['status' => Transaction::$STATUS_RECEIVED,
@@ -149,5 +149,13 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
 
         $end_account_balance = $this->rest('GET', "/admin/v3/accounts/3")->wallets[0]->balance;
         $this->assertEquals($end_account_balance - $ini_account_balance, DelegatedChangeFixture::AMOUNT * 1000000);
+    }
+
+    function testDelegatedChangeInfo(){
+        $resp = $this->rest(
+            'GET',
+            '/admin/v3/delegated_changes/1'
+        );
+        echo "";
     }
 }

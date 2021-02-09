@@ -69,7 +69,6 @@ class DelegatedChangeData extends AppObject {
     /**
      * @Assert\CardScheme(schemes={"VISA", "MASTERCARD"})
      * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"admin"})
      */
     private $pan;
 
@@ -80,7 +79,6 @@ class DelegatedChangeData extends AppObject {
      * )
      * @RECAssert\IsNotExpired
      * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"admin"})
      */
     private $expiry_date;
 
@@ -90,7 +88,6 @@ class DelegatedChangeData extends AppObject {
      *     message="Invalid cvv2 format: must contain exactly three digits."
      * )
      * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"admin"})
      */
     private $cvv2;
 
@@ -118,7 +115,7 @@ class DelegatedChangeData extends AppObject {
     private $transaction;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\CreditCard")
      * @Serializer\Groups({"admin"})
      */
     private $creditcard;
