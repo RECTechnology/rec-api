@@ -3,19 +3,13 @@
 namespace App\FinancialApiBundle\Controller\Open;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\BaseApiController;
-use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use App\FinancialApiBundle\Entity\Category;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\Offer;
-use App\FinancialApiBundle\Entity\User;
 
 class MapController extends BaseApiController{
 
@@ -33,261 +27,121 @@ class MapController extends BaseApiController{
      * @param Request $request
      * @return Response
      */
-    public function ListAction(Request $request){
-        $logger = $this->get('manager.logger');
-        $logger->info('MAP 1');
+    public function SearchAction(Request $request)
+    {
+//        $limit = $request->query->getInt('limit', 10);
+//        $offset = $request->query->getInt('offset', 0);
+//        $sort = $request->query->get('sort', 'id');
+//        $order = $request->query->getAlpha('order', 'DESC');
+        $campaign = $request->query->get('campaigns');
+        $search = $request->query->get('search');
+        $account_subtype = strtoupper($request->query->get('subtype', ''));
+        $only_with_offers = $request->query->get('only_with_offers', 0);
+        $rect_box = $request->query->get('rect_box', [-90.0, -90.0, 90.0, 90.0]);
 
-        $total = 0;
-        $all = array();
+        if (!in_array($account_subtype, ["RETAILER", "WHOLESALE", ""])) {
+            throw new HttpException(400, "Invalid subtype '$account_subtype', valid options: 'retailer', 'wholesale'");
+        }
+
+        /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder();
+        $and = $qb->expr()->andX();
+        $searchFields = [
+            'a.id',
+            'a.name',
+            'a.phone',
+            'a.cif',
+            'a.city',
+            'a.street',
+            'a.description',
+            'o.discount',
+            'o.description',
+            'c.cat',
+            'c.esp',
+            'c.eng'
+        ];
+        $like = $qb->expr()->orX();
+        foreach ($searchFields as $field) {
+            $like->add($qb->expr()->like($field, $qb->expr()->literal('%' . $search . '%')));
+        }
+        $and->add($like);
+        $and->add($qb->expr()->eq('a.on_map', 1));
+        //geo query
+        $and->add($qb->expr()->gt('a.latitude', $rect_box[0]));
+        $and->add($qb->expr()->lt('a.latitude', $rect_box[2]));
+        $and->add($qb->expr()->gt('a.longitude', $rect_box[1]));
+        $and->add($qb->expr()->lt('a.longitude', $rect_box[3]));
 
-        $min_lat = $request->query->get('min_lat', -90.0);
+        $and->add($qb->expr()->eq('a.type', $qb->expr()->literal('COMPANY')));
 
+        if (isset($campaign)) $and->add($qb->expr()->eq('cp.id', $campaign));
 
-        $max_lat =  $request->query->get('max_lat',  90.0);
+        if ($account_subtype != '') $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
-
-        $min_lon =  $request->query->get('min_lon',  -90.0);
-
-
-        $max_lon = $request->query->get('max_lon', 90.0);
-
-
-        $only_offers = false;
-        if($request->query->has('only_offers') && $request->query->get('only_offers')=='1') {
-            $only_offers = true;
+        if ($only_with_offers == 1) {
+            $qbAux = $em->createQueryBuilder()
+                ->select('count(o2)')
+                ->from(Offer::class, 'o2')
+                ->where($qb->expr()->eq('o2.company', 'a.id'));
+            $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
         }
 
-        $where = array('type'  =>  'COMPANY');
-        if($request->query->has('retailer') && $request->query->get('retailer')=='1') {
-            $where['subtype'] = 'RETAILER';
-        }
-        if($request->query->has('wholesale') && $request->query->get('wholesale')=='1') {
-            if(isset($where['subtype'])){
-                unset($where['subtype']);
-            }
-            else {
-                $where['subtype'] = 'WHOLESALE';
-            }
-        }
+        $qb = $qb
+            ->distinct()
+            ->from(Group::class, 'a')
+            ->leftJoin('a.offers', 'o')
+            ->leftJoin('a.category', 'c')
+            ->leftJoin('a.campaigns', 'cp')
+            ->where($and);
 
-        if($request->query->get('retailer')=='0' && $request->query->get('wholesale')=='0') {
-            throw new HttpException(400, "Filters options are incorrect");
-        }
+        $total = $qb
+            ->select('count(distinct(a))')
+            ->getQuery()
+            ->getSingleScalarResult();
 
-        $logger->info('MAP 2');
-        $list_cat_ids = array();
-        $search_defined = false;
-        if($request->query->has('search') && $request->query->get('search')!='') {
-            $search = strtoupper($request->query->get('search'));
-            $search_defined = true;
-            $list_categories = $em->getRepository('FinancialApiBundle:Category')->findAll();
-            foreach ($list_categories as $category) {
-                if (strpos(strtoupper($category->getCat()), $search) !== false ||
-                    strpos(strtoupper($category->getEsp()), $search) !== false ||
-                    strpos(strtoupper($category->getEng()), $search) !== false)
-                {
-                    $list_cat_ids[] = $category->getId();
-                }
-            }
-        }
+        $select = 'a.id, ' .
+            'a.name, ' .
+            'a.company_image, ' .
+            'a.latitude, ' .
+            'a.longitude, ' .
+            'a.country, ' .
+            'a.city, ' .
+            'a.zip, ' .
+            'a.street, ' .
+            'a.street_type, ' .
+            'a.address_number, ' .
+            'a.prefix, ' .
+            'a.phone, ' .
+            'a.type, ' .
+            'a.subtype, ' .
+            'a.description, ' .
+            'a.schedule, ' .
+            'a.public_image, ' .
+            'a.web, ' .
+            'a.offered_products, ' .
+            'a.needed_products, '.
+            'cp.name AS campaign';
 
-        $list_companies = $em->getRepository('FinancialApiBundle:Group')->findBy($where);
-        $list_offers = $em->getRepository('FinancialApiBundle:Offer')->findBy(array(
-            'active'   =>  true
-        ));
+        $elements = $qb
+            ->select($select)
+            ->orderBy('a.id', 'DESC')
+            ->getQuery()
+            ->getResult();
 
-        $offer_by_com = array();
-        foreach($list_offers as $offer) {
-            $offer_by_com[$offer->getCompany()->getId()][] = $offer;
-        }
+        $elements = $this->secureOutput($elements);
 
-        foreach ($list_companies as $company){
-            $lat = $company->getLatitude();
-            $lon = $company->getLongitude();
-            $name = strtoupper($company->getName());
-            $category_id = 0;
-            $com_id = $company->getId();
-            if($company->getCategory()) {
-                $category_id = $company->getCategory()->getId();
-            }
-            if(intval($lat) == 0 && intval($lon) == 0) {
-                //No han definido su ubicacion
-            }
-            elseif ($search_defined && (strpos($name, $search) !== true || in_array($category_id, $list_cat_ids))) {
-                //No cumple el search
-            }
-            elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
-                //check offers
-                $offers = array();
-                $total_offers = 0;
-                if(isset($offer_by_com[$com_id])) {
-                    $offers=$offer_by_com[$com_id];
-                    $total_offers=count($offer_by_com[$com_id]);
-                }
+        $now = new \DateTime();
+        for($i = 0; $i < count($elements); $i++){
+            $offersInGroup = $em
+                ->createQuery('SELECT o FROM '.Offer::class.' o WHERE o.company = :companyid AND o.end < :today')
+                ->setParameters(array(
+                    'companyid' => $elements[$i]["id"],
+                    'today' => $now))
+                ->getResult();
 
-                if(!$only_offers || $total_offers>0){
-                    $total+=1;
-                    $all[] = array(
-                        'name' => $company->getName(),
-                        'company_image' => $company->getCompanyImage(),
-                        'latitude' => $lat,
-                        'longitude' => $lon,
-                        'country' => $company->getCountry(),
-                        'city' => $company->getCity(),
-                        'zip' => $company->getZip(),
-                        'street' => $company->getStreet(),
-                        'street_type' => $company->getStreetType(),
-                        'address_number' => $company->getAddressNumber(),
-                        'phone' => $company->getPhone(),
-                        'prefix' => $company->getPrefix(),
-                        'type' => $company->getType(),
-                        'subtype' => $company->getSubtype(),
-                        'description' => $company->getDescription(),
-                        'schedule' => $company->getSchedule(),
-                        'public_image' => $company->getPublicImage(),
-                        'category' => $company->getCategory(),
-                        'offers' => $offers,
-                        'total_offers' => $total_offers
-                    );
-                }
-            }
-        }
-        $logger->info('MAP END');
-
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            array(
-                'total' => $total,
-                'elements' => $all
-            )
-        );
-    }
-
-    /**
-     * @param Request $request
-     * @return Response
-     */
-    public function SearchAction(Request $request){
-        $total = 0;
-        $all = array();
-        $em = $this->getDoctrine()->getManager();
-
-        $where = array('type'  =>  'COMPANY');
-        if($request->query->has('retailer') && $request->query->get('retailer')=='1') {
-            $where['subtype'] = 'RETAILER';
-        }
-        if($request->query->has('wholesale') && $request->query->get('wholesale')=='1') {
-            if(isset($where['subtype'])){
-                unset($where['subtype']);
-            }
-            else {
-                $where['subtype'] = 'WHOLESALE';
-            }
-        }
-        if($request->query->get('retailer')=='0' && $request->query->get('wholesale')=='0') {
-            throw new HttpException(400, "Filters options are incorrect");
-        }
-
-        $list_companies = $em->getRepository('FinancialApiBundle:Group')->findBy($where);
-
-        if($request->query->has('search') && $request->query->get('search')!='') {
-            $search = strtoupper($request->query->get('search'));
-        }
-        else{
-            return $this->restV2(
-                200,
-                "ok",
-                "Request successful",
-                array(
-                    'total' => $total,
-                    'elements' => $all
-                )
-            );
-        }
-
-
-
-
-
-
-
-        $list_categories = $em->getRepository('FinancialApiBundle:Category')->findAll();
-        $list_cat_ids = array();
-        foreach ($list_categories as $category) {
-
-            if (strpos(strtoupper($category->getCat()), $search) !== false ||
-                strpos(strtoupper($category->getEsp()), $search) !== false ||
-                strpos(strtoupper($category->getEng()), $search) !== false)
-            {
-                $list_cat_ids[] = $category->getId();
-            }
-        }
-
-        $only_offers = false;
-        if($request->query->has('only_offers') && $request->query->get('only_offers')=='1') {
-            $only_offers = true;
-        }
-
-        foreach ($list_companies as $company){
-            $lat = $company->getLatitude();
-            $lon = $company->getLongitude();
-            if(intval($lat) == 0 && intval($lon) == 0) {
-                //No han definido su ubicacion
-            }
-            else{
-                $name = strtoupper($company->getName());
-                $category_id = 0;
-                if($company->getCategory()) {
-                    $category_id = $company->getCategory()->getId();
-                }
-                if (strpos($name, $search) !== false || in_array($category_id, $list_cat_ids)) {
-                    //check offers
-                    $list_offers = $em->getRepository('FinancialApiBundle:Offer')->findBy(array(
-                        'company'  =>  $company
-                    ));
-                    $now = strtotime("now");
-                    $offers_info = array();
-                    $total_offers = 0;
-                    foreach($list_offers as $offer){
-                        $start = date_timestamp_get($offer->getStart());
-                        if($start <= $now){
-                            $end = date_timestamp_get($offer->getEnd());
-                            if($now <= $end){
-                                $offers_info[]=$offer;
-                                $total_offers+=1;
-                            }
-                        }
-                    }
-                    if(!$only_offers || $total_offers>0){
-                        $total+=1;
-                        $all[] = array(
-                            'name' => $company->getName(),
-                            'company_image' => $company->getCompanyImage(),
-                            'latitude' => $company->getLatitude(),
-                            'longitude' => $company->getLongitude(),
-                            'country' => $company->getCountry(),
-                            'city' => $company->getCity(),
-                            'zip' => $company->getZip(),
-                            'street' => $company->getStreet(),
-                            'street_type' => $company->getStreetType(),
-                            'address_number' => $company->getAddressNumber(),
-                            'phone' => $company->getPhone(),
-                            'prefix' => $company->getPrefix(),
-                            'type' => $company->getType(),
-                            'subtype' => $company->getSubtype(),
-                            'description' => $company->getDescription(),
-                            'schedule' => $company->getSchedule(),
-                            'public_image' => $company->getPublicImage(),
-                            'category' => $company->getCategory(),
-                            'offers' => $offers_info,
-                            'total_offers' => $total_offers
-                        );
-                    }
-                }
-            }
+            $elements[$i]["offers"] = $offersInGroup;
         }
 
         return $this->restV2(
@@ -296,11 +150,8 @@ class MapController extends BaseApiController{
             "Request successful",
             array(
                 'total' => $total,
-                'elements' => $all
+                'elements' => $elements
             )
         );
     }
-
-
-
 }
