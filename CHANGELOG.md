@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.21.0](https://github.com/qbitartifacts/rec-api/compare/v2.20.5...v2.21.0) (2021-02-17)
+
+
+### Features
+
+* **AccountController:** removed setPublicPhone ([510f40c](https://github.com/qbitartifacts/rec-api/commit/510f40ca3376580b7ac5827b29e8c2da19d52cf8))
+* **CreditCardFixture:** implemented CreditCardFixture ([b895eb1](https://github.com/qbitartifacts/rec-api/commit/b895eb165cd9bec0e08294735e391b038ae617b5))
+* **CreditCardFixtures:** changer external card id ([59a49a0](https://github.com/qbitartifacts/rec-api/commit/59a49a028bcaf09ecfa048726537c7ed1d273f96))
+* **delegated_change:** constraints for KYC and user/accounts status ([#439](https://github.com/qbitartifacts/rec-api/issues/439)) ([8d6c97c](https://github.com/qbitartifacts/rec-api/commit/8d6c97c832b41efe124bc1eec9ad291bee7c3a6b))
+* **delegated_change:** delegated changes serialized info ([#446](https://github.com/qbitartifacts/rec-api/issues/446)) ([e331a09](https://github.com/qbitartifacts/rec-api/commit/e331a09f432c1843de41207f8017ddd944baf72b))
+* **DelegatedChangeData:** added creditcard_id variable ([9c90752](https://github.com/qbitartifacts/rec-api/commit/9c907523e58907331138323861306255e86669d9))
+* **DelegatedChangeData:** changes variable name from creditcard_id to creditcard ([b30a53b](https://github.com/qbitartifacts/rec-api/commit/b30a53b56b35876efeb1f6cf1064e0d915dc5b16))
+* **DelegatedChangeData:** seted creditcard_id nullable ([d39de73](https://github.com/qbitartifacts/rec-api/commit/d39de73acfbb346cb6a42e79e084fafe632c5c2f))
+* **DelegatedChangeDataController:** added creditcard_id header ([08f11e9](https://github.com/qbitartifacts/rec-api/commit/08f11e99ef8cb255c13cb58e590ae50faa7848f8))
+* **DelegatedChangeDataController:** modified variable_name to creditcard_id ([b781c50](https://github.com/qbitartifacts/rec-api/commit/b781c50a27e493d0fb08006ac5214863d459257a))
+* **DelegatedChangeFixture:** implemented DelegatedChangeFixture ([eea1668](https://github.com/qbitartifacts/rec-api/commit/eea1668cc4fa7ba3878a3fbc0ec74695a6e57900))
+* **DelegatedChangeFixtures:** changer amount (for decimals) ([d625a7f](https://github.com/qbitartifacts/rec-api/commit/d625a7f4749bd97faba366f97a2ee1d3f657d49f))
+* **DelegatedChangeTest:** added check for account balance before and after delegated change execution ([be49d3c](https://github.com/qbitartifacts/rec-api/commit/be49d3c64ccd0fc2677e20587b32c816c5d080be))
+* **DelegatedChangeTest:** disabled testDelegatedCharge ([26ab016](https://github.com/qbitartifacts/rec-api/commit/26ab0167f2db487cbeb5e6975ceeaec7108997fe))
+* **DelegatedChangeTest:** test testDelegatedCharge disabled because the mock fails when run 'rec:delegated_change:run' ([c8ea704](https://github.com/qbitartifacts/rec-api/commit/c8ea704db4f1553b8f5b7d077ba94fc911859078))
+* **DelegatedChargeDateController:** optional external credit card id header ([246f389](https://github.com/qbitartifacts/rec-api/commit/246f38972724b15e47eff3b184848c6d98069d8c))
+* **DelegatedChargeV2Command:** added required params for createTransaction ([c095893](https://github.com/qbitartifacts/rec-api/commit/c0958939ff196f3f5a81de57def3630438966027))
+* **IncomingController:** allow pay with not pertaining card ([7526d73](https://github.com/qbitartifacts/rec-api/commit/7526d73af4eab2d9f32e8689fdf42b597fba84b4))
+* **map:** removed /public/map/v1/list and updated SearchAction ([#447](https://github.com/qbitartifacts/rec-api/issues/447)) ([512cb80](https://github.com/qbitartifacts/rec-api/commit/512cb8005159d9bb0511b02c34175a7bdcce1f72))
+* **rec:delegated_change:run:** run rec:delegated_change:run in cron ([96e4c6e](https://github.com/qbitartifacts/rec-api/commit/96e4c6e1bba5f1dd2875dba920bca2f44791a0ef))
+* **RechargeRecsTest:** Implemented testDelegatedCharge ([1989576](https://github.com/qbitartifacts/rec-api/commit/1989576356cbc2daac57bd1fd1f359d3851973c8))
+* **RechargeRecsTest:** moved testDelegatedCharge ([dd082be](https://github.com/qbitartifacts/rec-api/commit/dd082bee18d903fdbea0b9df2a071f67c6f3a3c9))
+* **versioning:** bumped minimum app version to v61 ([#425](https://github.com/qbitartifacts/rec-api/issues/425)) ([84ba70a](https://github.com/qbitartifacts/rec-api/commit/84ba70aa9e87314da464abd2759bd4aa4fe0376e))
+
+
+### Bug Fixes
+
+* **CreditCardFixture:** fixed dependencies ([a2e000f](https://github.com/qbitartifacts/rec-api/commit/a2e000f71164cc0de41fe1be08cc5bd8d240b615))
+* **delegated_change:** errors now are more detailed, kyc fix ([#442](https://github.com/qbitartifacts/rec-api/issues/442)) ([7f26ee3](https://github.com/qbitartifacts/rec-api/commit/7f26ee3d65169f629f1f42fd9ae12b378bd300c4))
+* **delegated_change:** working ViewHandler error (test still fails by other reasons) ([90c1a61](https://github.com/qbitartifacts/rec-api/commit/90c1a61d5865d92818379ff3d89cf4e9c5d12df0))
+* **deps:** updated composer deps ([89f82a9](https://github.com/qbitartifacts/rec-api/commit/89f82a995408ba978d2098266399f2ca352b633f))
+* **misc:** Save created and updated date on users and accounts ([#432](https://github.com/qbitartifacts/rec-api/issues/432)) ([6831e93](https://github.com/qbitartifacts/rec-api/commit/6831e93feaadc38655539bc2ede3fd7f79186242)), closes [#430](https://github.com/qbitartifacts/rec-api/issues/430) [#429](https://github.com/qbitartifacts/rec-api/issues/429) [#431](https://github.com/qbitartifacts/rec-api/issues/431)
+
 ### [2.20.5](https://github.com/qbitartifacts/rec-api/compare/v2.20.4...v2.20.5) (2020-12-02)
 
 
