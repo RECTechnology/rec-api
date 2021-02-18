@@ -26,7 +26,7 @@ class UpdateLemonBalanceCommand extends ContainerAwareCommand{
             $lemon_id = $balance["ID"];
             $lemon_balance = $balance["BAL"];
             $lemon_status = $balance["S"];
-            //$output->writeln($lemon_id . "-" . $lemon_balance . "-" . $lemon_status);
+            $output->writeln($lemon_id . "-" . $lemon_balance . "-" . $lemon_status);
             $account = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array(
                 'cif' => $lemon_id
             ));
