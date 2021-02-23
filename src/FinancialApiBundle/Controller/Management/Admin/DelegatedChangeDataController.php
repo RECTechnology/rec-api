@@ -181,7 +181,7 @@ class DelegatedChangeDataController extends BaseApiController{
                         sprintf("Account (%s) user is locked.", $account->getId()));
                 }
             }
-            $rowCount = 1;
+            $rowCount = 0;
             foreach ($contents as $dcdArray){
                 $account = $accRepo->findOneBy(["id" => $dcdArray['account']]);
                 $exchanger = $accRepo->findOneBy(["id" => $dcdArray['exchanger']]);

@@ -33,7 +33,9 @@ class UpdateLemonBalanceCommand extends ContainerAwareCommand{
             if($account) {
                 $wallet = $account->getWallet('eur');
                 $wallet->setBalance(intval($lemon_balance * 100));
+                $account->setLwBalance(intval($lemon_balance * 100));
                 $em->persist($wallet);
+                $em->persist($account);
                 $em->flush();
             }
         }
