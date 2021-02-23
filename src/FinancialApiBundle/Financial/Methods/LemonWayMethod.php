@@ -155,7 +155,8 @@ class LemonWayMethod extends BaseMethod {
 
     public function GetBalances(){
         //miramos solo los que se han modificado el último día (con 10 minutos de margen)
-        $now = time()-86400-600;
+        $lemonway_sync_balances_last = $this->container->getParameter('lemonway_sync_balances_last');
+        $now = time()-$lemonway_sync_balances_last;
         $response = $this->driver->callService("GetBalances", array(
             "updateDate" => $now
         ));
