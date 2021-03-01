@@ -70,7 +70,8 @@ class WalletController extends RestApiController{
         $em = $this->getDoctrine()->getManager();
         $where = array(
             'type'  =>  'COMPANY',
-            'tier'  =>  2
+            'tier'  =>  2,
+            'active'  =>  1
         );
         $list_companies = $em->getRepository('FinancialApiBundle:Group')->findBy($where);
 
