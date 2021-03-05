@@ -1356,24 +1356,26 @@ class IncomingController2 extends RestApiController{
                          $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
                          $user = $this->get('security.token_storage')->getToken()->getUser();
 
-                         // send 15% from campaign account to commerce and from commerce to bonissim account
-                         $request = array();
-                         $request['concept'] = $params['concept'];
-                         $request['amount'] = $params['amount'] / 100 * $campaign->getRedeemablePercentage();
-                         $request['pin'] = $user->getPin();
-                         $request['address'] = $destination->getRecAddress();
-                         $request['internal_tx'] = '1';
-                         $request['destionation_id'] = $account->getId();
-                         $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
-
-
                          $redeemable_amount = $account->getRedeemableAmount();
                          $new_rewarded = min($redeemable_amount, $params['amount'] / $satoshi_decimals);
-                         $account->setRedeemableAmount($redeemable_amount - $new_rewarded);
-                         $rewarded_amount = $account->getRewardedAmount();
-                         $account->setRewardedAmount($rewarded_amount + $new_rewarded);
-                         $em->persist($account);
-                         $em->flush();
+
+                         if($new_rewarded > 0){
+                             // send 15% from campaign account to commerce and from commerce to bonissim account
+                             $request = array();
+                             $request['concept'] = $params['concept'];
+                             $request['amount'] = ($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage();
+                             $request['pin'] = $user->getPin();
+                             $request['address'] = $destination->getRecAddress();
+                             $request['internal_tx'] = '1';
+                             $request['destionation_id'] = $account->getId();
+                             $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
+                             $account->setRedeemableAmount($redeemable_amount - $new_rewarded);
+                             $rewarded_amount = $account->getRewardedAmount();
+                             $account->setRewardedAmount($rewarded_amount + $new_rewarded);
+                             $em->persist($account);
+                             $em->flush();
+                         }
+
                      }
                 }
             }
