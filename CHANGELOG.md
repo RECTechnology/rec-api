@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.22.0](https://github.com/qbitartifacts/rec-api/compare/v2.21.0...v2.22.0) (2021-03-08)
+
+
+### Features
+
+* **crontab:** added rec:lemon:check:balance command to crontab ([df37a85](https://github.com/qbitartifacts/rec-api/commit/df37a85acd6e546d8cbf1de778d7fcd182408479))
+* **Group:** listCommerce method return only active exchangers ([3f72ca8](https://github.com/qbitartifacts/rec-api/commit/3f72ca8488946d1d8a5dba21ff02d63c0efc005e))
+* **LemonWayMethod:** get use seconds parameter in GetBalances() ([822b1d3](https://github.com/qbitartifacts/rec-api/commit/822b1d36afe81f6024c99191e6f9f7370992653b))
+* **parameters:** added lemonway_sync_balances_last variable to parameters-docker.yml.dist and parameters.yml.dist ([e59ab20](https://github.com/qbitartifacts/rec-api/commit/e59ab20ad08d64c8eb2fd459bdd08d06dbb1af40))
+* **UpdateLemonBalanceCommand:** uncomment output ([87d94ba](https://github.com/qbitartifacts/rec-api/commit/87d94ba07ec7fdae7f76292115e2bec748c2093e))
+* **UpdateLemonBalanceCommand:** update account->lw_balance ([15913cc](https://github.com/qbitartifacts/rec-api/commit/15913cc54da44c06a4739b6dcb059a71b0cb18e7))
+
+
+### Bug Fixes
+
+* **DelegatedChangeDataController:** fixed CSV row count ([49e9cbe](https://github.com/qbitartifacts/rec-api/commit/49e9cbe5f640c5e7cac0cf740bc3cbaa8ad41a9d))
+* **deps:** updated composer deps ([9433a13](https://github.com/qbitartifacts/rec-api/commit/9433a13ee081d5d4ac7b1a562aefbfe98f098cb2))
+* **IncomingController:** added check for rewarded_amount ([fb18b9d](https://github.com/qbitartifacts/rec-api/commit/fb18b9dbfa3423311704b414e259162cae10745f))
+* **parameters-docker.yml.dist:** changed LEMONWAY_SYNC_BALANCES_LAST variable name ([999d426](https://github.com/qbitartifacts/rec-api/commit/999d4263aee1c124a5eabfcf991ee15f4fe138be))
+
 ## [2.21.0](https://github.com/qbitartifacts/rec-api/compare/v2.20.5...v2.21.0) (2021-02-17)
 
 
