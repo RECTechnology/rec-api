@@ -6,10 +6,13 @@ use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\Notifier;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\Mailing;
+use App\FinancialApiBundle\Entity\MailingDelivery;
 use App\FinancialApiBundle\Entity\Notification;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\User;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
@@ -277,6 +280,8 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         }
         self::assertTrue($foundBonissimAccount);
         $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=".$user_id);
+
+        $this->reportLTAB();
     }
 
     function testBonissimAccountPaysToNoBonissimCommerceShouldFail(){
@@ -388,6 +393,17 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $payed_to_user = ($_bonissim_private_account->wallets[0]->balance - $bonissim_private_account->wallets[0]->balance);
         self::assertEquals($tx_amount / 100 * 15e8, $payed_to_user);
 
+        $this->reportLTAB();
+    }
+
+    function reportLTAB()
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $route = "/admin/v3/accounts/reports/ltab_general";
+        $resp = $this->request('GET', $route, null, ['HTTP_ACCEPT' => 'application/pdf'],
+            ['since' => '2020-01-10', 'to' => '2021-10-01']);
+        $output = $this->runCommand('rec:mailing:send');
+        self::assertRegExp("/Processing/", $output);
     }
 
     /**

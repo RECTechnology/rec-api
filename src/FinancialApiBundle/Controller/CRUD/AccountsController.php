@@ -3,10 +3,14 @@
 namespace App\FinancialApiBundle\Controller\CRUD;
 
 use App\FinancialApiBundle\Controller\Transactions\IncomingController2;
+use App\FinancialApiBundle\Entity\Campaign;
+use App\FinancialApiBundle\Entity\Mailing;
+use App\FinancialApiBundle\Entity\MailingDelivery;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
 use App\FinancialApiBundle\Exception\AppException;
 use App\FinancialApiBundle\Financial\Driver\LemonWayInterface;
+use DateTime;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -20,8 +24,12 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Entity\Group;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Entity\Offer;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\Translation\TranslatorInterface;
+use Stubs\DocumentManager;
+use App\FinancialApiBundle\Document\Transaction;
 
 /**
  * Class AccountsController
@@ -375,5 +383,238 @@ class AccountsController extends CRUDController {
             "Created successfully",
             $output
         );
+    }
+    /**
+     * @param EngineInterface $templating
+     * @param Request $request
+     * @return Response
+     */
+    public function reportLTABAction(EngineInterface $templating, Request $request){
+
+        /** @var TokenStorageInterface $tokenStorage */
+        $tokenStorage = $this->get('security.token_storage');
+
+        $user_account = $tokenStorage->getToken()->getUser()->getGroups()[0];
+
+        /** @var DocumentManager $dm */
+        $dm = $this->container->get('doctrine_mongodb')->getManager();
+
+        /** @var EntityManagerInterface $em */
+        $em = $this->container->get('doctrine')->getManager();
+        $repoGroup = $em->getRepository(Group::class);
+
+        $_since = $request->query->get("since", "0");
+        $_to = $request->query->get("to", "0");
+
+        $campaign = $em->getRepository(Campaign::class)->findOneBy(["name" => Campaign::BONISSIM_CAMPAIGN_NAME]);
+
+        if($_since!="0"){
+            $since = new \MongoDate(strtotime($_since .' 00:00:00'));
+        }
+        else{
+            $since = new \MongoDate($campaign->getInitDate()->getTimestamp());
+        }
+
+        if($_to!="0"){
+            $to = new \MongoDate(strtotime($_to .' 23:59:59'));
+        }
+        else{
+            $to = new \MongoDate($campaign->getEndDate()->getTimestamp());
+        }
+
+        $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
+            ->field('method')->equals('rec')
+            ->field('type')->equals('out')
+            ->field('status')->equals('success')
+            ->field('created')->gte($since)
+            ->field('created')->lte($to)
+            ->getQuery();
+
+        $transactions = $qb->toArray();
+        $company_accounts = [];
+        $private_accounts = [];
+        $cert1_transactions = [];
+        $cert2_transactions = [];
+        $cert3_transactions = [];
+        $total_c1_amount = 0;
+        $total_c2_amount = 0;
+        $total_c3_amount = 0;
+        $company_c3_accounts = [];
+        $private_c3_accounts = [];
+
+        /** @var Transaction $transaction */
+        foreach ($transactions as $transaction) {
+            $sender = $repoGroup->find($transaction->getGroup());
+            if ($transaction->getPayOutInfo()['name_receiver'] == Campaign::BONISSIM_CAMPAIGN_NAME and
+                $transaction->getInternal()){
+                if($sender->getType() == Group::ACCOUNT_TYPE_ORGANIZATION and sizeof($sender->getCampaigns())){
+                    $receiver_c2 = $repoGroup->findOneBy(['rec_address' => $transaction->getPayOutInfo()['address']]);
+                    //search cert2 transactions
+                    if($receiver_c2 and $receiver_c2->getType() == Group::ACCOUNT_TYPE_PRIVATE and sizeof($receiver_c2->getCampaigns())){
+                        $transaction_data = array(
+                            $sender->getId(),
+                            $sender->getType(),
+                            $transaction->getCreated()->format('Y-m-d H:i:s'),
+                            $transaction->getId(),
+                            $receiver_c2->getId(),
+                            $receiver_c2->getType(),
+                            'bonificació',
+                            'boníssim',
+                            $transaction->getAmount() / 1e8
+                        );
+                        array_push($cert2_transactions, $transaction_data);
+                        array_push($company_accounts, $sender->getId());
+                        array_push($private_accounts, $receiver_c2->getId());
+                        $total_c2_amount += $transaction->getAmount() / 1e8;
+
+                        //search cert1 transactions
+                        foreach ($transactions as $trans) {
+                            if(round(($trans->getAmount() / 100) * Campaign::PERCENTAGE , 2) ==
+                                round($transaction->getAmount(), 2)){
+                                $receiver_c1 = $repoGroup->findOneBy(['rec_address' => $trans->getPayOutInfo()['address']]);
+                                if($receiver_c1->getId() == $sender->getId()){
+                                    $sender_c1 = $repoGroup->find($trans->getGroup());
+                                    if($sender_c1->getKycManager()->getId() == $receiver_c2->getKycManager()->getId()){
+                                        $transaction_data = array(
+                                            $sender_c1->getId(),
+                                            $sender_c1->getType(),
+                                            $trans->getCreated()->format('Y-m-d H:i:s'),
+                                            $trans->getId(),
+                                            $receiver_c1->getId(),
+                                            $receiver_c1->getType(),
+                                            'bonificable',
+                                            'boníssim',
+                                            $trans->getAmount() / 1e8
+                                        );
+                                        array_push($cert1_transactions, $transaction_data);
+                                        $total_c1_amount += $trans->getAmount() / 1e8;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //search cert3 transactions
+            if($sender->getType() == Group::ACCOUNT_TYPE_PRIVATE and sizeof($sender->getCampaigns())){
+                $receiver_c3 = $repoGroup->findOneBy(['rec_address' => $transaction->getPayOutInfo()['address']]);
+                if(sizeof($receiver_c3->getCampaigns())){
+                    if($receiver_c3 and $receiver_c3->getType() == Group::ACCOUNT_TYPE_PRIVATE){
+                        $tx_type = 'Transfer';
+                    }else{
+                        $tx_type = 'Payment';
+                        array_push($company_c3_accounts, $receiver_c3->getId());
+                    }
+                    $transaction_data = array(
+                        $sender->getId(),
+                        $sender->getType(),
+                        $transaction->getCreated()->format('Y-m-d H:i:s'),
+                        $transaction->getId(),
+                        $receiver_c3->getId(),
+                        $receiver_c3->getType(),
+                        'gastado',
+                        'boníssim',
+                        $transaction->getAmount() / 1e8,
+                        $tx_type
+                    );
+                    array_push($cert3_transactions, $transaction_data);
+                    array_push($private_c3_accounts, $sender->getId());
+                    $total_c3_amount += $transaction->getAmount() / 1e8;
+                }
+
+            }
+        }
+
+        $company_accounts = array_unique($company_accounts);
+        $private_accounts = array_unique($private_accounts);
+        $company_c3_accounts = array_unique($company_c3_accounts);
+        $private_c3_accounts = array_unique($private_c3_accounts);
+
+        if($cert2_transactions){
+            $fp = fopen('cert2.csv', 'w');
+            $headers = array('Id sender', 'sender type', 'fecha', 'transacción id', 'id receiver', 'receiver type',
+                'Concepto', 'servicio', 'cantidad R');
+            fputcsv($fp, $headers);
+
+            foreach ($cert2_transactions as $transaction) {
+                fputcsv($fp, $transaction);
+            }
+            fputcsv($fp, array('Total company accounts:', sizeof($company_accounts)));
+            fputcsv($fp, array('Total private accounts:', sizeof($private_accounts)));
+            fputcsv($fp, array('Total REC ammount:', $total_c2_amount));
+            fputcsv($fp, array('Total transactions:', sizeof($cert2_transactions)));
+            fclose($fp);
+
+            $this->scheduleMailing($user_account, $em, "cert2");
+        }
+
+        if($cert1_transactions){
+            $fp = fopen('cert1.csv', 'w');
+            $headers = array('Id sender', 'sender type', 'fecha', 'transacción id', 'id receiver', 'receiver type',
+                'Concepto', 'servicio', 'cantidad R');
+            fputcsv($fp, $headers);
+
+            foreach ($cert1_transactions as $transaction) {
+                fputcsv($fp, $transaction);
+            }
+            fputcsv($fp, array('Total private accounts:', sizeof($private_accounts)));
+            fputcsv($fp, array('Total REC ammount:', $total_c1_amount));
+            fputcsv($fp, array('Total transactions:', sizeof($cert1_transactions)));
+            fclose($fp);
+
+            $this->scheduleMailing($user_account, $em, "cert1");
+        }
+
+        if($cert3_transactions){
+            $fp = fopen('cert3.csv', 'w');
+            $headers = array('Id sender', 'sender type', 'fecha', 'transacción id', 'id receiver', 'receiver type',
+                'Concepto', 'servicio', 'cantidad R', 'tx_type');
+            fputcsv($fp, $headers);
+
+            foreach ($cert3_transactions as $transaction) {
+                fputcsv($fp, $transaction);
+            }
+            fputcsv($fp, array('Total company accounts:', sizeof($company_c3_accounts)));
+            fputcsv($fp, array('Total private accounts:', sizeof($private_c3_accounts)));
+            fputcsv($fp, array('Total REC ammount:', $total_c3_amount));
+            fputcsv($fp, array('Total transactions:', sizeof($cert3_transactions)));
+            fclose($fp);
+
+            $this->scheduleMailing($user_account, $em, "cert3");
+        }
+
+        return new Response(
+            //$this->generateClientsAndProvidersReportPdf($templating, $account),
+            "",
+            200,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
+            ]
+        );
+    }
+
+    /**
+     * @param $user_account
+     * @param EntityManagerInterface $em
+     */
+    private function scheduleMailing($user_account, EntityManagerInterface $em, $filename): void
+    {
+        $mailing = new Mailing();
+        $mailing->setStatus(Mailing::STATUS_CREATED);
+        $mailing->setSubject($filename);
+        $mailing->setContent($filename.' report');
+        $mailing->setScheduledAt(new \DateTime());
+        $mailing->setAttachments([$filename.".csv" => $filename.".csv"]);
+
+        $delivery = new MailingDelivery();
+        $delivery->setStatus(MailingDelivery::STATUS_CREATED);
+        $delivery->setAccount($user_account);
+        $delivery->setMailing($mailing);
+        $em->persist($mailing);
+        $mailing->setStatus(Mailing::STATUS_SCHEDULED);
+        $em->persist($mailing);
+        $em->persist($delivery);
+        $em->flush();
     }
 }

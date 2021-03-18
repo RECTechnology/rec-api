@@ -11,7 +11,7 @@ trait MongoDBTrait {
     /** @var Process $mongoProcess */
     protected static $mongoProcess;
     protected static $dbPath = 'var/db/mongo';
-    protected static $connectionTimeout = 10;
+    protected static $connectionTimeout = 2000;
 
     public function startMongo(): void {
         $absolutePath = self::getDBPath();

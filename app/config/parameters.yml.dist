@@ -96,7 +96,7 @@ parameters:
     lemonway_pass: '123456'
     lemonway_version: '4.0'
     lemonway_admin_account: 'MKP'
-    lemonway_sync_balances_last: 87000
+    lemonway_sync_balance_last: 87000
 
 #url used to send a link to confirm the rec treasure address withdrawal
     withdrawal_url: 'https://preapibm.blockroot.com/withdrawal/v1/'

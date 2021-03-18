@@ -212,7 +212,8 @@ class UsersGroupsController extends RestApiController{
             }
         }
 
-        if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
+        if($request->request->has('company_cif') && $request->request->get('company_cif')!='' &&
+            $request->request->get('company_cif')!='undefined') {
             $company_cif = $request->request->get('company_cif');
         }
         else{

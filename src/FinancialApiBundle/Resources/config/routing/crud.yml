@@ -67,6 +67,14 @@ accounts_v3_report_clients_providers:
         role: "(public|user|manager|self|admin|sadmin)"
         id: "[0-9]+"
 
+accounts_v3_report_ltab:
+    path:  /{role}/v3/accounts/reports/ltab_general
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::reportLTABAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+
+
 accounts_v3_lemonway_gateway:
     path:  /{role}/v3/gateway/{provider}/{function}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\GatewayController::gatewayAction }

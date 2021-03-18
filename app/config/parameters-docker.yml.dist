@@ -73,7 +73,7 @@ parameters:
     lemonway_pass: "$LEMONWAY_PASS"
     lemonway_version: "$LEMONWAY_VERSION"
     lemonway_admin_account: "$LEMONWAY_ADMIN_ACCOUNT"
-    lemonway_sync_balances_last: "$LEMONWAY_SYNC_BALANCES_LAST"
+    lemonway_sync_balance_last: $LEMONWAY_SYNC_BALANCE_LAST
 
     withdrawal_url: "https://$APP_API_DOMAIN/withdrawal/v1/"
     list_emails: '["$WITHDRAWAL_EMAIL_1","$WITHDRAWAL_EMAIL_2","$WITHDRAWAL_EMAIL_3"]'
