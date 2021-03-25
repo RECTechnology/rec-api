@@ -72,7 +72,7 @@ accounts_v3_report_ltab:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::reportLTABAction }
     methods: [GET]
     requirements:
-        role: "(public|user|manager|self|admin|sadmin)"
+        role: "(admin)"
 
 
 accounts_v3_lemonway_gateway:

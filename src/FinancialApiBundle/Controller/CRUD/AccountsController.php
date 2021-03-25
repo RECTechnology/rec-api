@@ -388,13 +388,11 @@ class AccountsController extends CRUDController {
      * @param EngineInterface $templating
      * @param Request $request
      * @return Response
+     * @param $role
      */
-    public function reportLTABAction(EngineInterface $templating, Request $request){
+    public function reportLTABAction(EngineInterface $templating, Request $request, $role){
 
-        /** @var TokenStorageInterface $tokenStorage */
-        $tokenStorage = $this->get('security.token_storage');
-
-        $user_account = $tokenStorage->getToken()->getUser()->getGroups()[0];
+        $this->checkPermissions($role, self::CRUD_CREATE);
 
         /** @var DocumentManager $dm */
         $dm = $this->container->get('doctrine_mongodb')->getManager();
@@ -458,14 +456,14 @@ class AccountsController extends CRUDController {
                             $transaction->getId(),
                             $receiver_c2->getId(),
                             $receiver_c2->getType(),
-                            'bonificació',
-                            'boníssim',
-                            $transaction->getAmount() / 1e8
+                            'Bonificació',
+                            $transaction->getService(),
+                            $transaction->getAmount()
                         );
                         array_push($cert2_transactions, $transaction_data);
                         array_push($company_accounts, $sender->getId());
                         array_push($private_accounts, $receiver_c2->getId());
-                        $total_c2_amount += $transaction->getAmount() / 1e8;
+                        $total_c2_amount += $transaction->getAmount();
 
                         //search cert1 transactions
                         foreach ($transactions as $trans) {
@@ -482,12 +480,12 @@ class AccountsController extends CRUDController {
                                             $trans->getId(),
                                             $receiver_c1->getId(),
                                             $receiver_c1->getType(),
-                                            'bonificable',
-                                            'boníssim',
-                                            $trans->getAmount() / 1e8
+                                            'Compra bonificable',
+                                            $trans->getService(),
+                                            $trans->getAmount()
                                         );
                                         array_push($cert1_transactions, $transaction_data);
-                                        $total_c1_amount += $trans->getAmount() / 1e8;
+                                        $total_c1_amount += $trans->getAmount();
                                     }
                                 }
                             }
@@ -498,30 +496,27 @@ class AccountsController extends CRUDController {
             //search cert3 transactions
             if($sender->getType() == Group::ACCOUNT_TYPE_PRIVATE and sizeof($sender->getCampaigns())){
                 $receiver_c3 = $repoGroup->findOneBy(['rec_address' => $transaction->getPayOutInfo()['address']]);
-                if(sizeof($receiver_c3->getCampaigns())){
-                    if($receiver_c3 and $receiver_c3->getType() == Group::ACCOUNT_TYPE_PRIVATE){
-                        $tx_type = 'Transfer';
-                    }else{
-                        $tx_type = 'Payment';
-                        array_push($company_c3_accounts, $receiver_c3->getId());
-                    }
-                    $transaction_data = array(
-                        $sender->getId(),
-                        $sender->getType(),
-                        $transaction->getCreated()->format('Y-m-d H:i:s'),
-                        $transaction->getId(),
-                        $receiver_c3->getId(),
-                        $receiver_c3->getType(),
-                        'gastado',
-                        'boníssim',
-                        $transaction->getAmount() / 1e8,
-                        $tx_type
-                    );
-                    array_push($cert3_transactions, $transaction_data);
-                    array_push($private_c3_accounts, $sender->getId());
-                    $total_c3_amount += $transaction->getAmount() / 1e8;
+                if($receiver_c3 and $receiver_c3->getType() == Group::ACCOUNT_TYPE_PRIVATE){
+                    $tx_type = 'Transfer';
+                }else{
+                    $tx_type = 'Payment';
+                    array_push($company_c3_accounts, $receiver_c3->getId());
                 }
-
+                $transaction_data = array(
+                    $sender->getId(),
+                    $sender->getType(),
+                    $transaction->getCreated()->format('Y-m-d H:i:s'),
+                    $transaction->getId(),
+                    $receiver_c3->getId(),
+                    $receiver_c3->getType(),
+                    'Enviado desde LTAB',
+                    $transaction->getService(),
+                    $transaction->getAmount(),
+                    $tx_type
+                );
+                array_push($cert3_transactions, $transaction_data);
+                array_push($private_c3_accounts, $sender->getId());
+                $total_c3_amount += $transaction->getAmount();
             }
         }
 
@@ -529,6 +524,8 @@ class AccountsController extends CRUDController {
         $private_accounts = array_unique($private_accounts);
         $company_c3_accounts = array_unique($company_c3_accounts);
         $private_c3_accounts = array_unique($private_c3_accounts);
+
+        $ltab_account = $campaign->getCampaignAccount();
 
         if($cert2_transactions){
             $fp = fopen('cert2.csv', 'w');
@@ -545,7 +542,7 @@ class AccountsController extends CRUDController {
             fputcsv($fp, array('Total transactions:', sizeof($cert2_transactions)));
             fclose($fp);
 
-            $this->scheduleMailing($user_account, $em, "cert2");
+            $this->scheduleMailing($ltab_account, $em, "cert2");
         }
 
         if($cert1_transactions){
@@ -562,7 +559,7 @@ class AccountsController extends CRUDController {
             fputcsv($fp, array('Total transactions:', sizeof($cert1_transactions)));
             fclose($fp);
 
-            $this->scheduleMailing($user_account, $em, "cert1");
+            $this->scheduleMailing($ltab_account, $em, "cert1");
         }
 
         if($cert3_transactions){
@@ -580,17 +577,13 @@ class AccountsController extends CRUDController {
             fputcsv($fp, array('Total transactions:', sizeof($cert3_transactions)));
             fclose($fp);
 
-            $this->scheduleMailing($user_account, $em, "cert3");
+            $this->scheduleMailing($ltab_account, $em, "cert3");
         }
 
         return new Response(
-            //$this->generateClientsAndProvidersReportPdf($templating, $account),
-            "",
-            200,
-            [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
-            ]
+            "No content",
+            204,
+            []
         );
     }
 
@@ -598,7 +591,7 @@ class AccountsController extends CRUDController {
      * @param $user_account
      * @param EntityManagerInterface $em
      */
-    private function scheduleMailing($user_account, EntityManagerInterface $em, $filename): void
+    private function scheduleMailing($account, EntityManagerInterface $em, $filename): void
     {
         $mailing = new Mailing();
         $mailing->setStatus(Mailing::STATUS_CREATED);
@@ -609,7 +602,7 @@ class AccountsController extends CRUDController {
 
         $delivery = new MailingDelivery();
         $delivery->setStatus(MailingDelivery::STATUS_CREATED);
-        $delivery->setAccount($user_account);
+        $delivery->setAccount($account);
         $delivery->setMailing($mailing);
         $em->persist($mailing);
         $mailing->setStatus(Mailing::STATUS_SCHEDULED);
