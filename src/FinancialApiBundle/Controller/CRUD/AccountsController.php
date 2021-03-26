@@ -598,8 +598,7 @@ class AccountsController extends CRUDController {
         $mailing->setSubject($filename);
         $mailing->setContent($filename.' report');
         $mailing->setScheduledAt(new \DateTime());
-        $file= fopen($filename.".csv", "r");
-        $mailing->setAttachments([$filename.".csv" => $file]);
+        $mailing->setAttachments([$filename.".csv" => file_get_contents($filename.".csv" )]);
 
         $delivery = new MailingDelivery();
         $delivery->setStatus(MailingDelivery::STATUS_CREATED);
