@@ -525,7 +525,7 @@ class AccountsController extends CRUDController {
         $company_c3_accounts = array_unique($company_c3_accounts);
         $private_c3_accounts = array_unique($private_c3_accounts);
 
-        $ltab_account = $campaign->getCampaignAccount();
+        $ltab_account = $repoGroup->find($campaign->getCampaignAccount());
 
         if($cert2_transactions){
             $fp = fopen('cert2.csv', 'w');
