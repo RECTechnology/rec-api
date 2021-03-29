@@ -400,7 +400,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
     {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $route = "/admin/v3/accounts/reports/ltab_general";
-        $resp = $this->request('GET', $route, null, [],
+        $resp = $this->request('POST', $route, null, [],
             ['since' => '2020-01-10', 'to' => '2021-10-01']);
         $output = $this->runCommand('rec:mailing:send');
         self::assertRegExp("/Processing/", $output);

@@ -528,7 +528,8 @@ class AccountsController extends CRUDController {
         $ltab_account = $repoGroup->find($campaign->getCampaignAccount());
 
         if($cert2_transactions){
-            $fp = fopen('cert2.csv', 'w');
+            $tmpLocation = '/tmp/' . uniqid("cert2_") . ".tmp.csv";
+            $fp = fopen($tmpLocation, 'w');
             $headers = array('Id sender', 'sender type', 'fecha', 'transacción id', 'id receiver', 'receiver type',
                 'Concepto', 'servicio', 'cantidad R');
             fputcsv($fp, $headers);
@@ -542,11 +543,12 @@ class AccountsController extends CRUDController {
             fputcsv($fp, array('Total transactions:', sizeof($cert2_transactions)));
             fclose($fp);
 
-            $this->scheduleMailing($ltab_account, $em, "cert2");
+            $this->scheduleMailing($ltab_account, $em, $tmpLocation);
         }
 
         if($cert1_transactions){
-            $fp = fopen('cert1.csv', 'w');
+            $tmpLocation = '/tmp/' . uniqid("cert1_") . ".tmp.csv";
+            $fp = fopen($tmpLocation, 'w');
             $headers = array('Id sender', 'sender type', 'fecha', 'transacción id', 'id receiver', 'receiver type',
                 'Concepto', 'servicio', 'cantidad R');
             fputcsv($fp, $headers);
@@ -559,11 +561,12 @@ class AccountsController extends CRUDController {
             fputcsv($fp, array('Total transactions:', sizeof($cert1_transactions)));
             fclose($fp);
 
-            $this->scheduleMailing($ltab_account, $em, "cert1");
+            $this->scheduleMailing($ltab_account, $em, $tmpLocation);
         }
 
         if($cert3_transactions){
-            $fp = fopen('cert3.csv', 'w');
+            $tmpLocation = '/tmp/' . uniqid("cert3_") . ".tmp.csv";
+            $fp = fopen($tmpLocation, 'w');
             $headers = array('Id sender', 'sender type', 'fecha', 'transacción id', 'id receiver', 'receiver type',
                 'Concepto', 'servicio', 'cantidad R', 'tx_type');
             fputcsv($fp, $headers);
@@ -577,7 +580,7 @@ class AccountsController extends CRUDController {
             fputcsv($fp, array('Total transactions:', sizeof($cert3_transactions)));
             fclose($fp);
 
-            $this->scheduleMailing($ltab_account, $em, "cert3");
+            $this->scheduleMailing($ltab_account, $em, $tmpLocation);
         }
 
         return new Response(
@@ -598,7 +601,7 @@ class AccountsController extends CRUDController {
         $mailing->setSubject($filename);
         $mailing->setContent($filename.' report');
         $mailing->setScheduledAt(new \DateTime());
-        $mailing->setAttachments([$filename.".csv" => file_get_contents($filename.".csv" )]);
+        $mailing->setAttachments([$filename => file_get_contents($filename)]);
 
         $delivery = new MailingDelivery();
         $delivery->setStatus(MailingDelivery::STATUS_CREATED);

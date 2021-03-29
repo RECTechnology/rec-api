@@ -70,7 +70,7 @@ accounts_v3_report_clients_providers:
 accounts_v3_report_ltab:
     path:  /{role}/v3/accounts/reports/ltab_general
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::reportLTABAction }
-    methods: [GET]
+    methods: [POST]
     requirements:
         role: "(admin)"
 
