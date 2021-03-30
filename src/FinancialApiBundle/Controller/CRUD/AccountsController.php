@@ -401,8 +401,8 @@ class AccountsController extends CRUDController {
         $em = $this->container->get('doctrine')->getManager();
         $repoGroup = $em->getRepository(Group::class);
 
-        $_since = $request->query->get("since", "0");
-        $_to = $request->query->get("to", "0");
+        $_since = $request->request->get("since", "0");
+        $_to = $request->request->get("to", "0");
 
         $campaign = $em->getRepository(Campaign::class)->findOneBy(["name" => Campaign::BONISSIM_CAMPAIGN_NAME]);
 
@@ -556,7 +556,7 @@ class AccountsController extends CRUDController {
             foreach ($cert1_transactions as $transaction) {
                 fputcsv($fp, $transaction);
             }
-            fputcsv($fp, array('Total private accounts:', sizeof($private_accounts)));
+            fputcsv($fp, array('Total users:', sizeof($private_accounts)));
             fputcsv($fp, array('Total REC ammount:', $total_c1_amount));
             fputcsv($fp, array('Total transactions:', sizeof($cert1_transactions)));
             fclose($fp);
