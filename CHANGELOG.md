@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.23.0](https://github.com/qbitartifacts/rec-api/compare/v2.22.0...v2.23.0) (2021-03-31)
+
+
+### Features
+
+* **accounts:** pdf reports ([#460](https://github.com/qbitartifacts/rec-api/issues/460)) ([e6ca3df](https://github.com/qbitartifacts/rec-api/commit/e6ca3dfd8e28a633eca0ea5055b24b467cc5fa21))
+
+
+### Bug Fixes
+
+* **accounts:** changed email attachments ([#464](https://github.com/qbitartifacts/rec-api/issues/464)) ([9e63a3d](https://github.com/qbitartifacts/rec-api/commit/9e63a3db489805617d8b89c37c1c878df1ce7e34))
+* **accounts:** changed filter params ([#467](https://github.com/qbitartifacts/rec-api/issues/467)) ([3ef603c](https://github.com/qbitartifacts/rec-api/commit/3ef603cb01b417b1f7ab28a62b71d457f561f158))
+* **accounts:** minor changes ([#461](https://github.com/qbitartifacts/rec-api/issues/461)) ([cbb9064](https://github.com/qbitartifacts/rec-api/commit/cbb90641df27843d90ed879af4e6c395cc00048b)), closes [#46](https://github.com/qbitartifacts/rec-api/issues/46)
+* **accounts:** use LTAB Account to send email ([#463](https://github.com/qbitartifacts/rec-api/issues/463)) ([feb5de5](https://github.com/qbitartifacts/rec-api/commit/feb5de5b381ad54f0a52dd4266807ebc0b665ceb))
+* **AccountsController:** changed file location ([#466](https://github.com/qbitartifacts/rec-api/issues/466)) ([4fe767d](https://github.com/qbitartifacts/rec-api/commit/4fe767d51cc8155e267a6d334d9f13cb667a89d7))
+* **deps:** bumped version in composer json ([ac26bbb](https://github.com/qbitartifacts/rec-api/commit/ac26bbb2499175719d2c15a363d2c4b5a2f17a79))
+* **deps:** updated composer deps ([25ebcad](https://github.com/qbitartifacts/rec-api/commit/25ebcade47c74092a5808805fac543ec6c83a18e))
+* **mailing:** csv content ([#465](https://github.com/qbitartifacts/rec-api/issues/465)) ([599a22f](https://github.com/qbitartifacts/rec-api/commit/599a22f3d3171092fab06ff749f6a960179b9f6b))
+
 ## [2.22.0](https://github.com/qbitartifacts/rec-api/compare/v2.21.0...v2.22.0) (2021-03-08)
 
 
