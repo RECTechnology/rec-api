@@ -242,6 +242,11 @@ class UsersController extends BaseApiController{
         }
 
         $em = $this->getDoctrine()->getManager();
+        //Table User
+        $user = $em->getRepository('FinancialApiBundle:User')->findOneBy(array(
+            'id' => $id
+        ));
+
         $new = false;
         if($request->request->get('phone')!=''){
             $new = true;
@@ -278,10 +283,6 @@ class UsersController extends BaseApiController{
             throw new HttpException(400, "Incorrect phone or prefix number");
         }
 
-        //Table User
-        $user = $em->getRepository('FinancialApiBundle:User')->findOneBy(array(
-            'id' => $id
-        ));
         $old_phone = $user->getPhone();
         $user->setPhone($phone);
         $user->setPrefix($prefix);
