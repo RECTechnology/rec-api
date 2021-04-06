@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Entity\User;
 use FOS\OAuthServerBundle\Util\Random;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use App\FinancialApiBundle\Controller\SecurityTrait;
 
 /**
  * Class UsersController
@@ -541,7 +542,7 @@ class UsersController extends BaseApiController{
                 else{
                     throw new HttpException(400, 'User without kyc information');
                 }
-                return $this->restV2(201,"ok", "Request successful", $kyc);
+                return $this->restV2(201,"ok", "Request successful", $this->secureOutput($kyc));
                 break;
             default:
                 break;
