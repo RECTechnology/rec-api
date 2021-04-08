@@ -218,7 +218,7 @@ class KycController extends BaseApiController{
         ));
 
         if($kyc){
-            $code = substr(Random::generateToken(), 0, 6);
+            $code = strval(random_int(100000, 999999));
             $kyc->setPhoneValidated(false);
             $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
             $this->sendSMS($prefix, $phone, "Chip-chap Code " . $code);

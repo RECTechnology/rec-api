@@ -606,7 +606,7 @@ class AccountController extends BaseApiController {
         $em->persist($kyc);
         $em->flush();
 
-        $code = substr(Random::generateToken(), 0, 6);
+        $code = strval(random_int(100000, 999999));
         $kyc->setPhoneValidated(false);
         $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
         $phone_info = array(
@@ -748,7 +748,7 @@ class AccountController extends BaseApiController {
             $logger->info('PASS RECOVERY REQ: User not found');
             throw new HttpException(404, 'User not found');
         }
-        $code = substr(Random::generateToken(), 0, 8);
+        $code = strval(random_int(100000, 999999));
 
         //generate a token to add to the return url
         $user->setRecoverPasswordToken($code);
