@@ -614,8 +614,8 @@ class AccountController extends BaseApiController {
             "number" => $phone
         );
         $kyc->setPhone(json_encode($phone_info));
-
-        $this->sendSMS($prefix, $phone, "Rec Wallet Code " . $code);
+        $sms_text = $code." es tu codigo de seguridad para validar tu nueva cuenta y completar tu registro en la app. del REC.";
+        $this->sendSMS($prefix, $phone, $sms_text);
 
         if($params['email'] != '') {
             /*
@@ -755,8 +755,8 @@ class AccountController extends BaseApiController {
         $user->setPasswordRequestedAt(new \DateTime());
         $em->persist($user);
         $em->flush();
-
-        $this->sendSMS($user->getPrefix(), $user->getPhone(), "Recover(" . $params['secret'] . ") pass token: " . $code);
+        $sms_text = $code. " es tu codigo para cambiar tu contraseña del REC. No lo compartas con nadie!";
+        $this->sendSMS($user->getPrefix(), $user->getPhone(), $sms_text);;
         return $this->restV2(200,"ok", "Request successful");
     }
 

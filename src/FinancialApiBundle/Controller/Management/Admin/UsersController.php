@@ -301,7 +301,8 @@ class UsersController extends BaseApiController{
             "number" => $phone
         );
         $kyc->setPhone(json_encode($phone_info));
-        $this->sendSMS($prefix, $phone, "Rec Wallet Code " . $code);
+        $sms_text = $code." es tu codigo de seguridad para validar tu nueva cuenta y completar tu registro en la app. del REC.";
+        $this->sendSMS($prefix, $phone, $sms_text);
         $em->persist($kyc);
 
         //Table Group
@@ -507,7 +508,8 @@ class UsersController extends BaseApiController{
                 $phone = $phone_json->number;
                 $code_json = json_decode($kyc->getValidationPhoneCode());
                 $code = $code_json->code;
-                $this->sendSMS($prefix, $phone, "Rec Wallet Code " . $code);
+                $sms_text = $code." es tu codigo de seguridad para validar tu nueva cuenta y completar tu registro en la app. del REC.";
+                $this->sendSMS($prefix, $phone, $sms_text);
                 return $this->restV2(204, 'Success', 'SMS sent successfully');
                 break;
             case 'reset_sms':
