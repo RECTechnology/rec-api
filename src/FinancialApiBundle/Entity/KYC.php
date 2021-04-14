@@ -26,7 +26,7 @@ class KYC implements Uploadable {
     private $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      * @Groups({"user"})
      */

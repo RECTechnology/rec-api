@@ -32,4 +32,23 @@ class RegisterTest extends BaseApiTest {
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );
     }
+
+    public function testGoodRegisterV4Responds201(){
+
+        $pw = $this->faker->password(6);
+        $pin = $this->faker->randomNumber(4, true);
+        $dni = '38305314X'; //got from https://generadordni.es/#dni
+        $content = [
+            'password' => $pw,
+            'phone' => $this->faker->randomNumber(9, true),
+            'prefix' => '34',
+            'dni' => $dni
+        ];
+        $response = $this->requestJson('POST', '/register/v4/mobile', $content);
+        self::assertEquals(
+            201,
+            $response->getStatusCode(),
+            "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
+        );
+    }
 }

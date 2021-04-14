@@ -81,19 +81,19 @@ class User extends BaseUser implements Uploadable {
     private $active_group = null;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Groups({"super_admin"})
      */
     private $pin;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Groups({"super_admin"})
      */
     private $security_question;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Groups({"super_admin"})
      */
     private $security_answer;
@@ -135,7 +135,7 @@ class User extends BaseUser implements Uploadable {
     private $access_secret;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      * @Groups({"user"})
      */

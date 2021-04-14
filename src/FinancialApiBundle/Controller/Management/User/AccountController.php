@@ -334,6 +334,28 @@ class AccountController extends BaseApiController {
         return ( substr("TRWAGMYFPDXBNJZSQVHLCKE", $numeros%23, 1) == $letra && strlen($letra) == 1 && strlen ($numeros) == 8 );
     }
 
+    public function validate_cif ($cif) {
+        $cif_codes = 'JABCDEFGHI';
+
+        $sum = (string) $this->getCifSum ($cif);
+        $n = (10 - substr ($sum, -1)) % 10;
+
+        if (preg_match ('/^[ABCDEFGHJNPQRSUVW]{1}/', $cif)) {
+            if (in_array ($cif[0], array ('A', 'B', 'E', 'H'))) {
+                return ($cif[8] == $n);
+            } elseif (in_array ($cif[0], array ('K', 'P', 'Q', 'S'))) {
+                return ($cif[8] == $cif_codes[$n]);
+            } else {
+                if (is_numeric ($cif[8])) {
+                    return ($cif[8] == $n);
+                } else {
+                    return ($cif[8] == $cif_codes[$n]);
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * @Rest\View
      * @param Request $request
@@ -1131,4 +1153,220 @@ class AccountController extends BaseApiController {
         $result = curl_exec($ch);
         curl_close($ch);
     }
+
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     * @throws \Exception
+     */
+    public function registerAccountAction(Request $request){
+        $type = 'mobile';
+        $logger = $this->get('manager.logger');
+        $paramNames = array(
+            'password',
+            'phone',
+            'prefix',
+            'dni'
+        );
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param) != ''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(400, "Bad request: param '$param' is required");
+            }
+        }
+        if(strlen($params['password'])<6)
+            throw new HttpException(400, 'Password must be longer than 6 characters');
+        $params['plain_password'] = $params['password'];
+        unset($params['password']);
+
+        if($request->request->has('roles')){
+            $roles = $request->request->get('roles');
+            if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameters');
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $params['dni'] = strtoupper($params['dni']);
+        $params['dni'] = preg_replace("/[^0-9A-Z]/", "", $params['dni']);
+        $params['username'] = $params['dni'];
+
+        if(strlen($params['username'])<9){
+            for($i = strlen($params['username']); $i<9; $i+=1){
+                $params['username'] = "0" . $params['username'];
+            }
+        }
+        if(!$this->validar_dni((string)$params['username']))
+            throw new HttpException(400, 'NIF not valid');
+
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'phone'  =>  $params['phone']
+        ));
+        if($user){
+            throw new HttpException(400, "phone already registered");
+        }
+
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'dni'  =>  $params['dni']
+        ));
+        if($user){
+            throw new HttpException(400, "dni already registered");
+        }
+
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'username'  =>  $params['username']
+        ));
+        if($user){
+            throw new HttpException(400, "Username already registered");
+        }
+
+        $methodsList = array('rec-out', 'rec-in');
+
+
+
+        $allowed_types = array('PRIVATE', 'COMPANY');
+        if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
+            if(!$this->validate_cif((string)$request->request->get('company_cif')))
+                throw new HttpException(400, 'CIF not valid');
+            $type = $allowed_types[1];
+            $company_cif = $request->request->get('company_cif');
+        }else{
+            $type = $allowed_types[0];
+            $company_cif = $params['dni'];
+        }
+
+        $list_subtypes = array(
+            'PRIVATE' => array('NORMAL', 'BMINCOME'),
+            'COMPANY' => array('RETAILER', 'WHOLESALE')
+        );
+        $allowed_subtypes = $list_subtypes[$type];
+        $subtype = $allowed_subtypes[0];
+
+        if($request->request->has('company_name') && $request->request->get('company_name')!='') {
+            $company_name = $request->request->get('company_name');
+        }
+        else{
+            if($type == 'COMPANY'){ throw new HttpException(400, "Company name required"); }
+            $company_name = '';
+        }
+
+        //create company
+        $company = new Group();
+        $phone = preg_replace("/[^0-9]/", "", $params['phone']);
+        $prefix = preg_replace("/[^0-9]/", "", $params['prefix']);
+        if(!$this->checkPhone($phone, $prefix)){
+            throw new HttpException(400, "Incorrect phone or prefix number");
+        }
+        $company->setName($company_name);
+        $company->setCif(strtoupper($company_cif));
+        $company->setType($type);
+        $company->setSubtype($subtype);
+        $company->setActive(true);
+        $company->setRoles(['ROLE_COMPANY']);
+        $company->setRecAddress('temp');
+        $company->setMethodsList($methodsList);
+        $level = $em->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[1]]);
+        $company->setLevel($level);
+        $em->persist($company);
+        $em->flush();
+
+        //create wallets for this company
+        $currencies = Currency::$ALL_COMPLETED;
+        foreach($currencies as $currency){
+            $userWallet = new UserWallet();
+            $userWallet->setBalance(0);
+            $userWallet->setAvailable(0);
+            $userWallet->setCurrency(strtoupper($currency));
+            $userWallet->setGroup($company);
+            $em->persist($userWallet);
+        }
+
+        $user = new User();
+        $user->setPlainPassword($params['plain_password']);
+        $user->setRoles(array('ROLE_USER'));
+        $user->setPhone($phone);
+        $user->setEmail("");
+        $user->setPrefix($prefix);
+        $user->setUsername($params['username']);
+        $user->setDNI($params['dni']);
+        $user->setActiveGroup($company);
+        $user->setEnabled(false);
+        $em->persist($user);
+
+        $company->setKycManager($user);
+        $em->persist($company);
+
+        //Add user to group with admin role
+        $userGroup = new UserGroup();
+        $userGroup->setUser($user);
+        $userGroup->setGroup($company);
+        $userGroup->setRoles(array('ROLE_ADMIN'));
+
+        $kyc = new KYC();
+        $kyc->setUser($user);
+        $kyc->setName($user->getName());
+
+        $em->persist($userGroup);
+        $em->persist($kyc);
+        $em->flush();
+
+        $code = strval(random_int(100000, 999999));
+        $kyc->setPhoneValidated(false);
+        $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
+        $phone_info = array(
+            "prefix" => $prefix,
+            "number" => $phone
+        );
+        $kyc->setPhone(json_encode($phone_info));
+        $sms_text = $code." es tu codigo de seguridad para validar tu nueva cuenta y completar tu registro en la app. del REC.";
+        $this->sendSMS($prefix, $phone, $sms_text);
+
+        $em->persist($kyc);
+        $em->flush();
+
+        foreach($methodsList as $method){
+            $method_ex = explode('-', $method);
+            $meth = $method_ex[0];
+            $meth_type = $method_ex[1];
+
+            //create new ServiceFee
+            $newFee = new ServiceFee();
+            $newFee->setGroup($company);
+            $newFee->setFixed(0);
+            $newFee->setVariable(0);
+            $newFee->setServiceName($method);
+            $newFee->setCurrency(strtoupper($meth));
+            $em->persist($newFee);
+
+        }
+
+        //create new fixed address for rec and return
+        $recAddress = new CashInTokens();
+        $recAddress->setCurrency(Currency::$REC);
+        $recAddress->setCompany($company);
+        $recAddress->setLabel('REC account');
+        $recAddress->setMethod('rec-in');
+        $recAddress->setExpiresIn(-1);
+        $recAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+
+        //TODO: create mock for REC method
+        $methodDriver = $this->get('net.app.in.rec.v1');
+        $paymentInfo = $methodDriver->getPayInInfo($company->getId(), 0);
+        $token = $paymentInfo['address'];
+        $recAddress->setToken($token);
+        $em->persist($recAddress);
+
+        $company->setRecAddress($token);
+        $em->persist($company);
+
+        $response['rec_address'] = $token;
+        $response['user'] = $user;
+        $response['company'] = $company;
+        $em->flush();
+
+        return $this->restV2(201,"ok", "Request successful", $this->secureOutput($response));
+    }
+
 }

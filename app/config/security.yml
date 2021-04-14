@@ -71,7 +71,7 @@ security:
             switch_user:  { role: ROLE_ADMIN, parameter: su }
 
         commerce_register:
-            pattern:  ^/register/v1/commerce
+            pattern:  ^/register/v[0-9]/*
             stateless: true
             fos_oauth:  true
             anonymous: true
