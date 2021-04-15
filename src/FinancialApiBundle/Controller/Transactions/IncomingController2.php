@@ -515,6 +515,7 @@ class IncomingController2 extends RestApiController{
             $txid = $payment_info['txid'];
             $payment_info['image_receiver'] = $destination->getCompanyImage();
             $payment_info['name_receiver'] = $destination->getName();
+            $payment_info['concept'] = $data['concept'];
             $logger->info('(' . $group_id . ')(T) STATUS => ' . $payment_info['status']);
 
             $transaction->setPayOutInfo($payment_info);
