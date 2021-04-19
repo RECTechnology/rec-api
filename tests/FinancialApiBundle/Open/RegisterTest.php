@@ -33,7 +33,7 @@ class RegisterTest extends BaseApiTest {
         );
     }
 
-    public function testGoodRegisterV4Responds201(){
+    public function testGoodRegisterV4Responds204(){
 
         $pw = $this->faker->password(6);
         $pin = $this->faker->randomNumber(4, true);
@@ -42,11 +42,13 @@ class RegisterTest extends BaseApiTest {
             'password' => $pw,
             'phone' => $this->faker->randomNumber(9, true),
             'prefix' => '34',
-            'dni' => $dni
+            'dni' => $dni,
+            'company_cif' => 'A65264418',
+            'company_name' => 'panaderia'
         ];
         $response = $this->requestJson('POST', '/register/v4/mobile', $content);
         self::assertEquals(
-            201,
+            204,
             $response->getStatusCode(),
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );

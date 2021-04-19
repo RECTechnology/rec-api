@@ -53,8 +53,14 @@ class AccountController extends BaseApiController {
         if(!$group->getActive()) throw new AppException(412, "Default account is not active");
         $group_data = $group->getUserView();
         $user->setGroupData($group_data);
-
+        $activeAccounts = [];
+        foreach($user->getGroups() as $group){
+            if($group->getActive()){
+                array_push($activeAccounts, $group);
+            }
+        }
         $resp = $this->secureOutput($user);
+        $resp["activeAccounts"] =  $activeAccounts;
 
         return $this->restV2(200, "ok", "Account info got successfully", $resp);
     }
@@ -354,6 +360,20 @@ class AccountController extends BaseApiController {
             }
         }
         return false;
+    }
+
+    function getCifSum($cif) {
+        $sum = $cif[2] + $cif[4] + $cif[6];
+
+        for ($i = 1; $i<8; $i += 2) {
+            $tmp = (string) (2 * $cif[$i]);
+
+            $tmp = $tmp[0] + ((strlen ($tmp) == 2) ?  $tmp[1] : 0);
+
+            $sum += $tmp;
+        }
+
+        return $sum;
     }
 
     /**
@@ -1366,7 +1386,7 @@ class AccountController extends BaseApiController {
         $response['company'] = $company;
         $em->flush();
 
-        return $this->restV2(201,"ok", "Request successful", $this->secureOutput($response));
+        return $this->restV2(204,"ok", "No content");
     }
 
 }

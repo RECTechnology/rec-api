@@ -112,6 +112,7 @@ class BonissimCampaignTest extends AdminApiTest {
         self::assertEquals(200, $resp->getStatusCode());
 
         $resp = $this->requestJson('GET', '/user/v1/account');
+        echo "";
    }
   
     function testSetUserTOS(){
