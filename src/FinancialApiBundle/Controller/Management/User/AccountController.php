@@ -60,7 +60,7 @@ class AccountController extends BaseApiController {
             }
         }
         $resp = $this->secureOutput($user);
-        $resp["activeAccounts"] =  $activeAccounts;
+        $resp["activeAccounts"] =  $this->secureOutput($activeAccounts);
 
         return $this->restV2(200, "ok", "Account info got successfully", $resp);
     }
