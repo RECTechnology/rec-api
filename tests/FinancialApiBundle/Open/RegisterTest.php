@@ -43,7 +43,7 @@ class RegisterTest extends BaseApiTest {
             'phone' => $this->faker->randomNumber(9, true),
             'prefix' => '34',
             'dni' => $dni,
-            'company_cif' => 'A65264418',
+            'company_cif' => 'n9030699d',
             'company_name' => 'panaderia'
         ];
         $response = $this->requestJson('POST', '/register/v4/mobile', $content);

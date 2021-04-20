@@ -61,6 +61,12 @@ class AccountController extends BaseApiController {
         }
         $resp = $this->secureOutput($user);
         $resp["activeAccounts"] =  $this->secureOutput($activeAccounts);
+        if($user->getPin()){
+            $resp["has_pin"] = true;
+        }else{
+            $resp["has_pin"] = false;
+        }
+
 
         return $this->restV2(200, "ok", "Account info got successfully", $resp);
     }
@@ -341,6 +347,7 @@ class AccountController extends BaseApiController {
     }
 
     public function validate_cif ($cif) {
+        $cif = strtoupper($cif);
         $cif_codes = 'JABCDEFGHI';
 
         $sum = (string) $this->getCifSum ($cif);
