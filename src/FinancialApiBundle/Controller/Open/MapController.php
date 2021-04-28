@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Open;
 
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\Response;
@@ -96,11 +97,6 @@ class MapController extends BaseApiController{
             ->leftJoin('a.campaigns', 'cp')
             ->where($and);
 
-        $total = $qb
-            ->select('count(distinct(a))')
-            ->getQuery()
-            ->getSingleScalarResult();
-
         $select = 'a.id, ' .
             'a.name, ' .
             'a.company_image, ' .
@@ -130,6 +126,7 @@ class MapController extends BaseApiController{
             ->getQuery()
             ->getResult();
 
+
         $elements = $this->secureOutput($elements);
 
         $now = new \DateTime();
@@ -144,12 +141,13 @@ class MapController extends BaseApiController{
             $elements[$i]["offers"] = $offersInGroup;
         }
 
+
         return $this->restV2(
             200,
             "ok",
             "Request successful",
             array(
-                'total' => $total,
+                'total' => sizeof($elements),
                 'elements' => $elements
             )
         );

@@ -663,7 +663,7 @@ class AccountController extends BaseApiController {
             "number" => $phone
         );
         $kyc->setPhone(json_encode($phone_info));
-        $sms_text = $code." es tu codigo de seguridad para validar tu nueva cuenta y completar tu registro en la app. del REC.";
+        $sms_text = $code." es tu codigo de seguridad para validar tu nuevo usuario y completar el registro del REC.";
         $this->sendSMS($prefix, $phone, $sms_text);
 
         if($params['email'] != '') {

@@ -144,6 +144,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $account->setType($type);
         $account->setSubtype($subtype);
         $account->setTier($tier);
+        $account->setLatitude(1);
+        $account->setLongitude(2);
         $level = $orm->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[1]]);
         $account->setLevel($level);
 

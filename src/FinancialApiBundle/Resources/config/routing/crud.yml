@@ -59,6 +59,13 @@ accounts_v3_search:
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
 
+accounts_v4_search:
+    path:  /{role}/v4/accounts/search
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::search4Action }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+
 accounts_v3_report_clients_providers:
     path:  /{role}/v3/accounts/{id}/report_clients_providers
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::reportClientsAndProvidersAction }
