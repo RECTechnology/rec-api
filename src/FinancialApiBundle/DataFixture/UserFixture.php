@@ -47,8 +47,13 @@ class UserFixture extends Fixture {
         $user->setPin($credentials['pin']);
         $user->setSecurityQuestion($faker->sentence);
         $user->setSecurityAnswer($faker->sentence);
-        $user->setDNI($faker->shuffle('01234567') . 'A');
-        $user->setPhone($faker->phoneNumber);
+        if ($credentials["username"] == "user_user"){
+            $user->setDNI('01234567A');
+            $user->setPhone(789789789);
+        }else{
+            $user->setDNI($faker->shuffle('01234567') . 'A');
+            $user->setPhone($faker->phoneNumber);
+        }
         $user->setPrefix('34');
         $user->setPublicPhone(true);
         $user->setEnabled(true);

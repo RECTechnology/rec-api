@@ -55,3 +55,23 @@ recover_password:
     path:  /password_recovery/v1
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
     methods: [POST]
+
+forget_password_request:
+    path:  public/v4/sms-code/forget-password
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::forgetPasswordRequest }
+    methods: [POST]
+
+validate_phone_request:
+    path:  public/v4/sms-code/validate-phone
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validatePhoneRequest }
+    methods: [POST]
+
+change_pin_request:
+    path:  user/v4/users/security/sms-code/change-pin
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::changePinRequest }
+    methods: [POST]
+
+change_password_request:
+    path:  user/v4/users/security/sms-code/change-password
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::changePasswordRequest }
+    methods: [POST]

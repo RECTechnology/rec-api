@@ -130,6 +130,7 @@ security:
         - { path: ^/user/v[0-2]+/*, role: ROLE_USER }
         - { path: ^/register/v[0-2]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/password_recovery/v[0-2]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/public/v4/sms-code/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
         # V3+ User profile management
         - { path: ^/user/v[3-9]+/profile, role: ROLE_USER }

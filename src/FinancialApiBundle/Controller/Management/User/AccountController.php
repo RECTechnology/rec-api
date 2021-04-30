@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Controller\Management\User;
 
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
+use App\FinancialApiBundle\Entity\SmsTemplates;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Exception\AppException;
 use Doctrine\Common\Annotations\AnnotationException;
@@ -1394,6 +1395,131 @@ class AccountController extends BaseApiController {
         $em->flush();
 
         return $this->restV2(204,"ok", "No content");
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function forgetPasswordRequest(Request $request){
+        $paramNames = array(
+            'dni',
+            'phone',
+            'prefix'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'phone'  =>  $params['phone'],
+            'prefix'  =>  $params['prefix'],
+            'dni'  =>  strtoupper($params['dni'])
+        ));
+
+        $logger = $this->get('manager.logger');
+        $logger->info('PASS RECOVERY REQ: '. $params['phone'] . " " . $params['dni']);
+        if(!$user){
+            $logger->info('PASS RECOVERY REQ: User not found');
+            throw new HttpException(404, 'User not found');
+        }
+        $template_type = 'forget_password';
+
+        return $this->sendSmsCode($em, $template_type, $user);
+    }
+
+    /**
+     * @param \Doctrine\Persistence\ObjectManager $em
+     * @param string $template_type
+     * @param object $user
+     * @return Response
+     * @throws \Exception
+     */
+    private function sendSmsCode(\Doctrine\Persistence\ObjectManager $em, string $template_type, object $user): Response
+    {
+        $code = strval(random_int(100000, 999999));
+        $template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => $template_type]);
+        if (!$template) {
+            throw new HttpException(404, 'Template not found');
+        }
+        $user->setRecoverPasswordToken($code);
+        $user->setPasswordRequestedAt(new \DateTime());
+        $em->persist($user);
+        $em->flush();
+        $sms_text = str_replace("%SMS_CODE%", $code, $template->getBody());
+        $this->sendSMS($user->getPrefix(), $user->getPhone(), $sms_text);;
+        return $this->restV2(200, "ok", "Request successful");
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function validatePhoneRequest(Request $request){
+        $paramNames = array(
+            'phone',
+            'prefix'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'phone'  =>  $params['phone'],
+            'prefix'  =>  $params['prefix']
+        ));
+
+        $logger = $this->get('manager.logger');
+        $logger->info('VAL PHONE REQ: '. $params['phone']);
+        if(!$user){
+            $logger->info('VAL PHONE REQ: User not found');
+            throw new HttpException(404, 'User not found');
+        }
+        $template_type = 'validate_phone';
+
+        return $this->sendSmsCode($em, $template_type, $user);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function changePinRequest(Request $request){
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $em = $this->getDoctrine()->getManager();
+        $logger = $this->get('manager.logger');
+        if(!$user){
+            $logger->info('CHANGE PIN REQ: User not found');
+            throw new HttpException(404, 'User not found');
+        }
+        $template_type = 'change_pin';
+        return $this->sendSmsCode($em, $template_type, $user);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function changePasswordRequest(Request $request){
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $em = $this->getDoctrine()->getManager();
+        $logger = $this->get('manager.logger');
+        if(!$user){
+            $logger->info('CHANGE PASSWORD REQ: User not found');
+            throw new HttpException(404, 'User not found');
+        }
+        $template_type = 'change_password';
+        return $this->sendSmsCode($em, $template_type, $user);
     }
 
 }
