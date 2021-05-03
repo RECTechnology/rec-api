@@ -235,6 +235,7 @@ class AccountsController extends CRUDController {
             'a.longitude, ' .
             'a.description, ' .
             'a.public_image, ' .
+            'o.id AS offer, ' .
             'cp.name AS campaign';
 
         $elements = $qb
@@ -245,6 +246,11 @@ class AccountsController extends CRUDController {
 
 
         $elements = $this->secureOutput($elements);
+        for ($i = 0; $i < sizeof($elements); $i++) {
+            $elements[$i]['in_ltab_campaign'] = array_key_exists("campaign", $elements[$i]) &&
+                $elements[$i]["campaign"] == Campaign::BONISSIM_CAMPAIGN_NAME;
+            $elements[$i]['has_offers'] = array_key_exists("offer", $elements[$i]);
+        }
         return $this->restV2(
             200,
             "ok",
