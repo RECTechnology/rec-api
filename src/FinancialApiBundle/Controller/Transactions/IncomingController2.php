@@ -76,12 +76,12 @@ class IncomingController2 extends RestApiController{
                 if($order) $destination = $order->getPos()->getAccount();
                 else throw new HttpException(400, 'Incorrect address');
             }
-            $data = array(
-                $destination->getName(),
-                $destination->getCompanyImage(),
-                $destination->getType(),
-                $this->secureOutput($destination->getCampaigns())
-            );
+            $data = [
+                "name" => $destination->getName(),
+                "company_image" => $destination->getCompanyImage(),
+                "type" => $destination->getType(),
+                "campaigns" => $this->secureOutput($destination->getCampaigns())
+            ];
 
             return $this->restV2(200,"ok", "Vendor information", $data);
         }
