@@ -1,0 +1,9 @@
+forget_password_request:
+    path:  /app/v4/sms-code/forget-password
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::forgetPasswordRequest }
+    methods: [POST]
+
+validate_phone_request:
+    path:  /app/v4/sms-code/validate-phone
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validatePhoneRequest }
+    methods: [POST]

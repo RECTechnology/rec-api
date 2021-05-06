@@ -26,14 +26,12 @@ Public:
 CRUD:
     resource: routing/crud.yml
 
+App:
+    resource: routing/app.yml
+
 validate_email:
     path:  /register/v1/validate_email
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validateEmail }
-    methods: [POST]
-
-user_sent_validation_email:
-    path:  /register/v1/sent_validation_email
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction }
     methods: [POST]
 
 register_mobile_v4:
@@ -56,22 +54,12 @@ recover_password:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
     methods: [POST]
 
-forget_password_request:
-    path:  public/v4/sms-code/forget-password
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::forgetPasswordRequest }
-    methods: [POST]
-
-validate_phone_request:
-    path:  public/v4/sms-code/validate-phone
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validatePhoneRequest }
-    methods: [POST]
-
 change_pin_request:
-    path:  user/v4/users/security/sms-code/change-pin
+    path:  /user/v4/users/security/sms-code/change-pin
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::changePinRequest }
     methods: [POST]
 
 change_password_request:
-    path:  user/v4/users/security/sms-code/change-password
+    path:  /user/v4/users/security/sms-code/change-password
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::changePasswordRequest }
     methods: [POST]
