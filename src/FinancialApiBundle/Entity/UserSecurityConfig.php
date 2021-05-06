@@ -3,13 +3,6 @@
 namespace App\FinancialApiBundle\Entity;
 
 
-use App\FinancialApiBundle\Annotations\StatusProperty;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
-use App\FinancialApiBundle\Exception\PreconditionFailedException;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
-
 /**
  * Class SmsTemplates
  * @package App\FinancialApiBundle\Entity
