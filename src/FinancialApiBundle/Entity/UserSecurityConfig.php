@@ -2,6 +2,13 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Annotations\StatusProperty;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+
 
 /**
  * Class SmsTemplates
@@ -19,11 +26,11 @@ class UserSecurityConfig extends AppObject {
     private $type;
 
     /**
-     * @var integer $max_failures
+     * @var integer $max_attempts
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"user"})
      */
-    private $max_failures;
+    private $max_attempts;
 
     /**
      * @var integer $time_range
@@ -51,17 +58,17 @@ class UserSecurityConfig extends AppObject {
     /**
      * @return int
      */
-    public function getMaxFailures(): int
+    public function getMaxAttempts(): int
     {
-        return $this->max_failures;
+        return $this->max_attempts;
     }
 
     /**
-     * @param int $max_failures
+     * @param int $max_attempts
      */
-    public function setMaxFailures(int $max_failures): void
+    public function setMaxAttempts(int $max_attempts): void
     {
-        $this->max_failures = $max_failures;
+        $this->max_attempts = $max_attempts;
     }
 
     /**

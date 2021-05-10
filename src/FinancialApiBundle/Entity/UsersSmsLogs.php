@@ -2,6 +2,13 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Annotations\StatusProperty;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+
 
 /**
  * Class SmsTemplates
@@ -24,12 +31,6 @@ class UsersSmsLogs extends AppObject {
      * @Serializer\Groups({"user"})
      */
     private $type;
-
-    /**
-     * @ORM\Column(type="datetime")
-     * @Serializer\Groups({"user"})
-     */
-    private $created;
 
     /**
      * @var integer $security_code
@@ -68,22 +69,6 @@ class UsersSmsLogs extends AppObject {
     public function setType(string $type): void
     {
         $this->type = $type;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCreated()
-    {
-        return $this->created;
-    }
-
-    /**
-     * @param mixed $created
-     */
-    public function setCreated($created): void
-    {
-        $this->created = $created;
     }
 
     /**
