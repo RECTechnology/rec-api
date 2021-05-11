@@ -12,7 +12,7 @@ use Faker\Generator;
 
 class UserFixture extends Fixture {
 
-    const TEST_USER_CREDENTIALS = ['username' => 'user_user', 'password' => 'user_user', 'pin' => '0123'];
+    const TEST_USER_CREDENTIALS = ['username' => '01234567A', 'password' => 'user_user', 'pin' => '0123'];
     const TEST_ADMIN_CREDENTIALS = ['username' => 'admin_user', 'password' => 'admin_user', 'pin' => '3210'];
 
     /**
@@ -47,7 +47,7 @@ class UserFixture extends Fixture {
         $user->setPin($credentials['pin']);
         $user->setSecurityQuestion($faker->sentence);
         $user->setSecurityAnswer($faker->sentence);
-        if ($credentials["username"] == "user_user"){
+        if ($credentials["username"] == "01234567A"){
             $user->setDNI('01234567A');
             $user->setPhone(789789789);
         }else{

@@ -78,7 +78,7 @@ class Login2faController extends RestApiController{
                 return new Response(json_encode($token), 400, $headers);
             }
 
-            if((count($user->getKycValidations())==0) || (!$user->getKycValidations()->getPhoneValidated())){
+            if(!$user->getKycValidations() || (!$user->getKycValidations()->getPhoneValidated())){
                 $token = array(
                     "error" => "not_validated_phone",
                     "error_description" => "User without phone validated"
