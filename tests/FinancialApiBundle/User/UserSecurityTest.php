@@ -41,6 +41,19 @@ class UserSecurityTest extends BaseApiTest
 
     function testPasswordRecovery()
     {
+        $client = self::getOAuthClient();
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "client_credentials",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret()
+            ],
+            [],
+            200
+        );
+
         $resp = $this->rest(
             'POST',
             '/app/v4/recover-password',
@@ -51,9 +64,9 @@ class UserSecurityTest extends BaseApiTest
             ],
             [
                 'Authorization' => "Bearer OWI2MDg4OTMzOWYwYTFlMzkyMTYwODNkYTcxNGNlYzY4OWY0MWI4YjIzMjNiMzk0OGUxNmI3OTZlNjEzZWY2Ng"
-            ]
+            ],
+            204
         );
-        self::assertEquals(1, $resp[0]->is_my_account);
     }
 
 }

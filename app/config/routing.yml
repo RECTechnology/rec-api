@@ -8,7 +8,7 @@ app_login_2FA:
     defaults: { _controller: App\FinancialApiBundle\Controller\Login2faController::loginAction }
     methods: [POST]
 
-app_login_public:
+app_login_public: # todo borrar
     path:  /oauth/v1/public
     defaults: { _controller: App\FinancialApiBundle\Controller\Login2faController::publicAction }
     methods: [POST]
