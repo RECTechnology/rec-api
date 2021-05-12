@@ -44,10 +44,6 @@ class Login2faController extends RestApiController{
         $kyc = 0;
         if($request->request->has('kyc')) $kyc = $request->get('kyc');
 
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository('FinancialApiBundle:User')->findOneBy(array('email' => $username));
-        $username=($user)?$user->getUsername():$username;
-
         /** @var TokenController $tokenController */
         $tokenController = $this->get('fos_oauth_server.controller.token');
         $token = json_decode($tokenController->tokenAction($request)->getContent());
@@ -55,9 +51,6 @@ class Login2faController extends RestApiController{
 
         if(!isset($token->error)){
             $em = $this->getDoctrine()->getManager();
-            /** @var User $user */
-            $user = $em->getRepository('FinancialApiBundle:User')
-                ->findOneBy(['username' => $username]);
 
             $admin_client = $this->container->getParameter('admin_client_id');
             $client_info = explode("_", $request->get('client_id'));
@@ -77,6 +70,14 @@ class Login2faController extends RestApiController{
                 );
                 return new Response(json_encode($token), 400, $headers);
             }
+
+            if($request->get('grant_type') == "client_credentials"){
+                return new Response(json_encode($token), 200, $headers);
+            }
+
+            /** @var User $user */
+            $user = $em->getRepository('FinancialApiBundle:User')
+                ->findOneBy(['username' => $username]);
 
             if(!$user->getKycValidations() || (!$user->getKycValidations()->getPhoneValidated())){
                 $token = array(

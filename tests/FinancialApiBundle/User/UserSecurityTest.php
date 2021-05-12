@@ -4,6 +4,7 @@ namespace Test\FinancialApiBundle\User;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Entity\Tier;
+use App\FinancialApiBundle\Entity\User;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 
@@ -41,29 +42,40 @@ class UserSecurityTest extends BaseApiTest
 
     function testPasswordRecovery()
     {
-        $client = self::getOAuthClient();
-        $resp = $this->rest(
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+
+        // TODO change to the new endpoint
+        //$route = "user/v4/users/security/sms-code/change-password";
+        $route = "/password_recovery/v1/request";
+        $response = $this->rest(
             'POST',
-            'oauth/v3/token',
+            $route,
             [
-                'grant_type' => "client_credentials",
-                'client_id' => "1_".$client->getRandomId(),
-                'client_secret' => $client->getSecret()
+                'dni' => "01234567A",
+                'phone' => 789789789,
+                'prefix' => 34
             ],
             [],
             200
         );
 
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $user = $em->getRepository(User::class)->findOneBy(['dni' => "01234567A"]);
+        $sms_code = $user->getRecoverPasswordToken();
         $resp = $this->rest(
             'POST',
             '/app/v4/recover-password',
             [
-                'code' => 123456,
+                'dni' => '01234567A',
+                'prefix' => 34,
+                'phone' => 789789789,
+                'smscode' => $sms_code,
                 'password' => "123456789",
                 'repassword' => "123456789"
             ],
             [
-                'Authorization' => "Bearer OWI2MDg4OTMzOWYwYTFlMzkyMTYwODNkYTcxNGNlYzY4OWY0MWI4YjIzMjNiMzk0OGUxNmI3OTZlNjEzZWY2Ng"
+                'Content-Type' => 'application/json',
+                'Authorization' => $this->token
             ],
             204
         );

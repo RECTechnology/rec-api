@@ -49,6 +49,7 @@ class UserFixture extends Fixture {
         $user->setSecurityAnswer($faker->sentence);
         if ($credentials["username"] == "01234567A"){
             $user->setDNI('01234567A');
+            $user->setPrefix(34);
             $user->setPhone(789789789);
         }else{
             $user->setDNI($faker->shuffle('01234567') . 'A');

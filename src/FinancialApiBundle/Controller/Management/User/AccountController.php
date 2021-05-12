@@ -1527,7 +1527,10 @@ class AccountController extends BaseApiController {
      */
     public function passwordRecoveryV4(Request $request){
         $paramNames = array(
-            'code',
+            'dni',
+            'prefix',
+            'phone',
+            'smscode',
             'password',
             'repassword'
         );
@@ -1548,11 +1551,11 @@ class AccountController extends BaseApiController {
         $em = $this->getDoctrine()->getManager();
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
-            'recover_password_token' => $params['code']
+            'recover_password_token' => $params['smscode']
         ));
 
         $logger = $this->get('manager.logger');
-        $logger->info('PASS RECOVERY: '. $params['code']);
+        $logger->info('PASS RECOVERY: '. $params['smscode']);
         if(!$user) {
             $logger->info('PASS RECOVERY: Code not found');
             throw new HttpException(404, 'Code not found');
@@ -1575,6 +1578,15 @@ class AccountController extends BaseApiController {
             throw new HttpException(404, 'Expired code');
         }
 
+        if($user->getDNI() != $params['dni']){
+            throw new HttpException(404, 'Wrong DNI');
+        }
+        if($user->getPrefix() != $params['prefix']){
+            throw new HttpException(404, 'Wrong prefix');
+        }
+        if($user->getPhone() != $params['phone']){
+            throw new HttpException(404, 'Wrong phone');
+        }
         $logger->info('PASS RECOVERY: All done');
         return $this->restV2(204,"ok", "password recovered");
     }
