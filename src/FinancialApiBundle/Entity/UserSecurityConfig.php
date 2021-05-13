@@ -14,7 +14,6 @@ use JMS\Serializer\Annotation as Serializer;
  * Class SmsTemplates
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity()
- * @ORM\Table(name="user_security_config")
  */
 class UserSecurityConfig extends AppObject {
 

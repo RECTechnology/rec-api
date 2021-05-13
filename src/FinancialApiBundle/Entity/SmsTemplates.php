@@ -14,7 +14,6 @@ use JMS\Serializer\Annotation as Serializer;
  * Class SmsTemplates
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity()
- * @ORM\Table(name="sms_templates")
  */
 class SmsTemplates extends AppObject {
 
