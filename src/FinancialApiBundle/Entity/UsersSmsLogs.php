@@ -14,25 +14,46 @@ use JMS\Serializer\Annotation as Serializer;
  * Class SmsTemplates
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity()
- * @ORM\Table(name="sms_templates")
+ * @ORM\Table(name="users_sms_logs")
  */
-class SmsTemplates extends AppObject {
+class UsersSmsLogs extends AppObject {
+
+    /**
+     * @var integer $user_id
+     * @ORM\Column(type="integer")
+     * @Serializer\Groups({"user"})
+     */
+    private $user_id;
 
     /**
      * @var string $type
-     * @ORM\Column(type="string", unique=true)
+     * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
      */
     private $type;
 
     /**
-     * @var string $body
-     * @ORM\Column(type="string")
+     * @var integer $security_code
+     * @ORM\Column(type="integer")
      * @Serializer\Groups({"user"})
      */
-    private $body;
+    private $security_code;
 
+    /**
+     * @return int
+     */
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
 
+    /**
+     * @param int $user_id
+     */
+    public function setUserId(int $user_id): void
+    {
+        $this->user_id = $user_id;
+    }
 
     /**
      * @return string
@@ -51,18 +72,19 @@ class SmsTemplates extends AppObject {
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getBody(): string
+    public function getSecurityCode(): int
     {
-        return $this->body;
+        return $this->security_code;
     }
 
     /**
-     * @param string $body
+     * @param int $security_code
      */
-    public function setBody(string $body): void
+    public function setSecurityCode(int $security_code): void
     {
-        $this->body = $body;
+        $this->security_code = $security_code;
     }
+
 }

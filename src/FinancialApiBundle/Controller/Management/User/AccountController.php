@@ -1522,4 +1522,72 @@ class AccountController extends BaseApiController {
         return $this->sendSmsCode($em, $template_type, $user);
     }
 
+    /**
+     * @Rest\View
+     */
+    public function passwordRecoveryV4(Request $request){
+        $paramNames = array(
+            'dni',
+            'prefix',
+            'phone',
+            'smscode',
+            'password',
+            'repassword'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+
+        if($params['password']==''){
+            throw new HttpException('Paramater password not found');
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'recover_password_token' => $params['smscode']
+        ));
+
+        $logger = $this->get('manager.logger');
+        $logger->info('PASS RECOVERY: '. $params['smscode']);
+        if(!$user) {
+            $logger->info('PASS RECOVERY: Code not found');
+            throw new HttpException(404, 'Code not found');
+        }
+
+        if($user->isPasswordRequestNonExpired(1200)){
+            if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 characters');
+            if($params['password'] != $params['repassword']) throw new HttpException('Password and repassword are differents');
+
+            $userManager = $this->container->get('access_key.security.user_provider');
+            $user = $userManager->loadUserById($user->getId());
+
+            $user->setPlainPassword($request->get('password'));
+            $userManager->updatePassword($user);
+
+            $em->persist($user);
+            $em->flush();
+            $logger->info('PASS RECOVERY: Pass updated (' . $user->getId() .')');
+        }else{
+            throw new HttpException(404, 'Expired code');
+        }
+
+        if($user->getDNI() != $params['dni']){
+            throw new HttpException(404, 'Wrong DNI');
+        }
+        if($user->getPrefix() != $params['prefix']){
+            throw new HttpException(404, 'Wrong prefix');
+        }
+        if($user->getPhone() != $params['phone']){
+            throw new HttpException(404, 'Wrong phone');
+        }
+        $logger->info('PASS RECOVERY: All done');
+        return $this->restV2(204,"ok", "password recovered");
+    }
 }

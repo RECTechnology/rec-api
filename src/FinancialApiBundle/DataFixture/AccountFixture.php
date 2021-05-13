@@ -159,6 +159,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $kyc->setUser($user);
             $kyc->setName($user->getName());
             $kyc->setEmail($user->getEmail());
+            $kyc->setPhone("678678678");
+            $kyc->setPhoneValidated(true);
             $orm->persist($kyc);
         }
         $recWallet = new UserWallet();

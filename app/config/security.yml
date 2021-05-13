@@ -120,6 +120,7 @@ security:
         - { path: ^/password_recovery/v[0-2]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/app/v4/sms-code/forget-password, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/app/v4/sms-code/validate-phone, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/app/v4/recover-password, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
         # V3+ User profile management
         - { path: ^/user/v[3-9]+/profile, role: ROLE_USER }

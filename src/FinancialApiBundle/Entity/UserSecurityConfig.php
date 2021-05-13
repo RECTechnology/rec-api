@@ -14,9 +14,9 @@ use JMS\Serializer\Annotation as Serializer;
  * Class SmsTemplates
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity()
- * @ORM\Table(name="sms_templates")
+ * @ORM\Table(name="user_security_config")
  */
-class SmsTemplates extends AppObject {
+class UserSecurityConfig extends AppObject {
 
     /**
      * @var string $type
@@ -26,13 +26,18 @@ class SmsTemplates extends AppObject {
     private $type;
 
     /**
-     * @var string $body
-     * @ORM\Column(type="string")
+     * @var integer $max_attempts
+     * @ORM\Column(type="integer")
      * @Serializer\Groups({"user"})
      */
-    private $body;
+    private $max_attempts;
 
-
+    /**
+     * @var integer $time_range
+     * @ORM\Column(type="integer", nullable=true)
+     * @Serializer\Groups({"user"})
+     */
+    private $time_range;
 
     /**
      * @return string
@@ -51,18 +56,38 @@ class SmsTemplates extends AppObject {
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getBody(): string
+    public function getMaxAttempts(): int
     {
-        return $this->body;
+        return $this->max_attempts;
     }
 
     /**
-     * @param string $body
+     * @param int $max_attempts
      */
-    public function setBody(string $body): void
+    public function setMaxAttempts(int $max_attempts): void
     {
-        $this->body = $body;
+        $this->max_attempts = $max_attempts;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getTimeRange()
+    {
+        return $this->time_range;
+    }
+
+    /**
+     * @param mixed $time_range
+     */
+    public function setTimeRange(int $time_range): void
+    {
+        $this->time_range = $time_range;
+    }
+
+
+
+
 }

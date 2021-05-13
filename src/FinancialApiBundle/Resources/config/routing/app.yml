@@ -7,3 +7,8 @@ validate_phone_request:
     path:  /app/v4/sms-code/validate-phone
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validatePhoneRequest }
     methods: [POST]
+
+recover_password_v4:
+    path:  /app/v4/recover-password
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecoveryV4 }
+    methods: [POST]

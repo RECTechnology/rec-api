@@ -262,6 +262,20 @@ class User extends BaseUser implements Uploadable {
      */
     private $disabled_at;
 
+    /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     * @Groups({"manager"})
+     */
+    private $pin_failures = 0;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     * @Groups({"manager"})
+     */
+    private $password_failures = 0;
+
 
     public function getAccessKey(){
         return $this->access_key;
@@ -833,6 +847,38 @@ class User extends BaseUser implements Uploadable {
     public function setDisabledAt($disabled_at): void
     {
         $this->disabled_at = $disabled_at;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPinFailures(): int
+    {
+        return $this->pin_failures;
+    }
+
+    /**
+     * @param int $pin_failures
+     */
+    public function setPinFailures(int $pin_failures): void
+    {
+        $this->pin_failures = $pin_failures;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPasswordFailures(): int
+    {
+        return $this->password_failures;
+    }
+
+    /**
+     * @param int $password_failures
+     */
+    public function setPasswordFailures(int $password_failures): void
+    {
+        $this->password_failures = $password_failures;
     }
 
 }
