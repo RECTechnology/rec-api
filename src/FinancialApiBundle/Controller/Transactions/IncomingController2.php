@@ -40,6 +40,9 @@ class IncomingController2 extends RestApiController{
      * @return string|Response
      */
     public function make(Request $request, $version_number, $type, $method_cname){
+        if($method_cname == 'lemonway' and $type == 'in'){
+            throw new HttpException(423, 'Este servicio esta en mantenimiento');
+        }
         $user = $this->get('security.token_storage')->getToken()->getUser();
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER'))
             throw new HttpException(403, 'You don\'t have the necessary permissions');

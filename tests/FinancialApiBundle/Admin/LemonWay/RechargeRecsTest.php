@@ -34,7 +34,7 @@ class RechargeRecsTest extends AdminApiTest {
 
     }
 
-    function testLemonTransfer(){
+    function _testLemonTransfer(){
         $user_id = 1;
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
@@ -78,7 +78,7 @@ class RechargeRecsTest extends AdminApiTest {
         $before = json_decode($rest_group1->getContent(), true);
 
         //make first recharge
-        $this->executeRecharge($data);
+        $response = $this->executeRecharge($data);
 
         //check recharge
         $rest_group2 = $this->requestJson('GET', '/admin/v3/group/'.$private_account_id);
