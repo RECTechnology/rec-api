@@ -40,13 +40,12 @@ class UserSecurityTest extends BaseApiTest
         );
     }
 
-    function testPasswordRecovery()
+    function testRecovery()
     {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
 
-        // TODO change to the new endpoint
-        //$route = "user/v4/users/security/sms-code/change-password";
-        $route = "/password_recovery/v1/request";
+        $route = "user/v4/users/security/sms-code/change-password";
+        //$route = "/password_recovery/v1/request"; // old endpoint
         $response = $this->rest(
             'POST',
             $route,
@@ -61,7 +60,7 @@ class UserSecurityTest extends BaseApiTest
 
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $user = $em->getRepository(User::class)->findOneBy(['dni' => "01234567A"]);
-        $sms_code = $user->getRecoverPasswordToken();
+        $sms_code = $user->getLastSmscode();
         $resp = $this->rest(
             'POST',
             '/app/v4/recover-password',
@@ -79,6 +78,27 @@ class UserSecurityTest extends BaseApiTest
             ],
             204
         );
+        $this->validatePhone($sms_code);
     }
+
+    function validatePhone($sms_code)
+    {
+        $resp = $this->rest(
+            'POST',
+            '/app/v4/validate-phone',
+            [
+                'dni' => '01234567A',
+                'prefix' => 34,
+                'phone' => 789789789,
+                'smscode' => $sms_code
+            ],
+            [
+                'Content-Type' => 'application/json',
+                'Authorization' => $this->token
+            ],
+            204
+        );
+    }
+
 
 }

@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Controller\Management\User;
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use App\FinancialApiBundle\Entity\SmsTemplates;
 use App\FinancialApiBundle\Entity\Tier;
+use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use App\FinancialApiBundle\Exception\AppException;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -1448,9 +1449,19 @@ class AccountController extends BaseApiController {
         if (!$template) {
             throw new HttpException(404, 'Template not found');
         }
+        // TODO remove when use flutter
         $user->setRecoverPasswordToken($code);
         $user->setPasswordRequestedAt(new \DateTime());
+
+        $user->setLastSmscode($code);
+        $user->setSmscodeRequestedAt(new \DateTime());
         $em->persist($user);
+
+        $sms_log = new UsersSmsLogs();
+        $sms_log->setUserId($user->getId());
+        $sms_log->setType($template_type);
+        $sms_log->setSecurityCode($code);
+        $em->persist($sms_log);
         $em->flush();
         $sms_text = str_replace("%SMS_CODE%", $code, $template->getBody());
         $this->sendSMS($user->getPrefix(), $user->getPhone(), $sms_text);;
@@ -1589,5 +1600,56 @@ class AccountController extends BaseApiController {
         }
         $logger->info('PASS RECOVERY: All done');
         return $this->restV2(204,"ok", "password recovered");
+    }
+
+    public function validatePhoneCodeV4(Request $request){
+        $paramNames = array(
+            'phone',
+            'prefix',
+            'smscode',
+            'dni'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+
+        $code = $request->get('smscode');
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('FinancialApiBundle:User')->findOneBy(array(
+            'dni' => $request->get('dni')
+        ));
+        if(!$user){
+            throw new HttpException(400, "DNI not registered");
+        }
+        $validation_code = $user->getLastSmscode();
+
+        $kyc = $em->getRepository('FinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if($kyc){
+            if($code == $validation_code){
+                $kyc->setPhoneValidated(true);
+                $em->persist($kyc);
+                $user->setEnabled(true);
+                $em->persist($user);
+                $em->flush();
+            }
+            else{
+                throw new HttpException(400, 'Incorrect code');
+            }
+        }
+        else{
+            throw new HttpException(400, 'User without kyc information');
+        }
+
+        $resp = $this->secureOutput($user);
+        return $this->restV2(204,"ok", "Request successful", $resp);
     }
 }

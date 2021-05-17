@@ -276,6 +276,21 @@ class User extends BaseUser implements Uploadable {
      */
     private $password_failures = 0;
 
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Expose
+     * @Groups({"manager"})
+     */
+    private $last_smscode;
+
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Expose
+     * @Groups({"manager"})
+     */
+    private $smscode_requested_at;
+
 
     public function getAccessKey(){
         return $this->access_key;
@@ -880,5 +895,38 @@ class User extends BaseUser implements Uploadable {
     {
         $this->password_failures = $password_failures;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getLastSmscode()
+    {
+        return $this->last_smscode;
+    }
+
+    /**
+     * @param mixed $last_smscode
+     */
+    public function setLastSmscode($last_smscode): void
+    {
+        $this->last_smscode = $last_smscode;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSmscodeRequestedAt()
+    {
+        return $this->smscode_requested_at;
+    }
+
+    /**
+     * @param mixed $smscode_requested_at
+     */
+    public function setSmscodeRequestedAt($smscode_requested_at): void
+    {
+        $this->smscode_requested_at = $smscode_requested_at;
+    }
+
 
 }

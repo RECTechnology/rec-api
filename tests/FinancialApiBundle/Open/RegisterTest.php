@@ -2,13 +2,13 @@
 
 namespace Test\FinancialApiBundle\Open;
 
+use App\FinancialApiBundle\DataFixture\UserFixture;
 use Faker\Factory;
 use Test\FinancialApiBundle\BaseApiTest;
 
 class RegisterTest extends BaseApiTest {
 
     public function testGoodRegisterResponds201(){
-
         $pw = $this->faker->password(6);
         $pin = $this->faker->randomNumber(4, true);
         $dni = '38305314X'; //got from https://generadordni.es/#dni
@@ -34,7 +34,7 @@ class RegisterTest extends BaseApiTest {
     }
 
     public function testGoodRegisterV4Responds204(){
-
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         $pw = $this->faker->password(6);
         $pin = $this->faker->randomNumber(4, true);
         $dni = '38305314X'; //got from https://generadordni.es/#dni
@@ -46,7 +46,11 @@ class RegisterTest extends BaseApiTest {
             'company_cif' => 'n9030699d',
             'company_name' => 'panaderia'
         ];
-        $response = $this->requestJson('POST', '/register/v4/mobile', $content);
+        $header = [
+            'Content-Type' => 'application/json',
+            'Authorization' => $this->token
+        ];
+        $response = $this->requestJson('POST', '/app/v4/register', $content, $header);
         self::assertEquals(
             204,
             $response->getStatusCode(),
