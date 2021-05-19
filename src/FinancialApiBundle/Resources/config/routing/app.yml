@@ -1,5 +1,5 @@
 forget_password_request:
-    path:  /app/v4/sms-code/forget-password
+    path:  /app/v4/sms-code/recover-password
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::forgetPasswordRequest }
     methods: [POST]
 

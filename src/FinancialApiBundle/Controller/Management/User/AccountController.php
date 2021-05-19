@@ -1341,20 +1341,6 @@ class AccountController extends BaseApiController {
         $em->persist($kyc);
         $em->flush();
 
-        $code = strval(random_int(100000, 999999));
-        $kyc->setPhoneValidated(false);
-        $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
-        $phone_info = array(
-            "prefix" => $prefix,
-            "number" => $phone
-        );
-        $kyc->setPhone(json_encode($phone_info));
-        $sms_text = $code." es tu codigo de seguridad para validar tu nueva cuenta y completar tu registro en la app. del REC.";
-        $this->sendSMS($prefix, $phone, $sms_text);
-
-        $em->persist($kyc);
-        $em->flush();
-
         foreach($methodsList as $method){
             $method_ex = explode('-', $method);
             $meth = $method_ex[0];
@@ -1568,8 +1554,8 @@ class AccountController extends BaseApiController {
         $logger = $this->get('manager.logger');
         $logger->info('PASS RECOVERY: '. $params['smscode']);
         if(!$user) {
-            $logger->info('PASS RECOVERY: Code not found');
-            throw new HttpException(404, 'Code not found');
+            $logger->info('PASS RECOVERY: Smscode not found');
+            throw new HttpException(404, 'Smscode not found');
         }
 
         if($user->isPasswordRequestNonExpired(1200)){
@@ -1586,10 +1572,9 @@ class AccountController extends BaseApiController {
             $em->flush();
             $logger->info('PASS RECOVERY: Pass updated (' . $user->getId() .')');
         }else{
-            throw new HttpException(404, 'Expired code');
+            throw new HttpException(404, 'Expired smscode');
         }
-
-        if($user->getDNI() != $params['dni']){
+        if(strtoupper($user->getDNI()) != strtoupper($params['dni'])){
             throw new HttpException(404, 'Wrong DNI');
         }
         if($user->getPrefix() != $params['prefix']){
