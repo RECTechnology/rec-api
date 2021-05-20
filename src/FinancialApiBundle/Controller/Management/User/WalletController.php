@@ -70,11 +70,11 @@ class WalletController extends RestApiController{
             'Cache-Control' => 'no-store',
             'Pragma' => 'no-cache',
         );
-        $response = array(
+/*        $response = array(
             "error" => "under_maintenance",
             "error_description" => "Este servicio esta en mantenimiento"
         );
-        return new Response(json_encode($response), 423, $headers);
+        return new Response(json_encode($response), 423, $headers);*/
         $total = 0;
         $all = array();
         $em = $this->getDoctrine()->getManager();
