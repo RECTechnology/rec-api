@@ -266,3 +266,13 @@ user_upload_base64:
     path:  /user/v1/upload_bas64
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\UploadController::uploadFileBase64 }
     methods: [POST]
+
+user_change_passwordV4:
+    path:  /user/v4/users/security/change-password
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::changePasswordV4 }
+    methods: [PUT]
+
+user_change_pinV4:
+    path:  /user/v4/users/security/change-pin
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::changePinV4 }
+    methods: [PUT]

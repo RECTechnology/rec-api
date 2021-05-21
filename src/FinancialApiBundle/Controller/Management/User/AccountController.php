@@ -1637,4 +1637,98 @@ class AccountController extends BaseApiController {
         $resp = $this->secureOutput($user);
         return $this->restV2(204,"ok", "Request successful", $resp);
     }
+
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     * @throws AnnotationException
+     * @throws \ReflectionException
+     */
+    public function changePinV4(Request $request){
+        $paramNames = array(
+            'password',
+            'pin',
+            'repin',
+            'sms_code'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        /** @var UserPasswordEncoder $encoder_service */
+        $encoder = $this->get('security.password_encoder');
+        $encoded_pass = $encoder->encodePassword($user, $request->request->get('password'));
+        if($encoded_pass != $user->getPassword())
+            throw new HttpException(404, 'Bad password');
+
+        $pin = preg_replace("/[^0-9]/", "", $params['pin']);
+        if(strlen($pin)!=4){
+            throw new HttpException(400, "Pin must be a number with 4 digits");
+        }
+        if($params['pin'] != $params['repin']) throw new HttpException(404, 'Pin and repin are different');
+
+        $user->setPin($pin);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+        $resp = $this->secureOutput($user);
+
+        return $this->restV2(200,"ok", "Password changed successfully", $resp);
+    }
+
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     * @throws AnnotationException
+     * @throws \ReflectionException
+     */
+    public function changePasswordV4(Request $request){
+        $paramNames = array(
+            'old_password',
+            'password',
+            'repassword',
+            'sms_code'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        /** @var UserPasswordEncoder $encoder_service */
+        $encoder = $this->get('security.password_encoder');
+        if(strlen($params['password']) < 6)
+            throw new HttpException(404, 'Password must be longer than 6 characters');
+        if($params['password'] != $params['repassword'])
+            throw new HttpException(404, 'Password and repassword are differents');
+        $encoded_pass = $encoder->encodePassword($user, $request->request->get('old_password'));
+        if($encoded_pass != $user->getPassword())
+            throw new HttpException(404, 'Bad old_password');
+        $user->setPlainPassword($request->get('password'));
+        $userManager = $this->container->get('access_key.security.user_provider');
+        $userManager->updatePassword($user);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+        $resp = $this->secureOutput($user);
+
+        return $this->restV2(200,"ok", "Password changed successfully", $resp);
+    }
+
+
 }
