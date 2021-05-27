@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Entity;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -20,15 +21,17 @@ class DocumentKind extends AppObject {
      * @var string $name
      * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
+     * @Expose
      */
-    protected $name;
+    public $name;
 
     /**
      * @var string $type
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"user"})
+     * @Expose
      */
-    protected $description;
+    public $description;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Document", mappedBy="kind")
@@ -48,6 +51,21 @@ class DocumentKind extends AppObject {
      */
     protected $tiers;
 
+    /**
+     * @ORM\Column(type="boolean")
+     * @Serializer\Exclude
+     * @Serializer\Groups({"user"})
+     * @Expose
+     */
+    public $is_user_document;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Serializer\Exclude
+     * @Serializer\Groups({"user"})
+     * @Expose
+     */
+    public $show_in_app;
 
     public function __construct()
     {
@@ -135,6 +153,38 @@ class DocumentKind extends AppObject {
         }
         $this->tiers->removeElement($tier);
         if($recursive) $tier->delDocumentKind($this, false);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsUserDocument()
+    {
+        return $this->is_user_document;
+    }
+
+    /**
+     * @param mixed $is_user_document
+     */
+    public function setIsUserDocument($is_user_document): void
+    {
+        $this->is_user_document = $is_user_document;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getShowInApp()
+    {
+        return $this->show_in_app;
+    }
+
+    /**
+     * @param mixed $show_in_app
+     */
+    public function setShowInApp($show_in_app): void
+    {
+        $this->show_in_app = $show_in_app;
     }
 
 }

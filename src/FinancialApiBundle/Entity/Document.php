@@ -7,6 +7,7 @@ use App\FinancialApiBundle\Annotations\StatusProperty;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use App\FinancialApiBundle\Exception\AppLogicException;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Expose;
 use DoctrineExtensions\Query\Mysql\Date;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -23,8 +24,18 @@ class Document extends AppObject implements Uploadable, Stateful {
     use StatefulTrait;
 
     /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @Expose
+     * @Serializer\Groups({"user"})
+     */
+    protected $id;
+
+    /**
      * @var string $status
      * @ORM\Column(type="string")
+     * @Expose
      * @StatusProperty(choices={
      *     "approved"={"final"=true}
      * }, initial_statuses={"approved"})
@@ -59,6 +70,8 @@ class Document extends AppObject implements Uploadable, Stateful {
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="documents")
      * @Serializer\Groups({"manager"})
+     * @Expose
+     * @MaxDepth(1)
      */
     protected $account;
 
@@ -66,8 +79,29 @@ class Document extends AppObject implements Uploadable, Stateful {
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\DocumentKind", inversedBy="documents")
      * @Serializer\Groups({"manager"})
      * @Assert\NotNull()
+     * @Expose
+     * @MaxDepth(2)
      */
     protected $kind;
+
+
+    /**
+     * @var mixed $user_id
+     * @ORM\Column(type="integer", nullable=true)
+     * @Serializer\Groups({"manager"})
+     * @Expose
+     * @MaxDepth(1)
+     */
+    protected $user_id;
+
+
+    /**
+     * @var string $status_text
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"manager"})
+     * @Expose
+     */
+    protected $status_text;
 
 
     function getUploadableFields()
@@ -170,4 +204,38 @@ class Document extends AppObject implements Uploadable, Stateful {
     {
         $this->valid_until = $valid_until;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * @param mixed $user_id
+     */
+    public function setUserId($user_id): void
+    {
+        $this->user_id = $user_id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusText(): string
+    {
+        return $this->status_text;
+    }
+
+    /**
+     * @param string $status_text
+     */
+    public function setStatusText(string $status_text): void
+    {
+        $this->status_text = $status_text;
+    }
+
+
 }

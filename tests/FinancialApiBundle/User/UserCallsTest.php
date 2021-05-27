@@ -56,4 +56,15 @@ class UserCallsTest extends BaseApiTest
         return $resp;
 
     }
+    function testGetDocuments()
+    {
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $resp = $this->rest(
+            'GET',
+            '/user/v3/documents',
+            [],
+            [],
+            200
+        );
+    }
 }
