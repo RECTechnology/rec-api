@@ -35,49 +35,26 @@ delete_credit_card:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\CreditCardController::deleteAction }
     methods: [DELETE]
 
-######################## BANK ACCOUNT ########################
-
-create_bank_account:
-    path:  /company/v1/bank_account
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\BankAccountController::registerAccount }
-    methods: [POST]
-
-index_bank_account:
-    path:  /company/v1/bank_account
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\BankAccountController::indexAccounts }
-    methods: [GET]
-
-update_bank_account:
-    path:  /company/v1/bank_account/{id}
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\BankAccountController::updateAccountFromCompany }
-    methods: [PUT]
-
-delete_bank_account:
-    path:  /company/v1/bank_account/{id}
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\BankAccountController::deleteAction }
-    methods: [DELETE]
-
-
 ######################## OFFERS ########################
 
-create_offer:
-    path:  /company/v1/offer
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::registerOffer }
+create_offer_v4:
+    path:  /company/v4/offers
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::registerOfferV4 }
     methods: [POST]
 
-index_offer:
-    path:  /company/v1/offer
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::indexOffers }
+index_offer_v4:
+    path:  /company/v4/offers
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::indexOffersV4 }
     methods: [GET]
 
-update_offer:
-    path:  /company/v1/offer/{id}
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::updateOfferFromCompany }
+update_offer_v4:
+    path:  /company/v4/offers/{offer_id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::updateOfferFromCompanyV4 }
     methods: [PUT]
 
-delete_offer:
-    path:  /company/v1/offer/{id}
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::deleteAction }
+delete_offer_v4:
+    path:  /company/v4/offers/{offer_id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::deleteActionV4 }
     methods: [DELETE]
 
 ######################## Products ########################

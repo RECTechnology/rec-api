@@ -86,6 +86,30 @@ class Offer{
      */
     private $active = false;
 
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     * @Groups({"public"})
+     */
+    private $type;
+
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     * @Expose
+     * @Groups({"public"})
+     */
+    private $initial_price;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     * @Expose
+     * @Groups({"public"})
+     */
+    private $offer_price;
+
+
     /**
      * Returns the user unique id.
      *
@@ -211,5 +235,53 @@ class Offer{
     public function isActive(){
         $now = strtotime("now");
         return date_timestamp_get($this->getStart()) > $now && date_timestamp_get($this->getEnd()) < $now;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type): void
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInitialPrice()
+    {
+        return $this->initial_price;
+    }
+
+    /**
+     * @param mixed $initial_price
+     */
+    public function setInitialPrice($initial_price): void
+    {
+        $this->initial_price = $initial_price;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOfferPrice()
+    {
+        return $this->offer_price;
+    }
+
+    /**
+     * @param mixed $offer_price
+     */
+    public function setOfferPrice($offer_price): void
+    {
+        $this->offer_price = $offer_price;
     }
 }

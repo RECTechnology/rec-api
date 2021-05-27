@@ -24,20 +24,90 @@ class OfferController extends BaseApiController{
     {
         return new Offer();
     }
+
     /**
      * @Rest\View
      */
-    public function registerOffer(Request $request)
+    public function indexOffersV4(Request $request){
+        $user = $this->getUser();
+        $company = $user->getActiveGroup();
+        $em = $this->getDoctrine()->getManager();
+        $offers = $em->getRepository('FinancialApiBundle:Offer')->findBy(array(
+            'company'   =>  $company
+        ));
+        return $this->restV2(200, 'ok', 'Request successfull', $offers);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function updateOfferFromCompanyV4(Request $request, $offer_id){
+        $em = $this->getDoctrine()->getManager();
+        $offer = $em->getRepository('FinancialApiBundle:Offer')->find($offer_id);
+        if($offer->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() )
+            throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        if(!$offer) throw new HttpException(404, 'Offer not found');
+
+        if($request->request->has('end')){
+            $end = date_create($request->request->get('end'));
+            $offer->setEnd($end);
+        }
+        if($request->request->has('start')){
+            $start = date_create($request->request->get('start'));
+            $offer->setStart($start);
+        }
+        if($request->request->has('discount')){
+            $offer->setDiscount($request->request->get('discount'));
+        }
+        if($request->request->has('description')){
+            $offer->setDescription($request->request->get('description'));
+        }
+        if($request->request->has('type')){
+            $offer->setType($request->request->get('type'));
+        }
+        if($request->request->has('initial_price')){
+            $offer->setInitialPrice($request->request->get('initial_price'));
+        }
+        if($request->request->has('offer_price')){
+            $offer->setOfferPrice($request->request->get('offer_price'));
+        }
+        $em->flush();
+        return $this->restV2(200, 'ok', 'Offer updated successfully');
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function deleteActionV4($offer_id){
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $offer = $em->getRepository('FinancialApiBundle:Offer')->findOneBy(array(
+            'id'    =>  $offer_id,
+            'company' =>  $user->getActiveGroup()
+        ));
+
+        if(!$offer) throw new HttpException(404, 'Offer not found');
+
+        return parent::deleteAction($offer_id);
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function registerOfferV4(Request $request)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
+        $group = $user->getActiveGroup();
 
         $paramNames = array(
             'start',
             'end',
             'discount',
             'description',
-            'image'
+            'image',
+            'type'
         );
 
         $params = array();
@@ -74,68 +144,10 @@ class OfferController extends BaseApiController{
         $offer->setDiscount($params['discount']);
         $offer->setDescription($params['description']);
         $offer->setImage($fileManager->getFilesPath().'/'.$filename);
+        $offer->setType($params['type']);
 
         $em->persist($offer);
         $em->flush();
-        return $this->restV2(201, "ok", "Offer registered successfully", $offer);
-    }
-
-    /**
-     * @Rest\View
-     */
-    public function indexOffers(Request $request){
-        $user = $this->getUser();
-        $company = $user->getActiveGroup();
-        $em = $this->getDoctrine()->getManager();
-        $offers = $em->getRepository('FinancialApiBundle:Offer')->findBy(array(
-            'company'   =>  $company
-        ));
-        return $this->restV2(200, 'ok', 'Request successfull', $offers);
-    }
-
-    /**
-     * @Rest\View
-     */
-    public function updateOfferFromCompany(Request $request, $id){
-        $em = $this->getDoctrine()->getManager();
-        $offer = $em->getRepository('FinancialApiBundle:Offer')->find($id);
-        if($offer->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() )
-            throw new HttpException(403, 'You don\'t have the necessary permissions');
-
-        if(!$offer) throw new HttpException(404, 'Offer not found');
-
-        if($request->request->has('end')){
-            $end = date_create($request->request->get('end'));
-            $offer->setEnd($end);
-        }
-        if($request->request->has('start')){
-            $start = date_create($request->request->get('start'));
-            $offer->setStart($start);
-        }
-        if($request->request->has('discount')){
-            $offer->setDiscount($request->request->get('discount'));
-        }
-        if($request->request->has('description')){
-            $offer->setDescription($request->request->get('description'));
-        }
-        $em->flush();
-        return $this->restV2(200, 'ok', 'Offer updated successfully');
-    }
-
-    /**
-     * @Rest\View
-     */
-    public function deleteAction($id){
-        $em = $this->getDoctrine()->getManager();
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-        $offer = $em->getRepository('FinancialApiBundle:Offer')->findOneBy(array(
-            'id'    =>  $id,
-            'company' =>  $user->getActiveGroup()
-        ));
-
-        if(!$offer) throw new HttpException(404, 'Offer not found');
-
-        return parent::deleteAction($id);
-
+        return $this->restV2(200, "ok", "Offer registered successfully", $offer);
     }
 }
