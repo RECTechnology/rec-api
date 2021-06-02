@@ -267,6 +267,8 @@ user_upload_base64:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\UploadController::uploadFileBase64 }
     methods: [POST]
 
+######################## USER SECURITY ########################
+
 user_change_passwordV4:
     path:  /user/v4/users/security/change-password
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::changePasswordV4 }
@@ -275,4 +277,19 @@ user_change_passwordV4:
 user_change_pinV4:
     path:  /user/v4/users/security/change-pin
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::changePinV4 }
+    methods: [PUT]
+
+user_documents_list:
+    path:  /user/v4/documents
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::getDocumentsV4 }
+    methods: [GET]
+
+user_documents_post:
+    path:  /user/v4/documents
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::addDocumentsV4 }
+    methods: [POST]
+
+user_documents_update:
+    path:  /user/v4/documents
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::updateDocumentsV4 }
     methods: [PUT]

@@ -40,7 +40,12 @@ class TierOperatoinsTest extends BaseApiTest {
 
     private function createDoctype() {
         $route = "/admin/v3/document_kinds";
-        return $this->rest('POST', $route, ['name' => 'Docname', 'description' => 'desc']);
+        return $this->rest('POST', $route, [
+            'name' => 'Docname',
+            'description' => 'desc',
+            'is_user_document' => 1,
+            'show_in_app' => 0
+        ]);
     }
 
     private function addDoctypeToTier($tier, $docType)

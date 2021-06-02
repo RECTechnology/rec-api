@@ -3,6 +3,8 @@
 namespace App\FinancialApiBundle\Controller\Management\User;
 
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
+use App\FinancialApiBundle\Entity\Document;
+use App\FinancialApiBundle\Entity\DocumentKind;
 use App\FinancialApiBundle\Entity\SmsTemplates;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
@@ -1025,6 +1027,8 @@ class AccountController extends BaseApiController {
             $template = 'FinancialApiBundle:Email:recoverpassword.html.twig';
         }elseif($action == 'kyc'){
             $template = 'FinancialApiBundle:Email:document_uploaded.html.twig';
+        }elseif($action == 'document'){
+            $template = 'FinancialApiBundle:Email:document_uploaded_v4.html.twig';
         }else{
             $template = 'FinancialApiBundle:Email:registerconfirm.html.twig';
         }
@@ -1647,7 +1651,6 @@ class AccountController extends BaseApiController {
      */
     public function changePinV4(Request $request){
         $paramNames = array(
-            'password',
             'pin',
             'repin',
             'sms_code'
@@ -1664,10 +1667,18 @@ class AccountController extends BaseApiController {
         /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
         /** @var UserPasswordEncoder $encoder_service */
-        $encoder = $this->get('security.password_encoder');
-        $encoded_pass = $encoder->encodePassword($user, $request->request->get('password'));
-        if($encoded_pass != $user->getPassword())
-            throw new HttpException(404, 'Bad password');
+
+        if ($user->getPin() !== null){
+            if($request->request->has('password') && $request->request->get('password')!=''){
+                $encoder = $this->get('security.password_encoder');
+                $encoded_pass = $encoder->encodePassword($user, $request->request->get('password'));
+                if($encoded_pass != $user->getPassword())
+                    throw new HttpException(404, 'Bad password');
+            }else{
+                throw new HttpException(404, 'Param password not found');
+            }
+        }
+
 
         $pin = preg_replace("/[^0-9]/", "", $params['pin']);
         if(strlen($pin)!=4){
@@ -1730,5 +1741,146 @@ class AccountController extends BaseApiController {
         return $this->restV2(200,"ok", "Password changed successfully", $resp);
     }
 
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     * @throws AnnotationException
+     * @throws \ReflectionException
+     */
+    public function getDocumentsV4(Request $request){
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
+        $em = $this->getDoctrine()->getManager();
+
+
+        if($request->query->has('company_id')){
+            $user_group = $em->getRepository(UserGroup::class)->find(
+                ['group' => $request->query->get('company_id'), 'user' => $user->getId()]);
+            if(!isset($user_group) or !in_array("ROLE_ADMIN", $user_group->getRoles())){
+                throw new HttpException(404, 'Insufficient permission');
+            }
+            $documents = $em->getRepository(Document::class)->findBy(
+                ['account' => $request->query->get('company_id')]);
+        }else{
+            $documents = $em->getRepository(Document::class)->findBy(
+                ['user_id' => $user->getId()]);
+        }
+
+        $resp = [];
+        foreach ($documents as $document){
+            array_push ($resp, [
+                'id'=> $document->getId(),
+                'document_kind'=> $document->getKind(),
+                'status'=> $document->getStatus(),
+                'status_text'=> $document->getStatusText(),
+            ]);
+        }
+        return $this->restV2(200,"ok", "ok", $resp);
+    }
+
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     * @throws AnnotationException
+     * @throws \ReflectionException
+     */
+    public function addDocumentsV4(Request $request)
+    {
+        $paramNames = array(
+            'content',
+            'name',
+            'kind_id'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $em = $this->getDoctrine()->getManager();
+
+        $kind = $em->getRepository(DocumentKind::class)->find(
+            ['id' => $request->request->get('kind_id')]);
+
+        if(!isset($kind)){
+            throw new HttpException(404, 'Document Kind not found');
+        }
+
+        $document = new Document();
+        $document->setContent($request->request->get('content'));
+        $document->setName($request->request->get('name'));
+        $document->setKind($kind);
+        $document->setUserId($user->getId());
+
+        if($request->request->has('account_id') && $request->request->get('account_id')!=''){
+            $account = $em->getRepository(Group::class)->find(
+                ['id' => $request->request->get('account_id')]);
+            $document->setAccount($account);
+        }
+
+        $em->persist($document);
+        $em->flush();
+
+        $params = [
+            'mail' => ['lang' => $user->getLocale()],
+            'user_id' => $user->getId(),
+            'content' => $request->request->get('content')
+        ];
+        $to = $this->container->getParameter('kyc_email');
+        $this->_sendEmail('Documentación cuenta', null, $to, 'document', $params);
+
+        return $this->restV2(200, "ok", "New Document created", ['document_id'=> $document->getId()]);
+    }
+
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     * @throws AnnotationException
+     * @throws \ReflectionException
+     */
+    public function updateDocumentsV4(Request $request){
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $document = $em->getRepository(Document::class)->find(
+            ['id' => $request->request->get('id')]);
+
+        if(!isset($document)){
+            throw new HttpException(404, 'Document not found');
+        }
+
+        if($document->getUserId() !== $user->getId()){
+            $user_group = $em->getRepository(UserGroup::class)->find(
+                ['group' => $document->getAccount(), 'user' => $user->getId()]);
+            if(!isset($user_group) or !in_array("ROLE_ADMIN", $user_group->getRoles())){
+                throw new HttpException(404, 'Insufficient permission');
+            }
+        }
+
+        $params = [
+            'mail' => ['lang' => $user->getLocale()],
+            'user_id' => $user->getId(),
+            'content' => $request->request->get('content')
+        ];
+        $document->setContent($request->request->get('content'));
+        $em->persist($document);
+        $em->flush();
+
+        $to = $this->container->getParameter('kyc_email');
+        $this->_sendEmail('Documentación cuenta', null, $to, 'document', $params);
+
+        return $this->restV2(200, "ok", "Document updated", ['document_id'=> $document->getId()]);
+
+    }
 }

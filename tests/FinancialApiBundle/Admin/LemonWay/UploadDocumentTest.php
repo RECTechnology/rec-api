@@ -26,7 +26,7 @@ class UploadDocumentTest extends AdminApiTest {
             ));
 
         $fm = $this->createMock(UploadManager::class);
-        $fm->method('saveFile')->willReturn('/file.jpg');
+        $fm->method('saveFile')->willReturn('/default_file.jpg');
 
         $this->override('net.app.driver.lemonway.eur', $lw);
         $this->override('file_manager', $fm);
@@ -40,6 +40,8 @@ class UploadDocumentTest extends AdminApiTest {
             [
                 'name' => "DNI",
                 'description' => 'user dni',
+                'is_user_document' => 1,
+                'show_in_app' => 0,
                 'lemon_doctype' => LemonDocumentKind::DOCTYPE_LW_NON_EU_PASSPORT
             ]
         );
@@ -57,10 +59,12 @@ class UploadDocumentTest extends AdminApiTest {
                 'name' => 'uploaded dni',
                 'content' => 'https://loremflickr.com/320/240?random=' . $this->faker->randomNumber(),
                 'kind_id' => $kind->id,
-                'account_id' => $account->id
+                'account_id' => $account->id,
+                'status_text' => "texto"
             ]
         );
     }
+
 
     function syncLemon(){
         $this->runCommand('rec:sync:lemonway');
@@ -72,6 +76,96 @@ class UploadDocumentTest extends AdminApiTest {
         $account = $this->getUserAccount($user);
         $this->createDocument($account, $kind);
         $this->syncLemon();
+    }
+
+    function testGetDocuments()
+    {
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $user = $this->getSignedInUser();
+        $account = $this->getUserAccount($user);
+
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $kind = $this->createLemonDocumentKind();
+        $this->createDocument($account, $kind);
+
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $resp = $this->rest(
+            'GET',
+            '/user/v3/documents',
+            [],
+            [],
+            200
+        );
+    }
+
+    function testGetDocumentsv4()
+    {
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $user = $this->getSignedInUser();
+        $account = $this->getUserAccount($user);
+
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $kind = $this->createLemonDocumentKind();
+        $document = $this->createDocument($account, $kind);
+
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $resp = $this->rest(
+            'GET',
+            '/user/v4/documents?company_id=1',
+            ['company_id' => $account->id],
+            [],
+            200
+        );
+    }
+    function testPostDocuments()
+    {
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $user = $this->getSignedInUser();
+        $account = $this->getUserAccount($user);
+
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $kind = $this->createDocumentKind();
+        //$this->createDocument($account, $kind);
+
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $resp = $this->rest(
+            'POST',
+            '/user/v4/documents',
+            [
+                "content" => "/file_url.jpg",
+                "name" => "dni",
+                "account_id" => $account->id,
+                "kind_id" => $kind->id
+            ],
+            [],
+            200
+        );
+        $this->updateDocument($resp->document_id);
+    }
+
+    function updateDocument($document_id) {
+        $resp = $this->rest(
+            'PUT',
+            '/user/v4/documents',
+            [
+                "content" => "/new_file_url.jpg",
+                "id" => $document_id,
+            ],
+            [],
+            200
+        );
+    }
+
+    function createDocumentKind() {
+        return $this->rest(
+            'POST',
+            '/admin/v3/document_kinds',
+            [
+                'name' => "DNI",
+                'description' => 'user dni',
+                'is_user_document' => 1
+            ]
+        );
     }
 
 }
