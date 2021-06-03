@@ -152,7 +152,7 @@ class UploadDocumentTest extends AdminApiTest {
                 "id" => $document_id,
             ],
             [],
-            200
+            404
         );
     }
 

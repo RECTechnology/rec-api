@@ -1777,7 +1777,7 @@ class AccountController extends BaseApiController {
                 'status_text'=> $document->getStatusText(),
             ]);
         }
-        return $this->restV2(200,"ok", "ok", $resp);
+        return $this->restV2(200,"ok", "ok", $this->secureOutput($resp));
     }
 
     /**
@@ -1858,6 +1858,8 @@ class AccountController extends BaseApiController {
 
         if(!isset($document)){
             throw new HttpException(404, 'Document not found');
+        }elseif ($document->getStatus() !== 'rec_declined'){
+            throw new HttpException(404, 'Only declined documents can be updated');
         }
 
         if($document->getUserId() !== $user->getId()){

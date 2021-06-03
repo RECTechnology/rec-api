@@ -214,7 +214,7 @@ class Document extends AppObject implements Uploadable, Stateful {
     }
 
     /**
-     * @return string
+     * @return mixed
      */
     public function getStatusText(): string
     {

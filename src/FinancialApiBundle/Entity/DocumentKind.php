@@ -21,15 +21,15 @@ class DocumentKind extends AppObject {
     /**
      * @var string $name
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      * @Expose
      */
     public $name;
 
     /**
-     * @var string $type
+     * @var string $description
      * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      * @Expose
      */
     public $description;
@@ -55,7 +55,7 @@ class DocumentKind extends AppObject {
     /**
      * @ORM\Column(type="boolean")
      * @Serializer\Exclude
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      * @Expose
      */
     public $is_user_document;
