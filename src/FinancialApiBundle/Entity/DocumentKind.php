@@ -54,7 +54,6 @@ class DocumentKind extends AppObject {
 
     /**
      * @ORM\Column(type="boolean")
-     * @Serializer\Exclude
      * @Serializer\Groups({"public"})
      * @Expose
      */

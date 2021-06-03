@@ -72,7 +72,7 @@ class Document extends AppObject implements Uploadable, Stateful {
      * @Serializer\Groups({"user"})
      * @Assert\NotNull()
      * @Expose
-     * @MaxDepth(2)
+     * @MaxDepth(1)
      */
     protected $kind;
 
@@ -216,7 +216,7 @@ class Document extends AppObject implements Uploadable, Stateful {
     /**
      * @return mixed
      */
-    public function getStatusText(): string
+    public function getStatusText()
     {
         return $this->status_text;
     }

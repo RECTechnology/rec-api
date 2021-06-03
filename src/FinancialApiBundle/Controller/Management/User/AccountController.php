@@ -1770,9 +1770,15 @@ class AccountController extends BaseApiController {
 
         $resp = [];
         foreach ($documents as $document){
+            $kind = $document->getKind();
             array_push ($resp, [
                 'id'=> $document->getId(),
-                'document_kind'=> $document->getKind(),
+                'document_kind'=>  [
+                    'id' => $kind->getId(),
+                    'name' => $kind->getName(),
+                    'description' => $kind->getDescription(),
+                    'is_user_document' => $kind->getIsUserDocument(),
+                    ],
                 'status'=> $document->getStatus(),
                 'status_text'=> $document->getStatusText(),
             ]);
