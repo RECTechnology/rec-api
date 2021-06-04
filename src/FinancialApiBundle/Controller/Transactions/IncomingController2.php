@@ -185,7 +185,7 @@ class IncomingController2 extends RestApiController{
         }
 
         //check bonissim payment
-        $this->checkCampaignConstraint($data, $group, $type, $method_cname);
+        $extra_data = $this->checkCampaignConstraint($data, $group, $type, $method_cname);
 
         $logger->info('(' . $group_id . ')(T) CHECK PIN');
 
@@ -609,7 +609,11 @@ class IncomingController2 extends RestApiController{
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
             $logger->info('(' . $group_id . ')(T) FINAL');
 
-            return $this->methodTransaction(201, $transaction, "Done");
+            $response = $this->methodTransaction(201, $transaction, "Done");
+            $content = json_decode($response->getContent(), true);
+            $content['extra_data'] = $extra_data;
+            $response->setContent(json_encode($content));
+            return $response;
         }
     }
 
@@ -1292,8 +1296,9 @@ class IncomingController2 extends RestApiController{
      * @param $type
      * @param $method_cname
      */
-    private function checkCampaignConstraint($params, ?object $group, $type, $method_cname): void
+    private function checkCampaignConstraint($params, ?object $group, $type, $method_cname)
     {
+        $extra_data = [];
         $satoshi_decimals = 1e8;
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
@@ -1319,8 +1324,9 @@ class IncomingController2 extends RestApiController{
 
             $user_id = $group->getKycManager()->getId();
 
+            // sender and reciver accounts not in campaign
             if (!$sender_campaigns->contains($campaign) && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE
-                && !$reciver_campaigns->contains($campaign)) { // sender and reciver accounts not in campaign
+                && !$reciver_campaigns->contains($campaign)) {
 
                 $user_private_accounts = $accountRepo->findBy(['kyc_manager' => $user_id, 'type' => Group::ACCOUNT_TYPE_PRIVATE]);
                 $user_balance = 0;
@@ -1378,12 +1384,15 @@ class IncomingController2 extends RestApiController{
                              $account->setRewardedAmount($rewarded_amount + $new_rewarded);
                              $em->persist($account);
                              $em->flush();
+
+                             $extra_data = ['rewarded_ltab' => $request['amount']];
                          }
 
                      }
                 }
             }
         }
+        return $extra_data;
     }
 
     /**
