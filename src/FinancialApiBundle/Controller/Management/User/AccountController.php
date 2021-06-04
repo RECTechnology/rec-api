@@ -1849,23 +1849,24 @@ class AccountController extends BaseApiController {
     /**
      * @Rest\View
      * @param Request $request
+     * @param $doc_id
      * @return Response
      * @throws AnnotationException
      * @throws \ReflectionException
      */
-    public function updateDocumentsV4(Request $request){
+    public function updateDocumentsV4(Request $request, $doc_id){
         /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $em = $this->getDoctrine()->getManager();
 
         $document = $em->getRepository(Document::class)->find(
-            ['id' => $request->request->get('id')]);
+            ['id' => $doc_id]);
 
         if(!isset($document)){
             throw new HttpException(404, 'Document not found');
-        }elseif ($document->getStatus() !== 'rec_declined'){
-            throw new HttpException(404, 'Only declined documents can be updated');
+        }elseif (!($document->getStatus() == 'rec_declined' or $document->getStatus() == 'rec_expired')){
+            throw new HttpException(404, 'Only declined or expired documents can be updated');
         }
 
         if($document->getUserId() !== $user->getId()){

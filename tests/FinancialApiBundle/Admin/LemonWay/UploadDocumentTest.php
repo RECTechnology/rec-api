@@ -146,10 +146,9 @@ class UploadDocumentTest extends AdminApiTest {
     function updateDocument($document_id) {
         $resp = $this->rest(
             'PUT',
-            '/user/v4/documents',
+            '/user/v4/documents/'.$document_id,
             [
-                "content" => "/new_file_url.jpg",
-                "id" => $document_id,
+                "content" => "/new_file_url.jpg"
             ],
             [],
             404

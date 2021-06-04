@@ -290,6 +290,6 @@ user_documents_post:
     methods: [POST]
 
 user_documents_update:
-    path:  /user/v4/documents
+    path:  /user/v4/documents/{doc_id}
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::updateDocumentsV4 }
     methods: [PUT]
