@@ -28,6 +28,11 @@ security:
             pattern:    ^/public/*
             stateless:  true
             security:   false
+            
+        notifications:
+            pattern:    ^/notifications
+            stateless:  true
+            security:   false
 
         #borrar cuando se elimine la tabla kyc
         kyc:
