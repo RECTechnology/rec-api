@@ -80,13 +80,13 @@ class Campaign extends AppObject {
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"admin"})
+     * @Serializer\Groups({"public"})
      */
     protected $image_url='';
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"admin"})
+     * @Serializer\Groups({"public"})
      */
     protected $video_promo_url='';
 
