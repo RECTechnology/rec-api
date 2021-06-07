@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.24.0](https://github.com/qbitartifacts/rec-api/compare/v2.23.0...v2.24.0) (2021-06-07)
+
+
+### Features
+
+* **AccountController:** change pass and pin v4 ([#526](https://github.com/qbitartifacts/rec-api/issues/526)) ([3aa7d91](https://github.com/qbitartifacts/rec-api/commit/3aa7d91f39233aa150d1fa6997b42223fdc7a1ec))
+* **AccountController:** changed  update document endpoint ([#548](https://github.com/qbitartifacts/rec-api/issues/548)) ([776705f](https://github.com/qbitartifacts/rec-api/commit/776705f9f80cfb047892b23c208d9014c8b88041))
+* **AccountController:** changed document return data ([#547](https://github.com/qbitartifacts/rec-api/issues/547)) ([8fee444](https://github.com/qbitartifacts/rec-api/commit/8fee44452b84839c68d6ddbac6b2786a5397d320))
+* **AccountController:** created /app/v4/recover-password endpoint ([a427cc0](https://github.com/qbitartifacts/rec-api/commit/a427cc09cf7bf5653353a899b893c9746a5e86d1))
+* **AccountController:** validate phone ([#517](https://github.com/qbitartifacts/rec-api/issues/517)) ([45cfee1](https://github.com/qbitartifacts/rec-api/commit/45cfee15fd9d33088121f2ea0434b0178ac11261))
+* **accounts:** added filter for inactive accounts ([#483](https://github.com/qbitartifacts/rec-api/issues/483)) ([2a9bba0](https://github.com/qbitartifacts/rec-api/commit/2a9bba0243e1a300e89137c66a5b5f74b9fba864))
+* **accounts:** use secureOutput ([#488](https://github.com/qbitartifacts/rec-api/issues/488)) ([fe56256](https://github.com/qbitartifacts/rec-api/commit/fe56256e8cb7df17a139c87c554e55253f707e1e))
+* **company account:** removed some params to create new account ([#557](https://github.com/qbitartifacts/rec-api/issues/557)) ([05f0c7b](https://github.com/qbitartifacts/rec-api/commit/05f0c7b7ba1d8aee9d407a03cc5b4274555207fc))
+* **documents:** added nuew fields in Document.php and DocumentKind.php ([#536](https://github.com/qbitartifacts/rec-api/issues/536)) ([78b336f](https://github.com/qbitartifacts/rec-api/commit/78b336f288311986cb975e342a00635a5004e413))
+* **Entities:** imports and duplicated definitions ([b2e2171](https://github.com/qbitartifacts/rec-api/commit/b2e2171fb7a6da8e42ed5d6d961a39dcbcc6347b))
+* **IncomingController:** added in response extra_data object ([#550](https://github.com/qbitartifacts/rec-api/issues/550)) ([1ac7db6](https://github.com/qbitartifacts/rec-api/commit/1ac7db695c36f1ee4ee575aee5062ef0f84d133e))
+* **kyc:**  changed sms code format to 6 digits ([#475](https://github.com/qbitartifacts/rec-api/issues/475)) ([2bd471e](https://github.com/qbitartifacts/rec-api/commit/2bd471eae8d492c86da7af41a940e84e1176176f))
+* **LW_recharge:** dissable recharge ([#514](https://github.com/qbitartifacts/rec-api/issues/514)) ([daedffd](https://github.com/qbitartifacts/rec-api/commit/daedffdef9e86fcd93c553a3953390f26a64b38f))
+* **map_v4:** info ([#497](https://github.com/qbitartifacts/rec-api/issues/497)) ([94e7481](https://github.com/qbitartifacts/rec-api/commit/94e74819bba3b72674300177c01ddb2c8ba59e34))
+* **OfferController:** offer crud V4 ([#530](https://github.com/qbitartifacts/rec-api/issues/530)) ([4d9b933](https://github.com/qbitartifacts/rec-api/commit/4d9b93339e522fb2f453776fb5f1ae5c7e1b9ed8))
+* **recharge:** allow recharge rec ([#525](https://github.com/qbitartifacts/rec-api/issues/525)) ([ef9938c](https://github.com/qbitartifacts/rec-api/commit/ef9938c0f7704f55f11b6ddaaeedcc22e3cdf02d))
+* **register:** implemented v4 register ([#478](https://github.com/qbitartifacts/rec-api/issues/478)) ([8343076](https://github.com/qbitartifacts/rec-api/commit/83430767e59eec5cf19f7d1be20a135f08f64c16))
+* **register_v4:** save sms logs ([#521](https://github.com/qbitartifacts/rec-api/issues/521)) ([068bf2f](https://github.com/qbitartifacts/rec-api/commit/068bf2f533e1f6204770a6fcfcd6342a3861421d))
+* **sms_text:** changed sms text ([#477](https://github.com/qbitartifacts/rec-api/issues/477)) ([ad5e8f7](https://github.com/qbitartifacts/rec-api/commit/ad5e8f7b636f9771e482ec772763ba48c6388b6b))
+* **sms-code:** recovery v4 ([#495](https://github.com/qbitartifacts/rec-api/issues/495)) ([40464e7](https://github.com/qbitartifacts/rec-api/commit/40464e7ea3755fe725edbcf600933a709ba7a717))
+* **table_name:** use camelcase ([#513](https://github.com/qbitartifacts/rec-api/issues/513)) ([f5935ec](https://github.com/qbitartifacts/rec-api/commit/f5935ec38c20e70a969f1624d2e6765fd5f0090b))
+* **transaction:** changed ([#500](https://github.com/qbitartifacts/rec-api/issues/500)) ([cfda4cc](https://github.com/qbitartifacts/rec-api/commit/cfda4cca8be5efe4b1261588db4e0f5d13529a3e))
+* **transactions:** added concept to out transactions ([#480](https://github.com/qbitartifacts/rec-api/issues/480)) ([f5803ab](https://github.com/qbitartifacts/rec-api/commit/f5803ab33606d81d5559389c00c402238ddd928f))
+* **User:** created log in test ([1359a8b](https://github.com/qbitartifacts/rec-api/commit/1359a8b5a1c8ccbbf0394b41df8cf7563bc3780c))
+* **User:** created new variables ([592a57b](https://github.com/qbitartifacts/rec-api/commit/592a57bc7bc2f3edae629379a21a47545dde78a4))
+* **User:** set status submitted on document update, security fields hidded ([#555](https://github.com/qbitartifacts/rec-api/issues/555)) ([2e917a6](https://github.com/qbitartifacts/rec-api/commit/2e917a6cee97234f4ccd45a3b30129d3ba046e32))
+* **UserSecurityConfig:** created new entity ([821cf39](https://github.com/qbitartifacts/rec-api/commit/821cf3908d76dcee6589acbf8ff52499acdada34))
+* **UserSecurityTest:** created testPasswordRecovery ([5621bc7](https://github.com/qbitartifacts/rec-api/commit/5621bc770703b04dedf19b811c8e80e4fe2c94f8))
+* **UserSecurityTest:** implemented testLogIn ([2a43c0d](https://github.com/qbitartifacts/rec-api/commit/2a43c0d4df33a85873e7126455ab022babbbd85a))
+* **UsersSmsLogs:** created new entity ([0e84c19](https://github.com/qbitartifacts/rec-api/commit/0e84c192a4787af343b6404d9163bcb8cf224cf6))
+* **wallet:** return error_description in listCommerce ([#516](https://github.com/qbitartifacts/rec-api/issues/516)) ([5dd3732](https://github.com/qbitartifacts/rec-api/commit/5dd37324eebb5f73ec8e6940c984db2fc931f2e0))
+
+
+### Bug Fixes
+
+* **accounts:** fixed cif filter ([#490](https://github.com/qbitartifacts/rec-api/issues/490)) ([ef81e8b](https://github.com/qbitartifacts/rec-api/commit/ef81e8b37cad02fee0c67961ffbb0cb6cc3acd27))
+* **Campaign:** made image_url and vide_promo_url public ([#551](https://github.com/qbitartifacts/rec-api/issues/551)) ([72c3f83](https://github.com/qbitartifacts/rec-api/commit/72c3f830d71fd5eaefbaa078f01e89badb85e480))
+* **kyc:** fixed document null status_text ([#546](https://github.com/qbitartifacts/rec-api/issues/546)) ([ddc4cd6](https://github.com/qbitartifacts/rec-api/commit/ddc4cd63154516ac2bf774e811b466b246a9685b))
+* **map:** optimize search map ([#494](https://github.com/qbitartifacts/rec-api/issues/494)) ([02505ea](https://github.com/qbitartifacts/rec-api/commit/02505ea106b9d9620d907c3510aa6ff5fbfaed36))
+* **security:** added again /notification endpoint in app/security.yml ([#549](https://github.com/qbitartifacts/rec-api/issues/549)) ([61fa650](https://github.com/qbitartifacts/rec-api/commit/61fa650f2fa473c4f8e818ced1c15ca2a4b7c1ec))
+* **security:** fixed wrong accesspoint url ([#501](https://github.com/qbitartifacts/rec-api/issues/501)) ([2af24a0](https://github.com/qbitartifacts/rec-api/commit/2af24a009077050af5063517830f8febd299c56e))
+* **security:** fixed wrong accesspoint url ([#502](https://github.com/qbitartifacts/rec-api/issues/502)) ([973e490](https://github.com/qbitartifacts/rec-api/commit/973e49000dc0fdafb9b472ed6bacff66e81a1865))
+* **user:** get users old_data from id instead of caller ([#471](https://github.com/qbitartifacts/rec-api/issues/471)) ([cc92bae](https://github.com/qbitartifacts/rec-api/commit/cc92bae2dc7d91c70e5bfabddfc18354a3f6bfeb))
+* **users:** validate phone exec time ([#473](https://github.com/qbitartifacts/rec-api/issues/473)) ([86502b6](https://github.com/qbitartifacts/rec-api/commit/86502b6a6d11db29cd75913800a8c2553b0b277b))
+
 ## [2.23.0](https://github.com/qbitartifacts/rec-api/compare/v2.22.0...v2.23.0) (2021-03-31)
 
 
