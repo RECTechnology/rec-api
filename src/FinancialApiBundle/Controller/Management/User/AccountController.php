@@ -1883,6 +1883,7 @@ class AccountController extends BaseApiController {
             'content' => $request->request->get('content')
         ];
         $document->setContent($request->request->get('content'));
+        $document->setStatus('rec_submitted');
         $em->persist($document);
         $em->flush();
 

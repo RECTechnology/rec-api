@@ -264,30 +264,26 @@ class User extends BaseUser implements Uploadable {
 
     /**
      * @ORM\Column(type="integer")
-     * @Expose
-     * @Groups({"manager"})
+     * @Groups({"admin"})
      */
     private $pin_failures = 0;
 
     /**
      * @ORM\Column(type="integer")
-     * @Expose
-     * @Groups({"manager"})
+     * @Groups({"admin"})
      */
     private $password_failures = 0;
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @Expose
-     * @Groups({"manager"})
+     * @Groups({"admin"})
      */
     private $last_smscode;
 
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Expose
-     * @Groups({"manager"})
+     * @Groups({"admin"})
      */
     private $smscode_requested_at;
 
