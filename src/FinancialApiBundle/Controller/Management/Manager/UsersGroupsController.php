@@ -241,7 +241,7 @@ class UsersGroupsController extends RestApiController{
                 $prefix_com = preg_replace("/[^0-9]/", "", $request->request->get('company_prefix'));
                 $company->setPrefix($prefix_com);
             }
-            if(!$this->checkPhone($phone_com, $prefix_com)){
+            if(isset($phone_com) and isset($prefix_com) and !$this->checkPhone($phone_com, $prefix_com)){
                 throw new HttpException(400, "Incorrect phone or prefix company number");
             }
         }

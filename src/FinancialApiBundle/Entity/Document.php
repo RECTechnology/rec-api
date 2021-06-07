@@ -29,7 +29,10 @@ class Document extends AppObject implements Uploadable, Stateful {
      * @ORM\Column(type="string")
      * @Expose
      * @StatusProperty(choices={
-     *     "approved"={"final"=true}
+     *     "rec_submitted"={"final"=false, "to"={"rec_declined", "rec_expired", "rec_approved"}},
+     *     "rec_declined"={"final"=false, "to"={"rec_submitted"}},
+     *     "rec_expired"={"final"=false, "to"={"rec_submitted"}},
+     *     "rec_approved"={"final"=true},
      * }, initial_statuses={"rec_submitted"})
      * @Serializer\Groups({"user"})
      */
