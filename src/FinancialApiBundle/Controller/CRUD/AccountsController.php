@@ -213,10 +213,14 @@ class AccountsController extends CRUDController {
         if ($account_subtype != '') $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
         if ($only_with_offers == 1) {
+            $_and = $qb->expr()->andX();
+            $_and->add($qb->expr()->eq('o2.company', 'a.id'));
+            $_and->add($qb->expr()->eq('o2.active', 1));
+
             $qbAux = $em->createQueryBuilder()
                 ->select('count(o2)')
                 ->from(Offer::class, 'o2')
-                ->where($qb->expr()->eq('o2.company', 'a.id'));
+                ->where($_and);
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
         }
 
