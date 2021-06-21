@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\User;
 
+use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use App\FinancialApiBundle\Entity\Document;
 use App\FinancialApiBundle\Entity\DocumentKind;
@@ -667,8 +668,14 @@ class AccountController extends BaseApiController {
             "number" => $phone
         );
         $kyc->setPhone(json_encode($phone_info));
-        $sms_text = $code." es tu codigo de seguridad para validar tu nuevo usuario y completar el registro del REC.";
-        $this->sendSMS($prefix, $phone, $sms_text);
+
+        $template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => 'validate_phone']);
+        if (!$template) {
+            throw new HttpException(404, 'Template not found');
+        }
+        $sms_text = str_replace("%SMS_CODE%", $code, $template->getBody());
+        UsersController::sendSMSv4($prefix, $phone, $sms_text, $this->container);
+
 
         if($params['email'] != '') {
             /*
@@ -808,8 +815,13 @@ class AccountController extends BaseApiController {
         $user->setPasswordRequestedAt(new \DateTime());
         $em->persist($user);
         $em->flush();
-        $sms_text = $code. " es tu codigo para cambiar tu contraseña del REC. No lo compartas con nadie!";
-        $this->sendSMS($user->getPrefix(), $user->getPhone(), $sms_text);;
+
+        $template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => 'forget_password']);
+        if (!$template) {
+            throw new HttpException(404, 'Template not found');
+        }
+        $sms_text = str_replace("%SMS_CODE%", $code, $template->getBody());
+        UsersController::sendSMSv4($user->getPrefix(), $user->getPhone(), $sms_text, $this->container);
         return $this->restV2(200,"ok", "Request successful");
     }
 
@@ -1168,25 +1180,6 @@ class AccountController extends BaseApiController {
         return false;
     }
 
-    private function sendSMS($prefix, $number, $text){
-        $user = $this->container->getParameter('labsmobile_user');
-        $pass = $this->container->getParameter('labsmobile_pass');
-        $text = str_replace(" ", "+", $text);
-
-        $url = 'http://api.labsmobile.com/get/send.php?';
-        $url .= 'username=' . $user . '&';
-        $url .= 'password=' . $pass . '&';
-        $url .= 'msisdn=' . $prefix . $number . '&';
-        $url .= 'message=' . $text . '&';
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-        $result = curl_exec($ch);
-        curl_close($ch);
-    }
-
     /**
      * @Rest\View
      * @param Request $request
@@ -1453,8 +1446,9 @@ class AccountController extends BaseApiController {
         $sms_log->setSecurityCode($code);
         $em->persist($sms_log);
         $em->flush();
+
         $sms_text = str_replace("%SMS_CODE%", $code, $template->getBody());
-        $this->sendSMS($user->getPrefix(), $user->getPhone(), $sms_text);;
+        UsersController::sendSMSv4($user->getPrefix(), $user->getPhone(), $sms_text, $this->container);
         return $this->restV2(200, "ok", "Request successful");
     }
 
@@ -1892,5 +1886,54 @@ class AccountController extends BaseApiController {
 
         return $this->restV2(200, "ok", "Document updated", ['document_id'=> $document->getId()]);
 
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function unlockUser(Request $request){
+        $paramNames = array(
+            'dni',
+            'prefix',
+            'phone',
+            'smscode'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        if(strtoupper($user->getDNI()) != strtoupper($params['dni'])){
+            throw new HttpException(404, 'Wrong DNI');
+        }
+        if($user->getPrefix() != $params['prefix']){
+            throw new HttpException(404, 'Wrong prefix');
+        }
+        if($user->getPhone() != $params['phone']){
+            throw new HttpException(404, 'Wrong phone');
+        }
+
+        if($user->getLastSmscode() == $request->request->get('smscode')){
+
+            $user->unLockUser();
+            $user->setPasswordFailures(0);
+            $user->setPinFailures(0);
+            $em->persist($user);
+            $em->flush();
+        }else{
+            throw new HttpException(404, 'The sms code is invalid or has expired.');
+        }
+
+        return $this->restV2(204,"ok", "user unlocked");
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Admin;
 
+use App\FinancialApiBundle\Entity\SmsTemplates;
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -301,8 +302,13 @@ class UsersController extends BaseApiController{
             "number" => $phone
         );
         $kyc->setPhone(json_encode($phone_info));
-        $sms_text = $code." es tu codigo de seguridad para validar tu nuevo usuario y completar el registro del REC.";
-        $this->sendSMS($prefix, $phone, $sms_text);
+
+        $template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => 'validate_phone']);
+        if (!$template) {
+            throw new HttpException(404, 'Template not found');
+        }
+        $sms_text = str_replace("%SMS_CODE%", $code, $template->getBody());
+        $this->sendSMSv4($prefix, $phone, $sms_text, $this->container);
         $em->persist($kyc);
 
         //Table Group
@@ -508,8 +514,13 @@ class UsersController extends BaseApiController{
                 $phone = $phone_json->number;
                 $code_json = json_decode($kyc->getValidationPhoneCode());
                 $code = $code_json->code;
-                $sms_text = $code." es tu codigo de seguridad para validar tu nuevo usuario y completar el registro del REC.";
-                $this->sendSMS($prefix, $phone, $sms_text);
+
+                $template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => 'validate_phone']);
+                if (!$template) {
+                    throw new HttpException(404, 'Template not found');
+                }
+                $sms_text = str_replace("%SMS_CODE%", $code, $template->getBody());
+                $this->sendSMSv4($prefix, $phone, $sms_text, $this->container);
                 return $this->restV2(204, 'Success', 'SMS sent successfully');
                 break;
             case 'reset_sms':
@@ -553,9 +564,10 @@ class UsersController extends BaseApiController{
         return $this->restV2(204, 'Success', 'Updated successfully');
     }
 
-    private function sendSMS($prefix, $number, $text){
-        $user = $this->container->getParameter('labsmobile_user');
-        $pass = $this->container->getParameter('labsmobile_pass');
+    public static function sendSMSv4($prefix, $number, $text, $container)
+    {
+        $user = $container->getParameter('labsmobile_user');
+        $pass = $container->getParameter('labsmobile_pass');
         $text = str_replace(" ", "+", $text);
 
         $url = 'http://api.labsmobile.com/get/send.php?';

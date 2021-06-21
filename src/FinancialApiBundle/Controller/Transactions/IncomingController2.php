@@ -2,8 +2,11 @@
 
 namespace App\FinancialApiBundle\Controller\Transactions;
 
+use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\PaymentOrder;
+use App\FinancialApiBundle\Entity\SmsTemplates;
+use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use App\FinancialApiBundle\Exception\AppException;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -164,6 +167,12 @@ class IncomingController2 extends RestApiController{
             };
             if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>-1){
                 $pin = $data['pin'];
+
+                $error = $this->checkPinFailures($em, $user);
+                if(isset($error)){
+                    return $error;
+                }
+
                 if($user->getPIN()!=$pin){
                     if ($order) {
                         $order->incrementRetries();
@@ -174,6 +183,9 @@ class IncomingController2 extends RestApiController{
                         $em->flush();
                         $em->getConnection()->commit();
                     }
+                    $user->setPinFailures($user->getPinFailures() + 1);
+                    $em->persist($user);
+                    $em->flush();
                     throw new HttpException(400, 'Incorrect Pin');
                 }
 
@@ -182,6 +194,12 @@ class IncomingController2 extends RestApiController{
                 throw new HttpException(400, 'Param pin not found or incorrect');
 
             }
+            if($user->getPinFailures() > 0){
+                $user->setPinFailures(0);
+                $em->persist($user);
+                $em->flush();
+            }
+
         }
 
         //check bonissim payment
@@ -1420,6 +1438,56 @@ class IncomingController2 extends RestApiController{
                     throw new HttpException(400, 'KYC max_out limit has been reached');
                 }
             }
+        }
+    }
+
+
+    /**
+     * @param EntityManagerInterface $em
+     * @param object|null $user
+     */
+    private function checkPinFailures(EntityManagerInterface $em, ?object $user)
+    {
+        $max_attempts = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
+            ->findOneBy(['type' => 'pin_failures'])->getMaxAttempts();
+
+        if ($user->getPinFailures() >= $max_attempts) {
+            $user->lockUser();
+
+            $sms_text = $em->getRepository('FinancialApiBundle:SmsTemplates')
+                ->findOneBy(['type' => 'pin_max_failures'])->getBody();
+            $code = strval(random_int(100000, 999999));
+            $user->setLastSmscode($code);
+            $em->persist($user);
+
+            $template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => 'pin_failures']);
+            if (!$template) {
+                throw new HttpException(404, 'Template not found');
+            }
+
+            $sms_text = str_replace("%SMS_CODE%", $code, $sms_text);
+            UsersController::sendSMSv4($user->getPrefix(), $user->getPhone(), $sms_text, $this->container);
+
+            $user_sms_log = new UsersSmsLogs();
+            $user_sms_log->setUserId($user->getId());
+            $user_sms_log->setType('pin_max_failures');
+            $user_sms_log->setSecurityCode($code);
+            $em->persist($user_sms_log);
+            $em->flush();
+
+
+
+            $headers = array(
+                'Content-Type' => 'application/json',
+                'Cache-Control' => 'no-store',
+                'Pragma' => 'no-cache',
+            );
+
+            $token = array(
+                "error" => "user_locked",
+                "error_description" => "Maximum pin attempts exceeded"
+            );
+            return new Response(json_encode($token), 403, $headers);
         }
     }
 

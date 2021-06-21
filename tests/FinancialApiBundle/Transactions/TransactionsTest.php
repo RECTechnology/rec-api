@@ -36,7 +36,7 @@ class TransactionsTest extends BaseApiTest {
     function testPay1RecToStoreShouldWork(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         $route = "/methods/v1/out/rec";
-        $this->rest(
+        $resp = $this->rest(
             'POST',
             $route,
             [
@@ -44,7 +44,9 @@ class TransactionsTest extends BaseApiTest {
                 'amount' => 1e8,
                 'concept' => 'Testing concept',
                 'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
-            ]
+            ],
+            [],
+            201
         );
     }
 

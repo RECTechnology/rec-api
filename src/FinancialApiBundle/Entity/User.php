@@ -924,5 +924,16 @@ class User extends BaseUser implements Uploadable {
         $this->smscode_requested_at = $smscode_requested_at;
     }
 
+    public function lockUser(): void
+    {
+        $this->locked = true;
+    }
+
+    public function unLockUser(): void
+    {
+        $this->locked = false;
+    }
+
+
 
 }

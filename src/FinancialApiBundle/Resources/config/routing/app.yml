@@ -22,3 +22,8 @@ validate_phone_v4:
     path:  /app/v4/validate-phone
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validatePhoneCodeV4 }
     methods: [POST]
+
+recover_unlock_user:
+    path:  /app/v4/unlock-user
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::unlockUser }
+    methods: [POST]

@@ -2,6 +2,8 @@
 
 namespace App\FinancialApiBundle\Controller;
 
+use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
+use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use FOS\OAuthServerBundle\Controller\TokenController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,9 +50,39 @@ class Login2faController extends RestApiController{
         $tokenController = $this->get('fos_oauth_server.controller.token');
         $token = json_decode($tokenController->tokenAction($request)->getContent());
 
+        $em = $this->getDoctrine()->getManager();
+        /** @var User $user */
+        $user = $em->getRepository('FinancialApiBundle:User')
+            ->findOneBy(['username' => $username]);
+
+        $max_attempts = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
+            ->findOneBy(['type' => 'password_failures'])->getMaxAttempts();
+
+        if($user->getPasswordFailures() >= $max_attempts){
+            $user->lockUser();
+            $sms_text = $em->getRepository('FinancialApiBundle:SmsTemplates')
+                ->findOneBy(['type' => 'password_max_failures'])->getBody();
+            $code = strval(random_int(100000, 999999));
+            $user->setLastSmscode($code);
+            $em->persist($user);
+            $sms_text = str_replace("%SMS_CODE%", $code, $sms_text);
+            UsersController::sendSMSv4($user->getPrefix(), $user->getPhone(), $sms_text, $this->container);
+
+            $user_sms_log = new UsersSmsLogs();
+            $user_sms_log->setUserId($user->getId());
+            $user_sms_log->setType('password_max_failures');
+            $user_sms_log->setSecurityCode($code);
+            $em->persist($user_sms_log);
+            $em->flush();
+
+            $token = array(
+                "error" => "user_locked",
+                "error_description" => "Maximum password attempts exceeded"
+            );
+            return new Response(json_encode($token), 403, $headers);
+        }
 
         if(!isset($token->error)){
-            $em = $this->getDoctrine()->getManager();
 
             $admin_client = $this->container->getParameter('admin_client_id');
             $client_info = explode("_", $request->get('client_id'));
@@ -74,10 +106,6 @@ class Login2faController extends RestApiController{
             if($request->get('grant_type') == "client_credentials"){
                 return new Response(json_encode($token), 200, $headers);
             }
-
-            /** @var User $user */
-            $user = $em->getRepository('FinancialApiBundle:User')
-                ->findOneBy(['username' => $username]);
 
             if(!$user->getKycValidations() || (!$user->getKycValidations()->getPhoneValidated())){
                 $token = array(
@@ -134,7 +162,17 @@ class Login2faController extends RestApiController{
             }
         }
         else{
+            if($token->error_description == 'Invalid username and password combination'){
+                $user->setPasswordFailures($user->getPasswordFailures() + 1);
+                $em->persist($user);
+                $em->flush();
+            }
             return new Response(json_encode($token), 400, $headers);
+        }
+        if($user->getPasswordFailures() > 0){
+            $user->setPasswordFailures(0);
+            $em->persist($user);
+            $em->flush();
         }
         return new Response(json_encode($token), 200, $headers);
     }
