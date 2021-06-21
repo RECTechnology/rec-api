@@ -361,7 +361,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         self::assertTrue(isset($bonissim_company_account));
 
         $redeemable = 50;
-        $tx_amount = 10;
+        $tx_amount = 2.5;
         $bonissim_private_account = $this->setRedeemable($bonissim_private_account, $redeemable);
 
         // changing the active account for the current user
@@ -387,11 +387,11 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
         self::assertEquals($redeemable - $tx_amount, $_bonissim_private_account->redeemable_amount);
         self::assertEquals($tx_amount, $_bonissim_private_account->rewarded_amount);
-
+        $expected_amount = round($tx_amount / 100 * 15, 2) * 1e8;
         $payed_to_comerce = ($campaign_account->wallets[0]->balance - $_campaign_account->wallets[0]->balance);
-        self::assertEquals($tx_amount / 100 * 15e8, $payed_to_comerce);
+        self::assertEquals($expected_amount, $payed_to_comerce);
         $payed_to_user = ($_bonissim_private_account->wallets[0]->balance - $bonissim_private_account->wallets[0]->balance);
-        self::assertEquals($tx_amount / 100 * 15e8, $payed_to_user);
+        self::assertEquals($expected_amount, $payed_to_user);
 
         $this->reportLTAB();
     }
