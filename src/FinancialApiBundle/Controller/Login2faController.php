@@ -55,33 +55,6 @@ class Login2faController extends RestApiController{
         $user = $em->getRepository('FinancialApiBundle:User')
             ->findOneBy(['username' => $username]);
 
-        $max_attempts = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
-            ->findOneBy(['type' => 'password_failures'])->getMaxAttempts();
-
-        if($user->getPasswordFailures() >= $max_attempts){
-            $user->lockUser();
-            $sms_text = $em->getRepository('FinancialApiBundle:SmsTemplates')
-                ->findOneBy(['type' => 'password_max_failures'])->getBody();
-            $code = strval(random_int(100000, 999999));
-            $user->setLastSmscode($code);
-            $em->persist($user);
-            $sms_text = str_replace("%SMS_CODE%", $code, $sms_text);
-            UsersController::sendSMSv4($user->getPrefix(), $user->getPhone(), $sms_text, $this->container);
-
-            $user_sms_log = new UsersSmsLogs();
-            $user_sms_log->setUserId($user->getId());
-            $user_sms_log->setType('password_max_failures');
-            $user_sms_log->setSecurityCode($code);
-            $em->persist($user_sms_log);
-            $em->flush();
-
-            $token = array(
-                "error" => "user_locked",
-                "error_description" => "Maximum password attempts exceeded"
-            );
-            return new Response(json_encode($token), 403, $headers);
-        }
-
         if(!isset($token->error)){
 
             $admin_client = $this->container->getParameter('admin_client_id');
@@ -166,6 +139,33 @@ class Login2faController extends RestApiController{
                 $user->setPasswordFailures($user->getPasswordFailures() + 1);
                 $em->persist($user);
                 $em->flush();
+
+                $max_attempts = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
+                    ->findOneBy(['type' => 'password_failures'])->getMaxAttempts();
+
+                if($user->getPasswordFailures() >= $max_attempts){
+                    $user->lockUser();
+                    $sms_text = $em->getRepository('FinancialApiBundle:SmsTemplates')
+                        ->findOneBy(['type' => 'password_max_failures'])->getBody();
+                    $code = strval(random_int(100000, 999999));
+                    $user->setLastSmscode($code);
+                    $em->persist($user);
+                    $sms_text = str_replace("%SMS_CODE%", $code, $sms_text);
+                    UsersController::sendSMSv4($user->getPrefix(), $user->getPhone(), $sms_text, $this->container);
+
+                    $user_sms_log = new UsersSmsLogs();
+                    $user_sms_log->setUserId($user->getId());
+                    $user_sms_log->setType('password_max_failures');
+                    $user_sms_log->setSecurityCode($code);
+                    $em->persist($user_sms_log);
+                    $em->flush();
+
+                    $token = array(
+                        "error" => "user_locked",
+                        "error_description" => "Maximum password attempts exceeded"
+                    );
+                    return new Response(json_encode($token), 403, $headers);
+                }
             }
             return new Response(json_encode($token), 400, $headers);
         }

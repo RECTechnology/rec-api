@@ -167,12 +167,6 @@ class IncomingController2 extends RestApiController{
             };
             if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>-1){
                 $pin = $data['pin'];
-
-                $error = $this->checkPinFailures($em, $user);
-                if(isset($error)){
-                    return $error;
-                }
-
                 if($user->getPIN()!=$pin){
                     if ($order) {
                         $order->incrementRetries();
@@ -186,6 +180,12 @@ class IncomingController2 extends RestApiController{
                     $user->setPinFailures($user->getPinFailures() + 1);
                     $em->persist($user);
                     $em->flush();
+
+                    $error = $this->checkPinFailures($em, $user);
+                    if(isset($error)){
+                        return $error;
+                    }
+
                     throw new HttpException(400, 'Incorrect Pin');
                 }
 
