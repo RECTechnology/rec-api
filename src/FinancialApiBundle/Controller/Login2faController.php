@@ -24,7 +24,7 @@ class Login2faController extends RestApiController{
             } else { // newer apps
                 $required_version = INF;
                 if($request->request->get('platform') == 'android'){
-                    $required_version = 61;
+                    $required_version = 200;
                 } elseif ($request->request->get('platform') == 'ios'){
                     $required_version = 61;
                 }
