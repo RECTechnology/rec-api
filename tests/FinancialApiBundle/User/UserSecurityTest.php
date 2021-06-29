@@ -2,9 +2,11 @@
 
 namespace Test\FinancialApiBundle\User;
 
+use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
+use App\FinancialApiBundle\Entity\UserGroup;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 
@@ -39,6 +41,42 @@ class UserSecurityTest extends BaseApiTest
             [],
             200
         );
+    }
+
+    function testLogInAdminPanel()
+    {
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        /** @var User $user */
+        $user = $em->getRepository(User::class)->findOneBy(['username' => "ADMINUSER"]);
+
+        /** @var UserGroup $userGroups */
+        $userGroups = $user->getGroups();
+        $userGroups[0]->setRoles(['ROLE_SUPER_ADMIN']);
+
+        $user->setActiveGroup($userGroups[1]);
+        $user->setRoles($user->getRoles());
+        $em->flush();
+
+        $otp = Google2FA::oath_totp($user->getTwoFactorCode());
+        //Admin Get token from app
+        $client = self::getOAuthClientAdminPanel();
+        $credentials = UserFixture::TEST_ADMIN_CREDENTIALS;
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => "2_".$client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => $credentials["username"],
+                'password' => $credentials["password"],
+                'version' => 120,
+                'pin' => $otp
+            ],
+            [],
+            200
+        );
+
     }
 
     function testRecovery()

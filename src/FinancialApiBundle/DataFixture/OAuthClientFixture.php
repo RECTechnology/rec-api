@@ -43,6 +43,14 @@ class OAuthClientFixture extends Fixture implements DependentFixtureInterface {
         $account = $manager->getRepository(Account::class)->findOneBy([]);
         $client->setGroup($account);
         $this->clientManager->updateClient($client);
+        //client for admin panel in same account
+        /** @var Client $clientAdmin */
+        $clientAdmin = $this->clientManager->createClient();
+        $clientAdmin->setRedirectUris([]);
+        $clientAdmin->setAllowedGrantTypes(['token', 'authorization_code', 'password', 'client_credentials', 'refresh_token']);
+        $clientAdmin->setGroup($account);
+        $this->clientManager->updateClient($clientAdmin);
+
     }
 
     public function getDependencies(){

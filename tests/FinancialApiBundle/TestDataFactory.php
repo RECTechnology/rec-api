@@ -22,6 +22,15 @@ trait TestDataFactory {
     }
 
     /**
+     * @return OAuthClient
+     */
+    public function getOAuthClientAdminPanel(): OAuthClient {
+        /** @var EntityManagerInterface $em */
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        return $em->getRepository(OAuthClient::class)->find(2);
+    }
+
+    /**
      * @return User
      */
     public function getTestAdmin(): User {

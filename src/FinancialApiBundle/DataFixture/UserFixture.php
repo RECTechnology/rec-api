@@ -13,7 +13,7 @@ use Faker\Generator;
 class UserFixture extends Fixture {
 
     const TEST_USER_CREDENTIALS = ['username' => '01234567A', 'password' => 'user_user', 'pin' => '0123'];
-    const TEST_ADMIN_CREDENTIALS = ['username' => 'admin_user', 'password' => 'admin_user', 'pin' => '3210'];
+    const TEST_ADMIN_CREDENTIALS = ['username' => 'ADMINUSER', 'password' => 'admin_user', 'pin' => '3210'];
 
     /**
      * Load data fixtures with the passed EntityManager

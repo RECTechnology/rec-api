@@ -152,6 +152,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $userAccount = new UserGroup();
         $userAccount->setGroup($account);
         $userAccount->setUser($user);
+        //TODO: This must not be hard coded, it should be dinamic depending the org
         $userAccount->setRoles(['ROLE_ADMIN']); //User is admin in the account
 
         if(!$user->getKycValidations()) {

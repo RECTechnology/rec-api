@@ -54,7 +54,6 @@ class Login2faController extends RestApiController{
         /** @var User $user */
         $user = $em->getRepository('FinancialApiBundle:User')
             ->findOneBy(['username' => $username]);
-
         if(!isset($token->error)){
 
             $admin_client = $this->container->getParameter('admin_client_id');
@@ -97,6 +96,18 @@ class Login2faController extends RestApiController{
             }
 
             if($admin_client == $client->getId()){
+                //Trying to access to admin account
+                //TODO se podria settear aqui el active group admin si este user lo tiene y volver a settear los roles
+                $userGroups = $user->getGroups();
+                $admin_group_id = $this->container->getParameter('id_group_root');
+                foreach ($userGroups as $userGroup){
+                    if($userGroup->getId() == $admin_group_id){
+                        $user->setActiveGroup($userGroup);
+                        $user->setRoles($user->getRoles());
+                        $em->flush();
+                    }
+                }
+
                 if(!$user->hasRole('ROLE_SUPER_ADMIN')) {
                     $token = array(
                         "error" => "not_permisssions",
