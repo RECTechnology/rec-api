@@ -46,34 +46,66 @@ class Login2faController extends RestApiController{
         $kyc = 0;
         if($request->request->has('kyc')) $kyc = $request->get('kyc');
 
+        $em = $this->getDoctrine()->getManager();
+        //Check client is licit
+        $client_info = explode("_", $request->get('client_id'));
+        if(count($client_info)!=2){
+            $token = array(
+                "error" => "not_validated_client",
+                "error_description" => "The client format is not valid"
+            );
+            return new Response(json_encode($token), 400, $headers);
+        }
+        $client_id = $client_info[0];
+        $client = $em->getRepository('FinancialApiBundle:Client')->findOneBy(array('id' => $client_id));
+        if(!$client){
+            $token = array(
+                "error" => "not_validated_client",
+                "error_description" => "The client is not valid"
+            );
+            return new Response(json_encode($token), 400, $headers);
+        }
+
         /** @var TokenController $tokenController */
         $tokenController = $this->get('fos_oauth_server.controller.token');
         $token = json_decode($tokenController->tokenAction($request)->getContent());
 
-        $em = $this->getDoctrine()->getManager();
         /** @var User $user */
         $user = $em->getRepository('FinancialApiBundle:User')
             ->findOneBy(['username' => $username]);
+
+        $max_attempts = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
+            ->findOneBy(['type' => 'password_failures'])->getMaxAttempts();
+
+        //check if user is locked
+        if(!$user->isAccountNonLocked()){
+            if($user->getPasswordFailures() >= $max_attempts){
+                //TODO here we could check the last sms sent and send a new one if the time_range has passed(#586)
+                $token = array(
+                    "error" => "user_locked",
+                    "error_description" => "User locked to protect user security"
+                );
+            }else{
+                $token = array(
+                    "error" => "user_locked",
+                    "error_description" => "User locked by admin"
+                );
+            }
+            return new Response(json_encode($token), 403, $headers);
+        }
+
+        //check if user is enabled
+        if(!$user->isEnabled()){
+            $token = array(
+                "error" => "not_enabled",
+                "error_description" => "User not enabled to log in"
+            );
+            return new Response(json_encode($token), 400, $headers);
+        }
+
         if(!isset($token->error)){
 
             $admin_client = $this->container->getParameter('admin_client_id');
-            $client_info = explode("_", $request->get('client_id'));
-            if(count($client_info)!=2){
-                $token = array(
-                    "error" => "not_validated_client",
-                    "error_description" => "The client format is not valid"
-                );
-                return new Response(json_encode($token), 400, $headers);
-            }
-            $client_id = $client_info[0];
-            $client = $em->getRepository('FinancialApiBundle:Client')->findOneBy(array('id' => $client_id));
-            if(!$client){
-                $token = array(
-                    "error" => "not_validated_client",
-                    "error_description" => "The client is not valid"
-                );
-                return new Response(json_encode($token), 400, $headers);
-            }
 
             if($request->get('grant_type') == "client_credentials"){
                 return new Response(json_encode($token), 200, $headers);
@@ -87,17 +119,8 @@ class Login2faController extends RestApiController{
                 return new Response(json_encode($token), 400, $headers);
             }
 
-            if(!$user->isEnabled() or !$user->isAccountNonLocked()){
-                $token = array(
-                    "error" => "not_enabled",
-                    "error_description" => "User not enabled to log in"
-                );
-                return new Response(json_encode($token), 400, $headers);
-            }
-
             if($admin_client == $client->getId()){
-                //Trying to access to admin account
-                //TODO se podria settear aqui el active group admin si este user lo tiene y volver a settear los roles
+                //Trying to access to admin panel
                 $userGroups = $user->getGroups();
                 $admin_group_id = $this->container->getParameter('id_group_root');
                 foreach ($userGroups as $userGroup){
@@ -151,9 +174,6 @@ class Login2faController extends RestApiController{
                 $em->persist($user);
                 $em->flush();
 
-                $max_attempts = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
-                    ->findOneBy(['type' => 'password_failures'])->getMaxAttempts();
-
                 if($user->getPasswordFailures() >= $max_attempts){
                     $user->lockUser();
                     $sms_text = $em->getRepository('FinancialApiBundle:SmsTemplates')
@@ -173,7 +193,7 @@ class Login2faController extends RestApiController{
 
                     $token = array(
                         "error" => "user_locked",
-                        "error_description" => "Maximum password attempts exceeded"
+                        "error_description" => "User locked to protect user security"
                     );
                     return new Response(json_encode($token), 403, $headers);
                 }

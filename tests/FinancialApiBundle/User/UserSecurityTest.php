@@ -79,6 +79,33 @@ class UserSecurityTest extends BaseApiTest
 
     }
 
+    /**
+     * This test check that if client format is not valid and username and password are valid, the response returns the
+     * client error first
+     */
+    function testLogInBadFormatClientRightCredentials()
+    {
+        $client = self::getOAuthClient();
+        $credentials = UserFixture::TEST_USER_CREDENTIALS;
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => $client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => $credentials["username"],
+                'password' => $credentials["password"],
+                'version' => 120,
+            ],
+            [],
+            400
+        );
+
+        self::assertEquals('not_validated_client', $resp->error);
+        self::assertEquals('The client format is not valid', $resp->error_description);
+    }
+
     function testRecovery()
     {
         $route = "user/v4/users/security/sms-code/change-password";
@@ -124,6 +151,7 @@ class UserSecurityTest extends BaseApiTest
             204
         );
     }
+
     function changePassword($sms_code)
     {
         $route = '/user/v4/users/security/change-password';
