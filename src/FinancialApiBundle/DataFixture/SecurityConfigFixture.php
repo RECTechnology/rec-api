@@ -25,6 +25,7 @@ class SecurityConfigFixture extends Fixture implements DependentFixtureInterface
         $this->createConfig($orm, 'sms_forget_password', 5, 86400);
         $this->createConfig($orm, 'sms_change_pin', 5, 86400);
         $this->createConfig($orm, 'sms_change_password', 5, 86400);
+        $this->createConfig($orm, 'sms_unlock_user', 1, 3600);
 
     }
 

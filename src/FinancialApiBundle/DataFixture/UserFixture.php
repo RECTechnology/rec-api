@@ -4,6 +4,7 @@
 namespace App\FinancialApiBundle\DataFixture;
 
 use App\FinancialApiBundle\Controller\Google2FA;
+use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use App\FinancialApiBundle\Entity\User;
@@ -14,6 +15,7 @@ class UserFixture extends Fixture {
 
     const TEST_USER_CREDENTIALS = ['username' => '01234567A', 'password' => 'user_user', 'pin' => '0123'];
     const TEST_ADMIN_CREDENTIALS = ['username' => 'ADMINUSER', 'password' => 'admin_user', 'pin' => '3210'];
+    const TEST_USER_LOCKED_CREDENTIALS = ['username' => 'USERLOCKED', 'password' => 'user_locked', 'pin' => '1230'];
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -26,8 +28,10 @@ class UserFixture extends Fixture {
         $faker = Factory::create();
         $admin = $this->generateUser($faker, self::TEST_ADMIN_CREDENTIALS);
         $user = $this->generateUser($faker, self::TEST_USER_CREDENTIALS);
+        $user_locked = $this->generateUser($faker, self::TEST_USER_LOCKED_CREDENTIALS);
         $manager->persist($admin);
         $manager->persist($user);
+        $manager->persist($user_locked);
         $manager->flush();
     }
 
@@ -61,6 +65,12 @@ class UserFixture extends Fixture {
         $user->setLocale('es');
         $user->setTwoFactorAuthentication(true);
         $user->setTwoFactorCode(Google2FA::generate_secret_key());
+        if($credentials['username'] == "USERLOCKED"){
+            $code = strval(random_int(100000, 999999));
+            $user->lockUser();
+            $user->setPasswordFailures(5);
+            $user->setLastSmscode($code);
+        }
         return $user;
     }
 }

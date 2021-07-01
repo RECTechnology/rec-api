@@ -97,6 +97,24 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2
         );
+
+        //This user has a private USER account and is locked by password failures
+        $user_locked = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_USER_LOCKED_CREDENTIALS['username']]);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user_locked,
+            [],
+            self::ACCOUNT_TYPE_PRIVATE,
+            self::ACCOUNT_SUBTYPE_NORMAL,
+            1,
+            $faker->name,
+            1000e8
+        );
+
+        //This one has to be the last one because some tests like #testCountryNotValid are expecting this
+        //because of use admin to retrieve all accounts and gets the first on and needs to be part of this account
         $this->createAccount(
             $orm,
             $faker,
@@ -108,7 +126,6 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             "LTAB",
             100000e8
         );
-
 
         $orm->flush();
     }

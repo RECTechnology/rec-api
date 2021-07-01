@@ -43,6 +43,28 @@ class UserSecurityTest extends BaseApiTest
         );
     }
 
+    function testLogInUserLockedShouldFail()
+    {
+        $client = self::getOAuthClient();
+        $credentials = UserFixture::TEST_USER_LOCKED_CREDENTIALS;
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => $credentials["username"],
+                'password' => $credentials["password"],
+            ],
+            [],
+            403
+        );
+
+        self::assertEquals('user_locked',$resp->error);
+        self::assertEquals('User locked to protect user security',$resp->error_description);
+    }
+
     function testLogInAdminPanel()
     {
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
@@ -70,7 +92,6 @@ class UserSecurityTest extends BaseApiTest
                 'client_secret' => $client->getSecret(),
                 'username' => $credentials["username"],
                 'password' => $credentials["password"],
-                'version' => 120,
                 'pin' => $otp
             ],
             [],
@@ -96,7 +117,6 @@ class UserSecurityTest extends BaseApiTest
                 'client_secret' => $client->getSecret(),
                 'username' => $credentials["username"],
                 'password' => $credentials["password"],
-                'version' => 120,
             ],
             [],
             400
@@ -104,6 +124,22 @@ class UserSecurityTest extends BaseApiTest
 
         self::assertEquals('not_validated_client', $resp->error);
         self::assertEquals('The client format is not valid', $resp->error_description);
+    }
+
+    function testGetTokenClientCredentials()
+    {
+        $client = self::getOAuthClient();
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "client_credentials",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret()
+            ],
+            [],
+            200
+        );
     }
 
     function testRecovery()

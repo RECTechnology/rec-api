@@ -17,6 +17,14 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class UserSecurityConfig extends AppObject {
 
+    const USER_SECURITY_CONFIG_TYPE_PIN_FAILURES = 'pin_failures';
+    const USER_SECURITY_CONFIG_TYPE_PASSWORD_FAILURES = 'password_failures';
+    const USER_SECURITY_CONFIG_TYPE_SMS_VALIDATE_PHONE = 'sms_validate_phone';
+    const USER_SECURITY_CONFIG_TYPE_SMS_FORGET_PASSWORD = 'sms_forget_password';
+    const USER_SECURITY_CONFIG_TYPE_SMS_CHANGE_PIN = 'sms_change_pin';
+    const USER_SECURITY_CONFIG_TYPE_SMS_CHANGE_PASSWORD = 'sms_change_password';
+    const USER_SECURITY_CONFIG_TYPE_SMS_UNLOCK_USER = 'sms_unlock_user';
+
     /**
      * @var string $type
      * @ORM\Column(type="string", unique=true)

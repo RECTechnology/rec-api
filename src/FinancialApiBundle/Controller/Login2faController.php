@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
+use App\FinancialApiBundle\Entity\UserSecurityConfig;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use FOS\OAuthServerBundle\Controller\TokenController;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,7 +48,7 @@ class Login2faController extends RestApiController{
         if($request->request->has('kyc')) $kyc = $request->get('kyc');
 
         $em = $this->getDoctrine()->getManager();
-        //Check client is licit
+
         $client_info = explode("_", $request->get('client_id'));
         if(count($client_info)!=2){
             $token = array(
@@ -70,17 +71,37 @@ class Login2faController extends RestApiController{
         $tokenController = $this->get('fos_oauth_server.controller.token');
         $token = json_decode($tokenController->tokenAction($request)->getContent());
 
+        if($request->get('grant_type') == "client_credentials"){
+            return new Response(json_encode($token), 200, $headers);
+        }
+
         /** @var User $user */
         $user = $em->getRepository('FinancialApiBundle:User')
             ->findOneBy(['username' => $username]);
 
-        $max_attempts = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
-            ->findOneBy(['type' => 'password_failures'])->getMaxAttempts();
+        /** @var UserSecurityConfig $user_security_config */
+        $unlock_user_config = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
+            ->findOneBy(['type' => UserSecurityConfig::USER_SECURITY_CONFIG_TYPE_SMS_UNLOCK_USER]);
 
-        //check if user is locked
+        $password_failures_config = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
+            ->findOneBy(['type' => UserSecurityConfig::USER_SECURITY_CONFIG_TYPE_PASSWORD_FAILURES]);
+
+        $max_password_fail_attempts = $password_failures_config->getMaxAttempts();
+
         if(!$user->isAccountNonLocked()){
-            if($user->getPasswordFailures() >= $max_attempts){
-                //TODO here we could check the last sms sent and send a new one if the time_range has passed(#586)
+            if($user->getPasswordFailures() >= $max_password_fail_attempts){
+
+                $lastSmsSent = $em->getRepository(UsersSmsLogs::class)->findBy(
+                    array("user_id" => $user->getId(), "type" => "sms_unlock_user"),
+                    array('created'=> 'DESC'),1,0);
+
+                $time_range = $unlock_user_config->getTimeRange();
+                $now = new \DateTime();
+
+                if($now->getTimestamp() > $lastSmsSent[0]->getCreated()->getTimeStamp() + $time_range){
+                    $this->_sendPasswordMaxFailuresSms($em, $user);
+                }
+
                 $token = array(
                     "error" => "user_locked",
                     "error_description" => "User locked to protect user security"
@@ -106,10 +127,6 @@ class Login2faController extends RestApiController{
         if(!isset($token->error)){
 
             $admin_client = $this->container->getParameter('admin_client_id');
-
-            if($request->get('grant_type') == "client_credentials"){
-                return new Response(json_encode($token), 200, $headers);
-            }
 
             if(!$user->getKycValidations() || (!$user->getKycValidations()->getPhoneValidated())){
                 $token = array(
@@ -174,22 +191,10 @@ class Login2faController extends RestApiController{
                 $em->persist($user);
                 $em->flush();
 
-                if($user->getPasswordFailures() >= $max_attempts){
+                if($user->getPasswordFailures() >= $max_password_fail_attempts){
                     $user->lockUser();
-                    $sms_text = $em->getRepository('FinancialApiBundle:SmsTemplates')
-                        ->findOneBy(['type' => 'password_max_failures'])->getBody();
-                    $code = strval(random_int(100000, 999999));
-                    $user->setLastSmscode($code);
-                    $em->persist($user);
-                    $sms_text = str_replace("%SMS_CODE%", $code, $sms_text);
-                    UsersController::sendSMSv4($user->getPrefix(), $user->getPhone(), $sms_text, $this->container);
 
-                    $user_sms_log = new UsersSmsLogs();
-                    $user_sms_log->setUserId($user->getId());
-                    $user_sms_log->setType('password_max_failures');
-                    $user_sms_log->setSecurityCode($code);
-                    $em->persist($user_sms_log);
-                    $em->flush();
+                    $this->_sendPasswordMaxFailuresSms($em, $user);
 
                     $token = array(
                         "error" => "user_locked",
@@ -287,5 +292,22 @@ class Login2faController extends RestApiController{
         $response = json_decode(curl_exec($ch));
         curl_close ($ch);
         return $response;
+    }
+
+    private function _sendPasswordMaxFailuresSms($em, User $user){
+        $sms_text = $em->getRepository('FinancialApiBundle:SmsTemplates')
+            ->findOneBy(['type' => 'password_max_failures'])->getBody();
+        $code = strval(random_int(100000, 999999));
+        $user->setLastSmscode($code);
+        $em->persist($user);
+        $sms_text = str_replace("%SMS_CODE%", $code, $sms_text);
+        UsersController::sendSMSv4($user->getPrefix(), $user->getPhone(), $sms_text, $this->container);
+
+        $user_sms_log = new UsersSmsLogs();
+        $user_sms_log->setUserId($user->getId());
+        $user_sms_log->setType('sms_unlock_user');
+        $user_sms_log->setSecurityCode($code);
+        $em->persist($user_sms_log);
+        $em->flush();
     }
 }
