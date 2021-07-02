@@ -1931,7 +1931,7 @@ class AccountController extends BaseApiController {
             $em->persist($user);
             $em->flush();
         }else{
-            throw new HttpException(404, 'The sms code is invalid or has expired.');
+            throw new HttpException(404, 'The sms code is invalid or has expired');
         }
 
         return $this->restV2(204,"ok", "user unlocked");
