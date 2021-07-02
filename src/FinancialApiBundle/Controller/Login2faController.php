@@ -88,7 +88,7 @@ class Login2faController extends RestApiController{
 
         $max_password_fail_attempts = $password_failures_config->getMaxAttempts();
 
-        if(!$user->isAccountNonLocked()){
+        if($user && !$user->isAccountNonLocked()){
             if($user->getPasswordFailures() >= $max_password_fail_attempts){
 
                 $lastSmsSent = $em->getRepository(UsersSmsLogs::class)->findBy(
@@ -98,7 +98,7 @@ class Login2faController extends RestApiController{
                 $time_range = $unlock_user_config->getTimeRange();
                 $now = new \DateTime();
 
-                if($now->getTimestamp() > $lastSmsSent[0]->getCreated()->getTimeStamp() + $time_range){
+                if(!isset($lastSmsSent[0]) || $now->getTimestamp() > $lastSmsSent[0]->getCreated()->getTimeStamp() + $time_range){
                     $this->_sendPasswordMaxFailuresSms($em, $user);
                 }
 
@@ -116,7 +116,7 @@ class Login2faController extends RestApiController{
         }
 
         //check if user is enabled
-        if(!$user->isEnabled()){
+        if($user && !$user->isEnabled()){
             $token = array(
                 "error" => "not_enabled",
                 "error_description" => "User not enabled to log in"
@@ -186,7 +186,7 @@ class Login2faController extends RestApiController{
             }
         }
         else{
-            if($token->error_description == 'Invalid username and password combination'){
+            if($user && $token->error_description == 'Invalid username and password combination'){
                 $user->setPasswordFailures($user->getPasswordFailures() + 1);
                 $em->persist($user);
                 $em->flush();

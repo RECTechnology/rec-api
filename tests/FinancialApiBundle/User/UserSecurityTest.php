@@ -43,6 +43,44 @@ class UserSecurityTest extends BaseApiTest
         );
     }
 
+    function testLogInBadUsernameShouldReturn400()
+    {
+        $client = self::getOAuthClient();
+        $credentials = UserFixture::TEST_USER_CREDENTIALS;
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => 'fake',
+                'password' => $credentials["password"]
+            ],
+            [],
+            400
+        );
+    }
+
+    function testLogInBadPasswordShouldReturn400()
+    {
+        $client = self::getOAuthClient();
+        $credentials = UserFixture::TEST_USER_CREDENTIALS;
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => $credentials["username"],
+                'password' => 'fake'
+            ],
+            [],
+            400
+        );
+    }
+
     function testLogInUserLockedShouldFail()
     {
         $client = self::getOAuthClient();
