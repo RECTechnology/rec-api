@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.25.0](https://github.com/qbitartifacts/rec-api/compare/v2.24.0...v2.25.0) (2021-07-02)
+
+
+### Features
+
+* **AccountsController:** filter active offers ([#558](https://github.com/qbitartifacts/rec-api/issues/558)) ([2c1270f](https://github.com/qbitartifacts/rec-api/commit/2c1270f7ec38326f991391c656019d7e1c170726))
+* **IncommingController:** reward LTAB rounded to 2 decimals([#566](https://github.com/qbitartifacts/rec-api/issues/566)) ([25e171b](https://github.com/qbitartifacts/rec-api/commit/25e171b7f7ba76d93407bf53a736aa7d6dfae66a))
+
+
+### Bug Fixes
+
+* **AccountController:** fixed unlockUser ([#576](https://github.com/qbitartifacts/rec-api/issues/576)) ([40bac80](https://github.com/qbitartifacts/rec-api/commit/40bac805d7fbe6c2f98d5f8151a873d3256089bd))
+* **admin:** fix login k panel after be logged in app with personal account ([#585](https://github.com/qbitartifacts/rec-api/issues/585)) ([ca1aef2](https://github.com/qbitartifacts/rec-api/commit/ca1aef21046da3144bceafec50ed19da324ca27c))
+* **admin:** return enabled field in show and index and added tests ([#596](https://github.com/qbitartifacts/rec-api/issues/596)) ([8b60e28](https://github.com/qbitartifacts/rec-api/commit/8b60e28b4282fe16edb6795fc0bfbbb0db093ed3))
+* **IncomingController:** fixed attempts count ([#567](https://github.com/qbitartifacts/rec-api/issues/567)) ([51785f5](https://github.com/qbitartifacts/rec-api/commit/51785f581304dd3514a44841ee6537895542cbb7))
+* **login:** catch more error cases and more tests ([#595](https://github.com/qbitartifacts/rec-api/issues/595)) ([6332e5e](https://github.com/qbitartifacts/rec-api/commit/6332e5e618c65090943afff402655a581db7376d))
+* **login:** change security check order and fix messages ([#589](https://github.com/qbitartifacts/rec-api/issues/589)) ([b82cceb](https://github.com/qbitartifacts/rec-api/commit/b82ccebb566bc1cf00aea53ca6a2ddf7d33d0c11))
+* **security:** limit sms attemps and tests ([#592](https://github.com/qbitartifacts/rec-api/issues/592)) ([494f3ac](https://github.com/qbitartifacts/rec-api/commit/494f3ac60c3badfd27858f27820c75d7d3a26b01))
+* **tests:** create test to try export users call with params ([#593](https://github.com/qbitartifacts/rec-api/issues/593)) ([e360bde](https://github.com/qbitartifacts/rec-api/commit/e360bde1bdd7ab258b37f92e9e61c1d5e24107d0))
+* **version:** bumped minimum version for android to 200 ([#580](https://github.com/qbitartifacts/rec-api/issues/580)) ([2a65429](https://github.com/qbitartifacts/rec-api/commit/2a65429a577296d807d281f1e76dd5f0ea286792))
+
 ## [2.24.0](https://github.com/qbitartifacts/rec-api/compare/v2.23.0...v2.24.0) (2021-06-07)
 
 
