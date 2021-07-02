@@ -3,6 +3,7 @@
 namespace Test\FinancialApiBundle\Admin\Users;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\User;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
@@ -19,7 +20,8 @@ class UsersTest extends BaseApiTest {
         'dni',
         'expired',
         'name',
-        'locked'
+        'locked',
+        'enabled'
     ];
 
     function setUp(): void
@@ -48,5 +50,33 @@ class UsersTest extends BaseApiTest {
         foreach (self::USER_REQUIRED_FIELDS as $field){
             self::assertArrayHasKey($field, $user);
         }
+    }
+
+    function testSingleUserReturnsAllRequiredFields()
+    {
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $targetUserData = UserFixture::TEST_USER_LOCKED_CREDENTIALS;
+        /** @var User $targetUser */
+        $targetUser = $em->getRepository(User::class)->findOneBy(['username' => $targetUserData['username']]);
+
+
+        $route = '/admin/v3/users/'.$targetUser->getId();
+        $resp = $this->requestJson('GET', $route);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $content = json_decode($resp->getContent(), true);
+
+        self::assertArrayHasKey('data', $content);
+        $user = $content['data'];
+
+        foreach (self::USER_REQUIRED_FIELDS as $field){
+            self::assertArrayHasKey($field, $user);
+        }
+
+        self::assertEquals(false, $user['enabled']);
     }
 }

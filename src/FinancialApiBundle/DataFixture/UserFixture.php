@@ -68,6 +68,7 @@ class UserFixture extends Fixture {
         if($credentials['username'] == "USERLOCKED"){
             $code = strval(random_int(100000, 999999));
             $user->lockUser();
+            $user->setEnabled(false);
             $user->setPasswordFailures(5);
             $user->setLastSmscode($code);
         }

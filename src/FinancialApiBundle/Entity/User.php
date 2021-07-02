@@ -191,6 +191,12 @@ class User extends BaseUser implements Uploadable {
     private $locked = 0;
 
     /**
+     * @Expose
+     * @Groups({"admin"})
+     */
+    protected $enabled;
+
+    /**
      * @ORM\Column(type="boolean", nullable=true)
      * @Expose
      * @Groups({"admin"})
