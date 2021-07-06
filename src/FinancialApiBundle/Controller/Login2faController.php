@@ -20,7 +20,8 @@ class Login2faController extends RestApiController{
             if(!$request->request->has('platform') ) { // older apps
                 $required_version = 61; // todo get required_version from database
                 if($request->request->get('version') < $required_version) {
-                    throw new HttpException(404, 'Must update');
+                    //TODO: Volver a poner mensaje "Must update"
+                    throw new HttpException(404, 'App. obsoleta, desinstala y vuelve a descargarla desde GooglePlay/AppStore');
                 }
             } else { // newer apps
                 $required_version = INF;
@@ -30,7 +31,8 @@ class Login2faController extends RestApiController{
                     $required_version = 61;
                 }
                 if ($request->request->get('version') < $required_version) {
-                    throw new HttpException(404, 'Must update');
+                    //TODO: Volver a poner mensaje "Must update"
+                    throw new HttpException(404, 'App. obsoleta, desinstala y vuelve a descargarla desde GooglePlay/AppStore');
                 }
             }
         }
