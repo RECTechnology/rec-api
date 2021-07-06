@@ -4,8 +4,12 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [2.25.1](https://github.com/qbitartifacts/rec-api/compare/v2.25.0...v2.25.1) (2021-07-06)
 
-## [2.25.0](https://github.com/qbitartifacts/rec-api/compare/v2.24.0...v2.25.0) (2021-07-02)
 
+### Bug Fixes
+
+* **login:** change check login errors ([#598](https://github.com/qbitartifacts/rec-api/issues/598)) ([1c678c](https://github.com/qbitartifacts/rec-api/commit/1c678c6da3985dd79d11f560600fe68481ccd07b))
+
+## [2.25.0](https://github.com/qbitartifacts/rec-api/compare/v2.24.0...v2.25.0) (2021-07-02)
 
 ### Features
 
