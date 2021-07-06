@@ -113,6 +113,21 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             1000e8
         );
 
+        //This user has a private USER account and is disabled because phone is not validated
+        $user_phone_non_validated = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_USER_PHONE_NON_VALIDATED['username']]);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user_phone_non_validated,
+            [],
+            self::ACCOUNT_TYPE_PRIVATE,
+            self::ACCOUNT_SUBTYPE_NORMAL,
+            1,
+            $faker->name,
+            1000e8
+        );
+
         //This one has to be the last one because some tests like #testCountryNotValid are expecting this
         //because of use admin to retrieve all accounts and gets the first on and needs to be part of this account
         $this->createAccount(
@@ -178,7 +193,11 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $kyc->setName($user->getName());
             $kyc->setEmail($user->getEmail());
             $kyc->setPhone("678678678");
-            $kyc->setPhoneValidated(true);
+            if($user->getUsername() == 'USERPHONENONVALIDATED'){
+                $kyc->setPhoneValidated(false);
+            }else{
+                $kyc->setPhoneValidated(true);
+            }
             $orm->persist($kyc);
         }
         $recWallet = new UserWallet();

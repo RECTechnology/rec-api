@@ -103,6 +103,30 @@ class UserSecurityTest extends BaseApiTest
         self::assertEquals('User locked to protect user security',$resp->error_description);
     }
 
+    function testLogInUserPhoneNonValidatedShouldReturnPhoneError()
+    {
+        $client = self::getOAuthClient();
+        $credentials = UserFixture::TEST_USER_PHONE_NON_VALIDATED;
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => $credentials["username"],
+                'password' => $credentials["password"],
+                'version' => 120,
+            ],
+            [],
+            400
+        );
+
+        self::assertEquals('not_validated_phone',$resp->error);
+        self::assertEquals('User without phone validated',$resp->error_description);
+
+    }
+
     function testLogInAdminPanel()
     {
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');

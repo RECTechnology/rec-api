@@ -117,15 +117,6 @@ class Login2faController extends RestApiController{
             return new Response(json_encode($token), 403, $headers);
         }
 
-        //check if user is enabled
-        if($user && !$user->isEnabled()){
-            $token = array(
-                "error" => "not_enabled",
-                "error_description" => "User not enabled to log in"
-            );
-            return new Response(json_encode($token), 400, $headers);
-        }
-
         if(!isset($token->error)){
 
             $admin_client = $this->container->getParameter('admin_client_id');
@@ -134,6 +125,14 @@ class Login2faController extends RestApiController{
                 $token = array(
                     "error" => "not_validated_phone",
                     "error_description" => "User without phone validated"
+                );
+                return new Response(json_encode($token), 400, $headers);
+            }
+
+            if(!$user->isEnabled()){
+                $token = array(
+                    "error" => "not_enabled",
+                    "error_description" => "User not enabled to log in"
                 );
                 return new Response(json_encode($token), 400, $headers);
             }

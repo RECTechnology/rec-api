@@ -16,6 +16,7 @@ class UserFixture extends Fixture {
     const TEST_USER_CREDENTIALS = ['username' => '01234567A', 'password' => 'user_user', 'pin' => '0123'];
     const TEST_ADMIN_CREDENTIALS = ['username' => 'ADMINUSER', 'password' => 'admin_user', 'pin' => '3210'];
     const TEST_USER_LOCKED_CREDENTIALS = ['username' => 'USERLOCKED', 'password' => 'user_locked', 'pin' => '1230'];
+    const TEST_USER_PHONE_NON_VALIDATED = ['username' => 'USERPHONENONVALIDATED', 'password' => 'user_phone_non_validated', 'pin' => '2301'];
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -29,9 +30,11 @@ class UserFixture extends Fixture {
         $admin = $this->generateUser($faker, self::TEST_ADMIN_CREDENTIALS);
         $user = $this->generateUser($faker, self::TEST_USER_CREDENTIALS);
         $user_locked = $this->generateUser($faker, self::TEST_USER_LOCKED_CREDENTIALS);
+        $user_phone_non_validated = $this->generateUser($faker, self::TEST_USER_PHONE_NON_VALIDATED);
         $manager->persist($admin);
         $manager->persist($user);
         $manager->persist($user_locked);
+        $manager->persist($user_phone_non_validated);
         $manager->flush();
     }
 
@@ -71,6 +74,9 @@ class UserFixture extends Fixture {
             $user->setEnabled(false);
             $user->setPasswordFailures(5);
             $user->setLastSmscode($code);
+        }
+        if($credentials['username'] == "USERPHONENONVALIDATED"){
+            $user->setEnabled(false);
         }
         return $user;
     }
