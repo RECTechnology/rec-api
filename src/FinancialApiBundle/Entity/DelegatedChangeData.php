@@ -65,32 +65,6 @@ class DelegatedChangeData extends AppObject {
      */
     private $exchanger;
 
-
-    /**
-     * @Assert\CardScheme(schemes={"VISA", "MASTERCARD"})
-     * @ORM\Column(type="string", nullable=true)
-     */
-    private $pan;
-
-    /**
-     * @Assert\Regex(
-     *     pattern="#^(0[1-9]|1[0-2])[/-]([2][01])?[1-9][0-9]$#",
-     *     message="Invalid expiry format: must be mm/yy or mm/yyyy using values 01 to 12 for months and 2010 to 2100 values for years."
-     * )
-     * @RECAssert\IsNotExpired
-     * @ORM\Column(type="string", nullable=true)
-     */
-    private $expiry_date;
-
-    /**
-     * @Assert\Regex(
-     *     pattern="#^\d\d\d$#",
-     *     message="Invalid cvv2 format: must contain exactly three digits."
-     * )
-     * @ORM\Column(type="string", nullable=true)
-     */
-    private $cvv2;
-
     /**
      * @Assert\NotNull
      * @ORM\Column(type="float", nullable=true)
@@ -119,6 +93,13 @@ class DelegatedChangeData extends AppObject {
      * @Serializer\Groups({"admin"})
      */
     private $creditcard;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
+     * @Serializer\Groups({"admin"})
+     */
+    private $sender;
 
 
     /**
@@ -169,54 +150,6 @@ class DelegatedChangeData extends AppObject {
     {
         $this->exchanger = $exchanger;
 
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPan()
-    {
-        return $this->pan;
-    }
-
-    /**
-     * @param mixed $pan
-     */
-    public function setPan($pan)
-    {
-        $this->pan = $pan;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getExpiryDate()
-    {
-        return $this->expiry_date;
-    }
-
-    /**
-     * @param mixed $expiry_date
-     */
-    public function setExpiryDate($expiry_date)
-    {
-        $this->expiry_date = $expiry_date;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCvv2()
-    {
-        return $this->cvv2;
-    }
-
-    /**
-     * @param mixed $cvv2
-     */
-    public function setCvv2($cvv2)
-    {
-        $this->cvv2 = $cvv2;
     }
 
     /**
@@ -282,5 +215,38 @@ class DelegatedChangeData extends AppObject {
     {
         $this->creditcard = $creditcard;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getSender()
+    {
+        return $this->sender;
+    }
+
+    /**
+     * @param mixed $sender
+     */
+    public function setSender($sender): void
+    {
+        $this->sender = $sender;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTransactionRef()
+    {
+        return $this->transaction_ref;
+    }
+
+    /**
+     * @param mixed $transaction_ref
+     */
+    public function setTransactionRef($transaction_ref): void
+    {
+        $this->transaction_ref = $transaction_ref;
+    }
+
 
 }

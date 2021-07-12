@@ -1911,7 +1911,7 @@ class AccountController extends BaseApiController {
         $em = $this->getDoctrine()->getManager();
 
         /** @var User $user */
-        $user = $em->getRepository(User::class)->findOneBy(['dni' => strtoupper($params['dni'])]);
+        $user = $em->getRepository(User::class)->findOneBy(['usernameCanonical' => strtolower($params['dni'])]);
 
         if(!isset($user)){
             throw new HttpException(404, 'Wrong DNI');

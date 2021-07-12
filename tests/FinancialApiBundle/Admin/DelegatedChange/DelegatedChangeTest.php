@@ -6,6 +6,7 @@ use App\FinancialApiBundle\DataFixture\DelegatedChangeFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Financial\Methods\LemonWayMethod;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
@@ -64,7 +65,6 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
                 ]
             );
             self::assertEquals(201, $resp->getStatusCode(), $resp->getContent());
-
             $resp = $this->requestJson(
                 'GET',
                 '/admin/v3/delegated_change_data?delegated_change_id=' . $dcContent->data->id
@@ -151,11 +151,49 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
         $this->assertEquals($end_account_balance - $ini_account_balance, DelegatedChangeFixture::AMOUNT * 1000000);
     }
 
-    function testDelegatedChangeInfo(){
-        $resp = $this->rest(
-            'GET',
-            '/admin/v3/delegated_changes/1'
+    function testDelegatedChangeImportCSV(){
+
+        $lista = array (
+            array('account', 'exchanger', 'amount', 'sender'),
+            array(2, 5, 465, 6)
         );
-        echo "";
+
+        $fp = fopen('/opt/project/var/cache/file.csv', 'w');
+
+        foreach ($lista as $campos) {
+            fputcsv($fp, $campos);
+        }
+
+        fclose($fp);
+        $fp = new UploadedFile('/opt/project/var/cache/file.csv', 'file.csv', "text/csv");
+        $resp = $this->request(
+            'POST',
+            '/user/v1/upload_file',
+            '',
+            [],
+            [],
+            ["file" => $fp]
+        );
+
+        $file_route = simplexml_load_string($resp->getContent(), "SimpleXMLElement", LIBXML_NOCDATA)->data->entry[0]->__tostring();
+        $file_route = "/opt/project/web/static".$file_route;
+        $resp = $this->rest(
+            'POST',
+            '/admin/v1/delegated_change_data/csv',
+            [
+                "path" => $file_route,
+                'delegated_change_id' => 1
+            ]
+        );
+        $output = $this->runCommand('rec:delegated_change:run');
+        $this->massiveTransaccionsReport();
+    }
+    function massiveTransaccionsReport()
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $route = "/admin/v4/reports/massive-transactions/1";
+        $resp = $this->request('POST', $route, null, [], []);
+        $output = $this->runCommand('rec:mailing:send');
+        self::assertRegExp("/Processing/", $output);
     }
 }

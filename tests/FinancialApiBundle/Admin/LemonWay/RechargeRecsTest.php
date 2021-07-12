@@ -34,7 +34,8 @@ class RechargeRecsTest extends AdminApiTest {
 
     }
 
-    function _testLemonTransfer(){
+    function testLemonTransfer(){
+        //this test only pass if parameter group_root_id = 1
         $user_id = 1;
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
@@ -45,6 +46,7 @@ class RechargeRecsTest extends AdminApiTest {
 
         $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=".$user_id);
         self::assertCount(0, $private_bonissim_account);
+        //this is not used
         if (count($private_bonissim_account) > 0){
             $initial_balance = $private_bonissim_account[0]->wallets[0]->balance;
         }else{

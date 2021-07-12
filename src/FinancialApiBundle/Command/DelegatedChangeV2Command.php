@@ -160,7 +160,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                     }
                 }
                 # Card is saved, launch lemonway
-                else {
+                elseif($dcd->getCreditcard() != null) {
                     $this->log($output, "Card is saved, creating lw API tx");
                     try {
                         // get user pin
@@ -200,6 +200,79 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
 
                                 # send the money to the exchanger's LemonWay account
                                 $lemonMethod->send($sendParams);
+                            }
+                            else {
+                                $this->log($output, "Failed to fetch txid");
+                                $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
+                                $em->persist($dcd); $em->flush();
+                            }
+                        }
+                        else {
+                            $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
+                            $em->persist($dcd); $em->flush();
+                            $this->log(
+                                $output,
+                                "Transaction creation failed",
+                                DelegatedChangeV2Command::SEVERITY_CRITICAL
+                            );
+                        }
+                    } catch (\Exception $e){
+                        $this->log(
+                            $output,
+                            "Transaction creation failed: " . $e->getMessage(),
+                            DelegatedChangeV2Command::SEVERITY_CRITICAL
+                        );
+                    }
+
+                }
+                # massive transactions (dcd sender is setted)
+                elseif($dcd->getSender() != null) {
+                    $this->log($output, "Sender is setted creating massive tx");
+                    try {
+                        // get user
+                        $user = $dcd->getSender()->getKycManager();
+                        $satoshi_decimals = 1e6;  // amount in cents
+                        $transactionManager = $this->getContainer()->get('app.incoming_controller');
+                        // exchanger transfer
+                        if($dcd->getExchanger() != null) {
+                            $request = array();
+                            $request['concept'] = 'massive transaction';
+                            $request['amount'] = $dcd->getAmount() * $satoshi_decimals;
+                            $request['pin'] = $user->getPin();
+                            $request['address'] = $dcd->getExchanger()->getRecAddress();
+                            $request['internal_tx'] = '1';
+                            $request['destionation_id'] = $dcd->getAccount()->getId();
+                            $resp = $transactionManager->createTransaction($request, 1, 'out', 'rec', $user->getId(), $dcd->getSender(), '127.0.0.1');
+
+                        // direct transfer
+                        }else{
+                            $request = array();
+                            $request['concept'] = 'massive transaction';
+                            $request['amount'] = $dcd->getAmount() * $satoshi_decimals;
+                            $request['pin'] = $user->getPin();
+                            $request['address'] = $dcd->getAccount()->getRecAddress();
+                            $resp = $transactionManager->createTransaction($request, 1, 'out', 'rec', $user->getId(), $dcd->getSender(), '127.0.0.1');
+                        }
+
+                        # if received is ok
+                        if (strpos($resp, 'success') !== false) {
+
+                            if(preg_match("/ID: ([a-zA-Z0-9]+)/", $resp, $matches)) {
+                                $txId = $matches[1];
+
+                                /** @var Transaction $tx */
+                                $tx = $txRepo->find($txId);
+                                $output->writeln("TX(id): " . $tx->getId());
+                                $dcd->setTransaction($tx);
+                                $em->persist($dcd); $em->flush();
+
+
+                                $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
+                                $em->persist($dcd); $em->flush();
+                                $sendParams = [
+                                    'to' => $dcd->getAccount()->getCIF(),
+                                    'amount' => number_format($dcd->getAmount()/100, 2)
+                                ];
                             }
                             else {
                                 $this->log($output, "Failed to fetch txid");

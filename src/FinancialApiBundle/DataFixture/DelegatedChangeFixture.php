@@ -44,6 +44,7 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
     private function createDelegatedChange(ObjectManager $orm){
         $dc = new DelegatedChange();
         $dc->setScheduledAt(new \DateTime());
+        $dc->setStatus(DelegatedChange::STATUS_SCHEDULED);
         $orm->persist($dc);
         $orm->flush();
         return $dc;
@@ -59,9 +60,6 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
         $dcd->setAccount($account);
         $dcd->setAmount(5500);
         $dcd->setStatus('new');
-        $dcd->setPan('4111111111111111');
-        $dcd->setExpiryDate('10/2024');
-        $dcd->setCvv2('000');
         $dcd->setCreditcard($credit_card);
         $orm->persist($dcd);
         $orm->flush();

@@ -76,11 +76,17 @@ accounts_v3_report_clients_providers:
 
 accounts_v3_report_ltab:
     path:  /{role}/v3/accounts/reports/ltab_general
-    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::reportLTABAction }
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\ReportsController::reportLTABAction }
     methods: [POST]
     requirements:
         role: "(admin)"
 
+massive_transactions_report:
+    path:  /{role}/v4/reports/massive-transactions/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\ReportsController::reportMassiveTransactionsAction }
+    methods: [POST]
+    requirements:
+        role: "(admin)"
 
 accounts_v3_lemonway_gateway:
     path:  /{role}/v3/gateway/{provider}/{function}

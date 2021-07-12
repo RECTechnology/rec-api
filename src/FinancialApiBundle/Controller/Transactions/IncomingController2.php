@@ -1382,12 +1382,13 @@ class IncomingController2 extends RestApiController{
                      if($account->getKycManager()->getId() == $user_id  && $account->getType() == Group::ACCOUNT_TYPE_PRIVATE){ // account is bonissim and private
 
                          $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
-                         $user = $this->get('security.token_storage')->getToken()->getUser();
+                         $token = $this->get('security.token_storage')->getToken();
+                         $user = isset($token) ? $token->getUser() : null;
 
                          $redeemable_amount = $account->getRedeemableAmount();
                          $new_rewarded = min($redeemable_amount, $params['amount'] / $satoshi_decimals);
 
-                         if($new_rewarded > 0){
+                         if($new_rewarded > 0 and isset($user)){
                              // send 15% from campaign account to commerce and from commerce to bonissim account
                              $request = array();
                              $request['concept'] = $params['concept'];

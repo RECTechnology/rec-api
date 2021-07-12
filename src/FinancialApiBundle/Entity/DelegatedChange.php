@@ -66,13 +66,6 @@ class DelegatedChange extends AppObject {
             /** @var DelegatedChangeData $dcd */
             foreach($this->getData() as $dcd){
                 if($dcd->getAmount() === null) return false;
-                if($dcd->getPan() === null){
-                    /** @var Group $account */
-                    $account = $dcd->getAccount();
-                    /** @var User $user */
-                    $user = $account->getKycManager();
-                    if(!$user->hasSavedCards()) return false;
-                }
             }
             return true;
         }
@@ -104,6 +97,19 @@ class DelegatedChange extends AppObject {
      * @Serializer\Groups({"admin"})
      */
     private $scheduled_at;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $name;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Assert\Choice({"delegated_change", "massive_transactions"})
+     * @Serializer\Groups({"admin"})
+     */
+    private $type='delegated_change';
 
     /**
      * @return mixed
@@ -179,6 +185,38 @@ class DelegatedChange extends AppObject {
     public function setTxToExecute($value)
     {
         $this->statistics['scheduled']['tx_to_execute'] = $value;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type): void
+    {
+        $this->type = $type;
     }
 
 
