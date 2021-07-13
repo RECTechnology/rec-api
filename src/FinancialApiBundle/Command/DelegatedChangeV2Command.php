@@ -95,72 +95,8 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             /** @var DelegatedChangeData $dcd */
             foreach ($dc->getData() as $dcd) {
                 $this->log($output, "Processing entry: " . $dcd->getId());
-                # Card is not saved
-                if(!$dcd->getAccount()->getKycManager()->hasSavedCards() and $dcd->getCreditcard() == null){ # TODO remove (never save cards)
-                    $this->log($output, "Card is NOT saved, launching lw bot");
-                    $this->log($output,"script: " . $this->getContainer()->get('kernel')->getRootDir() . "/../docker/prod/cron/pay-cli.py");
-                    /** @var IncomingController2 $txm */
-                    $txm = $this->getContainer()->get('app.incoming_controller');
-                    $resp = $txm->remoteDelegatedTransactionPlain(
-                        [
-                            "dni" => $dcd->getAccount()->getKycManager()->getDni(),
-                            "cif" => $dcd->getExchanger()->getCIF(),
-                            "amount" => $dcd->getAmount()
-                        ]
-                    );
-
-                    $this->log($output, "RESP: " . print_r($resp, true));
-
-                    # if received is ok
-                    if (strpos($resp, 'created') !== false) {
-
-                        if(preg_match("/ID: ([a-zA-Z0-9]+)/", $resp, $matches)) {
-                            $txId = $matches[1];
-
-                            /** @var Transaction $tx */
-                            $tx = $txRepo->find($txId);
-                            $expDate = explode("/", $dcd->getExpiryDate());
-
-                            $this->log($output, "launching bot with params: " . implode(" ",
-                                    [
-                                        $tx->getPayInInfo()["payment_url"],
-                                        $dcd->getAccount()->getKycManager()->getName(),
-                                        $dcd->getPan(),
-                                        $expDate[0],
-                                        $expDate[1],
-                                        $dcd->getCvv2()
-                                    ]
-                                )
-                            );
-
-                            $botResult = $this->launchBot(
-                                $tx->getPayInInfo()["payment_url"],
-                                $dcd->getAccount()->getKycManager()->getName(),
-                                $dcd->getPan(),
-                                $expDate[0],
-                                $expDate[1],
-                                $dcd->getCvv2()
-                            );
-                            if($botResult) {
-                                $output->writeln("Bot payment success");
-                                $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
-                                $em->persist($dcd); $em->flush();
-                            }
-                            else {
-                                $output->writeln("Bot payment error");
-                                $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
-                                $em->persist($dcd); $em->flush();
-                            }
-                        }
-                        else {
-                            $this->log($output, "Failed to fetch txid");
-                            $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
-                            $em->persist($dcd); $em->flush();
-                        }
-                    }
-                }
                 # Card is saved, launch lemonway
-                elseif($dcd->getCreditcard() != null) {
+                if($dcd->getCreditcard() != null) {
                     $this->log($output, "Card is saved, creating lw API tx");
                     try {
                         // get user pin
