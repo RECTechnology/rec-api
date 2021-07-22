@@ -70,22 +70,35 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
      */
     private function createRelations(ObjectManager $orm, Campaign $campaign): void
     {
-        $bonissim_private_account = $orm->getRepository(Group::class)
-            ->findOneBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
+
         $bonissim_organization_account = $orm->getRepository(Group::class)
             ->findOneBy(['type' => Group::ACCOUNT_TYPE_ORGANIZATION, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
+
+        $bonissim_organization_account_ltab = $orm->getRepository(Group::class)
+            ->findOneBy(['type' => Group::ACCOUNT_TYPE_ORGANIZATION, 'name' => AccountFixture::TEST_ACCOUNT_LTAB_COMMERCE['name']]);
 
         $ltab_account = $orm->getRepository(Group::class)
             ->findOneBy(['name' =>"LTAB"]);
 
-        $bonissim_private_account->setCampaigns([$campaign]);
+        $bonissim_private_accounts = $orm->getRepository(Group::class)
+            ->findBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
+
+        $accountsInCampaign = array();
+        $accountsInCampaign[] = $bonissim_organization_account;
+        $accountsInCampaign[] = $bonissim_organization_account_ltab;
+
+        foreach ($bonissim_private_accounts as $account){
+            $account->setCampaigns([$campaign]);
+            $accountsInCampaign[] = $account;
+        }
         $bonissim_organization_account->setCampaigns([$campaign]);
-        $campaign->setAccounts([$bonissim_private_account, $bonissim_organization_account]);
+        $bonissim_organization_account_ltab->setCampaigns([$campaign]);
+
+
+        $campaign->setAccounts($accountsInCampaign);
         $campaign->setCampaignAccount($ltab_account->getId());
 
         $orm->persist($campaign);
-        $orm->persist($bonissim_private_account);
-        $orm->persist($bonissim_organization_account);
         $orm->flush();
     }
 }

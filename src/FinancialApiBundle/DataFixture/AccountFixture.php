@@ -26,6 +26,10 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     const ACCOUNT_SUBTYPE_WHOLESALE = 'WHOLESALE';
     const ACCOUNT_SUBTYPE_RETAILER = 'RETAILER';
 
+    const TEST_ACCOUNT_LTAB_COMMERCE = ['name' => 'account_org_in_ltab'];
+    const TEST_ACCOUNT_LTAB_PRIVATE = ['name' => 'account_in_ltab'];
+
+
     /**
      * Load data fixtures with the passed EntityManager
      *
@@ -95,7 +99,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             [BaseApiV2Controller::ROLE_ORGANIZATION],
             self::ACCOUNT_TYPE_ORGANIZATION,
             self::ACCOUNT_SUBTYPE_WHOLESALE,
-            2
+            2,
+            'COMMERCEACCOUNT'
         );
 
         //This user has a private USER account and is locked by password failures
@@ -125,6 +130,58 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_NORMAL,
             1,
             $faker->name,
+            1000e8
+        );
+
+        $user_LTAB = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_USER_LTAB_CREDENTIALS['username']]);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user_LTAB,
+            [],
+            self::ACCOUNT_TYPE_PRIVATE,
+            self::ACCOUNT_SUBTYPE_NORMAL,
+            2,
+            self::TEST_ACCOUNT_LTAB_PRIVATE['name'].'_private',
+            1000e8
+        );
+
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user_LTAB,
+            [],
+            self::ACCOUNT_TYPE_PRIVATE,
+            self::ACCOUNT_SUBTYPE_NORMAL,
+            2,
+            Campaign::BONISSIM_CAMPAIGN_NAME,
+            1000e8
+        );
+
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user_LTAB,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_RETAILER,
+            2,
+            self::TEST_ACCOUNT_LTAB_PRIVATE['name'].'_store',
+            1000e8
+        );
+
+        $user_LTAB_org = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_USER_LTAB_COMMERCE_CREDENTIALS['username']]);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user_LTAB_org,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_RETAILER,
+            2,
+            self::TEST_ACCOUNT_LTAB_COMMERCE['name'],
             1000e8
         );
 

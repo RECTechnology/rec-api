@@ -17,6 +17,8 @@ class UserFixture extends Fixture {
     const TEST_ADMIN_CREDENTIALS = ['username' => 'ADMINUSER', 'password' => 'admin_user', 'pin' => '3210'];
     const TEST_USER_LOCKED_CREDENTIALS = ['username' => 'USERLOCKED', 'password' => 'user_locked', 'pin' => '1230'];
     const TEST_USER_PHONE_NON_VALIDATED = ['username' => 'USERPHONENONVALIDATED', 'password' => 'user_phone_non_validated', 'pin' => '2301'];
+    const TEST_USER_LTAB_CREDENTIALS = ['username' => 'USERLTAB', 'password' => 'user_LTAB', 'pin' => '3012'];
+    const TEST_USER_LTAB_COMMERCE_CREDENTIALS = ['username' => 'USERLTABCOMMERCE', 'password' => 'user_LTAB_commerce', 'pin' => '0012'];
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -31,10 +33,14 @@ class UserFixture extends Fixture {
         $user = $this->generateUser($faker, self::TEST_USER_CREDENTIALS);
         $user_locked = $this->generateUser($faker, self::TEST_USER_LOCKED_CREDENTIALS);
         $user_phone_non_validated = $this->generateUser($faker, self::TEST_USER_PHONE_NON_VALIDATED);
+        $user_ltab = $this->generateUser($faker, self::TEST_USER_LTAB_CREDENTIALS);
+        $user_ltab_commerce = $this->generateUser($faker, self::TEST_USER_LTAB_COMMERCE_CREDENTIALS);
         $manager->persist($admin);
         $manager->persist($user);
         $manager->persist($user_locked);
         $manager->persist($user_phone_non_validated);
+        $manager->persist($user_ltab);
+        $manager->persist($user_ltab_commerce);
         $manager->flush();
     }
 
