@@ -113,30 +113,7 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
         # Key-Value filter
         $kvFilter = $qb->expr()->andX();
         foreach ($request->query->keys() as $key){
-            if(substr($key, -3) === "_id") {
-                $name = substr($key, 0, strlen($key) - 3);
-                if(!property_exists($className, $name)) {
-                    throw new HttpException(400, "Invalid parameter '$key'");
-                }
-                try {
-                    $rc = new \ReflectionClass($className);
-                    $rp = $rc->getProperty($name);
-                    $ar = new AnnotationReader();
-                    if(!$ar->getPropertyAnnotation($rp, ORM\ManyToOne::class) &&
-                        !$ar->getPropertyAnnotation($rp, ORM\OneToOne::class)) {
-                        throw new HttpException(
-                            400,
-                            "Invalid parameter '$key', _id endings is for related entities only"
-                        );
-                    }
-                } catch (\ReflectionException $e) {
-                    throw new HttpException(400, "Invalid parameter '$key'", $e);
-                } catch (AnnotationException $e) {
-                    throw new HttpException(400, "Invalid parameter '$key'", $e);
-                }
-                $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $name . ')', $request->query->get($key)));
-            }
-            elseif(property_exists($className, $key)){
+            if(property_exists($className, $key)){
                 try {
                     $rc = new \ReflectionClass($className);
                     $rp = $rc->getProperty($key);
@@ -183,6 +160,30 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
                     throw new HttpException(400, "Invalid parameter '$key'", $e);
                 }
             }
+            elseif(substr($key, -3) === "_id") {
+                $name = substr($key, 0, strlen($key) - 3);
+                if(!property_exists($className, $name)) {
+                    throw new HttpException(400, "Invalid parameter '$key'");
+                }
+                try {
+                    $rc = new \ReflectionClass($className);
+                    $rp = $rc->getProperty($name);
+                    $ar = new AnnotationReader();
+                    if(!$ar->getPropertyAnnotation($rp, ORM\ManyToOne::class) &&
+                        !$ar->getPropertyAnnotation($rp, ORM\OneToOne::class)) {
+                        throw new HttpException(
+                            400,
+                            "Invalid parameter '$key', _id endings is for related entities only"
+                        );
+                    }
+                } catch (\ReflectionException $e) {
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
+                } catch (AnnotationException $e) {
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
+                }
+                $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $name . ')', $request->query->get($key)));
+            }
+
         }
         # Adding always-true expression to avoid kvFilter to be empty
         if($kvFilter->count() <= 0) $kvFilter->add($trueExpr);
