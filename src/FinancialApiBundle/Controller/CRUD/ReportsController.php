@@ -51,7 +51,7 @@ class ReportsController extends AccountsController
 
         $tmpLocation = '/tmp/' . uniqid("massive_transactions_") . ".tmp.csv";
         $fp = fopen($tmpLocation, 'w');
-        $headers = array('TOTAL', 'CURRENCY', 'ID', 'STATUS', 'TYPE', 'CREATED', 'METHOD', 'User DNI');
+        $headers = array('TOTAL', 'CURRENCY', 'ID', 'STATUS', 'TYPE', 'CREATED', 'METHOD', 'Account CIF', 'Account ID');
         fputcsv($fp, $headers);
 
         foreach ($dc_dcds as $dcd) {
@@ -68,8 +68,10 @@ class ReportsController extends AccountsController
                 $transaction->getType(),
                 $transaction->getCreated()->format('Y-m-d H:i:s'),
                 $transaction->getMethod(),
-                $user->getDni()
+                $dcd->getAccount()->getCif(),
+                $dcd->getAccount()->getId()
             );
+
             fputcsv($fp, $transaction_data);
         }
         fclose($fp);
