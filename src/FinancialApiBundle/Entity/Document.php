@@ -89,6 +89,15 @@ class Document extends AppObject implements Uploadable, Stateful {
      */
     protected $user_id;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\User", inversedBy="documents")
+     * @ORM\JoinColumn(nullable=true)
+     * @Serializer\Groups({"user"})
+     * @Expose
+     * @MaxDepth(1)
+     */
+    protected $user;
+
 
     /**
      * @var string $status_text
@@ -230,6 +239,22 @@ class Document extends AppObject implements Uploadable, Stateful {
     public function setStatusText(string $status_text): void
     {
         $this->status_text = $status_text;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function setUser($user): void
+    {
+        $this->user = $user;
     }
 
 }

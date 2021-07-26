@@ -54,6 +54,7 @@ class User extends BaseUser implements Uploadable {
         }
         $this->created = new \DateTime();
         $this->bank_cards = new ArrayCollection();
+        $this->documents = new ArrayCollection();
     }
 
     /**
@@ -292,6 +293,13 @@ class User extends BaseUser implements Uploadable {
      * @Groups({"admin"})
      */
     private $smscode_requested_at;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Document", mappedBy="user", cascade={"remove"})
+     * @Serializer\Groups({"user"})
+     */
+    private $documents;
+
 
 
     public function getAccessKey(){
@@ -940,6 +948,21 @@ class User extends BaseUser implements Uploadable {
         $this->locked = false;
     }
 
+    /**
+     * @return ArrayCollection
+     */
+    public function getDocuments(): ArrayCollection
+    {
+        return $this->documents;
+    }
+
+    /**
+     * @param ArrayCollection $documents
+     */
+    public function setDocuments(ArrayCollection $documents): void
+    {
+        $this->documents = $documents;
+    }
 
 
 }

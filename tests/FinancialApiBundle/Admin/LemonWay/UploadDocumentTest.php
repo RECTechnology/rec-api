@@ -65,6 +65,21 @@ class UploadDocumentTest extends AdminApiTest {
         );
     }
 
+    function createNormalDocument($account, $kind, $user){
+        return $this->rest(
+            'POST',
+            "/admin/v3/documents",
+            [
+                'name' => 'uploaded dni',
+                'content' => 'https://loremflickr.com/320/240?random=' . $this->faker->randomNumber(),
+                'kind_id' => $kind->id,
+                'account_id' => $account->id,
+                'status_text' => "texto",
+                'user_id' => $user->id
+            ]
+        );
+    }
+
 
     function syncLemon(){
         $this->runCommand('rec:sync:lemonway');
@@ -86,16 +101,25 @@ class UploadDocumentTest extends AdminApiTest {
 
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $kind = $this->createLemonDocumentKind();
+        $kindNormal = $this->createDocumentKind();
         $this->createDocument($account, $kind);
+        $this->createNormalDocument($account, $kindNormal, $user);
 
-        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $resp = $this->rest(
             'GET',
-            '/user/v3/documents',
+            '/admin/v3/documents',
             [],
             [],
             200
         );
+
+        foreach ($resp as $doc){
+            if($doc->kind->id == 5){
+                self::assertObjectHasAttribute('user_id', $doc);
+                self::assertObjectHasAttribute('user', $doc);
+            }
+        }
     }
 
     function testGetDocumentsv4()
