@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.26.0](https://github.com/qbitartifacts/rec-api/compare/v2.25.1...v2.26.0) (2021-08-04)
+
+
+### Features
+
+* **DelegatedChange:** Added massive transactions ([#579](https://github.com/qbitartifacts/rec-api/issues/579)) ([d92330f](https://github.com/qbitartifacts/rec-api/commit/d92330fe46ef5cbabcb44a390e1ce7e46219b4d3))
+
+
+### Bug Fixes
+
+* **documents:** filtering by user_id and other fields finished in _id ([#604](https://github.com/qbitartifacts/rec-api/issues/604)) ([98dcb78](https://github.com/qbitartifacts/rec-api/commit/98dcb78e1bd57f952411c06d6b49da2f89ea4779))
+* **documents:** relationship btw documents and users ([#609](https://github.com/qbitartifacts/rec-api/issues/609)) ([7d4f1c6](https://github.com/qbitartifacts/rec-api/commit/7d4f1c6097b3496d57e285c307973c73ce6da8af))
+* **ltab:** avoid user pay in your own shop to get reward ([#602](https://github.com/qbitartifacts/rec-api/issues/602)) ([b30faff](https://github.com/qbitartifacts/rec-api/commit/b30fafff3132b63c0c09dcc609de88e60041c8b9))
+* **reports:** added cif and id in the csv report ([#608](https://github.com/qbitartifacts/rec-api/issues/608)) ([e1805a1](https://github.com/qbitartifacts/rec-api/commit/e1805a1151d993c33eddb25dc7083038c1665501))
+
 ### [2.25.1](https://github.com/qbitartifacts/rec-api/compare/v2.25.0...v2.25.1) (2021-07-06)
 
 
