@@ -172,7 +172,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                         // exchanger transfer
                         if($dcd->getExchanger() != null) {
                             $request = array();
-                            $request['concept'] = 'massive transaction';
+                            $request['concept'] = $dc->getName();
                             $request['amount'] = $dcd->getAmount() * $satoshi_decimals;
                             $request['pin'] = $user->getPin();
                             $request['address'] = $dcd->getExchanger()->getRecAddress();
@@ -183,7 +183,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                         // direct transfer
                         }else{
                             $request = array();
-                            $request['concept'] = 'massive transaction';
+                            $request['concept'] = $dc->getName();
                             $request['amount'] = $dcd->getAmount() * $satoshi_decimals;
                             $request['pin'] = $user->getPin();
                             $request['address'] = $dcd->getAccount()->getRecAddress();
@@ -192,7 +192,6 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
 
                         # if received is ok
                         if (strpos($resp, 'success') !== false) {
-
                             if(preg_match("/ID: ([a-zA-Z0-9]+)/", $resp, $matches)) {
                                 $txId = $matches[1];
 
