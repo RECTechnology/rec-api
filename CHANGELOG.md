@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.26.1](https://github.com/qbitartifacts/rec-api/compare/v2.26.0...v2.26.1) (2021-08-05)
+
+
+### Bug Fixes
+
+* **delegated_exchange:** fix concept of internal tx ([#613](https://github.com/qbitartifacts/rec-api/issues/613)) ([c973fbd](https://github.com/qbitartifacts/rec-api/commit/c973fbdcfa5e338c4d7d52af0805bf735f685b55))
+
 ## [2.26.0](https://github.com/qbitartifacts/rec-api/compare/v2.25.1...v2.26.0) (2021-08-04)
 
 
