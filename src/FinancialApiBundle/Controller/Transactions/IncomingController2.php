@@ -1395,7 +1395,7 @@ class IncomingController2 extends RestApiController{
                              if($new_rewarded > 0 and isset($user)){
                                  // send 15% from campaign account to commerce and from commerce to bonissim account
                                  $request = array();
-                                 $request['concept'] = $params['concept'];
+                                 $request['concept'] = 'Internal exchange';
                                  $request['amount'] = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
                                  $request['pin'] = $user->getPin();
                                  $request['address'] = $destination->getRecAddress();

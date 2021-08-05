@@ -91,7 +91,7 @@ class CheckCryptoCommand extends SynchronizedContainerAwareCommand
                         $user = $repoUser->find($id_user_intermediary);
 
                         $request = array();
-                        $request['concept'] = 'Internal exchange';
+                        $request['concept'] = $data['concept'];
                         $request['amount'] = $amount;
                         $request['address'] = $group_receiver->getRecAddress();
                         $request['pin'] = $user->getPIN();
