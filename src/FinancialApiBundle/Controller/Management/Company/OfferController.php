@@ -43,6 +43,7 @@ class OfferController extends BaseApiController{
      */
     public function updateOfferFromCompanyV4(Request $request, $offer_id){
         $em = $this->getDoctrine()->getManager();
+        /** @var Offer $offer */
         $offer = $em->getRepository('FinancialApiBundle:Offer')->find($offer_id);
         if($offer->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() )
             throw new HttpException(403, 'You don\'t have the necessary permissions');
@@ -53,25 +54,34 @@ class OfferController extends BaseApiController{
             $end = date_create($request->request->get('end'));
             $offer->setEnd($end);
         }
-        if($request->request->has('start')){
-            $start = date_create($request->request->get('start'));
-            $offer->setStart($start);
-        }
-        if($request->request->has('discount')){
-            $offer->setDiscount($request->request->get('discount'));
-        }
+
         if($request->request->has('description')){
             $offer->setDescription($request->request->get('description'));
         }
+
         if($request->request->has('type')){
+            $this->checkValidOfferType($request->request->get('type'));
             $offer->setType($request->request->get('type'));
         }
-        if($request->request->has('initial_price')){
-            $offer->setInitialPrice($request->request->get('initial_price'));
+
+        if($offer->getType() == Offer::OFFER_TYPE_CLASSIC){
+            $initial_price = $request->request->get('initial_price');
+            $offer_price = $request->request->get('offer_price');
+            if($initial_price == 0 || $initial_price == null) throw new HttpException(400, 'Param initial price cannot be null or 0');
+            if($offer_price == 0 || $offer_price == null) throw new HttpException(400, 'Param offer price cannot be null or 0');
+            $offer->setInitialPrice($initial_price);
+            $offer->setOfferPrice($offer_price);
+            $offer->setDiscount($this->calculateDiscount($initial_price, $offer_price));
+        }elseif ($offer->getType() == Offer::OFFER_TYPE_PERCENTAGE){
+            $offer->setDiscount($request->request->get('discount'));
+            $offer->setInitialPrice(null);
+            $offer->setOfferPrice(null);
+        }elseif ($offer->getType() == Offer::OFFER_TYPE_FREE){
+            $offer->setDiscount(null);
+            $offer->setInitialPrice(null);
+            $offer->setOfferPrice(null);
         }
-        if($request->request->has('offer_price')){
-            $offer->setOfferPrice($request->request->get('offer_price'));
-        }
+
         $em->flush();
         return $this->restV2(200, 'ok', 'Offer updated successfully');
     }
@@ -102,9 +112,7 @@ class OfferController extends BaseApiController{
         $group = $user->getActiveGroup();
 
         $paramNames = array(
-            'start',
             'end',
-            'discount',
             'description',
             'image',
             'type'
@@ -119,6 +127,9 @@ class OfferController extends BaseApiController{
             }
         }
 
+        $this->checkValidOfferType($params["type"]);
+        $params = $this->checkParamsDependingOnOfferType($params, $request);
+
         $fileManager = $this->get('file_manager');
 
         $fileSrc = $params['image'];
@@ -130,18 +141,19 @@ class OfferController extends BaseApiController{
 
         file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+
         if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
             throw new HttpException(400, "Bad file type");
 
-        $start = date_create($params['start']);
         $end = date_create($params['end']);
 
         $em = $this->getDoctrine()->getManager();
         $offer = new Offer();
         $offer->setCompany($group);
-        $offer->setStart($start);
         $offer->setEnd($end);
-        $offer->setDiscount($params['discount']);
+        $offer->setDiscount($params['discount'] ?? null);
+        $offer->setInitialPrice($params['initial_price'] ?? null);
+        $offer->setOfferPrice($params['offer_price'] ?? null);
         $offer->setDescription($params['description']);
         $offer->setImage($fileManager->getFilesPath().'/'.$filename);
         $offer->setType($params['type']);
@@ -149,5 +161,43 @@ class OfferController extends BaseApiController{
         $em->persist($offer);
         $em->flush();
         return $this->restV2(200, "ok", "Offer registered successfully", $offer);
+    }
+
+    private function checkValidOfferType($type){
+        if(!in_array($type, Offer::OFFER_TYPES_ALL)){
+            throw new HttpException(400, "Bad type");
+        }
+    }
+
+    private function checkParamsDependingOnOfferType($params, Request $request){
+        if($params['type'] == Offer::OFFER_TYPE_CLASSIC){
+            $requiredParams = array(
+                "initial_price",
+                "offer_price"
+            );
+
+            foreach ($requiredParams as $requiredParam){
+                if($request->request->has($requiredParam)){
+                    $params[$requiredParam] = $request->request->get($requiredParam);
+                }else{
+                    throw new HttpException(404, 'Param ' . $requiredParam . ' required for type classic');
+                }
+            }
+
+            $params['discount'] = $this->calculateDiscount($params['initial_price'], $params['offer_price']);
+
+        }elseif ($params['type'] == Offer::OFFER_TYPE_PERCENTAGE){
+            if($request->request->has('discount')){
+                $params['discount'] = $request->request->get('discount');
+            }else{
+                throw new HttpException(404, 'Param discount is required for type percentage');
+            }
+        }
+
+        return $params;
+    }
+
+    private function calculateDiscount($initial_price, $offer_price){
+        return ($initial_price - $offer_price)*100/$initial_price;
     }
 }

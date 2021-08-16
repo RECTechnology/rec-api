@@ -8,6 +8,7 @@ use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -18,8 +19,15 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  */
 class Offer{
 
+    const OFFER_TYPE_CLASSIC = "classic";
+    const OFFER_TYPE_PERCENTAGE = "percentage";
+    const OFFER_TYPE_FREE = "free";
+
+    const OFFER_TYPES_ALL = [self::OFFER_TYPE_CLASSIC, self::OFFER_TYPE_FREE, self::OFFER_TYPE_PERCENTAGE];
+
     public function __construct(){
         $this->created = new \DateTime();
+        $this->start = new \DateTime();
     }
 
     /**
@@ -59,7 +67,7 @@ class Offer{
     private $company;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      * @Groups({"public"})
      */
@@ -89,6 +97,7 @@ class Offer{
 
     /**
      * @ORM\Column(type="string")
+     * @Assert\Choice(choices=self::OFFER_TYPES_ALL, message="Choose a valid type")
      * @Expose
      * @Groups({"public"})
      */

@@ -3,13 +3,10 @@
 namespace Test\FinancialApiBundle\User;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Entity\Tier;
-use App\FinancialApiBundle\Entity\User;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 
 /**
- * Class UserCallsTest
+ * Class UserOfferTest
  * @package Test\FinancialApiBundle\User
  */
 class UserOfferTest extends BaseApiTest
@@ -21,27 +18,102 @@ class UserOfferTest extends BaseApiTest
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
     }
 
-    function testOffer()
+    function testClassicOffer()
     {
         $resp = $this->rest(
             'POST',
             '/company/v4/offers',
             [
-                'start' => "2021-06-05",
                 'end' => "2021-06-06",
-                'discount' => 10,
                 'description' => "descuento...",
-                'image' => "https://deep-image.ai/static/media/slider-3-b.8cdacaf4.jpg",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
                 'type' => "classic",
-                'initial_price' => 12,
-                'offer_price' => 10
+                'initial_price' => 10,
+                'offer_price' => 7
             ],
             [],
             200
         );
-        $this->updateOffer();
+        self::assertObjectHasAttribute('discount', $resp);
+        self::assertEquals(30, $resp->discount);
+
         $this->indexOffer();
         $this->deleteOffer();
+    }
+
+    function testClassicOfferWithBadParamsShouldFail()
+    {
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "classic",
+                'initial_price' => 10
+            ],
+            [],
+            404
+        );
+
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "classic",
+                'offer_price' => 10
+            ],
+            [],
+            404
+        );
+    }
+
+    function testPercentageOffer()
+    {
+        $resp = $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "percentage",
+                'discount' => 30
+            ],
+            [],
+            200
+        );
+
+        self::assertObjectHasAttribute('discount', $resp);
+        self::assertEquals(30, $resp->discount);
+        self::assertObjectNotHasAttribute('initial_price', $resp);
+        self::assertObjectNotHasAttribute('offer_price', $resp);
+
+    }
+
+    function testFreeOffer()
+    {
+        $resp = $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "free"
+            ],
+            [],
+            200
+        );
+
+        self::assertObjectNotHasAttribute('discount', $resp);
+        self::assertObjectNotHasAttribute('initial_price', $resp);
+        self::assertObjectNotHasAttribute('offer_price', $resp);
+
     }
 
     function indexOffer()
@@ -66,6 +138,182 @@ class UserOfferTest extends BaseApiTest
         );
     }
 
+    function testUpdateOfferFromFreeToPercentage(){
+        $resp = $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "free"
+            ],
+            [],
+            200
+        );
+
+        $resp = $this->rest(
+            'PUT',
+            '/company/v4/offers/1',
+            ['type' => "percentage", "discount" => 10],
+            [],
+            200
+        );
+
+    }
+
+    function testUpdateOfferFromFreeToClassic(){
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "free"
+            ],
+            [],
+            200
+        );
+
+        $resp = $this->rest(
+            'PUT',
+            '/company/v4/offers/1',
+            ['type' => "classic", "initial_price" => 0, "offer_price" => 7],
+            [],
+            400
+        );
+
+        self::assertEquals('Param initial price cannot be null or 0', $resp->message);
+
+        //offer price can be null or 0 because we can make a 100% discount
+        $resp = $this->rest(
+            'PUT',
+            '/company/v4/offers/1',
+            ['type' => "classic", "initial_price" => 10, "offer_price" => null],
+            [],
+            400
+        );
+
+        self::assertEquals('Param offer price cannot be null or 0', $resp->message);
+
+        $this->rest(
+            'PUT',
+            '/company/v4/offers/1',
+            ['type' => "classic", "initial_price" => 10, "offer_price" => 7],
+            [],
+            200
+        );
+    }
+
+
+    function testUpdateOfferFromPercentageToFree()
+    {
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "percentage",
+                'discount' => 30
+            ],
+            [],
+            200
+        );
+
+        $this->rest(
+            'PUT',
+            '/company/v4/offers/1',
+            ['type' => "free"],
+            [],
+            200
+        );
+
+
+    }
+
+    function testUpdateOfferFromPercentageToClassic()
+    {
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "percentage",
+                'discount' => 30
+            ],
+            [],
+            200
+        );
+
+        $this->rest(
+            'PUT',
+            '/company/v4/offers/1',
+            ['type' => "classic", "initial_price" => 10, "offer_price" => 7],
+            [],
+            200
+        );
+
+    }
+
+    function testUpdateOfferFromClassicToFree()
+    {
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "classic",
+                'initial_price' => 10,
+                'offer_price' => 7
+            ],
+            [],
+            200
+        );
+
+        $this->rest(
+            'PUT',
+            '/company/v4/offers/1',
+            ['type' => "free"],
+            [],
+            200
+        );
+
+    }
+
+    function testUpdateOfferFromClassicToPercentage()
+    {
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "classic",
+                'initial_price' => 10,
+                'offer_price' => 7
+            ],
+            [],
+            200
+        );
+
+        $this->rest(
+            'PUT',
+            '/company/v4/offers/1',
+            ['type' => "percentage", "discount" => 20],
+            [],
+            200
+        );
+
+    }
+
     function deleteOffer()
     {
         $resp = $this->rest(
@@ -75,5 +323,54 @@ class UserOfferTest extends BaseApiTest
             [],
             200
         );
+    }
+
+    function testOfferBadTypeShouldFail()
+    {
+        $resp = $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'discount' => 10,
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "fake",
+                'initial_price' => 12,
+                'offer_price' => 10
+            ],
+            [],
+            400
+        );
+    }
+
+    function testUpdateClassicOffer()
+    {
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "classic",
+                'initial_price' => 10,
+                'offer_price' => 7
+            ],
+            [],
+            200
+        );
+
+        $resp = $this->rest(
+            'PUT',
+            '/company/v4/offers/1',
+            [
+                'type' => "classic",
+                'initial_price' => 12
+            ],
+            [],
+            200
+        );
+
     }
 }
