@@ -114,7 +114,6 @@ class OfferController extends BaseApiController{
         $paramNames = array(
             'end',
             'description',
-            'image',
             'type'
         );
 
@@ -130,21 +129,6 @@ class OfferController extends BaseApiController{
         $this->checkValidOfferType($params["type"]);
         $params = $this->checkParamsDependingOnOfferType($params, $request);
 
-        $fileManager = $this->get('file_manager');
-
-        $fileSrc = $params['image'];
-        $fileContents = $fileManager->readFileUrl($fileSrc);
-        $hash = $fileManager->getHash();
-        $explodedFileSrc = explode('.', $fileSrc);
-        $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-        $filename = $hash . '.' . $ext;
-
-        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-        $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-
-        if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
-            throw new HttpException(400, "Bad file type");
-
         $end = date_create($params['end']);
 
         $em = $this->getDoctrine()->getManager();
@@ -155,8 +139,28 @@ class OfferController extends BaseApiController{
         $offer->setInitialPrice($params['initial_price'] ?? null);
         $offer->setOfferPrice($params['offer_price'] ?? null);
         $offer->setDescription($params['description']);
-        $offer->setImage($fileManager->getFilesPath().'/'.$filename);
         $offer->setType($params['type']);
+        $offer->setActive(true);
+
+        if($request->request->has('image')){
+            $params['image'] = $request->request->get('image');
+            $fileManager = $this->get('file_manager');
+
+            $fileSrc = $params['image'];
+            $fileContents = $fileManager->readFileUrl($fileSrc);
+            $hash = $fileManager->getHash();
+            $explodedFileSrc = explode('.', $fileSrc);
+            $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+            $filename = $hash . '.' . $ext;
+
+            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+
+            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
+                throw new HttpException(400, "Bad file type");
+
+            $offer->setImage($fileManager->getFilesPath().'/'.$filename);
+        }
 
         $em->persist($offer);
         $em->flush();

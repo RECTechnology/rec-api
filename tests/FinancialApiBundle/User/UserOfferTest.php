@@ -41,6 +41,23 @@ class UserOfferTest extends BaseApiTest
         $this->deleteOffer();
     }
 
+    function testClassicOfferWithoutImageShouldWork()
+    {
+        $resp = $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'type' => "classic",
+                'initial_price' => 10,
+                'offer_price' => 7
+            ],
+            [],
+            200
+        );
+    }
+
     function testClassicOfferWithBadParamsShouldFail()
     {
         $this->rest(
@@ -366,7 +383,8 @@ class UserOfferTest extends BaseApiTest
             '/company/v4/offers/1',
             [
                 'type' => "classic",
-                'initial_price' => 12
+                'initial_price' => 12,
+                'offer_price' => 10
             ],
             [],
             200
