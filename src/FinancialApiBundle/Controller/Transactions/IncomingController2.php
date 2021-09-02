@@ -1381,35 +1381,36 @@ class IncomingController2 extends RestApiController{
                  foreach($campaign_accounts as $account) {
                      if($account->getKycManager()->getId() == $user_id  && $account->getType() == Group::ACCOUNT_TYPE_PRIVATE){ // account is bonissim and private
 
+                         $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
+                         $token = $this->get('security.token_storage')->getToken();
+                         $user = isset($token) ? $token->getUser() : null;
+
+                         $redeemable_amount = $account->getRedeemableAmount();
+                         $new_rewarded = min($redeemable_amount, $params['amount'] / $satoshi_decimals);
+
+                         if($new_rewarded > 0 and isset($user)){
+                             // send 15% from campaign account to commerce and from commerce to bonissim account
+                             $request = array();
+                             $request['concept'] = 'Internal exchange';
+                             $request['amount'] = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
+                             $request['pin'] = $user->getPin();
+                             $request['address'] = $destination->getRecAddress();
+                             $request['internal_tx'] = '1';
+                             $request['destionation_id'] = $account->getId();
+                             $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
+                             $account->setRedeemableAmount($redeemable_amount - $new_rewarded);
+                             $rewarded_amount = $account->getRewardedAmount();
+                             $account->setRewardedAmount($rewarded_amount + $new_rewarded);
+                             $em->persist($account);
+                             $em->flush();
+
+                             $extra_data = ['rewarded_ltab' => $request['amount']];
+                         }
                          //user id is the user who makes the tx
                          //destination is the store account
                          //TODO chek if this user is kyc manager in the store
                          if($destination->getKycManager()->getId() != $user_id){
-                             $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
-                             $token = $this->get('security.token_storage')->getToken();
-                             $user = isset($token) ? $token->getUser() : null;
 
-                             $redeemable_amount = $account->getRedeemableAmount();
-                             $new_rewarded = min($redeemable_amount, $params['amount'] / $satoshi_decimals);
-
-                             if($new_rewarded > 0 and isset($user)){
-                                 // send 15% from campaign account to commerce and from commerce to bonissim account
-                                 $request = array();
-                                 $request['concept'] = 'Internal exchange';
-                                 $request['amount'] = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
-                                 $request['pin'] = $user->getPin();
-                                 $request['address'] = $destination->getRecAddress();
-                                 $request['internal_tx'] = '1';
-                                 $request['destionation_id'] = $account->getId();
-                                 $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
-                                 $account->setRedeemableAmount($redeemable_amount - $new_rewarded);
-                                 $rewarded_amount = $account->getRewardedAmount();
-                                 $account->setRewardedAmount($rewarded_amount + $new_rewarded);
-                                 $em->persist($account);
-                                 $em->flush();
-
-                                 $extra_data = ['rewarded_ltab' => $request['amount']];
-                             }
                          }
                      }
                 }
