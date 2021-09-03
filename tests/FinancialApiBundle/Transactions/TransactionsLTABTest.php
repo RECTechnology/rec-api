@@ -59,6 +59,10 @@ class TransactionsLTABTest extends BaseApiTest {
 
         $this->signIn(UserFixture::TEST_USER_LTAB_CREDENTIALS);
 
+        $accounts = $this->getSignedInUser()->accounts;
+        self::assertEquals(100000000000, $accounts[0]->wallets[0]->balance);
+        self::assertEquals(100000000000, $accounts[1]->wallets[0]->balance);
+
         $route = "/methods/v1/out/rec";
         $resp = $this->rest(
             'POST',
@@ -76,6 +80,22 @@ class TransactionsLTABTest extends BaseApiTest {
         //run command to apply bonifications
         $output = $this->runCommand("rec:crypto:check");
         self::assertNotEmpty($output);
+
+        $accountRoute = "/user/v1/account";
+        //generate LTAB transaction
+        $account = $this->rest(
+            'GET',
+            $accountRoute,
+            [],
+            [],
+            200
+        );
+
+        //check account balance to see bonification
+        $accounts = $account->accounts;
+
+        self::assertEquals(99000000000, $accounts[0]->wallets[0]->balance);
+        self::assertEquals(100000000000, $accounts[1]->wallets[0]->balance);
 
         //we need to execute the command twuce because it seems like all the tx are generated in two steps
         $output = $this->runCommand("rec:crypto:check");
