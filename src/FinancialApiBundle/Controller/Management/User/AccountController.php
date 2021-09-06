@@ -1759,7 +1759,7 @@ class AccountController extends BaseApiController {
                 ['account' => $request->query->get('company_id')]);
         }else{
             $documents = $em->getRepository(Document::class)->findBy(
-                ['user_id' => $user->getId()]);
+                ['user' => $user]);
         }
 
         $resp = [];
@@ -1819,6 +1819,7 @@ class AccountController extends BaseApiController {
         $document->setName($request->request->get('name'));
         $document->setKind($kind);
         $document->setUserId($user->getId());
+        $document->setUser($user);
 
         if($request->request->has('account_id') && $request->request->get('account_id')!=''){
             $account = $em->getRepository(Group::class)->find(

@@ -333,7 +333,7 @@ class UserOfferTest extends BaseApiTest
 
     function deleteOffer()
     {
-        $resp = $this->rest(
+        $this->rest(
             'DELETE',
             '/company/v4/offers/1',
             [],
@@ -344,7 +344,7 @@ class UserOfferTest extends BaseApiTest
 
     function testOfferBadTypeShouldFail()
     {
-        $resp = $this->rest(
+        $this->rest(
             'POST',
             '/company/v4/offers',
             [
@@ -378,7 +378,7 @@ class UserOfferTest extends BaseApiTest
             200
         );
 
-        $resp = $this->rest(
+        $this->rest(
             'PUT',
             '/company/v4/offers/1',
             [
