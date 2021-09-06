@@ -83,9 +83,13 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $bonissim_private_accounts = $orm->getRepository(Group::class)
             ->findBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
 
+        $ltab_private_with_store = $orm->getRepository(Group::class)
+            ->findOneBy(['name' =>AccountFixture::TEST_ACCOUNT_LTAB_PRIVATE['name'].'_store']);
+
         $accountsInCampaign = array();
         $accountsInCampaign[] = $bonissim_organization_account;
         $accountsInCampaign[] = $bonissim_organization_account_ltab;
+        $accountsInCampaign[] = $ltab_private_with_store;
 
         foreach ($bonissim_private_accounts as $account){
             $account->setCampaigns([$campaign]);
@@ -93,7 +97,7 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         }
         $bonissim_organization_account->setCampaigns([$campaign]);
         $bonissim_organization_account_ltab->setCampaigns([$campaign]);
-
+        $ltab_private_with_store->setCampaigns([$campaign]);
 
         $campaign->setAccounts($accountsInCampaign);
         $campaign->setCampaignAccount($ltab_account->getId());

@@ -33,6 +33,7 @@ class TransactionsLTABTest extends BaseApiTest {
     private function getSingleStore(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $store = $this->rest('GET', '/admin/v3/accounts?name='.AccountFixture::TEST_ACCOUNT_LTAB_COMMERCE['name'])[0];
+        var_dump($store->name);
         $this->signOut();
         return $store;
     }
@@ -44,6 +45,7 @@ class TransactionsLTABTest extends BaseApiTest {
         /** @var Group $targetAccount */
         $targetAccount = $em->getRepository(Group::class)->findOneBy(['name' => AccountFixture::TEST_ACCOUNT_LTAB_PRIVATE['name'].'_private']);
 
+        var_dump($targetAccount->getCampaigns()[0]);
         //set redeemable amount to all private companies in LTAB campaign
         $ltabAccounts = $em->getRepository(Group::class)->findBy(['type' => Group::ACCOUNT_TYPE_PRIVATE, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
         foreach ($ltabAccounts as $ltabAccount){
@@ -146,15 +148,20 @@ class TransactionsLTABTest extends BaseApiTest {
             $em->flush();
         }
 
+
+        var_dump($targetAccount->getKycManager()->getUsername(), $targetAccount->getName(), $targetAccount->getCampaigns()[0]);
         //set active group private account
         /** @var User $targetUser */
         $targetUser = $em->getRepository(User::class)->findOneBy(['username' => UserFixture::TEST_USER_LTAB_CREDENTIALS['username']]);
         $targetUser->setActiveGroup($targetAccount);
         $em->flush();
 
+        var_dump($targetUser->getUsername());
+
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $store = $this->rest('GET', '/admin/v3/accounts?name='.AccountFixture::TEST_ACCOUNT_LTAB_PRIVATE['name'].'_store')[0];
 
+        var_dump($store->campaigns);
         $this->signIn(UserFixture::TEST_USER_LTAB_CREDENTIALS);
 
         $route = "/methods/v1/out/rec";
@@ -194,7 +201,7 @@ class TransactionsLTABTest extends BaseApiTest {
 
         self::assertEquals(99000000000, $accounts[0]->wallets[0]->balance);
         self::assertEquals(100000000000, $accounts[1]->wallets[0]->balance);
-        self::assertEquals(1000, $accounts[1]->redeemable_amount);
+        self::assertEquals(100000000000, $accounts[1]->redeemable_amount);
         self::assertEquals(0, $accounts[1]->rewarded_amount);
 
     }
