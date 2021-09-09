@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.26.2](https://github.com/qbitartifacts/rec-api/compare/v2.26.1...v2.26.2) (2021-09-09)
+
+
+### Bug Fixes
+
+* **bonifications:** bonifications going to final user, not to commerce ([#641](https://github.com/qbitartifacts/rec-api/issues/641)) ([e4c7aa7](https://github.com/qbitartifacts/rec-api/commit/e4c7aa77f0a959a96ffa91dc3a251368121cc9dd))
+* **offer:** Modified Offers, new types and logic for create and update ([#612](https://github.com/qbitartifacts/rec-api/issues/612)) ([e00979c](https://github.com/qbitartifacts/rec-api/commit/e00979cd534447bb6b5858c1bc23c035df28bfde))
+* **offers:** changed discount from decimal to string ([#647](https://github.com/qbitartifacts/rec-api/issues/647)) ([e59b567](https://github.com/qbitartifacts/rec-api/commit/e59b567fe2f1c4a22e5a834cbc2cd460dba2742f))
+* re-rollback  - bonifications goes to commerce, not to final user ([c965e3d](https://github.com/qbitartifacts/rec-api/commit/c965e3daecc7223028d595d534c285270a2e4b1a))
+* save user in documents from app ([#634](https://github.com/qbitartifacts/rec-api/issues/634)) ([9a6ed82](https://github.com/qbitartifacts/rec-api/commit/9a6ed82a8c00a4d6c76089036642bf499dfafc3f))
+
 ### [2.26.1](https://github.com/qbitartifacts/rec-api/compare/v2.26.0...v2.26.1) (2021-08-05)
 
 
