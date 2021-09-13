@@ -67,7 +67,7 @@ class Offer{
     private $company;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="decimal", scale=2, precision=10, nullable=true)
      * @Expose
      * @Groups({"public"})
      */

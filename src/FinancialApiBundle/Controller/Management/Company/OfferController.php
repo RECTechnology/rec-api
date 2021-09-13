@@ -34,7 +34,9 @@ class OfferController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
         $offers = $em->getRepository('FinancialApiBundle:Offer')->findBy(array(
             'company'   =>  $company
-        ));
+        ),[
+            'created' => 'DESC'
+        ]);
         return $this->restV2(200, 'ok', 'Request successfull', $offers);
     }
 
