@@ -1254,7 +1254,8 @@ class AccountController extends BaseApiController {
 
         $allowed_types = array('PRIVATE', 'COMPANY');
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
-            if(!$this->validate_cif((string)$request->request->get('company_cif')))
+            //We heave added the validar_dni comprobation because a commerce could be autonomous and it should work with dni too
+            if(!$this->validate_cif((string)$request->request->get('company_cif')) && !$this->validar_dni((string)$request->request->get('company_cif')))
                 throw new HttpException(400, 'CIF not valid');
             $type = $allowed_types[1];
             $company_cif = $request->request->get('company_cif');

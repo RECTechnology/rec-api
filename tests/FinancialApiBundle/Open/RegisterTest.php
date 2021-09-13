@@ -57,4 +57,31 @@ class RegisterTest extends BaseApiTest {
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );
     }
+
+    public function testRegisterV4AutonomoResponds204(){
+        //Test based on thisd error
+        //https://sentry.io/organizations/qbit-artifacts/issues/2540411848/?project=1517242&referrer=github_integration
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $pw = $this->faker->password(6);
+        $pin = $this->faker->randomNumber(4, true);
+        $dni = 'X8000107V'; //got from https://generadordni.es/#dni
+        $content = [
+            'password' => $pw,
+            'phone' => $this->faker->randomNumber(9, true),
+            'prefix' => '34',
+            'dni' => $dni,
+            'company_cif' => 'X8000107V',
+            'company_name' => 'panaderia'
+        ];
+        $header = [
+            'Content-Type' => 'application/json',
+            'Authorization' => $this->token
+        ];
+        $response = $this->requestJson('POST', '/app/v4/register', $content, $header);
+        self::assertEquals(
+            204,
+            $response->getStatusCode(),
+            "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
+        );
+    }
 }
