@@ -213,7 +213,7 @@ class AccountsController extends CRUDController {
 
         if ($account_subtype != '') $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
-        if ($only_with_offers == 1) {
+        if ($only_with_offers == 1 || $only_with_offers == 'true') {
             $_and = $qb->expr()->andX();
             $_and->add($qb->expr()->eq('o2.company', 'a.id'));
             $_and->add($qb->expr()->eq('o2.active', 1));

@@ -21,8 +21,8 @@ class OfferFixture extends Fixture implements DependentFixtureInterface {
     public function load(ObjectManager $orm)
     {
         $companies = $orm->getRepository(Group::class)->findBy(array(
-            'type' => AccountFixture::ACCOUNT_TYPE_ORGANIZATION
-        ));
+            'type' => AccountFixture::ACCOUNT_TYPE_ORGANIZATION,
+        ),array(),3);
 
         /** @var Group $company */
         foreach ($companies as $company){
