@@ -4,6 +4,7 @@
 namespace App\FinancialApiBundle\DataFixture;
 
 use App\FinancialApiBundle\Controller\BaseApiV2Controller;
+use App\FinancialApiBundle\Entity\Activity;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\Tier;
@@ -220,8 +221,12 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
 
         if (isset($name)){
             $account->setName($name);
+
         }else{
             $account->setName($faker->name);
+        }
+        if ($type == self::ACCOUNT_TYPE_ORGANIZATION) {
+            $account->setActivityMain($orm->getRepository(Activity::class)->find(['id' => $tier]));
         }
         $account->setRecAddress($faker->shuffle('abcdefghijklmnopqrstuvwxyz0123456789'));
         $account->setMethodsList(['rec']);

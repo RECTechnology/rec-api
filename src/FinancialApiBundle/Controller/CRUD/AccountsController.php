@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Controller\CRUD;
 
 use App\FinancialApiBundle\Controller\Transactions\IncomingController2;
+use App\FinancialApiBundle\Entity\Activity;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\DelegatedChangeData;
 use App\FinancialApiBundle\Entity\Mailing;
@@ -164,9 +165,10 @@ class AccountsController extends CRUDController {
 
     /**
      * @param Request $request
+     * @param $role
      * @return Response
      */
-    public function Search4Action(Request $request)
+    public function Search4Action(Request $request, $role)
     {
 //        $limit = $request->query->getInt('limit', 10);
 //        $offset = $request->query->getInt('offset', 0);
@@ -175,6 +177,7 @@ class AccountsController extends CRUDController {
 
         $campaign = $request->query->get('campaigns');
         $search = $request->query->get('search');
+        $activity_id = $request->query->get('activity_id');
         $account_subtype = strtoupper($request->query->get('subtype', ''));
         $only_with_offers = $request->query->get('only_with_offers', 0);
         $rect_box = $request->query->get('rect_box', [-90.0, -90.0, 90.0, 90.0]);
@@ -201,6 +204,7 @@ class AccountsController extends CRUDController {
         }
         $and->add($like);
         $and->add($qb->expr()->eq('a.on_map', 1));
+        //$and->add($qb->expr()->eq('a.activity_main', $activity_id));
         //geo query
         $and->add($qb->expr()->gt('a.latitude', $rect_box[0]));
         $and->add($qb->expr()->lt('a.latitude', $rect_box[2]));
@@ -240,6 +244,7 @@ class AccountsController extends CRUDController {
             'a.longitude, ' .
             'a.description, ' .
             'a.public_image, ' .
+            'identity(a.activity_main) as activity, ' .
             'o.id AS offer, ' .
             'cp.name AS campaign';
 
@@ -248,13 +253,37 @@ class AccountsController extends CRUDController {
             ->orderBy('a.id', 'DESC')
             ->getQuery()
             ->getResult();
+        if(isset($activity_id) and $role != 'admin') {
+            $a_qb = $em->createQueryBuilder();
+            $a_qb = $a_qb
+                ->from(Activity::class, 'p')
+                ->leftJoin(Activity::class, 'a', 'WITH', 'a.parent = p.id')
+                ->where('p.id =' . $activity_id);
 
+            $activities = $a_qb
+                ->select('p, a')
+                ->getQuery()
+                ->getResult();
 
+            $activities_id = [];
+            for ($i = 0; $i < sizeof($activities); $i++) {
+                array_push($activities_id, $activities[$i]->getId());
+            }
+            $same_activity_elements = [];
+        }
         $elements = $this->secureOutput($elements);
         for ($i = 0; $i < sizeof($elements); $i++) {
             $elements[$i]['in_ltab_campaign'] = array_key_exists("campaign", $elements[$i]) &&
                 $elements[$i]["campaign"] == Campaign::BONISSIM_CAMPAIGN_NAME;
             $elements[$i]['has_offers'] = array_key_exists("offer", $elements[$i]);
+            if(isset($activity_id) and $role != 'admin'){
+                if(in_array($elements[$i]['activity'], $activities_id)){
+                    array_push($same_activity_elements, $elements[$i]);
+                }
+            }
+        }
+        if(isset($activity_id) and $role != 'admin'){
+            $elements = $same_activity_elements;
         }
         return $this->restV2(
             200,

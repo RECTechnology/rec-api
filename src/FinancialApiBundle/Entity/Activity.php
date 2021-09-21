@@ -33,6 +33,14 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     private $name;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Activity", inversedBy="id")
+     * @ORM\Column(nullable=true)
+     * @Serializer\MaxDepth(1)
+     * @Serializer\Groups({"public"})
+     */
+    private $parent;
+
+    /**
      * @ORM\Column(type="string", nullable=true, unique=true)
      * @Serializer\Groups({"manager"})
      */
@@ -366,6 +374,22 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     public function setDescriptionCa($description_ca): void
     {
         $this->description_ca = $description_ca;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * @param mixed $parent
+     */
+    public function setParent($parent): void
+    {
+        $this->parent = $parent;
     }
 
 }

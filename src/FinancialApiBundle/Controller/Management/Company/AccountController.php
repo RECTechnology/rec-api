@@ -178,4 +178,5 @@ class AccountController extends BaseApiController{
 
         return $this->rest(200, 'Company location updated successfully');
     }
+
 }
