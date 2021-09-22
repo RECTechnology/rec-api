@@ -267,7 +267,9 @@ class AccountsController extends CRUDController {
 
             $activities_id = [];
             for ($i = 0; $i < sizeof($activities); $i++) {
-                array_push($activities_id, $activities[$i]->getId());
+                if(isset($activities[$i])){
+                    array_push($activities_id, $activities[$i]->getId());
+                }
             }
             $same_activity_elements = [];
         }
