@@ -8,6 +8,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\User;
 
+use App\FinancialApiBundle\Entity\Tier;
 use DateInterval;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,9 +79,10 @@ class WalletController extends RestApiController{
         $total = 0;
         $all = array();
         $em = $this->getDoctrine()->getManager();
+        $kyc2_id = $em->getRepository(Tier::class)->findOneBy(array('code'  =>  'KYC2'));
         $where = array(
             'type'  =>  'COMPANY',
-            'tier'  =>  2,
+            'level'  =>  $kyc2_id->getId(),
             'active'  =>  1
         );
         $list_companies = $em->getRepository('FinancialApiBundle:Group')->findBy($where);
@@ -90,6 +92,7 @@ class WalletController extends RestApiController{
             $all[] = array(
                 'id' => $company->getId(),
                 'name' => $company->getName(),
+                'kyc' => $company->getLevel()->getCode(),
                 'company_image' => $company->getCompanyImage()
             );
         }

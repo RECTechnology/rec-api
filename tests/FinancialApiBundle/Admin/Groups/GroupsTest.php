@@ -85,6 +85,20 @@ class GroupsTest extends BaseApiTest {
         self::assertStringContainsString("Use suffix '_id' to set related properties", $content['message']);
 
     }
+    function testGetExchangers()
+    {
+        $route = '/user/v1/wallet/exchangers';
+        $resp = $this->requestJson('GET', $route);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
 
+        $content = json_decode($resp->getContent(), true);
+        foreach ($content["data"]["elements"] as $company) {
+            self::assertEquals('KYC2', $company["kyc"]);
+        }
+    }
 
 }
