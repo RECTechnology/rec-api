@@ -88,6 +88,35 @@ class UserOfferTest extends BaseApiTest
             [],
             404
         );
+
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "classic",
+            ],
+            [],
+            404
+        );
+
+        $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "classic",
+                "initial_price" => null,
+                "offer_price" => null
+            ],
+            [],
+            404
+        );
+
     }
 
     function testCreatePercentageOffer()
@@ -172,7 +201,7 @@ class UserOfferTest extends BaseApiTest
 
         $resp = $this->rest(
             'PUT',
-            '/company/v4/offers/6',
+            '/company/v4/offers/4',
             ['type' => "percentage", "discount" => 10],
             [],
             200
@@ -196,7 +225,7 @@ class UserOfferTest extends BaseApiTest
 
         $resp = $this->rest(
             'PUT',
-            '/company/v4/offers/6',
+            '/company/v4/offers/4',
             ['type' => "classic", "initial_price" => 0, "offer_price" => 7],
             [],
             400
@@ -207,7 +236,7 @@ class UserOfferTest extends BaseApiTest
         //offer price can be null or 0 because we can make a 100% discount
         $resp = $this->rest(
             'PUT',
-            '/company/v4/offers/6',
+            '/company/v4/offers/4',
             ['type' => "classic", "initial_price" => 10, "offer_price" => null],
             [],
             400
@@ -217,7 +246,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/6',
+            '/company/v4/offers/4',
             ['type' => "classic", "initial_price" => 10, "offer_price" => 7],
             [],
             200
@@ -242,7 +271,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/6',
+            '/company/v4/offers/4',
             ['type' => "free"],
             [],
             200
@@ -269,7 +298,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/6',
+            '/company/v4/offers/4',
             ['type' => "classic", "initial_price" => 10, "offer_price" => 7],
             [],
             200
@@ -296,7 +325,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/6',
+            '/company/v4/offers/4',
             ['type' => "free"],
             [],
             200
@@ -323,7 +352,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/6',
+            '/company/v4/offers/4',
             ['type' => "percentage", "discount" => 20],
             [],
             200
@@ -380,7 +409,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/6',
+            '/company/v4/offers/4',
             [
                 'type' => "classic",
                 'initial_price' => 12,

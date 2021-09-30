@@ -145,23 +145,28 @@ class OfferController extends BaseApiController{
         $offer->setActive(true);
 
         if($request->request->has('image')){
-            $params['image'] = $request->request->get('image');
-            $fileManager = $this->get('file_manager');
 
-            $fileSrc = $params['image'];
-            $fileContents = $fileManager->readFileUrl($fileSrc);
-            $hash = $fileManager->getHash();
-            $explodedFileSrc = explode('.', $fileSrc);
-            $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-            $filename = $hash . '.' . $ext;
+            if($request->request->get('image') != null){
+                $params['image'] = $request->request->get('image');
+                $fileManager = $this->get('file_manager');
 
-            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+                $fileSrc = $params['image'];
+                $fileContents = $fileManager->readFileUrl($fileSrc);
+                $hash = $fileManager->getHash();
+                $explodedFileSrc = explode('.', $fileSrc);
+                $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+                $filename = $hash . '.' . $ext;
 
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
-                throw new HttpException(400, "Bad file type");
+                file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+                $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
 
-            $offer->setImage($fileManager->getFilesPath().'/'.$filename);
+                if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
+                    throw new HttpException(400, "Bad file type");
+
+                $offer->setImage($fileManager->getFilesPath().'/'.$filename);
+            }
+
+
         }
 
         $em->persist($offer);
@@ -183,7 +188,7 @@ class OfferController extends BaseApiController{
             );
 
             foreach ($requiredParams as $requiredParam){
-                if($request->request->has($requiredParam)){
+                if($request->request->has($requiredParam) && $request->request->get($requiredParam) != null){
                     $params[$requiredParam] = $request->request->get($requiredParam);
                 }else{
                     throw new HttpException(404, 'Param ' . $requiredParam . ' required for type classic');
@@ -193,7 +198,7 @@ class OfferController extends BaseApiController{
             $params['discount'] = $this->calculateDiscount($params['initial_price'], $params['offer_price']);
 
         }elseif ($params['type'] == Offer::OFFER_TYPE_PERCENTAGE){
-            if($request->request->has('discount')){
+            if($request->request->has('discount') && $request->request->get('discount') != null){
                 $params['discount'] = $request->request->get('discount');
             }else{
                 throw new HttpException(404, 'Param discount is required for type percentage');
