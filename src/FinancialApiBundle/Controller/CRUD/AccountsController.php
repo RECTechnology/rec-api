@@ -179,7 +179,7 @@ class AccountsController extends CRUDController {
         $search = $request->query->get('search');
         $activity_id = $request->query->get('activity_id');
         $account_subtype = strtoupper($request->query->get('subtype', ''));
-        $only_with_offers = $request->query->get('only_with_offers', 0);
+        $only_with_offers = $request->query->get('only_with_offers', false);
         $rect_box = $request->query->get('rect_box', [-90.0, -90.0, 90.0, 90.0]);
 
         if (!in_array($account_subtype, ["RETAILER", "WHOLESALE", ""])) {
@@ -194,10 +194,12 @@ class AccountsController extends CRUDController {
         $searchFields = [
             'a.name',
             'a.description',
-            'o.description',
             'c.cat',
             'c.esp'
         ];
+        if ($only_with_offers == 1 || $only_with_offers == 'true') {
+           array_push($searchFields, 'o.description');
+        }
         $like = $qb->expr()->orX();
         foreach ($searchFields as $field) {
             $like->add($qb->expr()->like($field, $qb->expr()->literal('%' . $search . '%')));
@@ -217,6 +219,23 @@ class AccountsController extends CRUDController {
 
         if ($account_subtype != '') $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
+        $select = 'a.id, ' .
+            'a.name, ' .
+            'a.company_image, ' .
+            'a.latitude, ' .
+            'a.longitude, ' .
+            'a.description, ' .
+            'a.public_image, ' .
+            'identity(a.activity_main) as activity, ' .
+            'cp.name AS campaign';
+
+        $qb = $qb
+            ->distinct()
+            ->from(Group::class, 'a')
+            ->leftJoin('a.category', 'c')
+            ->leftJoin('a.campaigns', 'cp')
+            ->where($and);
+
         if ($only_with_offers == 1 || $only_with_offers == 'true') {
             $_and = $qb->expr()->andX();
             $_and->add($qb->expr()->eq('o2.company', 'a.id'));
@@ -227,32 +246,21 @@ class AccountsController extends CRUDController {
                 ->from(Offer::class, 'o2')
                 ->where($_and);
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
+
+            $select = $select . ', o.id AS offer';
+
+            $qb = $qb->leftJoin('a.offers', 'o');
+
+
         }
-
-        $qb = $qb
-            ->distinct()
-            ->from(Group::class, 'a')
-            ->leftJoin('a.offers', 'o')
-            ->leftJoin('a.category', 'c')
-            ->leftJoin('a.campaigns', 'cp')
-            ->where($and);
-
-        $select = 'a.id, ' .
-            'a.name, ' .
-            'a.company_image, ' .
-            'a.latitude, ' .
-            'a.longitude, ' .
-            'a.description, ' .
-            'a.public_image, ' .
-            'identity(a.activity_main) as activity, ' .
-            'o.id AS offer, ' .
-            'cp.name AS campaign';
 
         $elements = $qb
             ->select($select)
+            ->groupBy('a.id')
             ->orderBy('a.id', 'DESC')
             ->getQuery()
             ->getResult();
+
         if(isset($activity_id) and $role != 'admin') {
             $a_qb = $em->createQueryBuilder();
             $a_qb = $a_qb
@@ -277,9 +285,10 @@ class AccountsController extends CRUDController {
         for ($i = 0; $i < sizeof($elements); $i++) {
             $elements[$i]['in_ltab_campaign'] = array_key_exists("campaign", $elements[$i]) &&
                 $elements[$i]["campaign"] == Campaign::BONISSIM_CAMPAIGN_NAME;
+            unset($elements[$i]['campaign']);
             $elements[$i]['has_offers'] = array_key_exists("offer", $elements[$i]);
             if(isset($activity_id) and $role != 'admin'){
-                if(in_array($elements[$i]['activity'], $activities_id)){
+                if(in_array('activity', array_keys($elements[$i])) and in_array($elements[$i]['activity'], $activities_id)){
                     array_push($same_activity_elements, $elements[$i]);
                 }
             }
@@ -287,6 +296,7 @@ class AccountsController extends CRUDController {
         if(isset($activity_id) and $role != 'admin'){
             $elements = $same_activity_elements;
         }
+
         return $this->restV2(
             200,
             "ok",
