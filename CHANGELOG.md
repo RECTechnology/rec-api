@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.27.0](https://github.com/qbitartifacts/rec-api/compare/v2.26.2...v2.27.0) (2021-10-06)
+
+
+### Features
+
+* **WalletController:** returns only KYC2 exchangers ([#654](https://github.com/qbitartifacts/rec-api/issues/654)) ([7da57f2](https://github.com/qbitartifacts/rec-api/commit/7da57f248a2b6c2578ab57c524b87c365d49287d))
+* added sub-activities ([#640](https://github.com/qbitartifacts/rec-api/issues/640)) ([00f8722](https://github.com/qbitartifacts/rec-api/commit/00f8722f6523fbf041625ec85d184ae0fd0c050c))
+
+
+### Bug Fixes
+
+* **AccountsController:** fix duplicated companies in map ([#657](https://github.com/qbitartifacts/rec-api/issues/657)) ([eed5693](https://github.com/qbitartifacts/rec-api/commit/eed5693ed829aaad5bceea7053b86d338934002b))
+* **AccountsController:** fix null on getid ([#656](https://github.com/qbitartifacts/rec-api/issues/656)) ([dac5fb5](https://github.com/qbitartifacts/rec-api/commit/dac5fb5c748e26d462db47f4e0f5c32fadc6bf1d))
+* **docs:** fixed docker base image ([950c902](https://github.com/qbitartifacts/rec-api/commit/950c902a0ac26082907e5c7eb64f96de3e1725e2))
+* **offer:** test create, discount to decimal, more fixtures ([#639](https://github.com/qbitartifacts/rec-api/issues/639)) ([1a73c6a](https://github.com/qbitartifacts/rec-api/commit/1a73c6a85ea192bfcf1076e1f2b72729cd450005))
+* **offers:** change discount to float ([#648](https://github.com/qbitartifacts/rec-api/issues/648)) ([999de8d](https://github.com/qbitartifacts/rec-api/commit/999de8d86ffe9382727e42e6162023fa518a3bf1))
+* **offers:** check params before save and fix some tests ([#652](https://github.com/qbitartifacts/rec-api/issues/652)) ([f574a84](https://github.com/qbitartifacts/rec-api/commit/f574a84199df88d7acd589393b42915f227d19a1))
+* **register:** accept nif registering a company ([#635](https://github.com/qbitartifacts/rec-api/issues/635)) ([8ddf70d](https://github.com/qbitartifacts/rec-api/commit/8ddf70df50fdfd788b163841bb534955074f962d))
+* **tests:** account tests for suffix "_id" ([#615](https://github.com/qbitartifacts/rec-api/issues/615)) ([cac7a47](https://github.com/qbitartifacts/rec-api/commit/cac7a4717c5db172babf1c0f293348c028392ab6))
+* **version:** login up to version 201 ([#660](https://github.com/qbitartifacts/rec-api/issues/660)) ([df99107](https://github.com/qbitartifacts/rec-api/commit/df991070c0abd067877aea7b57f79b367fbc7ced))
+
 ### [2.26.2](https://github.com/qbitartifacts/rec-api/compare/v2.26.1...v2.26.2) (2021-09-09)
 
 
