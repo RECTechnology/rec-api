@@ -11,6 +11,7 @@ namespace App\FinancialApiBundle\Controller\Management\Company;
 
 use App\FinancialApiBundle\Entity\Activity;
 use Doctrine\Common\Annotations\AnnotationException;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\Response;
 use App\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -37,10 +38,22 @@ class ActivityController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
 
-        $activities = $em->getRepository(Activity::class)->findAll();
-        $resp = $this->secureOutput($activities);
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder();
 
-        return $this->restV2(200, "ok", "Done", $resp);
+        $select = 'a.id, ' .
+            'a.name, ' .
+            'a.name_es, ' .
+            'a.name_ca, ' .
+            'a.parent';
+
+        $activities = $qb
+            ->select($select)
+            ->from(Activity::class, 'a')
+            ->getQuery()
+            ->getResult();
+
+        return $this->restV2(200, "ok", "Done", $activities);
 
     }
 }

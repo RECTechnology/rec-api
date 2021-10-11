@@ -33,6 +33,8 @@ class ActivityFixture extends Fixture implements DependentFixtureInterface {
     private function createActivity(ObjectManager $orm, $name, $parent){
         $activity = new Activity();
         $activity->setName($name);
+        $activity->setNameEs($name);
+        $activity->setNameCa($name);
         $activity->setParent($parent);
         $orm->persist($activity);
         $orm->flush();

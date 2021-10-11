@@ -28,7 +28,3 @@ recover_unlock_user:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::unlockUser }
     methods: [POST]
 
-get_activities:
-    path:  /app/v4/activities
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ActivityController::getActivitiesV4 }
-    methods: [GET]

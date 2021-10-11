@@ -19,3 +19,8 @@ public_map_search:
     path: /public/map/v1/search
     defaults: {_controller: App\FinancialApiBundle\Controller\Open\MapController::SearchAction }
     methods: [GET]
+
+get_activities:
+    path:  /public/v4/activities
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ActivityController::getActivitiesV4 }
+    methods: [GET]

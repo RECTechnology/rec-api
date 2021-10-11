@@ -27,14 +27,16 @@ class ActivityTest extends BaseApiTest
     {
         $resp = $this->rest(
             'GET',
-            '/app/v4/activities',
+            '/public/v4/activities',
             [],
-            [
-                'Content-Type' => 'application/json',
-                'Authorization' => $this->token
-            ],
+            [],
             200
         );
+
+        self::assertObjectHasAttribute("id", $resp[0]);
+        self::assertObjectHasAttribute("name", $resp[0]);
+        self::assertObjectHasAttribute("name_es", $resp[0]);
+        self::assertObjectHasAttribute("name_ca", $resp[0]);
     }
 
 }
