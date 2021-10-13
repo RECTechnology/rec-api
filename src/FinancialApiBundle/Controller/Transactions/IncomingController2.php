@@ -1355,6 +1355,7 @@ class IncomingController2 extends RestApiController{
                         $bonissim_account = $account;
                     }
                 }
+                $user_balance = max($user_balance - $params['amount'], 0);
                 if(isset($bonissim_account) && $bonissim_account->getRedeemableAmount() > $user_balance / $satoshi_decimals){ // user has bonissim account
                     $bonissim_account->setRedeemableAmount( $user_balance / $satoshi_decimals);
                     $em->persist($bonissim_account);
