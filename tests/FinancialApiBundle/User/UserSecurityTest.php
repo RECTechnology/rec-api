@@ -36,10 +36,52 @@ class UserSecurityTest extends BaseApiTest
                 'client_secret' => $client->getSecret(),
                 'username' => $credentials["username"],
                 'password' => $credentials["password"],
-                'version' => 120,
+                'version' => 300,
+                'platform' => 'android'
             ],
             [],
             200
+        );
+    }
+
+    function testLogInWithoutPlatformShouldFail()
+    {
+        $client = self::getOAuthClient();
+        $credentials = UserFixture::TEST_USER_CREDENTIALS;
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => $credentials["username"],
+                'password' => $credentials["password"],
+                'version' => 120,
+            ],
+            [],
+            404
+        );
+    }
+
+    function testLogInWithOldVersionShouldFail()
+    {
+        $client = self::getOAuthClient();
+        $credentials = UserFixture::TEST_USER_CREDENTIALS;
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => $credentials["username"],
+                'password' => $credentials["password"],
+                'version' => 120,
+                'platform' => 'android'
+            ],
+            [],
+            404
         );
     }
 
@@ -55,7 +97,9 @@ class UserSecurityTest extends BaseApiTest
                 'client_id' => "1_".$client->getRandomId(),
                 'client_secret' => $client->getSecret(),
                 'username' => 'fake',
-                'password' => $credentials["password"]
+                'password' => $credentials["password"],
+                'version' => 300,
+                'platform' => 'android'
             ],
             [],
             400
@@ -74,7 +118,9 @@ class UserSecurityTest extends BaseApiTest
                 'client_id' => "1_".$client->getRandomId(),
                 'client_secret' => $client->getSecret(),
                 'username' => $credentials["username"],
-                'password' => 'fake'
+                'password' => 'fake',
+                'version' => 300,
+                'platform' => 'android'
             ],
             [],
             400
@@ -94,6 +140,8 @@ class UserSecurityTest extends BaseApiTest
                 'client_secret' => $client->getSecret(),
                 'username' => $credentials["username"],
                 'password' => $credentials["password"],
+                'version' => 300,
+                'platform' => 'android'
             ],
             [],
             403
@@ -116,7 +164,8 @@ class UserSecurityTest extends BaseApiTest
                 'client_secret' => $client->getSecret(),
                 'username' => $credentials["username"],
                 'password' => $credentials["password"],
-                'version' => 120,
+                'version' => 300,
+                'platform' => 'android'
             ],
             [],
             400
@@ -154,7 +203,9 @@ class UserSecurityTest extends BaseApiTest
                 'client_secret' => $client->getSecret(),
                 'username' => $credentials["username"],
                 'password' => $credentials["password"],
-                'pin' => $otp
+                'pin' => $otp,
+                'version' => 300,
+                'platform' => 'rec-admin'
             ],
             [],
             200
@@ -179,6 +230,8 @@ class UserSecurityTest extends BaseApiTest
                 'client_secret' => $client->getSecret(),
                 'username' => $credentials["username"],
                 'password' => $credentials["password"],
+                'version' => 300,
+                'platform' => 'android'
             ],
             [],
             400

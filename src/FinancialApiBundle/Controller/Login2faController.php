@@ -16,25 +16,36 @@ class Login2faController extends RestApiController{
 
 
     public function loginAction(Request $request){
+        if(!$request->request->has('platform') ) throw new HttpException(404, 'Platform es requerido');
+
+        switch ($request->request->get('platform')){
+            case 'android':
+                $required_version = 201;
+                break;
+            case 'ios':
+                $required_version = 201;
+                break;
+            case 'rec-admin':
+                $required_version = 0;
+                //Quick fix until version is sent from panel
+                if(!$request->request->has('version')) $request->request->add(['version' => INF]);
+                break;
+            case 'rec-pos':
+                $required_version = 0;
+                //Quick fix until version is sent from pos
+                if(!$request->request->has('version')) $request->request->add(['version' => INF]);
+                break;
+            default:
+                throw new HttpException(403, 'Platform '.$request->request->get('platform').' inválido');
+        }
+
         if($request->request->has('version')) {  // panel pass
-            if(!$request->request->has('platform') ) { // older apps
-                $required_version = 61; // todo get required_version from database
-                if($request->request->get('version') < $required_version) {
-                    //TODO: Volver a poner mensaje "Must update"
-                    throw new HttpException(404, 'App. obsoleta, desinstala y vuelve a descargarla desde GooglePlay/AppStore');
-                }
-            } else { // newer apps
-                $required_version = INF;
-                if($request->request->get('platform') == 'android'){
-                    $required_version = 201;
-                } elseif ($request->request->get('platform') == 'ios'){
-                    $required_version = 201;
-                }
-                if ($request->request->get('version') < $required_version) {
-                    //TODO: Volver a poner mensaje "Must update"
-                    throw new HttpException(404, 'App. obsoleta, desinstala y vuelve a descargarla desde GooglePlay/AppStore');
-                }
+            if ($request->request->get('version') < $required_version) {
+                //TODO: Volver a poner mensaje "Must update"
+                throw new HttpException(404, 'App. obsoleta, desinstala y vuelve a descargarla desde GooglePlay/AppStore');
             }
+        }else{
+            throw new HttpException(404, 'Version param es requerido');
         }
 
         $headers = array(
