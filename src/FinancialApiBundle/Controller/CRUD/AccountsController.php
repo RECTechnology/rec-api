@@ -176,6 +176,7 @@ class AccountsController extends CRUDController {
 //        $order = $request->query->getAlpha('order', 'DESC');
 
         $campaign = $request->query->get('campaigns');
+        $campaign_code = $request->query->get('campaign_code');
         $search = $request->query->get('search');
         $activity_id = $request->query->get('activity_id');
         $account_subtype = strtoupper($request->query->get('subtype', ''));
@@ -216,6 +217,7 @@ class AccountsController extends CRUDController {
         $and->add($qb->expr()->eq('a.type', $qb->expr()->literal('COMPANY')));
 
         if (isset($campaign)) $and->add($qb->expr()->eq('cp.id', $campaign));
+        if (isset($campaign_code)) $and->add($qb->expr()->eq('cp.code', $qb->expr()->literal($campaign_code)));
 
         if ($account_subtype != '') $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
@@ -293,7 +295,7 @@ class AccountsController extends CRUDController {
             $campaigns_id_list = [];
             if(sizeof($account_campaigns) > 0){
                 for ($ii = 0; $ii < sizeof($account_campaigns); $ii++) {
-                    array_push($campaigns_id_list, ['id' => $account_campaigns[$ii]["id"]]);
+                    array_push($campaigns_id_list, ['id' => $account_campaigns[$ii]["id"], 'code' => $account_campaigns[$ii]['code']]);
                 }
             }
             $elements[$i]['campaigns'] = $campaigns_id_list;

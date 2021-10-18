@@ -48,6 +48,7 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $campaign = new Campaign();
         $campaign->setName(Campaign::BONISSIM_CAMPAIGN_NAME);
         $campaign->setBalance(100 * 1e8);
+        $campaign->setCode('LTAB20');
 
         $format = 'Y-m-d H:i:s';
         $campaign->setInitDate(DateTime::createFromFormat($format, '2020-10-15 00:00:00'));

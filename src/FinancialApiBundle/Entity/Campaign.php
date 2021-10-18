@@ -91,7 +91,7 @@ class Campaign extends AppObject {
     protected $video_promo_url='';
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"public"})
      */
     protected $code;
