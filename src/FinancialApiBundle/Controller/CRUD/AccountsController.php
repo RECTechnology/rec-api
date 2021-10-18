@@ -227,7 +227,8 @@ class AccountsController extends CRUDController {
             'a.description, ' .
             'a.public_image, ' .
             'identity(a.activity_main) as activity, ' .
-            'cp.name AS campaign';
+            'a AS account, ' .
+            'cp.name AS campaign'; // TODO Remove it when version higher than 2.1.0
 
         $qb = $qb
             ->distinct()
@@ -283,10 +284,20 @@ class AccountsController extends CRUDController {
         }
         $elements = $this->secureOutput($elements);
         for ($i = 0; $i < sizeof($elements); $i++) {
+            // TODO Remove it when version higher than 2.1.0
             $elements[$i]['in_ltab_campaign'] = array_key_exists("campaign", $elements[$i]) &&
                 $elements[$i]["campaign"] == Campaign::BONISSIM_CAMPAIGN_NAME;
             unset($elements[$i]['campaign']);
             $elements[$i]['has_offers'] = array_key_exists("offer", $elements[$i]);
+            $account_campaigns = $elements[$i]["account"]["campaigns"];
+            $campaigns_id_list = [];
+            if(sizeof($account_campaigns) > 0){
+                for ($ii = 0; $ii < sizeof($account_campaigns); $ii++) {
+                    array_push($campaigns_id_list, ['id' => $account_campaigns[$ii]["id"]]);
+                }
+            }
+            $elements[$i]['campaigns'] = $campaigns_id_list;
+            unset($elements[$i]['account']);
             if(isset($activity_id) and $role != 'admin'){
                 if(in_array('activity', array_keys($elements[$i])) and in_array($elements[$i]['activity'], $activities_id)){
                     array_push($same_activity_elements, $elements[$i]);
