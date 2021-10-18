@@ -91,6 +91,12 @@ class Campaign extends AppObject {
     protected $video_promo_url='';
 
     /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"public"})
+     */
+    protected $code;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -289,6 +295,21 @@ class Campaign extends AppObject {
         $this->video_promo_url = $video_promo_url;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getCode()
+    {
+        return $this->code;
+    }
+
+    /**
+     * @param mixed $code
+     */
+    public function setCode($code): void
+    {
+        $this->code = $code;
+    }
 
 
 }
