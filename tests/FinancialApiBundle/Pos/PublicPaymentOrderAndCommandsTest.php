@@ -476,34 +476,35 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         );
 
         $_bonissim_private_account = $this->getAsAdmin("/admin/v3/group/" . $bonissim_private_account->id);
-        self::assertLessThan($redeemable, $_bonissim_private_account->redeemable_amount);
-
-        $this->signIn(UserFixture::TEST_USER_LTAB_CREDENTIALS);
-        //pay KYC
-        $this->payKycCheck($company_account, $tx_amount, 201);
-        //He comentado este test porque no lo he entendido y fallaba
-        //$this->payKycCheck($company_account, $tx_amount, 400);
-
+        $usar_total_balance = 0;
+        foreach ($accounts as $account){
+            if($account->kyc_manager->username == $private_account->kyc_manager->username and
+                $account->type == 'PRIVATE' and
+                $account->name != Campaign::BONISSIM_CAMPAIGN_NAME){
+                $usar_total_balance += $account->wallets[0]->available;
+            }
+        }
+        $max_redeemable = max($usar_total_balance  / 1e8 - $tx_amount, 0);
+        self::assertEquals($max_redeemable, $_bonissim_private_account->redeemable_amount);
     }
 
-    /**
-     * @param $company_account
-     * @param int $tx_amount
-     * @param int $code
-     */
-    private function payKycCheck($company_account, int $tx_amount, int $code): void
+
+    function testPayKycCheck(): void
     {
+        $this->setClientIp($this->faker->ipv4);
+        $reciver = $this->getAsAdmin('/admin/v3/accounts?level=2')[1];
+
         $resp = $this->rest(
             'POST',
             '/methods/v1/out/rec',
             [
-                'address' => $company_account->rec_address,
-                'amount' => $tx_amount * 1e8,
+                'address' => $reciver->rec_address,
+                'amount' => 300e8,
                 'concept' => 'Testing concept',
-                'pin' => UserFixture::TEST_USER_LTAB_CREDENTIALS['pin']
+                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
             ],
             [],
-            $code
+            400
         );
 
     }
