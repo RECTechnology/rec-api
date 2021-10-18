@@ -18,7 +18,7 @@ class ActivityFixture extends Fixture implements DependentFixtureInterface {
      */
     public function load(ObjectManager $orm)
     {
-        $act1 = $this->createActivity($orm, 'Cultura', null);
+        $act1 = $this->createActivity($orm, 'Culture', null);
         $act3 = $this->createActivity($orm, 'Alimentacion', null);
         $act2 = $this->createActivity($orm, 'Musica', $act1->getId());
         $act4 = $this->createActivity($orm, 'Musica_pop', $act2->getId());

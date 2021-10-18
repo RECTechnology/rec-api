@@ -37,6 +37,8 @@ class ActivityController extends BaseApiController{
     public function getActivitiesV4(){
 
         $em = $this->getDoctrine()->getManager();
+        $name = 'culture';
+
 
         /** @var QueryBuilder $qb */
         $qb = $em->createQueryBuilder();
@@ -50,8 +52,18 @@ class ActivityController extends BaseApiController{
         $activities = $qb
             ->select($select)
             ->from(Activity::class, 'a')
+            ->where("lower(a.name) = '$name'")
             ->getQuery()
             ->getResult();
+
+        if (count($activities) > 0){
+            $children_activities = $qb
+                ->where('a.parent =' . $activities[0]["id"])
+                ->getQuery()
+                ->getResult();
+
+            $activities = array_merge($activities, $children_activities);
+        }
 
         return $this->restV2(200, "ok", "Done", $activities);
 
