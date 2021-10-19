@@ -14,7 +14,6 @@ class MapTest extends BaseApiTest {
 
     public function testMapSearchResponds200(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
-
         $query_string = "?activity_id=2";
         $response = $this->requestJson('GET', '/user/v4/accounts/search'.$query_string);
         self::assertEquals(

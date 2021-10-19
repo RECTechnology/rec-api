@@ -207,7 +207,6 @@ class AccountsController extends CRUDController {
         }
         $and->add($like);
         $and->add($qb->expr()->eq('a.on_map', 1));
-        //$and->add($qb->expr()->eq('a.activity_main', $activity_id));
         //geo query
         $and->add($qb->expr()->gt('a.latitude', $rect_box[0]));
         $and->add($qb->expr()->lt('a.latitude', $rect_box[2]));
@@ -264,7 +263,10 @@ class AccountsController extends CRUDController {
             ->getQuery()
             ->getResult();
 
-        if(isset($activity_id) and $role != 'admin') {
+        $hasActivity = isset($activity_id) and is_numeric($activity_id);
+        $isAdmin = $role == 'admin';
+
+        if($hasActivity and !$isAdmin) {
             $a_qb = $em->createQueryBuilder();
             $a_qb = $a_qb
                 ->from(Activity::class, 'p')
@@ -291,6 +293,7 @@ class AccountsController extends CRUDController {
                 $elements[$i]["campaign"] == Campaign::BONISSIM_CAMPAIGN_NAME;
             unset($elements[$i]['campaign']);
             $elements[$i]['has_offers'] = array_key_exists("offer", $elements[$i]);
+
             $account_campaigns = $elements[$i]["account"]["campaigns"];
             $campaigns_id_list = [];
             if(sizeof($account_campaigns) > 0){
@@ -300,13 +303,13 @@ class AccountsController extends CRUDController {
             }
             $elements[$i]['campaigns'] = $campaigns_id_list;
             unset($elements[$i]['account']);
-            if(isset($activity_id) and $role != 'admin'){
+            if($hasActivity and !$isAdmin){
                 if(in_array('activity', array_keys($elements[$i])) and in_array($elements[$i]['activity'], $activities_id)){
                     array_push($same_activity_elements, $elements[$i]);
                 }
             }
         }
-        if(isset($activity_id) and $role != 'admin'){
+        if($hasActivity and !$isAdmin){
             $elements = $same_activity_elements;
         }
 
