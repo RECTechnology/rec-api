@@ -34,7 +34,7 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Activity", inversedBy="id")
-     * @ORM\Column(nullable=true)
+     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
      * @Serializer\MaxDepth(1)
      * @Serializer\Groups({"public"})
      */

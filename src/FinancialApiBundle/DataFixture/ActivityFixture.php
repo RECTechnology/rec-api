@@ -20,10 +20,10 @@ class ActivityFixture extends Fixture implements DependentFixtureInterface {
     {
         $act1 = $this->createActivity($orm, 'Culture', null);
         $act3 = $this->createActivity($orm, 'Alimentacion', null);
-        $act2 = $this->createActivity($orm, 'Musica', $act1->getId());
-        $act4 = $this->createActivity($orm, 'Musica_pop', $act2->getId());
-        $act5 = $this->createActivity($orm, 'Verdura', $act3->getId());
-        $act6 = $this->createActivity($orm, 'Cine', $act1->getId());
+        $act2 = $this->createActivity($orm, 'Musica', $act1);
+        $act4 = $this->createActivity($orm, 'Musica_pop', $act2);
+        $act5 = $this->createActivity($orm, 'Verdura', $act3);
+        $act6 = $this->createActivity($orm, 'Cine', $act1);
 
     }
 

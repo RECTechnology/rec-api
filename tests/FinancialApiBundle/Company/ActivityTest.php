@@ -39,4 +39,17 @@ class ActivityTest extends BaseApiTest
         self::assertObjectHasAttribute("name_ca", $resp[0]);
     }
 
+    function testGetActivities_v3(): void
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $resp = $this->rest(
+            'GET',
+            'admin/v3/activities?parent=1',
+            [],
+            [],
+            200
+        );
+        self::assertEquals(1, $resp[0]->parent->id);
+    }
+
 }

@@ -47,7 +47,7 @@ class ActivityController extends BaseApiController{
             'a.name, ' .
             'a.name_es, ' .
             'a.name_ca, ' .
-            'a.parent';
+            'identity(a.parent) as parent';
 
         $activities = $qb
             ->select($select)
