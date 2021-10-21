@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
+use App\FinancialApiBundle\Entity\Config;
 use App\FinancialApiBundle\Entity\UserSecurityConfig;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use FOS\OAuthServerBundle\Controller\TokenController;
@@ -16,36 +17,11 @@ class Login2faController extends RestApiController{
 
 
     public function loginAction(Request $request){
-        if(!$request->request->has('platform') ) throw new HttpException(404, 'Platform es requerido');
 
-        switch ($request->request->get('platform')){
-            case 'android':
-                $required_version = 201;
-                break;
-            case 'ios':
-                $required_version = 201;
-                break;
-            case 'rec-admin':
-                $required_version = 0;
-                //Quick fix until version is sent from panel
-                if(!$request->request->has('version')) $request->request->add(['version' => INF]);
-                break;
-            case 'rec-pos':
-                $required_version = 0;
-                //Quick fix until version is sent from pos
-                if(!$request->request->has('version')) $request->request->add(['version' => INF]);
-                break;
-            default:
-                throw new HttpException(403, 'Platform '.$request->request->get('platform').' inválido');
-        }
+        $em = $this->getDoctrine()->getManager();
 
-        if($request->request->has('version')) {  // panel pass
-            if ($request->request->get('version') < $required_version) {
-                //TODO: Volver a poner mensaje "Must update"
-                throw new HttpException(404, 'App. obsoleta, desinstala y vuelve a descargarla desde GooglePlay/AppStore');
-            }
-        }else{
-            throw new HttpException(404, 'Version param es requerido');
+        if($request->get('grant_type') == "password"){
+            $this->checkPlatformAndVersion($request);
         }
 
         $headers = array(
@@ -59,8 +35,6 @@ class Login2faController extends RestApiController{
         $pin = $request->request->get('pin');
         $kyc = 0;
         if($request->request->has('kyc')) $kyc = $request->get('kyc');
-
-        $em = $this->getDoctrine()->getManager();
 
         $client_info = explode("_", $request->get('client_id'));
         if(count($client_info)!=2){
@@ -321,5 +295,46 @@ class Login2faController extends RestApiController{
         $user_sms_log->setSecurityCode($code);
         $em->persist($user_sms_log);
         $em->flush();
+    }
+
+    private function checkPlatformAndVersion(Request $request){
+
+        $em = $this->getDoctrine()->getManager();
+
+        if(!$request->request->has('platform') ) throw new HttpException(404, 'Platform es requerido');
+
+        $min_versions = $em->getRepository(Config::class)->findAll();
+
+        if(!$min_versions) throw new HttpException(404, 'Min version no encontrado, por favor contacta con support');
+
+        switch ($request->request->get('platform')){
+            case 'android':
+                $required_version = $min_versions[0]->getMinVersionAndroid();
+                break;
+            case 'ios':
+                $required_version = $min_versions[0]->getMinVersionIos();
+                break;
+            case 'rec-admin':
+                $required_version = 0;
+                //Quick fix until version is sent from panel
+                if(!$request->request->has('version')) $request->request->add(['version' => INF]);
+                break;
+            case 'rec-pos':
+                $required_version = 0;
+                //Quick fix until version is sent from pos
+                if(!$request->request->has('version')) $request->request->add(['version' => INF]);
+                break;
+            default:
+                throw new HttpException(403, 'Platform '.$request->request->get('platform').' inválido');
+        }
+
+        if($request->request->has('version')) {  // panel pass
+            if ($request->request->get('version') < $required_version) {
+                //TODO: Volver a poner mensaje "Must update"
+                throw new HttpException(404, 'App. obsoleta, desinstala y vuelve a descargarla desde GooglePlay/AppStore');
+            }
+        }else{
+            throw new HttpException(404, 'Version param es requerido');
+        }
     }
 }
