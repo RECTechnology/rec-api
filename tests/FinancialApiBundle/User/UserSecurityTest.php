@@ -366,6 +366,25 @@ class UserSecurityTest extends BaseApiTest
     /**
      * @param $sms_code
      */
+    function testRecoverPasswordRequest()
+    {
+        $resp = $this->rest(
+            'POST',
+            '/app/v4/sms-code/recover-password',
+            [
+                'dni' => '01234567A',
+                'prefix' => 34,
+                'phone' => 789789789
+            ],
+            [],
+            200
+        );
+
+    }
+
+    /**
+     * @param $sms_code
+     */
     private function unlockUser($sms_code): void
     {
         $resp = $this->rest(
