@@ -167,7 +167,7 @@ class IncomingController2 extends RestApiController{
             };
             if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>-1){
                 $pin = $data['pin'];
-                if($user->getPIN()!=$pin){
+                if($user->getPIN()!==$pin){
                     if ($order) {
                         $order->incrementRetries();
                         if ($order->getRetries() > 2) {
