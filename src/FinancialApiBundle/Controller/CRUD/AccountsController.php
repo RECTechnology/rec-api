@@ -229,6 +229,7 @@ class AccountsController extends CRUDController {
             'a.public_image, ' .
             'identity(a.activity_main) as activity, ' .
             'a AS account, ' .
+            'o.active AS offer, ' .
             'cp.name AS campaign'; // TODO Remove it when version higher than 2.1.0
 
         $qb = $qb
@@ -236,6 +237,7 @@ class AccountsController extends CRUDController {
             ->from(Group::class, 'a')
             ->leftJoin('a.category', 'c')
             ->leftJoin('a.campaigns', 'cp')
+            ->leftJoin('a.offers', 'o')
             ->where($and);
 
         if ($only_with_offers == 1 || $only_with_offers == 'true') {
@@ -248,18 +250,12 @@ class AccountsController extends CRUDController {
                 ->from(Offer::class, 'o2')
                 ->where($_and);
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
-
-            $select = $select . ', o.id AS offer';
-
-            $qb = $qb->leftJoin('a.offers', 'o');
-
-
         }
 
         $elements = $qb
             ->select($select)
             ->groupBy('a.id')
-            ->orderBy('a.id', 'DESC')
+            ->orderBy('o.active', 'DESC')
             ->getQuery()
             ->getResult();
 
@@ -292,7 +288,7 @@ class AccountsController extends CRUDController {
             $elements[$i]['in_ltab_campaign'] = array_key_exists("campaign", $elements[$i]) &&
                 $elements[$i]["campaign"] == Campaign::BONISSIM_CAMPAIGN_NAME;
             unset($elements[$i]['campaign']);
-            $elements[$i]['has_offers'] = array_key_exists("offer", $elements[$i]);
+            $elements[$i]['has_offers'] = array_key_exists("offer", $elements[$i]) and $elements[$i]['offer'];
 
             $account_campaigns = $elements[$i]["account"]["campaigns"];
             $campaigns_id_list = [];
