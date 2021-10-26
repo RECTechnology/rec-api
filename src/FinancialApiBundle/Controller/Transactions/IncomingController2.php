@@ -205,6 +205,10 @@ class IncomingController2 extends RestApiController{
         //check bonissim payment
         $extra_data = $this->checkCampaignConstraint($data, $group, $type, $method_cname);
 
+        //check culture payment
+        $this->checkCultureCampaignConstraint($data, $group, $type, $method_cname);
+
+
         $logger->info('(' . $group_id . ')(T) CHECK PIN');
 
         $transaction = Transaction::createFromRequestIP($ip);
@@ -1302,7 +1306,7 @@ class IncomingController2 extends RestApiController{
                 $em->flush();
             }
             elseif($amount >= $campaign->getMin() * 100) {
-                $this->container->get('bonissim_service')->CreateBonissimAccount($user_id,
+                $this->container->get('bonissim_service')->CreateCampaignAccount($user_id,
                     Campaign::BONISSIM_CAMPAIGN_NAME, min($amount / 100, $campaign->getMax()));
             }
         }
@@ -1497,5 +1501,65 @@ class IncomingController2 extends RestApiController{
             return new Response(json_encode($token), 403, $headers);
         }
     }
+
+    /**
+     * @param $params
+     * @param object|null $group
+     * @param $type
+     * @param $method_cname
+     */
+    private function checkCultureCampaignConstraint($params, ?object $group, $type, $method_cname)
+    {
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+        $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::CULTURE_CAMPAIGN_NAME]);
+
+        //out trx -> group is sender
+        //in trx -> group is receiver
+        if($method_cname == "rec" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE){
+            // sender is private in campaign
+            if($type == "out" && in_array($group, $campaign->getAccounts()->toArray())) {
+
+                $destination = $em->getRepository(Group::class)->findOneBy(['rec_address' => $params['address']]);
+                // reciver not in campaign
+                if (!in_array($destination, $campaign->getAccounts()->toArray())) {
+                    throw new HttpException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+                }
+            }
+
+        }
+        // reward
+        if($type == "in" && $method_cname == "lemonway" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE) {
+            $satoshi_decimals = 1e8;
+            $reciver_campaigns = $group->getCampaigns();
+            if(isset($campaign) && $campaign->getCampaignAccount() != $group->getId() && $reciver_campaigns->contains($campaign)){ // reciver is culture private account
+                $rewarded_amount = $group->getRewardedAmount();
+                $new_rewarded = min($params['amount'] / 100, $campaign->getMax() - $rewarded_amount);
+                if($new_rewarded > 0) {
+                    $accountRepo = $em->getRepository(Group::class);
+                    $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
+                    $token = $this->get('security.token_storage')->getToken();
+                    $user = isset($token) ? $token->getUser() : null;
+                    $store_account = $accountRepo->findOneBy(['id' => $params['commerce_id']]);
+
+                    // send 50% from campaign account to commerce and from commerce to culture account
+                    $request = array();
+                    $request['concept'] = 'Bonificación Cultural +50%';
+                    $request['amount'] = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
+                    $request['pin'] = $user->getPin();
+                    $request['address'] = $store_account->getRecAddress();
+                    $request['internal_tx'] = '1';
+                    $request['destionation_id'] = $params["company_id"];
+                    $this->createTransaction($request, 1, 'out', 'rec', $user->getId(), $campaign_account, '127.0.0.2');
+
+                    $group->setRewardedAmount($rewarded_amount + $new_rewarded);
+                    $em->persist($group);
+                    $em->flush();
+                }
+
+            }
+        }
+    }
+
 
 }

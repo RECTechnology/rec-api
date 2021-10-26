@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Controller\Management\User;
 
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
+use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use App\FinancialApiBundle\Entity\Document;
 use App\FinancialApiBundle\Entity\DocumentKind;
@@ -129,7 +130,10 @@ class AccountController extends BaseApiController {
             if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameter roles');
         }
 
-        return parent::updateAction($request, $id);
+        $response = parent::updateAction($request, $id);
+        $this->createCultureAccountIfUserDoesNotHaveOne($response, $id);
+
+        return $response;
     }
 
 
@@ -1938,4 +1942,54 @@ class AccountController extends BaseApiController {
 
         return $this->restV2(204,"ok", "user unlocked");
     }
+
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     * @throws AnnotationException
+     * @throws \ReflectionException
+     */
+    public function updateV4Action(Request $request){
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $id = $user->getId();
+        $params = array();
+        if($request->request->has('campaign_id')){
+            /** @var EntityManagerInterface $em */
+            $em = $this->getDoctrine()->getManager();
+            $campaign = $em->getRepository(Campaign::class)->find($request->request->get('campaign_id'));
+            if(isset($campaign)){
+                $var_name = $campaign->getTos();
+                $request->request->set($var_name, 1);
+            }else{
+               throw new HttpException(404,'Campaign not found');
+            }
+        }else{
+            throw new HttpException(404,'Parameter campaign_id not found');
+        }
+        $request->request->remove('campaign_id');
+
+        $response = parent::updateAction($request, $id);
+        $this->createCultureAccountIfUserDoesNotHaveOne($response, $id);
+
+        return $response;
+    }
+
+    /**
+     * @param Response $response
+     * @param $id
+     */
+    private function createCultureAccountIfUserDoesNotHaveOne(Response $response, $id): void
+    {
+        if ($response->getStatusCode() == 200) {
+            $em = $this->container->get('doctrine')->getManager();
+            $culture_private_account = $em->getRepository(Group::class)->findOneBy(array(
+                'type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $id, 'name' => Campaign::CULTURE_CAMPAIGN_NAME));
+            if (!isset($culture_private_account)) { // user does not have culture account
+                $this->container->get('bonissim_service')->CreateCampaignAccount($id, Campaign::CULTURE_CAMPAIGN_NAME, 0);
+            }
+        }
+    }
+
 }

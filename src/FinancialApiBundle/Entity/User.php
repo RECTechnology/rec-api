@@ -263,6 +263,13 @@ class User extends BaseUser implements Uploadable {
     private $private_tos_campaign = false;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     * @Groups({"admin"})
+     */
+    private $private_tos_campaign_culture = false;
+
+    /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Expose
      * @Groups({"manager"})
@@ -962,6 +969,22 @@ class User extends BaseUser implements Uploadable {
     public function setDocuments(ArrayCollection $documents): void
     {
         $this->documents = $documents;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPrivateTosCampaignCulture(): bool
+    {
+        return $this->private_tos_campaign_culture;
+    }
+
+    /**
+     * @param bool $private_tos_campaign_culture
+     */
+    public function setPrivateTosCampaignCulture(bool $private_tos_campaign_culture): void
+    {
+        $this->private_tos_campaign_culture = $private_tos_campaign_culture;
     }
 
 

@@ -15,19 +15,6 @@ use Test\FinancialApiBundle\Admin\AdminApiTest;
  */
 class BonissimCampaignTest extends AdminApiTest {
 
-    private function createCampaign($campaign_name){
-        $campaign = new Campaign();
-        $campaign->setName($campaign_name);
-        $campaign->setBalance(100 * 1e8);
-
-        $format = 'Y-m-d H:i:s';
-        $campaign->setInitDate(DateTime::createFromFormat($format, '2020-09-15 00:00:00'));
-        $campaign->setEndDate(DateTime::createFromFormat($format, '2020-10-15 00:00:00'));
-        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
-        $em->persist($campaign);
-        $em->flush();
-
-    }
 
     private function getFromRoute($route){
         $resp = $this->requestJson('GET', $route);
@@ -101,12 +88,11 @@ class BonissimCampaignTest extends AdminApiTest {
 
 
     function testCreateBonissimAcount(){
-        $this->createCampaign(Campaign::BONISSIM_CAMPAIGN_NAME);
         $user_id = 1;
         $route = "/admin/v3/user/{$user_id}";
         $resp = $this->rest('PUT', $route, ['private_tos_campaign' => true]);
         self::assertTrue($resp->private_tos_campaign);
-        self::createClient()->getKernel()->getContainer()->get('bonissim_service')->CreateBonissimAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME);
+        self::createClient()->getKernel()->getContainer()->get('bonissim_service')->CreateCampaignAccount($user_id, Campaign::BONISSIM_CAMPAIGN_NAME);
 
         $resp = $this->requestJson('GET', '/admin/v3/campaigns', ["name" => Campaign::BONISSIM_CAMPAIGN_NAME]);
         self::assertEquals(200, $resp->getStatusCode());
@@ -118,7 +104,9 @@ class BonissimCampaignTest extends AdminApiTest {
     function testSetUserTOS(){
         $user = $this->getFromRoute('/admin/v3/user/1');
         self::assertFalse($user['data']['private_tos_campaign']);
-        $resp = $this->requestJson('PUT', '/admin/v3/user/1', ["private_tos_campaign" => 1]);
+        $campaign = $this->rest('GET', "/admin/v3/campaigns?name=".Campaign::BONISSIM_CAMPAIGN_NAME)[0];
+        self::assertTrue(isset($campaign));
+        $resp = $this->requestJson('PUT', '/user/v4/campaign/accept_tos', ["campaign_id" => $campaign->id]);
         $user = $this->getFromRoute('/admin/v3/user/1');
         self::assertTrue($user['data']['private_tos_campaign']);
     }

@@ -24,12 +24,18 @@ class BonissimAccountService {
     }
 
 
-    public function CreateBonissimAccount($user_id, $campaign_name, $amount=0){
+    public function CreateCampaignAccount($user_id, $campaign_name, $amount=0){
         $em = $this->container->get('doctrine.orm.entity_manager');
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => $campaign_name]);
         $user = $em->getRepository(User::class)->findOneBy(['id' => $user_id]);
-
-        if($user->getPrivateTosCampaign()){
+        $tos = false;
+        if($campaign_name == Campaign::BONISSIM_CAMPAIGN_NAME){
+            $tos = $user->getPrivateTosCampaign();
+        }
+        if($campaign_name == Campaign::CULTURE_CAMPAIGN_NAME){
+            $tos = $user->isPrivateTosCampaignCulture();
+        }
+        if($tos){
             $account = new Group();
             $account->setName($campaign_name);
             /** @var FakeEasyBitcoinDriver $recDriver */

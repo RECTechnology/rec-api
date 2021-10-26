@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Campaign extends AppObject {
 
     const BONISSIM_CAMPAIGN_NAME = 'LI TOCA AL BARRI';
+    const CULTURE_CAMPAIGN_NAME = 'REC CULTURA';
     const DEFAULT_MIN = 50;
     const DEFAULT_MAX = 1000;
     const PERCENTAGE = 15;
@@ -39,6 +40,11 @@ class Campaign extends AppObject {
      */
     protected $name;
 
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"public"})
+     */
+    protected $tos;
 
     /**
      * @ORM\Column(type="float")
@@ -298,6 +304,11 @@ class Campaign extends AppObject {
     /**
      * @return mixed
      */
+    public function getTos()
+    {
+        return $this->tos;
+    }
+
     public function getCode()
     {
         return $this->code;
@@ -311,5 +322,12 @@ class Campaign extends AppObject {
         $this->code = $code;
     }
 
+    /**
+     * @param mixed $tos
+     */
+    public function setTos($tos): void
+    {
+        $this->tos = $tos;
+    }
 
 }

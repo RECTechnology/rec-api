@@ -10,6 +10,11 @@ user_account_edit:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::updateAction }
     methods: [PUT]
 
+user_tos_edit:
+    path:  /user/v4/campaign/accept_tos
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::updateV4Action }
+    methods: [PUT]
+
 ##usermethod_read:
 ##    path:  /user/v1/methods/{method}
 ##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Integrator\MethodsController::read }

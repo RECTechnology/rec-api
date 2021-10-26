@@ -34,7 +34,9 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $user = $orm->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
 
-        $campaign = $this->createCampaign($orm);
+        $campaign = $this->createCampaign($orm, Campaign::BONISSIM_CAMPAIGN_NAME);
+        $culture_campaign = $this->createCampaign($orm, Campaign::CULTURE_CAMPAIGN_NAME);
+
         $this->createRelations($orm, $campaign);
 
         $orm->flush();
@@ -44,9 +46,20 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
     /**
      * @param ObjectManager $orm
      */
-    private function createCampaign(ObjectManager $orm){
+    private function createCampaign(ObjectManager $orm, $campaign_name){
         $campaign = new Campaign();
-        $campaign->setName(Campaign::BONISSIM_CAMPAIGN_NAME);
+        $campaign->setName($campaign_name);
+        if($campaign_name == Campaign::BONISSIM_CAMPAIGN_NAME){
+            $campaign->setTos("private_tos_campaign");
+        }
+        if($campaign_name == Campaign::CULTURE_CAMPAIGN_NAME){
+            $campaign->setTos("private_tos_campaign_culture");
+            $campaign->setRedeemablePercentage(50);
+            $campaign->setMax(100);
+            $ltab_account = $orm->getRepository(Group::class)
+                ->findOneBy(['name' =>"LTAB"]);
+            $campaign->setCampaignAccount($ltab_account->getId());
+        }
         $campaign->setBalance(100 * 1e8);
         $campaign->setCode('LTAB20');
 

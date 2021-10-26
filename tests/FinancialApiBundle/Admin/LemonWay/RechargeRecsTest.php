@@ -16,8 +16,10 @@ use App\FinancialApiBundle\Financial\Driver\LemonWayInterface;
 use App\FinancialApiBundle\Financial\Methods\LemonWayMethod;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use Http\Client\Exception;
 use Test\FinancialApiBundle\Admin\AdminApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Class RechargeRecsTest
@@ -142,4 +144,93 @@ class RechargeRecsTest extends AdminApiTest {
         $this->runCommand('rec:crypto:check');
         $this->runCommand('rec:crypto:check');
     }
+
+    function testRechargeCultureAccountShuldSend50(){
+
+        $transaccion_amount = 200;
+
+        // create culture account
+        $campaign = $this->rest('GET', "/admin/v3/campaigns?name=".Campaign::CULTURE_CAMPAIGN_NAME)[0];
+        self::assertTrue(isset($campaign));
+        $user = json_decode($this->requestJson('GET', '/admin/v3/user/1')->getContent(), true);
+        self::assertFalse($user['data'][$campaign->tos]);
+        $resp = $this->requestJson('PUT', '/user/v4/campaign/accept_tos', ["campaign_id" => $campaign->id]);
+        $user = json_decode($this->requestJson('GET', '/admin/v3/user/1')->getContent(), true);
+        self::assertTrue($user['data'][$campaign->tos]);
+        $user_id = $user["data"]["id"];
+
+        $private_culture_account = $this->rest('GET', "/user/v3/groups/search?name=".Campaign::CULTURE_CAMPAIGN_NAME);
+        self::assertEquals(sizeof($private_culture_account), 1);
+
+        $private_culture_accounts = $this->rest('GET', "/user/v3/accounts?campaigns=2&type=PRIVATE&kyc_manager=".$user_id);
+        self::assertCount(1, $private_culture_accounts);
+
+        $private_culture_account_id = $private_culture_accounts[0]->id;
+
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
+
+        $company_accounts = $this->rest('GET', "/user/v3/accounts?name=COMMERCEACCOUNT");
+        self::assertGreaterThanOrEqual(1, count($company_accounts));
+        // store account
+        $company_account_id = $company_accounts[0]->id;
+
+        $data = ['status' => Transaction::$STATUS_RECEIVED,
+            'company_id' => $private_culture_account_id,
+            'amount' => $transaccion_amount * 100, // 2 decimals
+            'commerce_id' => $company_account_id,
+            'concept' => 'test recharge',
+            'pin' => $user_pin,
+            'save_card' => 0];
+
+
+        //update mock
+        $this->useLemonWayMock($data);
+        //make first recharge
+        $this->executeRecharge($data);
+        $private_culture_accounts = $this->rest('GET', "/user/v3/accounts?id=".$private_culture_account_id);
+
+
+        self::assertEquals(250, $private_culture_accounts[0]->wallets[0]->balance / 1e8);
+
+        // limits
+        $this->sendFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
+
+    }
+
+    /**
+     * @param $private_culture_accounts
+     */
+    private function sendFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts): void
+    {
+        $commerces = $this->rest('GET', "/user/v3/accounts?name=COMMERCEACCOUNT");
+        self::assertGreaterThanOrEqual(1, count($commerces));
+
+        foreach ($commerces as $commerce) {
+            if ($commerce->name != Campaign::CULTURE_CAMPAIGN_NAME) {
+                $not_culture_account = $commerce;
+            }
+        }
+        self::assertTrue(isset($not_culture_account));
+
+
+        // changing the active account for the current user
+        $this->rest('PUT', '/user/v1/activegroup', ['group_id' => $private_culture_accounts->id]);
+
+        //pay to commerce
+        $resp = $this->rest(
+            'POST',
+            '/methods/v1/out/rec',
+            [
+                'address' => $not_culture_account->rec_address,
+                'amount' => 1e8,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_ADMIN_CREDENTIALS['pin']
+            ],
+            [],
+            400
+        );
+    }
+
+
 }
