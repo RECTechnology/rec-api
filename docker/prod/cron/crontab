@@ -9,3 +9,5 @@
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:delegated_change:run
 
 #*    *   * * * www-data find /api/web/static -name *.tmp.* -type f -mmin +10 -delete
+
+0    0   * * * www-data timeout 300 /usr/bin/rec rec:check:expired:documents

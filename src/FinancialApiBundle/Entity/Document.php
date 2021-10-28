@@ -5,11 +5,9 @@ namespace App\FinancialApiBundle\Entity;
 
 use App\FinancialApiBundle\Annotations\StatusProperty;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
-use App\FinancialApiBundle\Exception\AppLogicException;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\MaxDepth;
-use DoctrineExtensions\Query\Mysql\Date;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
