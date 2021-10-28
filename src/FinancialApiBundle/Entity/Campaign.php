@@ -103,6 +103,12 @@ class Campaign extends AppObject {
     protected $code;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    protected $url_tos;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -328,6 +334,22 @@ class Campaign extends AppObject {
     public function setTos($tos): void
     {
         $this->tos = $tos;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUrlTos()
+    {
+        return $this->url_tos;
+    }
+
+    /**
+     * @param mixed $url_tos
+     */
+    public function setUrlTos($url_tos): void
+    {
+        $this->url_tos = $url_tos;
     }
 
 }
