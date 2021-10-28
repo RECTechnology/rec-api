@@ -205,10 +205,6 @@ class IncomingController2 extends RestApiController{
         //check bonissim payment
         $extra_data = $this->checkCampaignConstraint($data, $group, $type, $method_cname);
 
-        //check culture payment
-        $this->checkCultureCampaignConstraint($data, $group, $type, $method_cname);
-
-
         $logger->info('(' . $group_id . ')(T) CHECK PIN');
 
         $transaction = Transaction::createFromRequestIP($ip);
@@ -611,6 +607,9 @@ class IncomingController2 extends RestApiController{
         $this->container->get('messenger')->notificate($transaction);
         $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
+
+        //check culture payment
+        $this->checkCultureCampaignConstraint($data, $group, $type, $method_cname);
 
         if($user_id == -1 || $ip == '127.0.0.1'){ // this is executed in the recursive call
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return string');
@@ -1529,7 +1528,8 @@ class IncomingController2 extends RestApiController{
 
         }
         // reward
-        if($type == "in" && $method_cname == "lemonway" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE) {
+        if($type === "in" && $method_cname === "lemonway" && $params['status'] === 'received' &&
+            $group->getType() === Group::ACCOUNT_TYPE_PRIVATE) {
             $satoshi_decimals = 1e8;
             $reciver_campaigns = $group->getCampaigns();
             if(isset($campaign) && $campaign->getCampaignAccount() != $group->getId() && $reciver_campaigns->contains($campaign)){ // reciver is culture private account
