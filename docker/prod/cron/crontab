@@ -1,13 +1,13 @@
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:crypto:check
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:fiat:check
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:check:offers
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:mailing:send
-*/5  *   * * * www-data timeout 300 /usr/bin/rec rec:lemon:check:balance
-*/5  *   * * * www-data timeout 300 /usr/bin/rec rec:sync:lemonway
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:expire
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:notifications:retry
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:delegated_change:run
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:crypto:check > /api/var/logs/cron-crypto-check.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:fiat:check > /api/var/logs/cron-fiat-check.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:check:offers > /api/var/logs/cron-check-offers.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:mailing:send > /api/var/logs/cron-mailing-send.log 2>&1
+*/5  *   * * * www-data timeout 300 /usr/bin/rec rec:lemon:check:balance > /api/var/logs/cron-lemon-check-balance.log 2>&1
+*/5  *   * * * www-data timeout 300 /usr/bin/rec rec:sync:lemonway > /api/var/logs/cron-sync-lemonway.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:expire > /api/var/logs/cron-pos-expire.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:notifications:retry > /api/var/logs/cron-pos-notifications-retry.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:delegated_change:run > /api/var/logs/cron-delegated_change-run.log 2>&1
 
 #*    *   * * * www-data find /api/web/static -name *.tmp.* -type f -mmin +10 -delete
 
-0    0   * * * www-data timeout 300 /usr/bin/rec rec:check:expired:documents
+0    0   * * * www-data timeout 300 /usr/bin/rec rec:check:expired:documents > /api/var/logs/cron-check-expired-documents.log 2>&1
