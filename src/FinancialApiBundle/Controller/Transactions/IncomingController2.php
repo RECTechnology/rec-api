@@ -1561,13 +1561,13 @@ class IncomingController2 extends RestApiController{
                     $request['pin'] = $user->getPin();
                     $request['address'] = $store_account->getRecAddress();
                     $request['internal_tx'] = '1';
-                    $request['destionation_id'] = $params["company_id"];
+                    $request['destionation_id'] = $group->getId();
 
                     $output->writeln('CHECK FIAT applying bonus for culture campaign');
                     $output->writeln('CHECK FIAT send '.$tx_amount.' from '.
                         $campaign_account->getId(). ' to '.
                         $store_account->getId(). ' to '.
-                        $params["company_id"]);
+                        $group->getId());
 
                     $this->createTransaction($request, 1, 'out', 'rec', $user->getId(), $campaign_account, '127.0.0.1');
 
