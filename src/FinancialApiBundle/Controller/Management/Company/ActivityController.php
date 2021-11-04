@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ActivityController extends BaseApiController{
 
@@ -68,4 +69,61 @@ class ActivityController extends BaseApiController{
         return $this->restV2(200, "ok", "Done", $activities);
 
     }
+
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     */
+    public function searchActivitiesV4(Request $request){
+
+        $parent_id =$request->query->get('parent_id');
+
+        $em = $this->getDoctrine()->getManager();
+
+
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder();
+
+        $select = 'a.id, ' .
+            'a.name, ' .
+            'a.name_es, ' .
+            'a.name_ca, ' .
+            'identity(a.parent) as parent';
+
+        if(isset($parent_id) ){
+            if(is_numeric($parent_id)){
+                $activities = $qb
+                    ->select($select)
+                    ->from(Activity::class, 'a')
+                    ->where("a.id = '$parent_id'")
+                    ->getQuery()
+                    ->getResult();
+
+                if (count($activities) > 0){
+                    $children_activities = $qb
+                        ->where('a.parent =' . $activities[0]["id"])
+                        ->getQuery()
+                        ->getResult();
+
+                    $activities = array_merge($activities, $children_activities);
+                }
+            }elseif($parent_id == 'null'){
+                $activities = $qb
+                    ->select($select)
+                    ->from(Activity::class, 'a')
+                    ->where('a.parent IS NULL')
+                    ->getQuery()
+                    ->getResult();
+            }
+        }else{
+            $activities = $qb
+                ->select($select)
+                ->from(Activity::class, 'a')
+                ->getQuery()
+                ->getResult();
+        }
+            return $this->restV2(200, "ok", "Done", $activities);
+
+        }
 }

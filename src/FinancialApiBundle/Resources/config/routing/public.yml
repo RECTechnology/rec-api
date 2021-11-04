@@ -24,3 +24,8 @@ get_activities:
     path:  /public/v4/activities
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ActivityController::getActivitiesV4 }
     methods: [GET]
+
+search_activities:
+    path:  /public/v4/activities/search
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ActivityController::searchActivitiesV4 }
+    methods: [GET]

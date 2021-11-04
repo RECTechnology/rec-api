@@ -52,4 +52,20 @@ class ActivityTest extends BaseApiTest
         self::assertEquals(1, $resp[0]->parent->id);
     }
 
+    function testSearchActivities(): void
+    {
+        $resp = $this->rest(
+            'GET',
+            '/public/v4/activities/search?parent_id=1',
+            [],
+            [],
+            200
+        );
+
+        self::assertObjectHasAttribute("id", $resp[0]);
+        self::assertObjectHasAttribute("name", $resp[0]);
+        self::assertObjectHasAttribute("name_es", $resp[0]);
+        self::assertObjectHasAttribute("name_ca", $resp[0]);
+    }
+
 }
