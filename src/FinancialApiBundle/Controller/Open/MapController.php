@@ -61,12 +61,14 @@ class MapController extends BaseApiController{
             'o.description',
             'c.cat',
             'c.esp',
+            'cp.code',
             'c.eng'
         ];
         $like = $qb->expr()->orX();
         foreach ($searchFields as $field) {
             $like->add($qb->expr()->like($field, $qb->expr()->literal('%' . $search . '%')));
         }
+
         $and->add($like);
         $and->add($qb->expr()->eq('a.on_map', 1));
         //geo query
@@ -118,7 +120,7 @@ class MapController extends BaseApiController{
             'a.web, ' .
             'a.offered_products, ' .
             'a.needed_products, '.
-            'cp.name AS campaign';
+            'cp.code AS campaign';
 
         $elements = $qb
             ->select($select)
