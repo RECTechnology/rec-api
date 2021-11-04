@@ -96,6 +96,7 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
                         $dm->flush();
                         $output->writeln('CHECK FIAT saved in success status');
                         $transactionManager->checkCampaign($em, $transaction->getMethod(), $transaction->getAmount(), $transaction->getUser(), $tx_group);
+                        $transactionManager->checkRewardCultureCampaign($data, $tx_group, $output);
                     }
                     else{
                         $output->writeln('ERROR: not commerce_id data');

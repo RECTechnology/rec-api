@@ -1527,34 +1527,54 @@ class IncomingController2 extends RestApiController{
             }
 
         }
-        // reward
-        if($type === "in" && $method_cname === "lemonway" && $params['status'] === 'received' &&
-            $group->getType() === Group::ACCOUNT_TYPE_PRIVATE) {
+    }
+
+    /**
+     * @param $params
+     * @param $group
+     * @param $output
+     */
+    public function checkRewardCultureCampaign($params, $group, $output)
+    {
+        if($group->getType() === Group::ACCOUNT_TYPE_PRIVATE) {
+            /** @var EntityManagerInterface $em */
+            $em = $this->getDoctrine()->getManager();
+            $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::CULTURE_CAMPAIGN_NAME]);
             $satoshi_decimals = 1e8;
             $reciver_campaigns = $group->getCampaigns();
+
             if(isset($campaign) && $campaign->getCampaignAccount() != $group->getId() && $reciver_campaigns->contains($campaign)){ // reciver is culture private account
                 $rewarded_amount = $group->getRewardedAmount();
                 $new_rewarded = min($params['amount'] / 100, $campaign->getMax() - $rewarded_amount);
                 if($new_rewarded > 0) {
                     $accountRepo = $em->getRepository(Group::class);
                     $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
-                    $token = $this->get('security.token_storage')->getToken();
-                    $user = isset($token) ? $token->getUser() : null;
+
+                    $user = $campaign_account->getKycManager();
                     $store_account = $accountRepo->findOneBy(['id' => $params['commerce_id']]);
 
                     // send 50% from campaign account to commerce and from commerce to culture account
+                    $tx_amount = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
                     $request = array();
                     $request['concept'] = 'Bonificación Cultural +50%';
-                    $request['amount'] = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
+                    $request['amount'] = $tx_amount;
                     $request['pin'] = $user->getPin();
                     $request['address'] = $store_account->getRecAddress();
                     $request['internal_tx'] = '1';
                     $request['destionation_id'] = $params["company_id"];
-                    $this->createTransaction($request, 1, 'out', 'rec', $user->getId(), $campaign_account, '127.0.0.2');
+
+                    $output->writeln('CHECK FIAT applying bonus for culture campaign');
+                    $output->writeln('CHECK FIAT send '.$tx_amount.' from '.
+                        $campaign_account->getId(). ' to '.
+                        $store_account->getId(). ' to '.
+                        $params["company_id"]);
+
+                    $this->createTransaction($request, 1, 'out', 'rec', $user->getId(), $campaign_account, '127.0.0.1');
 
                     $group->setRewardedAmount($rewarded_amount + $new_rewarded);
                     $em->persist($group);
                     $em->flush();
+                    $output->writeln('CHECK FIAT bonus for culture campaign applied');
                 }
 
             }
