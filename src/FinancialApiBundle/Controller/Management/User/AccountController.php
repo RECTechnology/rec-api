@@ -1971,8 +1971,9 @@ class AccountController extends BaseApiController {
         $request->request->remove('campaign_id');
 
         $response = parent::updateAction($request, $id);
-        $this->createCultureAccountIfUserDoesNotHaveOne($response, $id);
-
+        if($response->getStatusCode() == 200 and $campaign->getName() === Campaign::CULTURE_CAMPAIGN_NAME){
+            $this->createCultureAccountIfUserDoesNotHaveOne($response, $id);
+        }
         return $response;
     }
 

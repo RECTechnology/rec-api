@@ -51,6 +51,7 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $campaign->setName($campaign_name);
         if($campaign_name == Campaign::BONISSIM_CAMPAIGN_NAME){
             $campaign->setTos("private_tos_campaign");
+            $campaign->setCode('LTAB20');
         }
         if($campaign_name == Campaign::CULTURE_CAMPAIGN_NAME){
             $campaign->setTos("private_tos_campaign_culture");
@@ -59,9 +60,10 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
             $ltab_account = $orm->getRepository(Group::class)
                 ->findOneBy(['name' =>"LTAB"]);
             $campaign->setCampaignAccount($ltab_account->getId());
+            $campaign->setCode('CULT21');
         }
         $campaign->setBalance(100 * 1e8);
-        $campaign->setCode('LTAB20');
+
 
         $format = 'Y-m-d H:i:s';
         $campaign->setInitDate(DateTime::createFromFormat($format, '2020-10-15 00:00:00'));
