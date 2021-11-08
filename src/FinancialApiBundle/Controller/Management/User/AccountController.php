@@ -1954,10 +1954,11 @@ class AccountController extends BaseApiController {
         /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $id = $user->getId();
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
         $params = array();
         if($request->request->has('campaign_id')){
-            /** @var EntityManagerInterface $em */
-            $em = $this->getDoctrine()->getManager();
+
             $campaign = $em->getRepository(Campaign::class)->find($request->request->get('campaign_id'));
             if(isset($campaign)){
                 $var_name = $campaign->getTos();
@@ -1972,24 +1973,28 @@ class AccountController extends BaseApiController {
 
         $response = parent::updateAction($request, $id);
         if($response->getStatusCode() == 200 and $campaign->getName() === Campaign::CULTURE_CAMPAIGN_NAME){
-            $this->createCultureAccountIfUserDoesNotHaveOne($response, $id);
+            $this->createCultureAccountIfUserDoesNotHaveOne($id, $em, $campaign);
         }
         return $response;
     }
 
     /**
-     * @param Response $response
      * @param $id
+     * @param $em
+     * @param $campaign
      */
-    private function createCultureAccountIfUserDoesNotHaveOne(Response $response, $id): void
+    private function createCultureAccountIfUserDoesNotHaveOne($id, $em, $campaign): void
     {
-        if ($response->getStatusCode() == 200) {
-            $em = $this->container->get('doctrine')->getManager();
-            $culture_private_account = $em->getRepository(Group::class)->findOneBy(array(
-                'type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $id, 'name' => Campaign::CULTURE_CAMPAIGN_NAME));
-            if (!isset($culture_private_account)) { // user does not have culture account
-                $this->container->get('bonissim_service')->CreateCampaignAccount($id, Campaign::CULTURE_CAMPAIGN_NAME, 0);
+        $user_has_culture_account = false;
+        $userAccounts = $em->getRepository(Group::class)->findBy(['kyc_manager' => $id, 'type' => Group::ACCOUNT_TYPE_PRIVATE]);
+        foreach($userAccounts as $account){
+            $account_campaigns = $account->getCampaigns()->getValues();
+            if (count($account_campaigns) > 0 and in_array($campaign, $account_campaigns)){
+                $user_has_culture_account = true;
             }
+        }
+        if (!$user_has_culture_account) {
+            $this->container->get('bonissim_service')->CreateCampaignAccount($id, Campaign::CULTURE_CAMPAIGN_NAME, 0);
         }
     }
 
