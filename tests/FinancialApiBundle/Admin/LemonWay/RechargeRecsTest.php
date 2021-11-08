@@ -154,9 +154,8 @@ class RechargeRecsTest extends AdminApiTest {
         self::assertTrue(isset($campaign));
         $user = json_decode($this->requestJson('GET', '/admin/v3/user/1')->getContent(), true);
         self::assertFalse($user['data'][$campaign->tos]);
-        $resp = $this->requestJson('PUT', '/user/v4/campaign/accept_tos', ["campaign_id" => $campaign->id]);
-        $user = json_decode($this->requestJson('GET', '/admin/v3/user/1')->getContent(), true);
-        self::assertTrue($user['data'][$campaign->tos]);
+        $resp = $this->requestJson('PUT', '/user/v4/campaign/accept_tos', ["campaign_code" => $campaign->code]);
+        self::assertEquals(204, $resp->getStatusCode());
         $user_id = $user["data"]["id"];
 
         $private_culture_account = $this->rest('GET', "/user/v3/groups/search?name=".Campaign::CULTURE_CAMPAIGN_NAME);

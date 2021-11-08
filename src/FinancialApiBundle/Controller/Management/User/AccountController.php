@@ -1954,12 +1954,20 @@ class AccountController extends BaseApiController {
         /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $id = $user->getId();
-        /** @var EntityManagerInterface $em */
+              /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
-        $params = array();
-        if($request->request->has('campaign_id')){
 
-            $campaign = $em->getRepository(Campaign::class)->find($request->request->get('campaign_id'));
+        foreach($request->request->keys() as $param){
+            if($param != 'campaign_code'){
+                throw new HttpException(404,'Parameter '.$param. ' not allowed.');
+            }
+        }
+
+        if($request->request->has('campaign_code')){
+            /** @var EntityManagerInterface $em */
+            $em = $this->getDoctrine()->getManager();
+            $campaign = $em->getRepository(Campaign::class)->findOneBy(['code' => $request->request->get('campaign_code')]);
+
             if(isset($campaign)){
                 $var_name = $campaign->getTos();
                 $request->request->set($var_name, 1);
@@ -1967,13 +1975,17 @@ class AccountController extends BaseApiController {
                throw new HttpException(404,'Campaign not found');
             }
         }else{
-            throw new HttpException(404,'Parameter campaign_id not found');
+            throw new HttpException(404,'Parameter campaign_code not found');
         }
-        $request->request->remove('campaign_id');
+        $request->request->remove('campaign_code');
 
         $response = parent::updateAction($request, $id);
-        if($response->getStatusCode() == 200 and $campaign->getName() === Campaign::CULTURE_CAMPAIGN_NAME){
-            $this->createCultureAccountIfUserDoesNotHaveOne($id, $em, $campaign);
+
+        if($response->getStatusCode() == 200) {
+            if ($campaign->getName() === Campaign::CULTURE_CAMPAIGN_NAME) {
+                $this->createCultureAccountIfUserDoesNotHaveOne($response, $id);
+            }
+            return $this->restV2(204,"ok", "TOS updated");
         }
         return $response;
     }
