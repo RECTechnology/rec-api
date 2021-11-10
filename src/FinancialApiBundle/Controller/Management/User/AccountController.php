@@ -1983,7 +1983,7 @@ class AccountController extends BaseApiController {
 
         if($response->getStatusCode() == 200) {
             if ($campaign->getName() === Campaign::CULTURE_CAMPAIGN_NAME) {
-                $this->createCultureAccountIfUserDoesNotHaveOne($response, $id);
+                $this->createCultureAccountIfUserDoesNotHaveOne($id, $em, $campaign);
             }
             return $this->restV2(204,"ok", "TOS updated");
         }

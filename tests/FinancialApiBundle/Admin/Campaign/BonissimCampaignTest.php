@@ -106,7 +106,7 @@ class BonissimCampaignTest extends AdminApiTest {
         self::assertFalse($user['data']['private_tos_campaign']);
         $campaign = $this->rest('GET', "/admin/v3/campaigns?name=".Campaign::BONISSIM_CAMPAIGN_NAME)[0];
         self::assertTrue(isset($campaign));
-        $resp = $this->requestJson('PUT', '/user/v4/campaign/accept_tos', ["campaign_id" => $campaign->id]);
+        $resp = $this->requestJson('PUT', '/user/v4/campaign/accept_tos', ["campaign_code" => $campaign->code]);
         $user = $this->getFromRoute('/admin/v3/user/1');
         self::assertTrue($user['data']['private_tos_campaign']);
     }
