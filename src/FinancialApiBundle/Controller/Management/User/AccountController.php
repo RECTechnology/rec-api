@@ -129,11 +129,7 @@ class AccountController extends BaseApiController {
             $roles = $request->request->get('roles');
             if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameter roles');
         }
-
-        $response = parent::updateAction($request, $id);
-        $this->createCultureAccountIfUserDoesNotHaveOne($response, $id);
-
-        return $response;
+        return parent::updateAction($request, $id);
     }
 
 
