@@ -13,7 +13,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Campaign extends AppObject {
 
     const BONISSIM_CAMPAIGN_NAME = 'LI TOCA AL BARRI';
-    const CULTURE_CAMPAIGN_NAME = 'REC CULTURA';
+    const CULTURE_CAMPAIGN_NAME = 'REC Cultural';
     const DEFAULT_MIN = 50;
     const DEFAULT_MAX = 1000;
     const PERCENTAGE = 15;
