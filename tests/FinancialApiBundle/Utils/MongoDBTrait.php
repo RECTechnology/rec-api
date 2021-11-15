@@ -12,23 +12,31 @@ trait MongoDBTrait {
     protected static $mongoProcess;
     protected static $dbPath = 'var/db/mongo';
     protected static $connectionTimeout = 10;
+    protected static $connectionRetries = 3;
 
     public function startMongo(): void {
         $absolutePath = self::getDBPath();
         if(!file_exists($absolutePath)) mkdir($absolutePath);
-        self::$mongoProcess = new Process("mongod --dbpath $absolutePath");
-        self::$mongoProcess->start();
-        $dm = self::$kernel->getContainer()->get('doctrine.odm.mongodb.document_manager');
-        $connected = false;
-        $startConnectTime = time();
-        while(!$connected) {
-            if (time() - $startConnectTime > self::$connectionTimeout)
-                throw new MongoTimeoutException("Mongodb server lasted too much to connect");
+        for($i=0; $i<self::$connectionRetries; $i++) {
             try {
-                $dm->getConnection()->connect();
-                if($dm->getConnection()->isConnected()) $connected = true;
-            } catch (\MongoConnectionException $ignored) { }
+                self::$mongoProcess = new Process("mongod --dbpath $absolutePath");
+                self::$mongoProcess->start();
+                $dm = self::$kernel->getContainer()->get('doctrine.odm.mongodb.document_manager');
+                $startConnectTime = time();
+                while (true) {
+                    if (time() - $startConnectTime > self::$connectionTimeout)
+                        throw new MongoTimeoutException("Mongodb server lasted too much to connect");
+                    try {
+                        $dm->getConnection()->connect();
+                        if ($dm->getConnection()->isConnected()) return;
+                    } catch (\MongoConnectionException $ignored) {
+                    }
+                }
+            } catch (MongoTimeoutException $e) {
+                self::stopMongo();
+            }
         }
+        throw new MongoTimeoutException("Exhausted retries to connect to mongodb");
     }
 
     public function stopMongo(): void {
