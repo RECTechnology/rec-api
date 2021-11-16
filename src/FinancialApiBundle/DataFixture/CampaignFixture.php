@@ -67,7 +67,7 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
 
         $format = 'Y-m-d H:i:s';
         $campaign->setInitDate(DateTime::createFromFormat($format, '2020-10-15 00:00:00'));
-        $campaign->setEndDate(DateTime::createFromFormat($format, '2021-11-15 00:00:00'));
+        $campaign->setEndDate(DateTime::createFromFormat($format, '2030-11-15 00:00:00'));
 
         $orm->persist($campaign);
         $orm->flush();
