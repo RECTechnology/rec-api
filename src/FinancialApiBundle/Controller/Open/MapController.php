@@ -35,6 +35,7 @@ class MapController extends BaseApiController{
 //        $sort = $request->query->get('sort', 'id');
 //        $order = $request->query->getAlpha('order', 'DESC');
         $campaign = $request->query->get('campaigns');
+        $campaign_code = $request->query->get('campaign_code');
         $search = $request->query->get('search');
         $account_subtype = strtoupper($request->query->get('subtype', ''));
         $only_with_offers = $request->query->get('only_with_offers', 0);
@@ -61,7 +62,6 @@ class MapController extends BaseApiController{
             'o.description',
             'c.cat',
             'c.esp',
-            'cp.code',
             'c.eng'
         ];
         $like = $qb->expr()->orX();
@@ -80,6 +80,7 @@ class MapController extends BaseApiController{
         $and->add($qb->expr()->eq('a.type', $qb->expr()->literal('COMPANY')));
 
         if (isset($campaign)) $and->add($qb->expr()->eq('cp.id', $campaign));
+        if (isset($campaign_code)) $and->add($qb->expr()->eq('cp.code', $qb->expr()->literal($campaign_code)));
 
         if ($account_subtype != '') $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 

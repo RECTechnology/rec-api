@@ -73,7 +73,7 @@ class MapTest extends BaseApiTest {
 
     public function testPublicMapSearch(){
 
-        $response = $this->requestJson('GET', '/public/map/v1/search?search=LTAB20');
+        $response = $this->requestJson('GET', '/public/map/v1/search?campaign_code=LTAB20');
         $response_content = json_decode($response->getContent(),true);
         self::assertEquals('LTAB20', $response_content['data']['elements'][0]['campaign']);
     }
