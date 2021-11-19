@@ -14,6 +14,8 @@ class MapTest extends BaseApiTest {
 
     public function testMapSearchResponds200(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+
+        $resp = $this->requestJson('PUT', '/admin/v3/accounts/6', ["active" => 0]);
         $query_string = "?activity_id=2";
         $response = $this->requestJson('GET', '/user/v4/accounts/search'.$query_string);
         self::assertEquals(
@@ -21,6 +23,7 @@ class MapTest extends BaseApiTest {
             $response->getStatusCode(),
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );
+        self::assertFalse(str_contains($response->getContent(), '"id":6,'));
     }
 
     public function testMapSearchOnlyWithOffersResponds200(){
