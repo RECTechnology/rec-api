@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Manager;
 
+use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Controller\SecurityTrait;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
@@ -241,7 +242,7 @@ class UsersGroupsController extends RestApiController{
                 $prefix_com = preg_replace("/[^0-9]/", "", $request->request->get('company_prefix'));
                 $company->setPrefix($prefix_com);
             }
-            if(isset($phone_com) and isset($prefix_com) and !$this->checkPhone($phone_com, $prefix_com)){
+            if(isset($phone_com) and isset($prefix_com) and !UsersController::checkPhone($phone_com, $prefix_com)){
                 throw new HttpException(400, "Incorrect phone or prefix company number");
             }
         }
@@ -321,33 +322,6 @@ class UsersGroupsController extends RestApiController{
         $response['company'] = $company;
         $em->flush();
         return $this->restV2(201,"ok", "Request successful", $response);
-    }
-
-    private function checkPhone($phone, $prefix){
-        if(strlen($prefix)<1){
-            return false;
-        }
-
-        //SP xxxxxxxxx
-        if($prefix == '34'){
-            return strlen($phone)==9;
-        }
-        //PL xxxxxxxxx
-        elseif($prefix == '48'){
-            return strlen($phone)==9;
-        }
-        //GR xxxxxxxxx
-        elseif($prefix == '30'){
-            return strlen($phone)==10;
-        }
-        //GB 07xxx xxxxxx
-        elseif($prefix == '44'){
-            return strlen($phone)==11;
-        }
-        elseif(strlen($phone)>7){
-            return true;
-        }
-        return false;
     }
 
     /**

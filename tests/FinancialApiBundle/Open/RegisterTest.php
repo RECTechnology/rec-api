@@ -17,7 +17,7 @@ class RegisterTest extends BaseApiTest {
             'name' => $this->faker->name,
             'password' => $pw,
             'repassword' => $pw,
-            'phone' => $this->faker->randomNumber(9, true),
+            'phone' => random_int(600000000, 799999999),
             'prefix' => '34',
             'pin' => $pin,
             'repin' => $pin,
@@ -40,7 +40,7 @@ class RegisterTest extends BaseApiTest {
         $dni = '38305314X'; //got from https://generadordni.es/#dni
         $content = [
             'password' => $pw,
-            'phone' => $this->faker->randomNumber(9, true),
+            'phone' => random_int(600000000, 799999999),
             'prefix' => '34',
             'dni' => $dni,
             'company_cif' => 'n9030699d',
@@ -67,7 +67,7 @@ class RegisterTest extends BaseApiTest {
         $dni = 'X8000107V'; //got from https://generadordni.es/#dni
         $content = [
             'password' => $pw,
-            'phone' => $this->faker->randomNumber(9, true),
+            'phone' => random_int(600000000, 799999999),
             'prefix' => '34',
             'dni' => $dni,
             'company_cif' => 'X8000107V',

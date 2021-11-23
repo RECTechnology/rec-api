@@ -563,7 +563,7 @@ class AccountController extends BaseApiController {
 
         $phone = preg_replace("/[^0-9]/", "", $params['phone']);
         $prefix = preg_replace("/[^0-9]/", "", $params['prefix']);
-        if(!$this->checkPhone($phone, $prefix)){
+        if(!UsersController::checkPhone($phone, $prefix)){
             throw new HttpException(400, "Incorrect phone or prefix number");
         }
 
@@ -576,7 +576,7 @@ class AccountController extends BaseApiController {
                 $prefix_com = preg_replace("/[^0-9]/", "", $request->request->get('company_prefix'));
                 $company->setPrefix($prefix_com);
             }
-            if(!$this->checkPhone($phone_com, $prefix_com)){
+            if(!UsersController::checkPhone($phone, $prefix)){
                 throw new HttpException(400, "Incorrect phone or prefix company number");
             }
         }
@@ -1152,34 +1152,6 @@ class AccountController extends BaseApiController {
         return $this->restV2(200,"ok", "Account PIN got successfully", $resp);
     }
 
-    private function checkPhone($phone, $prefix){
-        if(strlen($prefix)<1){
-            return false;
-        }
-        $first = substr($phone, 0, 1);
-
-        //SP xxxxxxxxx
-        if($prefix == '34' && ($first == '6' || $first == '7')){
-            return strlen($phone)==9;
-        }
-        //PL xxxxxxxxx
-        elseif($prefix == '48'){
-            return strlen($phone)==9;
-        }
-        //GR xxxxxxxxx
-        elseif($prefix == '30'){
-            return strlen($phone)==10;
-        }
-        //GB 07xxx xxxxxx
-        elseif($prefix == '44'){
-            return strlen($phone)==11;
-        }
-        elseif(strlen($phone)>7){
-            return true;
-        }
-        return false;
-    }
-
     /**
      * @Rest\View
      * @param Request $request
@@ -1283,7 +1255,7 @@ class AccountController extends BaseApiController {
         $company = new Group();
         $phone = preg_replace("/[^0-9]/", "", $params['phone']);
         $prefix = preg_replace("/[^0-9]/", "", $params['prefix']);
-        if(!$this->checkPhone($phone, $prefix)){
+        if(!UsersController::checkPhone($phone, $prefix)){
             throw new HttpException(400, "Incorrect phone or prefix number");
         }
         $company->setName($company_name);

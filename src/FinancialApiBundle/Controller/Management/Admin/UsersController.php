@@ -325,7 +325,7 @@ class UsersController extends BaseApiController{
         return $this->restV2(204, 'Success', 'Updated successfully');
     }
 
-    private function checkPhone($phone, $prefix){
+    public static function checkPhone($phone, $prefix){
         if(strlen($prefix)<1){
             return false;
         }
@@ -334,21 +334,6 @@ class UsersController extends BaseApiController{
         //SP xxxxxxxxx
         if($prefix == '34' && ($first == '6' || $first == '7')){
             return strlen($phone)==9;
-        }
-        //PL xxxxxxxxx
-        elseif($prefix == '48'){
-            return strlen($phone)==9;
-        }
-        //GR xxxxxxxxx
-        elseif($prefix == '30'){
-            return strlen($phone)==10;
-        }
-        //GB 07xxx xxxxxx
-        elseif($prefix == '44'){
-            return strlen($phone)==11;
-        }
-        elseif(strlen($phone)>7){
-            return true;
         }
         return false;
     }

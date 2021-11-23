@@ -66,7 +66,7 @@ class UserFixture extends Fixture {
             $user->setPhone(789789789);
         }else{
             $user->setDNI($faker->shuffle('01234567') . 'A');
-            $user->setPhone($faker->phoneNumber);
+            $user->setPhone(random_int(600000000, 799999999));
         }
         $user->setPrefix('34');
         $user->setPublicPhone(true);
