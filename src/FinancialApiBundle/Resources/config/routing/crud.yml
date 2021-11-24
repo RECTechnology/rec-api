@@ -42,6 +42,18 @@ dashboard_v3_timeseries_transactions:
         intervalName: "(year|month|day)"
 
 
+##################### KYC / V3 /  ############################
+
+kycs_v3_update:
+    path:  /{role}/v3/kycs/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\KYCsController::updateAction }
+    methods: [PUT]
+    requirements:
+        role: "(user)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+
+
 ##################### ACCOUNTS/WITHDRAWALS / V3 / (OVERRIDES ACCOUNTS) ############################
 
 accounts_v3_withdrawals:
