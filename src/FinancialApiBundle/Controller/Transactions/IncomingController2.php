@@ -1280,36 +1280,40 @@ class IncomingController2 extends RestApiController{
      */
     public function checkCampaign(EntityManagerInterface $em, $method_cname, $amount, $user_id, $group): void
     {
-        $campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
+        $ltab_campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
             'name' => Campaign::BONISSIM_CAMPAIGN_NAME
         ));
 
         $active_campaign = false;
-        if(isset($campaign)){
-            $init = $campaign->getInitDate();
-            $end = $campaign->getEndDate();
+        if(isset($ltab_campaign)){
+            $init = $ltab_campaign->getInitDate();
+            $end = $ltab_campaign->getEndDate();
             $now = new DateTime('NOW');
-            $campaign_account = $em->getRepository(Group::class)->find($campaign->getCampaignAccount());
+            $campaign_account = $em->getRepository(Group::class)->find($ltab_campaign->getCampaignAccount());
             $balance = $campaign_account->getWallet('REC')->getBalance() / 1e6;  //  1e6 = 1REC / 100
             if($init < $now && $now < $end && $amount < $balance){
                 $active_campaign = true;
             }
         }
 
-        if($group->getType() == Group::ACCOUNT_TYPE_PRIVATE && $method_cname == "lemonway" && $active_campaign) {
+        $culture_campaign = $em->getRepository('FinancialApiBundle:Campaign')->findOneBy(array(
+            'name' => Campaign::CULTURE_CAMPAIGN_NAME
+        ));
+        $is_culture_account = in_array($group, $culture_campaign->getAccounts()->getValues());
+        if($group->getType() == Group::ACCOUNT_TYPE_PRIVATE && $method_cname == "lemonway" && $active_campaign && !$is_culture_account) {
             $bonissim_private_account = $em->getRepository(Group::class)->findOneBy(array(
                 'type' => Group::ACCOUNT_TYPE_PRIVATE, 'kyc_manager' => $user_id, 'name' => Campaign::BONISSIM_CAMPAIGN_NAME));
             if (isset($bonissim_private_account)){ // user has bonissim account
                 $redeemable_amount = $bonissim_private_account->getRedeemableAmount();
-                $allowed_amount = min($amount / 100, $campaign->getMax() -
+                $allowed_amount = min($amount / 100, $ltab_campaign->getMax() -
                     ($bonissim_private_account->getRewardedAmount() + $redeemable_amount));
-                $bonissim_private_account->setRedeemableAmount(min($allowed_amount + $redeemable_amount, $campaign->getMax()));
+                $bonissim_private_account->setRedeemableAmount(min($allowed_amount + $redeemable_amount, $ltab_campaign->getMax()));
                 $em->persist($bonissim_private_account);
                 $em->flush();
             }
-            elseif($amount >= $campaign->getMin() * 100) {
+            elseif($amount >= $ltab_campaign->getMin() * 100) {
                 $this->container->get('bonissim_service')->CreateCampaignAccount($user_id,
-                    Campaign::BONISSIM_CAMPAIGN_NAME, min($amount / 100, $campaign->getMax()));
+                    Campaign::BONISSIM_CAMPAIGN_NAME, min($amount / 100, $ltab_campaign->getMax()));
             }
         }
     }
