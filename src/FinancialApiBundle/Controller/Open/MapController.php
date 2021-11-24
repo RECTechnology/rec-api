@@ -71,6 +71,7 @@ class MapController extends BaseApiController{
 
         $and->add($like);
         $and->add($qb->expr()->eq('a.on_map', 1));
+        $and->add($qb->expr()->eq('a.active', 1));
         //geo query
         $and->add($qb->expr()->gt('a.latitude', $rect_box[0]));
         $and->add($qb->expr()->lt('a.latitude', $rect_box[2]));
