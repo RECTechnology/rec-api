@@ -952,6 +952,10 @@ class AccountController extends BaseApiController {
             $em->persist($kyc);
         }
 
+        if($request->request->has('zip') && $request->request->get('zip') !== ''){
+            $kyc->setZip($request->request->get('zip'));
+        }
+
         if($request->request->has('document_front') && $request->request->get('document_front')!=''){
             $kyc->setDocumentFront($request->request->get('document_front'));
             $kyc->setDocumentFrontStatus('pending');

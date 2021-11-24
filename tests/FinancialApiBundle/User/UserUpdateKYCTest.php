@@ -35,4 +35,23 @@ class UserUpdateKYCTest extends BaseApiTest
         $output = $this->runCommand('rec:mailing:send');
         self::assertRegExp("/Processing 0 mailings/", $output);
     }
+
+    function testUpdateZip(){
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $resp = $this->rest(
+            'POST',
+            '/user/v1/save_kyc',
+            [
+                'zip' => 46500
+
+            ]
+        );
+
+        $userInfo = $this->rest(
+            'GET',
+            '/user/v1/account'
+        );
+
+        self::assertEquals(46500, $userInfo->kyc_validations->zip);
+    }
 }

@@ -200,6 +200,13 @@ class KYC implements Uploadable {
     private $street_name = "";
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @Expose
+     * @Groups({"user"})
+     */
+    private $zip;
+
+    /**
      * @ORM\Column(type="boolean")
      * @Expose
      * @Groups({"user"})
@@ -802,5 +809,21 @@ class KYC implements Uploadable {
             'document_front' => UploadManager::$FILTER_DOCUMENTS,
             'document_rear' => UploadManager::$FILTER_DOCUMENTS,
         ];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getZip()
+    {
+        return $this->zip;
+    }
+
+    /**
+     * @param mixed $zip
+     */
+    public function setZip($zip): void
+    {
+        $this->zip = $zip;
     }
 }
