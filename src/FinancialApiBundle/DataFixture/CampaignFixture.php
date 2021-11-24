@@ -34,10 +34,10 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $user = $orm->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
 
-        $campaign = $this->createCampaign($orm, Campaign::BONISSIM_CAMPAIGN_NAME);
+        $ltab_campaign = $this->createCampaign($orm, Campaign::BONISSIM_CAMPAIGN_NAME);
         $culture_campaign = $this->createCampaign($orm, Campaign::CULTURE_CAMPAIGN_NAME);
 
-        $this->createRelations($orm, $campaign);
+        $this->createRelations($orm, $ltab_campaign, $culture_campaign);
 
         $orm->flush();
     }
@@ -58,7 +58,7 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
             $campaign->setRedeemablePercentage(50);
             $campaign->setMax(100);
             $ltab_account = $orm->getRepository(Group::class)
-                ->findOneBy(['name' =>"LTAB"]);
+                ->findOneBy(['name' =>"CULT21"]);
             $campaign->setCampaignAccount($ltab_account->getId());
             $campaign->setCode('CULT21');
         }
@@ -82,9 +82,10 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
 
     /**
      * @param ObjectManager $orm
-     * @param Campaign $campaign
+     * @param Campaign $ltab_campaign
+     * @param Campaign $culture_campaign
      */
-    private function createRelations(ObjectManager $orm, Campaign $campaign): void
+    private function createRelations(ObjectManager $orm, Campaign $ltab_campaign, Campaign $culture_campaign): void
     {
 
         $bonissim_organization_account = $orm->getRepository(Group::class)
@@ -102,23 +103,35 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $ltab_private_with_store = $orm->getRepository(Group::class)
             ->findOneBy(['name' =>AccountFixture::TEST_ACCOUNT_LTAB_PRIVATE['name'].'_store']);
 
+        $culture_organization_account = $orm->getRepository(Group::class)
+            ->findOneBy(['type' => Group::ACCOUNT_TYPE_ORGANIZATION, 'name' => AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']]);
+
+        $culture_admin_account = $orm->getRepository(Group::class)
+            ->findOneBy(['name' => 'CULT21']);
+
         $accountsInCampaign = array();
         $accountsInCampaign[] = $bonissim_organization_account;
         $accountsInCampaign[] = $bonissim_organization_account_ltab;
         $accountsInCampaign[] = $ltab_private_with_store;
 
         foreach ($bonissim_private_accounts as $account){
-            $account->setCampaigns([$campaign]);
+            $account->setCampaigns([$ltab_campaign]);
             $accountsInCampaign[] = $account;
         }
-        $bonissim_organization_account->setCampaigns([$campaign]);
-        $bonissim_organization_account_ltab->setCampaigns([$campaign]);
-        $ltab_private_with_store->setCampaigns([$campaign]);
+        $bonissim_organization_account->setCampaigns([$ltab_campaign]);
+        $bonissim_organization_account_ltab->setCampaigns([$ltab_campaign]);
+        $ltab_private_with_store->setCampaigns([$ltab_campaign]);
 
-        $campaign->setAccounts($accountsInCampaign);
-        $campaign->setCampaignAccount($ltab_account->getId());
 
-        $orm->persist($campaign);
+        $ltab_campaign->setAccounts($accountsInCampaign);
+        $ltab_campaign->setCampaignAccount($ltab_account->getId());
+
+        $culture_admin_account->setCampaigns([$culture_campaign]);
+        $culture_organization_account->setCampaigns([$culture_campaign]);
+        $culture_campaign->setAccounts([$culture_organization_account, $culture_admin_account]);
+
+        $orm->persist($ltab_campaign);
+        $orm->persist($culture_campaign);
         $orm->flush();
     }
 }

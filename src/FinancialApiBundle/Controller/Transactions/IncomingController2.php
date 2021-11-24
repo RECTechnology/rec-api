@@ -6,6 +6,7 @@ use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\SmsTemplates;
+use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use App\FinancialApiBundle\Exception\AppException;
 use DateTime;
@@ -43,9 +44,11 @@ class IncomingController2 extends RestApiController{
      * @return string|Response
      */
     public function make(Request $request, $version_number, $type, $method_cname){
-        /*if($method_cname == 'lemonway' and $type == 'in'){
-            throw new HttpException(423, 'Este servicio esta en mantenimiento');
-        }*/
+        $params = $request->request->all();
+        if($method_cname == 'lemonway' and $type == 'in'){
+            //throw new HttpException(423, 'Este servicio esta en mantenimiento');
+            $params["commerce_id"] = $this->setExchanger($params["company_id"]);
+        }
         $user = $this->get('security.token_storage')->getToken()->getUser();
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER'))
             throw new HttpException(403, 'You don\'t have the necessary permissions');
@@ -59,7 +62,7 @@ class IncomingController2 extends RestApiController{
         }
         //check if this user has this company
         $this->_checkPermissions($user, $group);
-        $params = $request->request->all();
+
         return $this->createTransaction($params, $version_number, $type, $method_cname, $user->getId(), $group, $request->getClientIp());
     }
 
@@ -1515,17 +1518,27 @@ class IncomingController2 extends RestApiController{
 
         //out trx -> group is sender
         //in trx -> group is receiver
-        if($method_cname == "rec" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE){
-            // sender is private in campaign
-            if($type == "out" && in_array($group, $campaign->getAccounts()->toArray())) {
-
-                $destination = $em->getRepository(Group::class)->findOneBy(['rec_address' => $params['address']]);
-                // reciver not in campaign
-                if (!in_array($destination, $campaign->getAccounts()->toArray())) {
-                    throw new HttpException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+        if($method_cname == "rec"){
+            if(in_array($group, $campaign->getAccounts()->toArray())) {
+                $id_group_root = $this->container->getParameter('id_group_root');
+                // sender is private in campaign
+                if ($type == "out" and $group->getId() != $id_group_root) {
+                    $receiver = $em->getRepository(Group::class)->findOneBy(['rec_address' => $params['address']]);
+                    // receiver not in campaign
+                    if (!in_array($receiver, $campaign->getAccounts()->toArray())) {
+                        throw new HttpException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+                    }
+                }
+                if ($type == "in") {
+                    $sender = $em->getRepository(Group::class)->find($params['sender']);
+                    if ($sender->getId() != $id_group_root) {
+                        // sender not in campaign
+                        if (!in_array($sender, $campaign->getAccounts()->toArray())) {
+                            throw new HttpException(Response::HTTP_BAD_REQUEST, "Sender account not in Campaign");
+                        }
+                    }
                 }
             }
-
         }
     }
 
@@ -1579,6 +1592,46 @@ class IncomingController2 extends RestApiController{
 
             }
         }
+    }
+
+    /**
+     * @param $receiver_id
+     * @return int
+     * @throws \Exception
+     */
+    private function setExchanger($receiver_id): int
+    {
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+        $kyc2_id = $em->getRepository(Tier::class)->findOneBy(array('code' => 'KYC2'));
+
+        $exchangers = $em->getRepository(Group::class)->findBy([
+            'type' => 'COMPANY',
+            'level' => $kyc2_id->getId(),
+            'active' => 1]);
+
+        if (count($exchangers) == 0) {
+            throw new HttpException(403, '"No qualified exchanger found.');
+        }
+
+        $culture_campaign = $em->getRepository(Campaign::class)->findOneBy(array('name' => Campaign::CULTURE_CAMPAIGN_NAME));
+        $receiver_account = $em->getRepository(Group::class)->find($receiver_id);
+
+        if (in_array($culture_campaign, $receiver_account->getCampaigns()->getValues())) {
+            $valid_exchangers = [];
+            foreach ($exchangers as $exchanger) {
+                if (in_array($culture_campaign, $exchanger->getCampaigns()->getValues())) {
+                    array_push($valid_exchangers, $exchanger);
+                }
+            }
+            if (count($valid_exchangers) == 0) {
+                throw new HttpException(403, 'Exchanger in campaign not found.');
+            }
+            $exchanger_id = $valid_exchangers[random_int(0, count($valid_exchangers) - 1)]->getId();
+        } else {
+            $exchanger_id = $exchangers[random_int(0, count($exchangers) - 1)]->getId();
+        }
+        return  $exchanger_id;
     }
 
 

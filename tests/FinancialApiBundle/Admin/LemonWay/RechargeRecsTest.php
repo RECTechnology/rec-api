@@ -2,6 +2,7 @@
 
 namespace Test\FinancialApiBundle\Admin\LemonWay;
 
+use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use App\FinancialApiBundle\Document\Transaction;
@@ -169,21 +170,20 @@ class RechargeRecsTest extends AdminApiTest {
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
 
-        $company_accounts = $this->rest('GET', "/user/v3/accounts?name=COMMERCEACCOUNT");
-        self::assertGreaterThanOrEqual(1, count($company_accounts));
-        // store account
-        $company_account_id = $company_accounts[0]->id;
+        $culture_commerce_account = $this->rest('GET', "/user/v3/groups/search?name=".AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']);
+        self::assertEquals(sizeof($culture_commerce_account), 1);
 
         $data = ['status' => Transaction::$STATUS_RECEIVED,
             'company_id' => $private_culture_account_id,
             'amount' => $transaccion_amount * 100, // 2 decimals
-            'commerce_id' => $company_account_id,
+            'commerce_id' => $culture_commerce_account[0]->id,
             'concept' => 'test recharge',
             'pin' => $user_pin,
             'save_card' => 0];
 
 
         //update mock
+
         $this->useLemonWayMock($data);
         //make first recharge
         $this->executeRecharge($data);
@@ -193,6 +193,8 @@ class RechargeRecsTest extends AdminApiTest {
         self::assertEquals(250, $private_culture_accounts[0]->wallets[0]->balance / 1e8);
 
         // limits
+        $this->receiveFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
+
         $this->sendFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
 
     }
@@ -231,5 +233,30 @@ class RechargeRecsTest extends AdminApiTest {
         );
     }
 
+    /**
+     * @param $private_culture_accounts
+     */
+    private function receiveFromCultureAccountToNoCultureAccountShouldFail($private_culture_account): void
+    {
 
+        $no_culture_commerce_account = $this->rest('GET', "/user/v3/groups/search?name=".AccountFixture::TEST_ACCOUNT_COMMERCE['name']);
+        self::assertEquals(sizeof($no_culture_commerce_account), 1);
+
+        // changing the active account for the current user
+        $this->rest('PUT', '/user/v1/activegroup', ['group_id' => $no_culture_commerce_account[0]->id]);
+
+        //pay to commerce
+        $resp = $this->rest(
+            'POST',
+            '/methods/v1/out/rec',
+            [
+                'address' => $private_culture_account->rec_address,
+                'amount' => 1e8,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_ADMIN_CREDENTIALS['pin']
+            ],
+            [],
+            400
+        );
+    }
 }

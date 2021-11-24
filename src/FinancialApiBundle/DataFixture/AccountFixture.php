@@ -28,7 +28,9 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     const ACCOUNT_SUBTYPE_RETAILER = 'RETAILER';
 
     const TEST_ACCOUNT_LTAB_COMMERCE = ['name' => 'account_org_in_ltab'];
+    const TEST_ACCOUNT_CULT21_COMMERCE = ['name' => 'account_org_in_cult21'];
     const TEST_ACCOUNT_LTAB_PRIVATE = ['name' => 'account_in_ltab'];
+    const TEST_ACCOUNT_COMMERCE = ['name' => 'COMMERCEACCOUNT'];
 
 
     /**
@@ -101,7 +103,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_TYPE_ORGANIZATION,
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2,
-            'COMMERCEACCOUNT'
+            self::TEST_ACCOUNT_COMMERCE['name']
         );
 
         //This user has a private USER account and is locked by password failures
@@ -184,6 +186,30 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             2,
             self::TEST_ACCOUNT_LTAB_COMMERCE['name'],
             1000e8
+        );
+
+        $this->createAccount(
+            $orm,
+            $faker,
+            $admin,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_RETAILER,
+            2,
+            self::TEST_ACCOUNT_CULT21_COMMERCE['name'],
+            1000e8
+        );
+
+        $this->createAccount(
+            $orm,
+            $faker,
+            $admin,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_WHOLESALE,
+            2,
+            "CULT21",
+            100000e8
         );
 
         //This one has to be the last one because some tests like #testCountryNotValid are expecting this
