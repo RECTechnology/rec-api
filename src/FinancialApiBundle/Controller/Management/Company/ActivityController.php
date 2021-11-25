@@ -126,4 +126,37 @@ class ActivityController extends BaseApiController{
             return $this->restV2(200, "ok", "Done", $activities);
 
         }
+
+
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     */
+    public function searchAdminActivitiesV4(Request $request){
+        $parent_id =$request->query->get('parent_id');
+        $em = $this->getDoctrine()->getManager();
+        $activities = [];
+        if(isset($parent_id) ){
+            if(is_numeric($parent_id)){
+                $parent = $em->getRepository(Activity::class)->find($parent_id);
+
+                if ($parent){
+                    $activities = $em->getRepository(Activity::class)->findBy(array(
+                        "parent"=>$parent_id
+                    ));
+
+                    array_push($activities, $parent);
+                }
+            }elseif($parent_id == 'null'){
+                $activities = $em->getRepository(Activity::class)->findBy(array(
+                    "parent"=> null
+                ));
+            }
+        }else{
+            $activities = $em->getRepository(Activity::class)->findAll();
+        }
+        return $this->restV2(200, "ok", "Done", $activities);
+
+    }
 }

@@ -197,3 +197,8 @@ admin_create_delegate_change_data_from_csv:
     path:  /admin/v1/delegated_change_data/csv
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::importAction }
     methods: [POST]
+
+admin_search_activities:
+    path: /admin/v4/activities/search
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ActivityController::searchAdminActivitiesV4 }
+    methods: [ GET ]
