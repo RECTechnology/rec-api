@@ -118,4 +118,24 @@ class UserUpdateKYCTest extends BaseApiTest
         self::assertEquals(46500, $userInfo->kyc_validations->zip);
     }
 
+    function testUpdateKycWrongValues()
+    {
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = '/user/v3/kycs/1';
+        $params = [
+            "gender" => "MF"
+        ];
+        $resp = $this->requestJson('PUT', $route, $params);
+
+        self::assertEquals(
+            400,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        self::assertStringContainsString(
+            "Invalid value for gender, valid options: M, F, NB",
+            $resp->getContent()
+        );
+    }
 }

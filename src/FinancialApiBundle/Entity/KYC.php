@@ -8,6 +8,7 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Groups;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -222,6 +223,10 @@ class KYC implements Uploadable {
 
     /**
      * @ORM\Column(type="string")
+     * @Assert\Choice(
+     *     choices={"M", "F", "NB"},
+     *     message="Invalid value for gender, valid options: M, F, NB"
+     * )
      * @Expose
      * @Groups({"user"})
      */
