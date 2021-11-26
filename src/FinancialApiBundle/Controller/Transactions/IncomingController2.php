@@ -45,10 +45,7 @@ class IncomingController2 extends RestApiController{
      */
     public function make(Request $request, $version_number, $type, $method_cname){
         $params = $request->request->all();
-        if($method_cname == 'lemonway' and $type == 'in'){
-            //throw new HttpException(423, 'Este servicio esta en mantenimiento');
-            $params["commerce_id"] = $this->setExchanger($params["company_id"]);
-        }
+
         $user = $this->get('security.token_storage')->getToken()->getUser();
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER'))
             throw new HttpException(403, 'You don\'t have the necessary permissions');
@@ -59,6 +56,9 @@ class IncomingController2 extends RestApiController{
             if(!$group) throw new HttpException(404, 'Company not found');
         }else{
             $group = $this->_getCurrentCompany($user);
+        }
+        if($method_cname == 'lemonway' and $type == 'in'){
+            $params["commerce_id"] = $this->setExchanger($group->getId());
         }
         //check if this user has this company
         $this->_checkPermissions($user, $group);
