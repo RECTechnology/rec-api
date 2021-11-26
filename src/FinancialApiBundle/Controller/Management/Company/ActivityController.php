@@ -156,7 +156,7 @@ class ActivityController extends BaseApiController{
         }else{
             $activities = $em->getRepository(Activity::class)->findAll();
         }
-        return $this->restV2(200, "ok", "Done", $activities);
+        return $this->restV2(200, "ok", "Done", $this->secureOutput($activities));
 
     }
 }
