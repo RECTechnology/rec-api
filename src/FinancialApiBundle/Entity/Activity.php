@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\FinancialApiBundle\Annotations as REC;
+use JMS\Serializer\Annotation\Exclude;
 
 /**
  * Class Activity
@@ -104,6 +105,7 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
      *     mappedBy="default_producing_by",
      *     fetch="EXTRA_LAZY"
      * )
+     * @Exclude
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
@@ -115,6 +117,7 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
      *     mappedBy="default_consuming_by",
      *     fetch="EXTRA_LAZY"
      * )
+     * @Exclude
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
