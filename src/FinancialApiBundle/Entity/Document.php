@@ -30,7 +30,7 @@ class Document extends AppObject implements Uploadable, Stateful {
      *     "rec_submitted"={"final"=false, "to"={"rec_declined", "rec_expired", "rec_approved"}},
      *     "rec_declined"={"final"=false, "to"={"rec_submitted"}},
      *     "rec_expired"={"final"=false, "to"={"rec_submitted"}},
-     *     "rec_approved"={"final"=true},
+     *     "rec_approved"={"final"=false, "to"={"rec_expired"}},
      * }, initial_statuses={"rec_submitted"})
      * @Serializer\Groups({"user"})
      */
