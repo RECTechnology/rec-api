@@ -1470,17 +1470,16 @@ class IncomingController2 extends RestApiController{
 
         if ($user->getPinFailures() >= $max_attempts) {
             $user->lockUser();
+            
+            $sms_template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => 'pin_max_failures']);
+            if (!$sms_template) {
+                throw new HttpException(404, 'SMS template not found');
+            }
 
-            $sms_text = $em->getRepository('FinancialApiBundle:SmsTemplates')
-                ->findOneBy(['type' => 'pin_max_failures'])->getBody();
+            $sms_text = $sms_template->getBody();
             $code = strval(random_int(100000, 999999));
             $user->setLastSmscode($code);
             $em->persist($user);
-
-            $template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => 'pin_failures']);
-            if (!$template) {
-                throw new HttpException(404, 'Template not found');
-            }
 
             $sms_text = str_replace("%SMS_CODE%", $code, $sms_text);
             UsersController::sendSMSv4($user->getPrefix(), $user->getPhone(), $sms_text, $this->container);
