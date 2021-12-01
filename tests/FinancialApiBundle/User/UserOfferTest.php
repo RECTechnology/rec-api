@@ -163,6 +163,24 @@ class UserOfferTest extends BaseApiTest
 
     }
 
+    function testCreateOfferFromWorkerShouldFail(){
+        $this->signIn(UserFixture::TEST_SECOND_USER_CREDENTIALS);
+
+        $resp = $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "free"
+            ],
+            [],
+            403
+        );
+
+    }
+
     function indexOffer()
     {
         $resp = $this->rest(
@@ -183,6 +201,31 @@ class UserOfferTest extends BaseApiTest
             [],
             200
         );
+    }
+
+    function testUpdateOfferFromWorkerShouldFail(){
+
+        $resp = $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "free"
+            ],
+            [],
+            200
+        );
+        $this->signIn(UserFixture::TEST_SECOND_USER_CREDENTIALS);
+        $resp = $this->rest(
+            'PUT',
+            '/company/v4/offers/4',
+            ['type' => "percentage", "discount" => 10],
+            [],
+            403
+        );
+
     }
 
     function testUpdateOfferFromFreeToPercentage(){
@@ -420,4 +463,30 @@ class UserOfferTest extends BaseApiTest
         );
 
     }
+
+    function testDeleteOfferFromWorkerShouldFail(){
+
+        $resp = $this->rest(
+            'POST',
+            '/company/v4/offers',
+            [
+                'end' => "2021-06-06",
+                'description' => "descuento...",
+                'image' => "https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg",
+                'type' => "free"
+            ],
+            [],
+            200
+        );
+        $this->signIn(UserFixture::TEST_SECOND_USER_CREDENTIALS);
+        $resp = $this->rest(
+            'DELETE',
+            '/company/v4/offers/4',
+            [],
+            [],
+            403
+        );
+
+    }
+
 }

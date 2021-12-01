@@ -47,7 +47,8 @@ class OfferController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
         /** @var Offer $offer */
         $offer = $em->getRepository('FinancialApiBundle:Offer')->find($offer_id);
-        if($offer->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() )
+
+        if($offer->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() || !$this->isGranted('ROLE_ADMIN') )
             throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         if(!$offer) throw new HttpException(404, 'Offer not found');
@@ -94,6 +95,10 @@ class OfferController extends BaseApiController{
     public function deleteActionV4($offer_id){
         $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        if(!$this->isGranted('ROLE_ADMIN') )
+            throw new HttpException(403, 'You don\'t have the necessary permissions');
+
         $offer = $em->getRepository('FinancialApiBundle:Offer')->findOneBy(array(
             'id'    =>  $offer_id,
             'company' =>  $user->getActiveGroup()
@@ -111,6 +116,9 @@ class OfferController extends BaseApiController{
     public function registerOfferV4(Request $request)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        if(!$this->isGranted('ROLE_ADMIN') )
+            throw new HttpException(403, 'You don\'t have the necessary permissions');
         $group = $user->getActiveGroup();
 
         $paramNames = array(

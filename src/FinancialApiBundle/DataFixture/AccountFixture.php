@@ -46,6 +46,9 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $user = $orm->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
 
+        $worker_user = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_SECOND_USER_CREDENTIALS['username']]);
+
         //This user has a private USER account, a bonissim account and a bmincomer account
         $this->createAccount(
             $orm,
@@ -56,7 +59,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_NORMAL,
             1,
             $faker->name,
-            1000e8
+            1000e8,
+            $worker_user
         );
         $this->createAccount(
             $orm,
@@ -241,7 +245,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
      * @param float $balance
      * @throws \Exception
      */
-    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles = [], string $type = self::ACCOUNT_TYPE_PRIVATE, string $subtype = self::ACCOUNT_SUBTYPE_NORMAL, int $tier = 1, string $name = null, float $balance=100e8){
+    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles = [], string $type = self::ACCOUNT_TYPE_PRIVATE, string $subtype = self::ACCOUNT_SUBTYPE_NORMAL, int $tier = 1, string $name = null, float $balance=100e8, User $worker_user=null){
 
         $account = new Account();
 
@@ -274,6 +278,14 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $userAccount->setUser($user);
         //TODO: This must not be hard coded, it should be dinamic depending the org
         $userAccount->setRoles(['ROLE_ADMIN']); //User is admin in the account
+
+        if($worker_user){
+            $workerAccount = new UserGroup();
+            $workerAccount->setGroup($account);
+            $workerAccount->setUser($worker_user);
+            $workerAccount->setRoles(['ROLE_WORKER']);
+            $worker_user->setActiveGroup($account);
+        }
 
         if(!$user->getKycValidations()) {
             $kyc = new KYC();
