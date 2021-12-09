@@ -193,9 +193,9 @@ class RechargeRecsTest extends AdminApiTest {
         self::assertEquals(250, $private_culture_accounts[0]->wallets[0]->balance / 1e8);
 
         // limits
+        $this->sendFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
         $this->receiveFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
 
-        $this->sendFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
 
     }
 
@@ -213,7 +213,7 @@ class RechargeRecsTest extends AdminApiTest {
             }
         }
         self::assertTrue(isset($not_culture_account));
-
+        $init_balance = $private_culture_accounts->wallets[0]->balance;
 
         // changing the active account for the current user
         $this->rest('PUT', '/user/v1/activegroup', ['group_id' => $private_culture_accounts->id]);
@@ -231,6 +231,21 @@ class RechargeRecsTest extends AdminApiTest {
             [],
             400
         );
+        $not_culture_account = $this->rest('GET', "/user/v3/groups/search?id=".$not_culture_account->id);
+        self::assertEquals(sizeof($not_culture_account), 1);
+
+        $this->runCommand('rec:crypto:check');
+        $this->runCommand('rec:crypto:check');
+
+        $userInfo = json_decode($this->requestJson('GET', "/user/v1/account")->getContent(),true);
+        $fin_balance = -1;
+        foreach ($userInfo["data"]["accounts"] as $account) {
+            if ($account["id"] == $private_culture_accounts->id) {
+                $fin_balance = $account["wallets"][0]["balance"];
+            }
+        }
+        self::assertEquals($init_balance, $fin_balance);
+
     }
 
     /**
@@ -238,12 +253,15 @@ class RechargeRecsTest extends AdminApiTest {
      */
     private function receiveFromCultureAccountToNoCultureAccountShouldFail($private_culture_account): void
     {
-
         $no_culture_commerce_account = $this->rest('GET', "/user/v3/groups/search?name=".AccountFixture::TEST_ACCOUNT_COMMERCE['name']);
         self::assertEquals(sizeof($no_culture_commerce_account), 1);
 
+        $init_balance = $private_culture_account->wallets[0]->balance;
+
         // changing the active account for the current user
         $this->rest('PUT', '/user/v1/activegroup', ['group_id' => $no_culture_commerce_account[0]->id]);
+
+
 
         //pay to commerce
         $resp = $this->rest(
@@ -258,5 +276,17 @@ class RechargeRecsTest extends AdminApiTest {
             [],
             400
         );
+
+        $this->runCommand('rec:crypto:check');
+        $this->runCommand('rec:crypto:check');
+
+        $userInfo = json_decode($this->requestJson('GET', "/user/v1/account")->getContent(),true);
+        $fin_balance = -1;
+        foreach ($userInfo["data"]["accounts"] as $account) {
+            if ($account["id"] == $private_culture_account->id) {
+                $fin_balance = $account["wallets"][0]["balance"];
+            }
+        }
+        self::assertEquals($init_balance, $fin_balance);
     }
 }

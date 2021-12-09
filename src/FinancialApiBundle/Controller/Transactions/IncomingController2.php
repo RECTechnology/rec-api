@@ -116,6 +116,10 @@ class IncomingController2 extends RestApiController{
 
 
     public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip, $order = null){
+
+        //check culture payment
+        $this->checkCultureCampaignConstraint($data, $group, $type, $method_cname);
+
         $logger = $this->get('transaction.logger');
         $group_id = $group->getId();
         $logger->info('(' . $group_id . ')(T) INIT');
@@ -610,9 +614,6 @@ class IncomingController2 extends RestApiController{
         $this->container->get('messenger')->notificate($transaction);
         $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
-
-        //check culture payment
-        $this->checkCultureCampaignConstraint($data, $group, $type, $method_cname);
 
         if($user_id == -1 || $ip == '127.0.0.1'){ // this is executed in the recursive call
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return string');
