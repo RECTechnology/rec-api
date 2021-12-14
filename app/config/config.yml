@@ -152,7 +152,7 @@ nelmio_cors:
         allow_origin: ['*']
         allow_headers: ['Origin', 'Content-Type', 'Accept', 'Authorization', 'X-Signature', 'Accept-Encoding', 'Accept-Language' ]
         allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS', 'HEAD']
-        max_age: 3600
+        max_age: 300
 
 fos_rest:
     access_denied_listener:
