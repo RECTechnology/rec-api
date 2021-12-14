@@ -24,6 +24,12 @@ class MapTest extends BaseApiTest {
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );
         self::assertFalse(str_contains($response->getContent(), '"id":6,'));
+        $accounts = json_decode($response->getContent(),true);
+        foreach ($accounts['data']['elements'] as $account){
+            if($account['name'] == AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']){
+                self::assertFalse($account['has_offers']);
+            }
+        }
     }
 
     public function testMapSearchOnlyWithOffersResponds200(){

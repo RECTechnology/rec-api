@@ -22,7 +22,7 @@ class OfferFixture extends Fixture implements DependentFixtureInterface {
     {
         $companies = $orm->getRepository(Group::class)->findBy(array(
             'type' => AccountFixture::ACCOUNT_TYPE_ORGANIZATION,
-        ),array(),3);
+        ),array(),6);
 
         /** @var Group $company */
         foreach ($companies as $company){
@@ -43,7 +43,11 @@ class OfferFixture extends Fixture implements DependentFixtureInterface {
         $offer->setDescription('bla bla bla');
         $offer->setCompany($company);
         $offer->setStart(new \DateTime('-2 days'));
-        $offer->setEnd(new \DateTime('+1 year'));
+        if($company->getName() == AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']){
+            $offer->setEnd(new \DateTime('-1 year'));
+        }else{
+            $offer->setEnd(new \DateTime('+1 year'));
+        }
         $offer->setImage('https://image.test/flower.jpg');
 
         $orm->persist($offer);

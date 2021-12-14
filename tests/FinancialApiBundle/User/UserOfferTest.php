@@ -244,7 +244,7 @@ class UserOfferTest extends BaseApiTest
 
         $resp = $this->rest(
             'PUT',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp->id,
             ['type' => "percentage", "discount" => 10],
             [],
             200
@@ -253,7 +253,7 @@ class UserOfferTest extends BaseApiTest
     }
 
     function testUpdateOfferFromFreeToClassic(){
-        $this->rest(
+        $resp_ = $this->rest(
             'POST',
             '/company/v4/offers',
             [
@@ -265,10 +265,10 @@ class UserOfferTest extends BaseApiTest
             [],
             200
         );
-
+        echo'';
         $resp = $this->rest(
             'PUT',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp_->id,
             ['type' => "classic", "initial_price" => 0, "offer_price" => 7],
             [],
             400
@@ -279,7 +279,7 @@ class UserOfferTest extends BaseApiTest
         //offer price can be null or 0 because we can make a 100% discount
         $resp = $this->rest(
             'PUT',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp_->id,
             ['type' => "classic", "initial_price" => 10, "offer_price" => null],
             [],
             400
@@ -289,7 +289,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp_->id,
             ['type' => "classic", "initial_price" => 10, "offer_price" => 7],
             [],
             200
@@ -298,7 +298,7 @@ class UserOfferTest extends BaseApiTest
 
     function testUpdateOfferFromPercentageToFree()
     {
-        $this->rest(
+        $resp = $this->rest(
             'POST',
             '/company/v4/offers',
             [
@@ -314,7 +314,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp->id,
             ['type' => "free"],
             [],
             200
@@ -325,7 +325,7 @@ class UserOfferTest extends BaseApiTest
 
     function testUpdateOfferFromPercentageToClassic()
     {
-        $this->rest(
+        $resp = $this->rest(
             'POST',
             '/company/v4/offers',
             [
@@ -341,7 +341,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp->id,
             ['type' => "classic", "initial_price" => 10, "offer_price" => 7],
             [],
             200
@@ -351,7 +351,7 @@ class UserOfferTest extends BaseApiTest
 
     function testUpdateOfferFromClassicToFree()
     {
-        $this->rest(
+        $resp = $this->rest(
             'POST',
             '/company/v4/offers',
             [
@@ -368,7 +368,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp->id,
             ['type' => "free"],
             [],
             200
@@ -378,7 +378,7 @@ class UserOfferTest extends BaseApiTest
 
     function testUpdateOfferFromClassicToPercentage()
     {
-        $this->rest(
+        $resp = $this->rest(
             'POST',
             '/company/v4/offers',
             [
@@ -395,7 +395,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp->id,
             ['type' => "percentage", "discount" => 20],
             [],
             200
@@ -435,7 +435,7 @@ class UserOfferTest extends BaseApiTest
 
     function testUpdateClassicOffer()
     {
-        $this->rest(
+        $resp = $this->rest(
             'POST',
             '/company/v4/offers',
             [
@@ -452,7 +452,7 @@ class UserOfferTest extends BaseApiTest
 
         $this->rest(
             'PUT',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp->id,
             [
                 'type' => "classic",
                 'initial_price' => 12,
@@ -481,7 +481,7 @@ class UserOfferTest extends BaseApiTest
         $this->signIn(UserFixture::TEST_SECOND_USER_CREDENTIALS);
         $resp = $this->rest(
             'DELETE',
-            '/company/v4/offers/4',
+            '/company/v4/offers/'.$resp->id,
             [],
             [],
             403

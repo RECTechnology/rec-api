@@ -215,6 +215,7 @@ class AccountsController extends CRUDController {
         $and->add($qb->expr()->lt('a.longitude', $rect_box[3]));
 
         $and->add($qb->expr()->eq('a.type', $qb->expr()->literal('COMPANY')));
+        //$and->add($qb->expr()->gt('o.end', date_format(new \DateTime('NOW'), 'Y-m-d')));
 
         if (isset($campaign)) $and->add($qb->expr()->eq('cp.id', $campaign));
         if (isset($campaign_code)) $and->add($qb->expr()->eq('cp.code', $qb->expr()->literal($campaign_code)));
@@ -231,6 +232,7 @@ class AccountsController extends CRUDController {
             'identity(a.activity_main) as activity, ' .
             'a AS account, ' .
             'o.active AS offer, ' .
+            'o.end, ' .
             'cp.name AS campaign'; // TODO Remove it when version higher than 2.1.0
 
         $qb = $qb
@@ -241,19 +243,25 @@ class AccountsController extends CRUDController {
             ->leftJoin('a.offers', 'o')
             ->where($and);
 
+        $now = new \DateTime('NOW');
+
         if ($only_with_offers == 1 || $only_with_offers == 'true') {
             $_and = $qb->expr()->andX();
             $_and->add($qb->expr()->eq('o2.company', 'a.id'));
             $_and->add($qb->expr()->eq('o2.active', 1));
 
+            $qb->setParameter('now', $now);
+            $_and->add('o2.end > :now');
+
             $qbAux = $em->createQueryBuilder()
                 ->select('count(o2)')
                 ->from(Offer::class, 'o2')
                 ->where($_and);
+
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
         }
 
-        $elements = $qb
+        $query_resp = $qb
             ->select($select)
             ->groupBy('a.id')
             ->orderBy('o.active', 'DESC')
@@ -283,13 +291,14 @@ class AccountsController extends CRUDController {
             }
             $same_activity_elements = [];
         }
-        $elements = $this->secureOutput($elements);
+        $elements = $this->secureOutput($query_resp);
         for ($i = 0; $i < sizeof($elements); $i++) {
             // TODO Remove it when version higher than 2.1.0
             $elements[$i]['in_ltab_campaign'] = array_key_exists("campaign", $elements[$i]) &&
                 $elements[$i]["campaign"] == Campaign::BONISSIM_CAMPAIGN_NAME;
             unset($elements[$i]['campaign']);
-            $elements[$i]['has_offers'] = array_key_exists("offer", $elements[$i]) and $elements[$i]['offer'];
+            $elements[$i]['has_offers'] = (array_key_exists("offer", $elements[$i]) and $elements[$i]['offer'] and $query_resp[$i]['end'] > $now);
+            unset($elements[$i]['end']);
 
             $account_campaigns = $elements[$i]["account"]["campaigns"];
             $campaigns_id_list = [];
