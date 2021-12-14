@@ -222,7 +222,7 @@ class KYC implements Uploadable {
     private $proof_of_residence = false;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Assert\Choice(
      *     choices={"M", "F", "NB"},
      *     message="Invalid value for gender, valid options: M, F, NB"
@@ -230,7 +230,7 @@ class KYC implements Uploadable {
      * @Expose
      * @Groups({"user"})
      */
-    private $gender = "M";
+    private $gender;
 
     /**
      * @ORM\Column(type="string")
