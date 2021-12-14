@@ -58,9 +58,20 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_TYPE_PRIVATE,
             self::ACCOUNT_SUBTYPE_NORMAL,
             1,
-            $faker->name,
+            'duplicated_name',
             1000e8,
             $worker_user
+        );
+        $this->createAccount(
+            $orm,
+            $faker,
+            $worker_user,
+            [],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_RETAILER,
+            1,
+            'duplicated_name',
+            1000e8
         );
         $this->createAccount(
             $orm,

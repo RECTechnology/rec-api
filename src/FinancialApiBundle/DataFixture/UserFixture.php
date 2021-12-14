@@ -13,13 +13,13 @@ use Faker\Generator;
 
 class UserFixture extends Fixture {
 
-    const TEST_USER_CREDENTIALS = ['username' => '01234567A', 'password' => 'user_user', 'pin' => '0123'];
-    const TEST_ADMIN_CREDENTIALS = ['username' => 'ADMINUSER', 'password' => 'admin_user', 'pin' => '3210'];
-    const TEST_USER_LOCKED_CREDENTIALS = ['username' => 'USERLOCKED', 'password' => 'user_locked', 'pin' => '1230'];
-    const TEST_USER_PHONE_NON_VALIDATED = ['username' => 'USERPHONENONVALIDATED', 'password' => 'user_phone_non_validated', 'pin' => '2301'];
-    const TEST_USER_LTAB_CREDENTIALS = ['username' => 'USERLTAB', 'password' => 'user_LTAB', 'pin' => '3012'];
-    const TEST_USER_LTAB_COMMERCE_CREDENTIALS = ['username' => 'USERLTABCOMMERCE', 'password' => 'user_LTAB_commerce', 'pin' => '0012'];
-    const TEST_SECOND_USER_CREDENTIALS = ['username' => '01234567B', 'password' => 'user_user', 'pin' => '0123'];
+    const TEST_USER_CREDENTIALS = ['name' => 'paco', 'username' => '01234567A', 'password' => 'user_user', 'pin' => '0123'];
+    const TEST_ADMIN_CREDENTIALS = ['name' => 'maria', 'username' => 'ADMINUSER', 'password' => 'admin_user', 'pin' => '3210'];
+    const TEST_USER_LOCKED_CREDENTIALS = ['name' => 'juan', 'username' => 'USERLOCKED', 'password' => 'user_locked', 'pin' => '1230'];
+    const TEST_USER_PHONE_NON_VALIDATED = ['name' => 'pepe', 'username' => 'USERPHONENONVALIDATED', 'password' => 'user_phone_non_validated', 'pin' => '2301'];
+    const TEST_USER_LTAB_CREDENTIALS = ['name' => 'eva', 'username' => 'USERLTAB', 'password' => 'user_LTAB', 'pin' => '3012'];
+    const TEST_USER_LTAB_COMMERCE_CREDENTIALS = ['name' => 'jose', 'username' => 'USERLTABCOMMERCE', 'password' => 'user_LTAB_commerce', 'pin' => '0012'];
+    const TEST_SECOND_USER_CREDENTIALS = ['name' => 'paco', 'username' => '01234567B', 'password' => 'user_user', 'pin' => '0123'];
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -56,7 +56,7 @@ class UserFixture extends Fixture {
     protected function generateUser(Generator $faker, $credentials): User
     {
         $user = new User();
-        $user->setName($faker->name);
+        $user->setName($credentials['name']);
         $user->setUsername($credentials['username']);
         $user->setEmail($faker->email);
         $user->setPlainPassword($credentials['password']);

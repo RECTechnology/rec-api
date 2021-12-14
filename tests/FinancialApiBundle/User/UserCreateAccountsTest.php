@@ -3,6 +3,7 @@
 namespace Test\FinancialApiBundle\User;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Tier;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3ReadTestInterface;
@@ -61,6 +62,25 @@ class UserCreateAccountsTest extends BaseApiTest
         );
         self::assertTrue(isset($resp->company));
         self::assertEquals(Tier::KYC_LEVELS[0], $resp->company->level->code);
+    }
+
+    function testAddUserToAccountHavingAccountWithSameName()
+    {
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+
+        $account = $this->rest('GET', "/user/v3/groups/search?name=duplicated_name&type=PRIVATE");
+        self::assertEquals(sizeof($account), 1);
+
+        $resp = $this->rest(
+            'POST',
+            '/manager/v1/groups/'.$account[0]->id,
+            [
+                'role' => 'ROLE_ADMIN',
+                'user_dni' => UserFixture::TEST_SECOND_USER_CREDENTIALS['username']
+            ],
+            [],
+            201
+        );
     }
 
 }

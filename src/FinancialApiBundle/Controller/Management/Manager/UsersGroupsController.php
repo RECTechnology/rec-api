@@ -72,8 +72,9 @@ class UsersGroupsController extends RestApiController{
         }
         if(in_array('ROLE_SUPER_ADMIN', $role_array)) throw new HttpException(403, 'Bad parameters');
 
-
-        if($user->hasGroup($company->getName())) throw new HttpException(409, "User already in group");
+        foreach($user->getGroups() as $Usergroup){
+            if($Usergroup->getId() == $company->getId()) throw new HttpException(409, "User already in group");
+        }
 
         $userGroup = new UserGroup();
         $userGroup->setUser($user);
