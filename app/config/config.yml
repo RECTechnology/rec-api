@@ -194,8 +194,6 @@ fos_oauth_server:
         user_provider: access_key.security.user_provider
         options:
             supported_scopes: panel
-            access_token_lifetime: 300
-            refresh_token_lifetime: 300
 
 sensio_framework_extra:
     view:    { annotations: false }
