@@ -509,5 +509,35 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     }
 
+    function testPrivateNoCultureAccountPayToCultureCommerceShouldFail(): void
+    {
+        $this->setClientIp($this->faker->ipv4);
+        $reciver = $this->getAsAdmin('/admin/v3/accounts?name='.AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name'])[0];
+        $sender = $this->getAsAdmin('/admin/v3/accounts?name='.UserFixture::TEST_THIRD_USER_CREDENTIALS['name'])[0];
+        $start_balance = $sender->wallets[0]->balance;
+        $this->signIn(UserFixture::TEST_THIRD_USER_CREDENTIALS);
+        echo'';
+        $resp = $this->rest(
+            'POST',
+            '/methods/v1/out/rec',
+            [
+                'address' => $reciver->rec_address,
+                'amount' => 10e8,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_THIRD_USER_CREDENTIALS['pin']
+            ],
+            [],
+            400
+        );
+
+        $this->runCommand('rec:crypto:check');
+        $this->runCommand('rec:crypto:check');
+
+        $_sender = $this->getAsAdmin('/admin/v3/accounts?name='.UserFixture::TEST_THIRD_USER_CREDENTIALS['name'])[0];
+        $end_balance = $_sender->wallets[0]->balance;
+        self::assertEquals($start_balance, $end_balance);
+
+    }
+
 
 }

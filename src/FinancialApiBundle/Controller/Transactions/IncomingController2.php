@@ -1523,23 +1523,19 @@ class IncomingController2 extends RestApiController{
         //out trx -> group is sender
         //in trx -> group is receiver
         if($method_cname == "rec"){
-            if(in_array($group, $campaign->getAccounts()->toArray())) {
-                $id_group_root = $this->container->getParameter('id_group_root');
-                // sender is private in campaign
-                if ($type == "out" and $group->getId() != $id_group_root) {
-                    $receiver = $em->getRepository(Group::class)->findOneBy(['rec_address' => $params['address']]);
-                    // receiver not in campaign
-                    if (!in_array($receiver, $campaign->getAccounts()->toArray())) {
+            $id_group_root = $this->container->getParameter('id_group_root');
+            if ($type == "out" and $group->getId() != $id_group_root) {
+                $receiver = $em->getRepository(Group::class)->findOneBy(['rec_address' => $params['address']]);
+                $sender_in_campaign = in_array($group, $campaign->getAccounts()->toArray());
+                $receiver_in_campaign = in_array($receiver, $campaign->getAccounts()->toArray());
+                if($sender_in_campaign) {
+                    if (!$receiver_in_campaign) {
                         throw new HttpException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
                     }
                 }
-                if ($type == "in") {
-                    $sender = $em->getRepository(Group::class)->find($params['sender']);
-                    if ($sender->getId() != $id_group_root) {
-                        // sender not in campaign
-                        if (!in_array($sender, $campaign->getAccounts()->toArray())) {
-                            throw new HttpException(Response::HTTP_BAD_REQUEST, "Sender account not in Campaign");
-                        }
+                if($receiver_in_campaign) {
+                    if(!$sender_in_campaign) {
+                        throw new HttpException(Response::HTTP_BAD_REQUEST, "Sender account not in Campaign");
                     }
                 }
             }

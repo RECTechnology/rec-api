@@ -49,6 +49,9 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $worker_user = $orm->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_SECOND_USER_CREDENTIALS['username']]);
 
+        $third_user = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_THIRD_USER_CREDENTIALS['username']]);
+
         //This user has a private USER account, a bonissim account and a bmincomer account
         $this->createAccount(
             $orm,
@@ -71,6 +74,17 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_RETAILER,
             1,
             'duplicated_name',
+            1000e8
+        );
+        $this->createAccount(
+            $orm,
+            $faker,
+            $third_user,
+            [],
+            self::ACCOUNT_TYPE_PRIVATE,
+            self::ACCOUNT_SUBTYPE_NORMAL,
+            1,
+            UserFixture::TEST_THIRD_USER_CREDENTIALS['name'],
             1000e8
         );
         $this->createAccount(
