@@ -2,6 +2,78 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.28.0](https://github.com/qbitartifacts/rec-api/compare/v2.27.0...v2.28.0) (2021-12-27)
+
+
+### Features
+
+* **AccountController:** check if account cultures is created ([#712](https://github.com/qbitartifacts/rec-api/issues/712)) ([49b3877](https://github.com/qbitartifacts/rec-api/commit/49b3877def78ab5070180e3416d71038f38a8334))
+* **AccountController:** update tos by campaign_code ([#718](https://github.com/qbitartifacts/rec-api/issues/718)) ([bf3a7f3](https://github.com/qbitartifacts/rec-api/commit/bf3a7f3b7b31b298cfe5623c290cb66b49dd7e9a))
+* **AccountsController:** return array for campaigns ([#674](https://github.com/qbitartifacts/rec-api/issues/674)) ([eaf370f](https://github.com/qbitartifacts/rec-api/commit/eaf370fa90766da883da29385bd78a3f3cec3889))
+* **activity:** migration for parent field to be self-referencing ([#687](https://github.com/qbitartifacts/rec-api/issues/687)) ([d7fdbb8](https://github.com/qbitartifacts/rec-api/commit/d7fdbb874e3437d84849e96dee60c7529cabf5af))
+* **Activity:** code for parent self-referencing  ([#686](https://github.com/qbitartifacts/rec-api/issues/686)) ([9827943](https://github.com/qbitartifacts/rec-api/commit/98279430e4dca885ada03d794188b3a3db212275))
+* **ActivityController:** admin v4 activity search ([#744](https://github.com/qbitartifacts/rec-api/issues/744)) ([e628055](https://github.com/qbitartifacts/rec-api/commit/e628055fb78ca51cedb16975f15a3a0b2623733a))
+* **ActivityController:** created /public/v4/activities/search endpoint ([#714](https://github.com/qbitartifacts/rec-api/issues/714)) ([1881bae](https://github.com/qbitartifacts/rec-api/commit/1881bae2f8c4a981f0c655cb7524ac1c374be50a))
+* **ActivityController:** make public GET activity ([#663](https://github.com/qbitartifacts/rec-api/issues/663)) ([ba8be88](https://github.com/qbitartifacts/rec-api/commit/ba8be8862b76c88c6e2c461d575d3cc0823d38c9))
+* **campaign:** added url_tos ([#698](https://github.com/qbitartifacts/rec-api/issues/698)) ([2c918bf](https://github.com/qbitartifacts/rec-api/commit/2c918bfa08ca352729a3c206f47b8cd64043063c))
+* **campaign:** migration file to add tos_url ([#704](https://github.com/qbitartifacts/rec-api/issues/704)) ([b81d11e](https://github.com/qbitartifacts/rec-api/commit/b81d11e73c49890e9f36276f8df0fd40aa890de5))
+* **Campaign:** changes culture campaign name ([#729](https://github.com/qbitartifacts/rec-api/issues/729)) ([043736d](https://github.com/qbitartifacts/rec-api/commit/043736d3f3036ab07574c51526ce17b014bee0a4))
+* **checkPhone:** allow only spanish phone number ([#730](https://github.com/qbitartifacts/rec-api/issues/730)) ([c59d940](https://github.com/qbitartifacts/rec-api/commit/c59d9401fc0558a09bf709b5af392cd84f16fc1a))
+* **config:** reduced token TTL ([#775](https://github.com/qbitartifacts/rec-api/issues/775)) ([51144e6](https://github.com/qbitartifacts/rec-api/commit/51144e6cb36b27a7033d3c9463e519ca9e35ba11))
+* **Config:** created config entity and fix translation test([#675](https://github.com/qbitartifacts/rec-api/issues/675)) ([1cdeb65](https://github.com/qbitartifacts/rec-api/commit/1cdeb656e98352894d863c36eb4035f66f4aafd8))
+* **cron:** save logs in custom files ([#710](https://github.com/qbitartifacts/rec-api/issues/710)) ([ade97ba](https://github.com/qbitartifacts/rec-api/commit/ade97bacafd38543294cf4afa6968b10dfedb5ee))
+* **crons:** save cron output in logs ([#653](https://github.com/qbitartifacts/rec-api/issues/653)) ([857e83b](https://github.com/qbitartifacts/rec-api/commit/857e83bb3adcc95c75f96c8fa6901c339e18d282))
+* **culture campaign:** created campaign ([#659](https://github.com/qbitartifacts/rec-api/issues/659)) ([21f31a0](https://github.com/qbitartifacts/rec-api/commit/21f31a04b404388d01c7cacc3a1b4e219195b99f))
+* **documents:** cron to check expired documents ([#694](https://github.com/qbitartifacts/rec-api/issues/694)) ([7ed05fb](https://github.com/qbitartifacts/rec-api/commit/7ed05fb016d87c5d715fa9721c8c2ec024ce3525))
+* **IncomingController:** avoid sum ltab redeamable when culture money-in ([#741](https://github.com/qbitartifacts/rec-api/issues/741)) ([60b27c4](https://github.com/qbitartifacts/rec-api/commit/60b27c444ed4bbe2395ed8ddef4818e8107bb0e5))
+* **IncomingController:** changed tx order to test culture bonus ([#708](https://github.com/qbitartifacts/rec-api/issues/708)) ([6c071d2](https://github.com/qbitartifacts/rec-api/commit/6c071d27ae5000b63bc9b3670aefa9b37bcaadb5))
+* **IncomingController:** create culture tx in checkFiatCommand ([#716](https://github.com/qbitartifacts/rec-api/issues/716)) ([bd0a5f9](https://github.com/qbitartifacts/rec-api/commit/bd0a5f942d16161ad46cd54da1e4d87f57d1eea3))
+* **IncomingController:** set auto. cultural exchanger and cultural circuit closed  ([#739](https://github.com/qbitartifacts/rec-api/issues/739)) ([2249285](https://github.com/qbitartifacts/rec-api/commit/224928565d6da8ed7cdf8124907984b59f1458fe))
+* **kyc:** enable gender nullable ([#780](https://github.com/qbitartifacts/rec-api/issues/780)) ([6ebdc02](https://github.com/qbitartifacts/rec-api/commit/6ebdc0236cde94d91a2b52a9a58a16c77e43dc0e))
+* **KYC:** restrict values for gender ([#754](https://github.com/qbitartifacts/rec-api/issues/754)) ([cb3909d](https://github.com/qbitartifacts/rec-api/commit/cb3909d08b26947d4a9fa5d284552afefdfa8112))
+* **map_search:** returns only active accounts ([#740](https://github.com/qbitartifacts/rec-api/issues/740)) ([7ee77ea](https://github.com/qbitartifacts/rec-api/commit/7ee77eab8bfecb2874662bc33266f1f024016fb0))
+* **MapController:** public map filter by active accounts ([#749](https://github.com/qbitartifacts/rec-api/issues/749)) ([be48bbb](https://github.com/qbitartifacts/rec-api/commit/be48bbbe2d351d210995c89af710e05c2fee2b16))
+* **PublicMapSearch:** search by campaign code ([#709](https://github.com/qbitartifacts/rec-api/issues/709)) ([27ac04f](https://github.com/qbitartifacts/rec-api/commit/27ac04fbafca647d4afd1944be5d75c32b70c231))
+
+
+### Bug Fixes
+
+* **AccountController:** accept TOS error ([#723](https://github.com/qbitartifacts/rec-api/issues/723)) ([8360fa9](https://github.com/qbitartifacts/rec-api/commit/8360fa9e07e25f5ae52d73cc105166c3c0e6c54e))
+* **AccountController:** fixed update user and run all tests after ([#726](https://github.com/qbitartifacts/rec-api/issues/726)) ([4e3ad4b](https://github.com/qbitartifacts/rec-api/commit/4e3ad4b9cd4f70e51f5100c83a00c89d330690d4))
+* **accounts:** has_offers bug fixed ([#691](https://github.com/qbitartifacts/rec-api/issues/691)) ([bb0e7a0](https://github.com/qbitartifacts/rec-api/commit/bb0e7a08107e3c32734814802ed2786354da6f51))
+* **AccountsController:** check activity_id null ([#667](https://github.com/qbitartifacts/rec-api/issues/667)) ([21a1439](https://github.com/qbitartifacts/rec-api/commit/21a1439c18b408999ce057d50d521171937c159b))
+* **AccountsController:** not send has_offers true if it is expired ([#774](https://github.com/qbitartifacts/rec-api/issues/774)) ([5ab6b19](https://github.com/qbitartifacts/rec-api/commit/5ab6b19554d11c6a61ae85dd6b440275e153bfe4))
+* **Activity:** exclude products ([#762](https://github.com/qbitartifacts/rec-api/issues/762)) ([56b3dc9](https://github.com/qbitartifacts/rec-api/commit/56b3dc93fcad40ac1145263b5232f5707c87d2ee))
+* **ActivityController:** return only culture activities ([#673](https://github.com/qbitartifacts/rec-api/issues/673)) ([82b47b4](https://github.com/qbitartifacts/rec-api/commit/82b47b41183c404cfb8624c8b2d657c2cd156794))
+* **ActivityController:** use secureOutput ([#757](https://github.com/qbitartifacts/rec-api/issues/757)) ([69c9078](https://github.com/qbitartifacts/rec-api/commit/69c9078007f4c5e5c578668e8311e2a9431c89bb))
+* **campaign:** add code field to campaign ([#679](https://github.com/qbitartifacts/rec-api/issues/679)) ([62f668c](https://github.com/qbitartifacts/rec-api/commit/62f668cd5385b9785e3e36d1ab9e83ea92bde47d))
+* **campaign:** added code in campaign table ([#681](https://github.com/qbitartifacts/rec-api/issues/681)) ([90b8039](https://github.com/qbitartifacts/rec-api/commit/90b8039ebbed0b9a0cd100538ac19e843ed9720f))
+* **campaign:** check campaign name to create culture account ([#711](https://github.com/qbitartifacts/rec-api/issues/711)) ([c8ab890](https://github.com/qbitartifacts/rec-api/commit/c8ab89074bed29b6407171cc72f70bc5e19e03c5))
+* **campaign:** delete migration create code not null([#684](https://github.com/qbitartifacts/rec-api/issues/684)) ([f253a2a](https://github.com/qbitartifacts/rec-api/commit/f253a2a56b6b2940c741f7d755fac5f316ca6442))
+* **campaign:** make code nullable to avoid incompatibilities ([#682](https://github.com/qbitartifacts/rec-api/issues/682)) ([c65f7cd](https://github.com/qbitartifacts/rec-api/commit/c65f7cd5f9d7a87eb37c77872e0b68ef435dd0fc))
+* **campaign:** migration to add code field in campaign ([#678](https://github.com/qbitartifacts/rec-api/issues/678)) ([1df02ce](https://github.com/qbitartifacts/rec-api/commit/1df02ce96c8b45fd8559cefe39423d16c6cb4292))
+* **cron:** fix error saving logs in custom files ([#715](https://github.com/qbitartifacts/rec-api/issues/715)) ([9143d22](https://github.com/qbitartifacts/rec-api/commit/9143d22112440a35a2d62abc7d7f1a203a40f43d))
+* **document:** allows from approved to expired ([#764](https://github.com/qbitartifacts/rec-api/issues/764)) ([bbfee37](https://github.com/qbitartifacts/rec-api/commit/bbfee37391f19da3dbf44e6737b08b2c56bce458))
+* **IncomingController:** all culture constraints and tests ([#790](https://github.com/qbitartifacts/rec-api/issues/790)) ([0a31280](https://github.com/qbitartifacts/rec-api/commit/0a31280d6cf88613c4d8ecab1f13fa9b1816ed34))
+* **IncomingController:** calculate tx amount when reduce redeamable ([#668](https://github.com/qbitartifacts/rec-api/issues/668)) ([2cc6021](https://github.com/qbitartifacts/rec-api/commit/2cc6021e64c583a165b35fa693301bef9cdb66b7))
+* **IncomingController:** culture campaign constrains([#766](https://github.com/qbitartifacts/rec-api/issues/766)) ([fb3ebbe](https://github.com/qbitartifacts/rec-api/commit/fb3ebbe932323c8250a08e6803d36d452a528434))
+* **IncomingController:** fix bug culture bonificaction ([#717](https://github.com/qbitartifacts/rec-api/issues/717)) ([aac5dc9](https://github.com/qbitartifacts/rec-api/commit/aac5dc9c64b8440fed7904821035fe0470278d78))
+* **IncomingController:** get receiver_id from group ([#756](https://github.com/qbitartifacts/rec-api/issues/756)) ([f52b294](https://github.com/qbitartifacts/rec-api/commit/f52b2941c8dd4d0159d58b0c2f13dd47dd4af2c0))
+* **kyc:** add zip to kyc ([#747](https://github.com/qbitartifacts/rec-api/issues/747)) ([4f71a54](https://github.com/qbitartifacts/rec-api/commit/4f71a54a74f284d3e2b39f7fc3c8cc6ce8bf0abc))
+* **kyc:** created update kyc v3 for users and tests ([#750](https://github.com/qbitartifacts/rec-api/issues/750)) ([2433aa1](https://github.com/qbitartifacts/rec-api/commit/2433aa17abe9db4f10e6c9372e7d1d6173c0ce1d))
+* **kyc:** null gender migrations file ([#786](https://github.com/qbitartifacts/rec-api/issues/786)) ([9e15fd7](https://github.com/qbitartifacts/rec-api/commit/9e15fd73014305c3e89d0ec6fa5b3da5c53314f4))
+* **kyc:** table kyc add zip migrations file ([#746](https://github.com/qbitartifacts/rec-api/issues/746)) ([8271893](https://github.com/qbitartifacts/rec-api/commit/8271893d20dd4e09dc66d00a230d3d274f75c0bc))
+* **login:** refactor and add new platforms ([#680](https://github.com/qbitartifacts/rec-api/issues/680)) ([4952b4d](https://github.com/qbitartifacts/rec-api/commit/4952b4d0c5e1e008e50fe1002d5b8428b10f6a8c))
+* **LTAB constraint:** fixed testPayKycCheck for reduce reedemable ([#669](https://github.com/qbitartifacts/rec-api/issues/669)) ([6b1f220](https://github.com/qbitartifacts/rec-api/commit/6b1f2202bfe4308137e3b220103bf5ef71b1ea4f))
+* **offers:** manage permissions and tests ([#763](https://github.com/qbitartifacts/rec-api/issues/763)) ([f45063f](https://github.com/qbitartifacts/rec-api/commit/f45063faa8cbe557e1efe6b57c916abd7706dbd2))
+* **recover_password:** match by username and test ([#688](https://github.com/qbitartifacts/rec-api/issues/688)) ([193656f](https://github.com/qbitartifacts/rec-api/commit/193656fae116df8566844ddaa906f957ea9c0c4d))
+* **tests:** disabled tests to avoid github errors ([#735](https://github.com/qbitartifacts/rec-api/issues/735)) ([8883922](https://github.com/qbitartifacts/rec-api/commit/888392235fa7dc40c3d94735ae29176036ab2af8))
+* **tests:** fixing testing mongodb connection issues ([c8429dd](https://github.com/qbitartifacts/rec-api/commit/c8429ddfa94892ee526a02044874e29053c8fc73))
+* **tests:** removed clear cache to speedup tests ([#731](https://github.com/qbitartifacts/rec-api/issues/731)) ([b1a1f88](https://github.com/qbitartifacts/rec-api/commit/b1a1f88774b6e6ab94abf98ff16f2d081f4c0e20))
+* **token:** restore token lifetime ([#788](https://github.com/qbitartifacts/rec-api/issues/788)) ([f64bf90](https://github.com/qbitartifacts/rec-api/commit/f64bf9058a2edef0e3b64ccb8b6ee4856eb91526))
+* **transaction:** fix pin validation ([#692](https://github.com/qbitartifacts/rec-api/issues/692)) ([d7bb5f6](https://github.com/qbitartifacts/rec-api/commit/d7bb5f6f459714311d5d1b9bd829954ea46d8581))
+* **UsersGroupsController:** add user to account check by getId ([#782](https://github.com/qbitartifacts/rec-api/issues/782)) ([9bfd6c0](https://github.com/qbitartifacts/rec-api/commit/9bfd6c080dd480e429ff99d54f6bedc6c3564c05))
+
 ## [2.27.0](https://github.com/qbitartifacts/rec-api/compare/v2.26.2...v2.27.0) (2021-10-06)
 
 
