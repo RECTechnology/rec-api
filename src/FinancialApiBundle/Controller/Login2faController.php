@@ -301,7 +301,11 @@ class Login2faController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
 
-        if(!$request->request->has('platform') ) throw new HttpException(404, 'Platform es requerido');
+        if(!$request->request->has('platform') ) {
+            //throw new HttpException(404, 'Platform es requerido');
+            //Quick fix until platform is sent from panel in prod environment
+            $request->request->add(['platform' => 'rec-admin']);
+        }
 
         $min_versions = $em->getRepository(Config::class)->findAll();
 
