@@ -14,6 +14,8 @@ use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\User;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Tester\CommandTester;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
@@ -221,13 +223,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
     }
     function testPayWrongPinRetry()
     {
-        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
-        $account = $this->getOneAccount();
-        $pos = $this->createPos($account);
-        $this->activatePos($pos);
-        $this->listPosOrders($pos);
-
-        $this->signOut();
+        $pos = $this->preparePOS();
         $sample_url = "https://rec.barcelona";
         $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
         $this->paymentOrderHasRequiredData($order);
@@ -241,6 +237,44 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->payOrderWrongPin($order);
         $tx = $this->payOrderWrongPin($order);
         self::assertEquals("Failed payment transaction", $tx->message);
+    }
+
+    private function preparePOS(){
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $account = $this->getOneAccount();
+        $pos = $this->createPos($account);
+        $this->activatePos($pos);
+        $this->listPosOrders($pos);
+
+        $this->signOut();
+
+        return $pos;
+    }
+
+    function testPayWrongSignatureShouldFail(){
+
+        $pos = $this->preparePOS();
+
+        $route = "/public/v3/payment_orders";
+        $reference = "1234123412341234";
+        $concept = "Mercat do castelo 1234123412341234";
+        $signature = 'badsignature_fsafl';
+        $resp = $this->rest('POST', $route, [
+            'access_key' => $pos->access_key,
+            'amount' => 1e8,
+            'ok_url' => "https://rec.barcelona",
+            'ko_url' => "https://rec.barcelona",
+            'concept' => $concept,
+            'reference' => $reference,
+            'signature_version' => 'hmac_sha256_v1',
+            'signature' => $signature,
+            'payment_type' => 'desktop',
+        ], [], 400);
+
+        self::assertEquals('Validation error', $resp->message);
+        $errors = $resp->errors;
+        self::assertEquals('signature is not valid', $errors[0]->message);
+
     }
 
     function testBonissimAccountPaysToBonissimCommerceShouldSuccess(){
@@ -509,6 +543,28 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     }
 
+    function testNotificationCommand()
+    {
+
+        $kernel = self::bootKernel();
+        $application = new Application($kernel);
+
+        $command = $application->find('rec:pos:notifications:retry');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([]);
+
+        $this->assertEquals(0, $commandTester->getStatusCode());
+
+        // the output of the command in the console
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString('Listing order notifications', $output);
+
+        //get all pos
+        $respPos = $this->getAsAdmin('/admin/v3/pos');
+        //We are generating 2 tx for tpv and one of each one has 2 notifications
+        $this->assertStringContainsString((count($respPos) * 3) . ' notifications found', $output);
+    }
+
     function testPrivateNoCultureAccountPayToCultureCommerceShouldFail(): void
     {
         $this->setClientIp($this->faker->ipv4);
@@ -536,6 +592,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $_sender = $this->getAsAdmin('/admin/v3/accounts?name='.UserFixture::TEST_THIRD_USER_CREDENTIALS['name'])[0];
         $end_balance = $_sender->wallets[0]->balance;
         self::assertEquals($start_balance, $end_balance);
+
 
     }
 

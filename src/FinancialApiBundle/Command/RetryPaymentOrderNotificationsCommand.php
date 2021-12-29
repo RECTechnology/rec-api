@@ -44,6 +44,8 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
         $this->notifier = $notifier;
     }
 
+    private $orderNotificationsFailed = [];
+
     protected function executeSynchronized(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Listing order notifications ...');
@@ -61,20 +63,22 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
             $limit
         );
 
-        $orderNotificationsFailed = [];
+        $output->writeln(count($notifications).' notifications found');
 
         /** @var PaymentOrderNotification $notification */
         foreach($notifications as $notification){
             $order = $notification->getPaymentOrder();
+            $output->writeln('Notifying order: '.$order->getId());
             //each order can have many notifications, and if one fails, the rest should not be tried
-            if(!in_array($order, $orderNotificationsFailed)){
+            if(!in_array($order, $this->orderNotificationsFailed)){
                 $this->notifier->send(
                     $notification,
                     function($ignored) use ($notification) {
                         $notification->setStatus(PaymentOrderNotification::STATUS_NOTIFIED);
                     },
-                    function($ignored) use ($notification, $order) {
-                        $orderNotificationsFailed []= $order;
+                    function($ignored) use ($notification, $order, $output) {
+                        $this->orderNotificationsFailed []= $order;
+                        $output->writeln('FAILED');
                         $tries = $notification->getTries() + 1;
                         $notification->setTries($tries);
                         $now = new \DateTime();

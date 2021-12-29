@@ -20,7 +20,11 @@ class UserFixture extends Fixture {
     const TEST_USER_LTAB_CREDENTIALS = ['name' => 'eva', 'username' => 'USERLTAB', 'password' => 'user_LTAB', 'pin' => '3012'];
     const TEST_USER_LTAB_COMMERCE_CREDENTIALS = ['name' => 'jose', 'username' => 'USERLTABCOMMERCE', 'password' => 'user_LTAB_commerce', 'pin' => '0012'];
     const TEST_SECOND_USER_CREDENTIALS = ['name' => 'paco', 'username' => '01234567B', 'password' => 'user_user', 'pin' => '0123'];
+
+    const TEST_POS_MANAGER_CREDENTIALS = ['name' => 'pos', 'username' => '01234467B', 'password' => 'manager_pos', 'pin' => '1223'];
+
     const TEST_THIRD_USER_CREDENTIALS = ['name' => 'vicent', 'username' => '01234567C', 'password' => 'user_user', 'pin' => '1234'];
+
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -38,7 +42,11 @@ class UserFixture extends Fixture {
         $user_ltab = $this->generateUser($faker, self::TEST_USER_LTAB_CREDENTIALS);
         $user_ltab_commerce = $this->generateUser($faker, self::TEST_USER_LTAB_COMMERCE_CREDENTIALS);
         $user_second_user = $this->generateUser($faker, self::TEST_SECOND_USER_CREDENTIALS);
+
+        $manager_pos = $this->generateUser($faker, self::TEST_POS_MANAGER_CREDENTIALS);
+
         $user_third_user = $this->generateUser($faker, self::TEST_THIRD_USER_CREDENTIALS);
+
         $manager->persist($admin);
         $manager->persist($user);
         $manager->persist($user_locked);
@@ -46,7 +54,11 @@ class UserFixture extends Fixture {
         $manager->persist($user_ltab);
         $manager->persist($user_ltab_commerce);
         $manager->persist($user_second_user);
+
+        $manager->persist($manager_pos);
+
         $manager->persist($user_third_user);
+
         $manager->flush();
     }
 

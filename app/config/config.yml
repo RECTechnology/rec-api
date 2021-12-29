@@ -13,7 +13,6 @@ imports:
     - { resource: "@FinancialApiBundle/Resources/config/app_exchanges.yml" }
     - { resource: "@FinancialApiBundle/Resources/config/app_config.yml" }
 
-
 framework:
     #esi:             ~
     translator:      { fallbacks: ["%locale%"] }
@@ -114,7 +113,6 @@ doctrine_migrations:
     name: App Migrations
     organize_migrations: false # Version >=1.2 Possible values are: "BY_YEAR", "BY_YEAR_AND_MONTH", false
 
-
 # Swiftmailer Configuration
 swiftmailer:
     default_mailer: first_mailer
@@ -182,7 +180,6 @@ jms_serializer:
     visitors:
         json:
             options: JSON_UNESCAPED_SLASHES
-
 
 fos_oauth_server:
     db_driver:           orm

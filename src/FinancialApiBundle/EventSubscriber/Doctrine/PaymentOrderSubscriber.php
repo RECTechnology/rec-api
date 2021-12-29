@@ -151,8 +151,10 @@ class PaymentOrderSubscriber implements EventSubscriber {
             $pos = $repo->findOneBy(['access_key' => $order->getAccessKey()]);
             $order->setPos($pos);
 
-            $ip = $this->requestStack->getCurrentRequest()->getClientIp();
-            $order->setIpAddress($ip);
+            if($this->requestStack->getCurrentRequest()){
+                $ip = $this->requestStack->getCurrentRequest()->getClientIp();
+                $order->setIpAddress($ip);
+            }
 
             /** @var FakeEasyBitcoinDriver $recDriver */
             $recDriver = $this->container->get('net.app.driver.easybitcoin.rec');

@@ -2,6 +2,9 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Admin;
 
+use App\FinancialApiBundle\Entity\PaymentOrder;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -9,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use DateInterval;
 use DateTime;
 use App\FinancialApiBundle\Controller\SecurityTrait;
+use function Sodium\add;
 
 
 /**
@@ -133,9 +137,9 @@ class TransactionsController extends RestApiController {
 
             $payment_info = $transaction->getPayOutInfo();
             $address = $payment_info['address'];
-            $receiver = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array(
-                'rec_address' => $address
-            ));
+
+            $receiver = $this->getReceiverFromAddress($em, $address);
+
             if($receiver){
                 $re_id = $receiver->getId();
                 $re_type = $receiver->getType();
@@ -145,6 +149,7 @@ class TransactionsController extends RestApiController {
                 $re_id = '-';
                 $re_type = '-';
                 $re_subtype = '-';
+
             }
 
             $result[]=array(
@@ -169,6 +174,26 @@ class TransactionsController extends RestApiController {
             'offset' => $offset
         );
         return $this->restV2(200,"ok", "List transactions generated", $data);
+    }
+
+    private function getReceiverFromAddress(ObjectManager $em, $address){
+        $receiver = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array(
+            'rec_address' => $address
+        ));
+
+        if($receiver) return $receiver;
+
+        /** @var PaymentOrder $order */
+        $order = $em->getRepository(PaymentOrder::class)->findOneBy(array(
+            'payment_address' => $address
+        ));
+
+        if($order){
+            return $order->getPos()->getAccount();
+        }
+
+        return null;
+
     }
 
 

@@ -31,6 +31,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     const TEST_ACCOUNT_CULT21_COMMERCE = ['name' => 'account_org_in_cult21'];
     const TEST_ACCOUNT_LTAB_PRIVATE = ['name' => 'account_in_ltab'];
     const TEST_ACCOUNT_COMMERCE = ['name' => 'COMMERCEACCOUNT'];
+    const TEST_ACCOUNT_COMMERCE_POS = ['name' => 'COMMERCEACCOUNT_POS'];
 
 
     /**
@@ -238,6 +239,20 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2,
             "CULT21",
+            100000e8
+        );
+
+        $manager_pos_org = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_POS_MANAGER_CREDENTIALS['username']]);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $manager_pos_org,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_WHOLESALE,
+            2,
+            "POS COMMERCE",
             100000e8
         );
 
