@@ -266,7 +266,7 @@ class UserSecurityTest extends BaseApiTest
             'POST',
             $route,
             [
-                'dni' => "01234567A",
+                'dni' => "01234567L",
                 'phone' => 789789789,
                 'prefix' => 34
             ],
@@ -275,7 +275,7 @@ class UserSecurityTest extends BaseApiTest
         );
 
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository(User::class)->findOneBy(['dni' => "01234567A"]);
+        $user = $em->getRepository(User::class)->findOneBy(['dni' => "01234567L"]);
         $sms_code = $user->getLastSmscode();
         $this->unlockUser($sms_code);
         $this->recoverPassword($sms_code);
@@ -291,7 +291,7 @@ class UserSecurityTest extends BaseApiTest
             'POST',
             '/app/v4/validate-phone',
             [
-                'dni' => '01234567A',
+                'dni' => '01234567L',
                 'prefix' => 34,
                 'phone' => 789789789,
                 'smscode' => $sms_code
@@ -349,7 +349,7 @@ class UserSecurityTest extends BaseApiTest
             'POST',
             '/app/v4/recover-password',
             [
-                'dni' => '01234567A',
+                'dni' => '01234567L',
                 'prefix' => 34,
                 'phone' => 789789789,
                 'smscode' => $sms_code,
@@ -373,12 +373,31 @@ class UserSecurityTest extends BaseApiTest
             'POST',
             '/app/v4/sms-code/recover-password',
             [
-                'dni' => '01234567A',
+                'dni' => '01234567L',
                 'prefix' => 34,
                 'phone' => 789789789
             ],
             [],
             200
+        );
+
+    }
+
+    /**
+     * @param $sms_code
+     */
+    function testRecoverPasswordRequestWrongDNI()
+    {
+        $resp = $this->rest(
+            'POST',
+            '/app/v4/sms-code/recover-password',
+            [
+                'dni' => '01234567L ',
+                'prefix' => 34,
+                'phone' => 789789789
+            ],
+            [],
+            400
         );
 
     }
@@ -392,7 +411,7 @@ class UserSecurityTest extends BaseApiTest
             'POST',
             '/app/v4/unlock-user',
             [
-                'dni' => '01234567A',
+                'dni' => '01234567L',
                 'prefix' => 34,
                 'phone' => 789789789,
                 'smscode' => $sms_code

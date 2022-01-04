@@ -343,6 +343,7 @@ class AccountController extends BaseApiController {
     }
 
     public function validar_dni($dni){
+        if(strpos($dni, " ")) return false;
         $nie_letter = array('X','Y','Z');
         $nie_letter_number = array('0','1','2');
         $letra = substr($dni, -1);
@@ -352,6 +353,7 @@ class AccountController extends BaseApiController {
     }
 
     public function validate_cif ($cif) {
+        if(strpos($cif, " ")) return false;
         $cif = strtoupper($cif);
         $cif_codes = 'JABCDEFGHI';
 
@@ -437,7 +439,7 @@ class AccountController extends BaseApiController {
         $em = $this->getDoctrine()->getManager();
 
         $params['dni'] = strtoupper($params['dni']);
-        $params['dni'] = preg_replace("/[^0-9A-Z]/", "", $params['dni']);
+        $params['dni'] = preg_replace("/[^0-9A-Z ]/", "", $params['dni']);
         $params['username'] = $params['dni'];
 
         if(strlen($params['username'])<9){
@@ -536,6 +538,9 @@ class AccountController extends BaseApiController {
         }
 
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
+            if(!$this->validate_cif($request->request->get('company_cif'))){
+                throw new HttpException(400, 'CIF not valid');
+            }
             $company_cif = $request->request->get('company_cif');
         }
         else{
@@ -1192,7 +1197,7 @@ class AccountController extends BaseApiController {
         $em = $this->getDoctrine()->getManager();
 
         $params['dni'] = strtoupper($params['dni']);
-        $params['dni'] = preg_replace("/[^0-9A-Z]/", "", $params['dni']);
+        $params['dni'] = preg_replace("/[^0-9A-Z ]/", "", $params['dni']);
         $params['username'] = $params['dni'];
 
         if(strlen($params['username'])<9){
@@ -1231,8 +1236,11 @@ class AccountController extends BaseApiController {
         $allowed_types = array('PRIVATE', 'COMPANY');
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
             //We heave added the validar_dni comprobation because a commerce could be autonomous and it should work with dni too
-            if(!$this->validate_cif((string)$request->request->get('company_cif')) && !$this->validar_dni((string)$request->request->get('company_cif')))
+            if(!$this->validate_cif((string)$request->request->get('company_cif')) &&
+                !$this->validar_dni((string)$request->request->get('company_cif')))
+            {
                 throw new HttpException(400, 'CIF not valid');
+            }
             $type = $allowed_types[1];
             $company_cif = $request->request->get('company_cif');
         }else{
@@ -1376,6 +1384,10 @@ class AccountController extends BaseApiController {
                 throw new HttpException(404, 'Param ' . $param . ' not found');
             }
         }
+
+        if(!$this->validar_dni($params['dni']))
+            throw new HttpException(400, 'DNI not valid');
+
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
