@@ -290,16 +290,63 @@ class RechargeRecsTest extends AdminApiTest {
         self::assertEquals($init_balance, $fin_balance);
     }
 
+    function testDissableRedeemable()
+    {
+        //this test only pass if parameter group_root_id = 1
+        $user_id = 1;
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
+
+        $route = "/admin/v3/user/{$user_id}";
+        $resp = $this->rest('PUT', $route, ['private_tos_campaign' => true]);
+        self::assertTrue($resp->private_tos_campaign);
+
+        $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=" . $user_id);
+        self::assertCount(0, $private_bonissim_account);
+
+        $campaign = $this->rest('GET', "/admin/v3/campaigns?name=" . Campaign::BONISSIM_CAMPAIGN_NAME)[0];
+        self::assertTrue(isset($campaign));
+      
+        $private_accounts = $this->rest('GET', "/user/v3/accounts?type=PRIVATE&kyc_manager=" . $user_id);
+        self::assertGreaterThanOrEqual(1, count($private_accounts));
+        $private_account_id = $private_accounts[0]->id;
+      
+      $acc = $em->getRepository(Group::class)->find($private_account_id);
+        $acc->setCompanyImage('');
+        $em->persist($acc);
+        $em->flush();
+
+        $company_accounts = $this->rest('GET', "/user/v3/accounts?type=COMPANY&kyc_manager=" . $user_id);
+      
+      self::assertGreaterThanOrEqual(1, count($company_accounts));
+        $company_account_id = $company_accounts[0]->id;
+
+        $data = ['status' => Transaction::$STATUS_RECEIVED,
+            'company_id' => $private_account_id,
+            'amount' => 6000,
+            'commerce_id' => $company_account_id,
+            'concept' => 'test recharge',
+            'pin' => $user_pin,
+            'save_card' => 0];
+
+        $this->useLemonWayMock($data);
+      
+      $this->whenDissabledBonificationNoLtabAccountCreated($campaign, $data, $user_id);
+        $this->whenEabledBonificationLtabAccountCreatedAndRedeemable($campaign, $data, $user_id);
+        $this->whenDissabledBonificationNoRedeemable($campaign, $data, $user_id);
+      
+    }
+
     function testSetExchanger()
     {
         $user_id = 2;
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
-
+      
         $private_accounts = $this->rest('GET', "/user/v3/accounts?type=PRIVATE&kyc_manager=" . $user_id);
         self::assertGreaterThanOrEqual(1, count($private_accounts));
         $private_account_id = $private_accounts[0]->id;
-
+        
         $company_accounts = $this->rest('GET', "/user/v3/accounts?type=COMPANY");
         self::assertGreaterThanOrEqual(1, count($company_accounts));
         $company_account_id = $company_accounts[0]->id;
@@ -314,6 +361,7 @@ class RechargeRecsTest extends AdminApiTest {
 
         $this->useLemonWayMock($data);
 
+        
         $kyc0_id = $this->rest('GET', "/user/v3/tier?code=KYC0")[0]->id;
         $kyc2_id = $this->rest('GET', "/user/v3/tier?code=KYC2")[0]->id;
 
@@ -322,6 +370,65 @@ class RechargeRecsTest extends AdminApiTest {
 
     }
 
+    /**
+     * @param $campaign
+     * @param array $data
+     * @param int $user_id
+     * @throws \Exception
+     */
+    private function whenDissabledBonificationNoLtabAccountCreated($campaign, array $data, int $user_id): void
+    {
+        // dissable bonification
+        $resp = $this->rest('PUT', "/admin/v3/campaign/" . $campaign->id, ['bonus_enabled' => false]);
+        self::assertFalse($resp->bonus_enabled);
+
+        $this->executeRecharge($data);
+
+        //check create bonissim account
+        $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=" . $user_id);
+        self::assertCount(0, $private_bonissim_account);
+    }
+
+    /**
+     * @param $campaign
+     * @param array $data
+     * @param int $user_id
+     * @throws \Exception
+     */
+    private function whenEabledBonificationLtabAccountCreatedAndRedeemable($campaign, array $data, int $user_id): void
+    {
+        // enable bonification
+        $resp = $this->rest('PUT', "/admin/v3/campaign/" . $campaign->id, ['bonus_enabled' => true]);
+        self::assertTrue($resp->bonus_enabled);
+        $this->executeRecharge($data);
+
+        //check create bonissim account
+        $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=" . $user_id);
+        self::assertCount(1, $private_bonissim_account);
+        self::assertEquals(60, $private_bonissim_account[0]->redeemable_amount);
+    }
+
+    /**
+     * @param $campaign
+     * @param array $data
+     * @param int $user_id
+     * @throws \Exception
+     */
+    private function whenDissabledBonificationNoRedeemable($campaign, array $data, int $user_id): void
+    {
+        // dissable bonification
+        $resp = $this->rest('PUT', "/admin/v3/campaign/" . $campaign->id, ['bonus_enabled' => false]);
+        self::assertFalse($resp->bonus_enabled);
+
+        $this->executeRecharge($data);
+
+        //check create bonissim account
+        $private_bonissim_account = $this->rest('GET', "/user/v3/accounts?campaigns=1&type=PRIVATE&kyc_manager=" . $user_id);
+        self::assertCount(1, $private_bonissim_account);
+        //no redeemable added
+        self::assertEquals(60, $private_bonissim_account[0]->redeemable_amount);
+    }
+  
     /**
      * @param array $company_accounts
      * @param $kyc0_id

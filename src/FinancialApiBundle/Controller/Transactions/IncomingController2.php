@@ -1290,9 +1290,9 @@ class IncomingController2 extends RestApiController{
             $init = $ltab_campaign->getInitDate();
             $end = $ltab_campaign->getEndDate();
             $now = new DateTime('NOW');
-            $campaign_account = $em->getRepository(Group::class)->find($ltab_campaign->getCampaignAccount());
-            $balance = $campaign_account->getWallet('REC')->getBalance() / 1e6;  //  1e6 = 1REC / 100
-            if($init < $now && $now < $end && $amount < $balance){
+            //$campaign_account = $em->getRepository(Group::class)->find($ltab_campaign->getCampaignAccount());
+            //$balance = $campaign_account->getWallet('REC')->getBalance() / 1e6;  //  1e6 = 1REC / 100
+            if($init < $now && $now < $end && $ltab_campaign->isBonusEnabled()){
                 $active_campaign = true;
             }
         }

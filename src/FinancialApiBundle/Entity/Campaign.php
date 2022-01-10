@@ -35,6 +35,12 @@ class Campaign extends AppObject {
     protected $end_date;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Serializer\Groups({"public"})
+     */
+    protected $bonus_enabled=true;
+
+    /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"public"})
      */
@@ -350,6 +356,22 @@ class Campaign extends AppObject {
     public function setUrlTos($url_tos): void
     {
         $this->url_tos = $url_tos;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isBonusEnabled(): bool
+    {
+        return $this->bonus_enabled;
+    }
+
+    /**
+     * @param mixed $bonus_enabled
+     */
+    public function setBonusEnabled($bonus_enabled): void
+    {
+        $this->bonus_enabled = $bonus_enabled;
     }
 
 }
