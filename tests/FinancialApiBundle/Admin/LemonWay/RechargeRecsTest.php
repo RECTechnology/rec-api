@@ -289,4 +289,117 @@ class RechargeRecsTest extends AdminApiTest {
         }
         self::assertEquals($init_balance, $fin_balance);
     }
+
+    function testSetExchanger()
+    {
+        $user_id = 2;
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
+
+        $private_accounts = $this->rest('GET', "/user/v3/accounts?type=PRIVATE&kyc_manager=" . $user_id);
+        self::assertGreaterThanOrEqual(1, count($private_accounts));
+        $private_account_id = $private_accounts[0]->id;
+
+        $company_accounts = $this->rest('GET', "/user/v3/accounts?type=COMPANY");
+        self::assertGreaterThanOrEqual(1, count($company_accounts));
+        $company_account_id = $company_accounts[0]->id;
+
+        $data = ['status' => Transaction::$STATUS_RECEIVED,
+            'company_id' => $private_account_id,
+            'amount' => 6000,
+            'commerce_id' => $company_account_id,
+            'concept' => 'test recharge',
+            'pin' => $user_pin,
+            'save_card' => 0];
+
+        $this->useLemonWayMock($data);
+
+        $kyc0_id = $this->rest('GET', "/user/v3/tier?code=KYC0")[0]->id;
+        $kyc2_id = $this->rest('GET', "/user/v3/tier?code=KYC2")[0]->id;
+
+        $this->rechargeWhenAllCommerceHasKYC0ShouldFail($company_accounts, $kyc0_id, $data);
+        $this->rechargeWhenAllCommerceHasKYC0AndGroupRootHasKYC2ShouldFail($kyc2_id, $data);
+
+    }
+
+    /**
+     * @param array $company_accounts
+     * @param $kyc0_id
+     * @param array $data
+     */
+    private function rechargeWhenAllCommerceHasKYC0ShouldFail(array $company_accounts, $kyc0_id, array $data): void
+    {
+        foreach ($company_accounts as $account) {
+            $route = "/admin/v3/accounts/{$account->id}";
+            $this->rest('PUT', $route, ['level_id' => $kyc0_id]);
+        }
+
+        $resp = $this->rest(
+            'POST',
+            '/methods/v1/in/lemonway',
+            $data,
+            [],
+            403
+        );
+    }
+
+    /**
+     * @param $kyc2_id
+     * @param array $data
+     */
+    private function rechargeWhenAllCommerceHasKYC0AndGroupRootHasKYC2ShouldFail($kyc2_id, array $data): void
+    {
+        $group_root_id = self::createClient()->getContainer()->getParameter('id_group_root');
+        $route = "/admin/v3/accounts/{$group_root_id}";
+        $this->rest('PUT', $route, ['level_id' => $kyc2_id]);
+
+        $resp = $this->rest(
+            'POST',
+            '/methods/v1/in/lemonway',
+            $data,
+            [],
+            403
+        );
+    }
+
+    //demonstrates old Tier bug
+    function testRechargeWhenAllCommerceHasKYC2AndTier0ShouldPass(): void
+    {
+        $this->markTestIncomplete();
+        $user_id = 2;
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
+
+        $private_accounts = $this->rest('GET', "/user/v3/accounts?type=PRIVATE&kyc_manager=" . $user_id);
+        self::assertGreaterThanOrEqual(1, count($private_accounts));
+        $private_account_id = $private_accounts[0]->id;
+
+        $company_accounts = $this->rest('GET', "/user/v3/accounts?type=COMPANY");
+        self::assertGreaterThanOrEqual(1, count($company_accounts));
+        $company_account_id = $company_accounts[0]->id;
+
+        $data = ['status' => Transaction::$STATUS_RECEIVED,
+            'company_id' => $private_account_id,
+            'amount' => 6000,
+            'commerce_id' => $company_account_id,
+            'concept' => 'test recharge',
+            'pin' => $user_pin,
+            'save_card' => 0];
+
+        $this->useLemonWayMock($data);
+
+        $kyc2_id = $this->rest('GET', "/user/v3/tier?code=KYC2")[0]->id;
+        foreach ($company_accounts as $account) {
+            $route = "/admin/v3/accounts/{$account->id}";
+            $this->rest('PUT', $route, ['level_id' => $kyc2_id, 'tier' => 0]);
+        }
+
+        $resp = $this->rest(
+            'POST',
+            '/methods/v1/in/lemonway',
+            $data,
+            [],
+            201
+        );
+    }
 }

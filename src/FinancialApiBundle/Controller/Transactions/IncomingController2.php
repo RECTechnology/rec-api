@@ -1603,34 +1603,34 @@ class IncomingController2 extends RestApiController{
     {
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
-        $kyc2_id = $em->getRepository(Tier::class)->findOneBy(array('code' => 'KYC2'));
+        $kyc2 = $em->getRepository(Tier::class)->findOneBy(array('code' => 'KYC2'));
 
         $exchangers = $em->getRepository(Group::class)->findBy([
             'type' => 'COMPANY',
-            'level' => $kyc2_id->getId(),
+            'level' => $kyc2->getId(),
             'active' => 1]);
 
-        if (count($exchangers) == 0) {
-            throw new HttpException(403, '"No qualified exchanger found.');
-        }
+        $id_group_root = $this->container->getParameter('id_group_root');
 
         $culture_campaign = $em->getRepository(Campaign::class)->findOneBy(array('name' => Campaign::CULTURE_CAMPAIGN_NAME));
         $receiver_account = $em->getRepository(Group::class)->find($receiver_id);
 
-        if (in_array($culture_campaign, $receiver_account->getCampaigns()->getValues())) {
-            $valid_exchangers = [];
-            foreach ($exchangers as $exchanger) {
-                if (in_array($culture_campaign, $exchanger->getCampaigns()->getValues())) {
+        $receiver_in_campaign = in_array($culture_campaign, $receiver_account->getCampaigns()->getValues());
+
+        $valid_exchangers = [];
+        foreach ($exchangers as $exchanger) {
+            if($exchanger->getId() !== $id_group_root){
+                if (!$receiver_in_campaign || in_array($culture_campaign, $exchanger->getCampaigns()->getValues())) {
                     array_push($valid_exchangers, $exchanger);
                 }
             }
-            if (count($valid_exchangers) == 0) {
-                throw new HttpException(403, 'Exchanger in campaign not found.');
-            }
-            $exchanger_id = $valid_exchangers[random_int(0, count($valid_exchangers) - 1)]->getId();
-        } else {
-            $exchanger_id = $exchangers[random_int(0, count($exchangers) - 1)]->getId();
         }
+
+        if (count($valid_exchangers) == 0) {
+            throw new HttpException(403, '"No qualified exchanger found.');
+        }
+
+        $exchanger_id = $valid_exchangers[random_int(0, count($valid_exchangers) - 1)]->getId();
         return  $exchanger_id;
     }
 
