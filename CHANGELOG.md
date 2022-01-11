@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.29.0](https://github.com/qbitartifacts/rec-api/compare/v2.28.1...v2.29.0) (2022-01-11)
+
+
+### Features
+
+* added bonus_enabled for ltab and tests ([2d690ab](https://github.com/qbitartifacts/rec-api/commit/2d690abe86840bf9fd9a996838d9e8980131040c))
+
+
+### Bug Fixes
+
+* **AccountController:** check whitespaces in DNI and CIF ([#789](https://github.com/qbitartifacts/rec-api/issues/789)) ([018a239](https://github.com/qbitartifacts/rec-api/commit/018a23943e4f9bc83b71da5b20a0514e38fcdaee))
+* **campaign:** add bonus_enabled in campaign ([#809](https://github.com/qbitartifacts/rec-api/issues/809)) ([616f4bd](https://github.com/qbitartifacts/rec-api/commit/616f4bd376f1119982e15a9afd962693fd200003))
+* **IncomingController2:** app_root_group cant be exchanger ([#808](https://github.com/qbitartifacts/rec-api/issues/808)) ([ba3e4c5](https://github.com/qbitartifacts/rec-api/commit/ba3e4c5826e968b3b6eafb9e1e3d25e1df831d0c))
+* **IncomingController:** send all ltab funds in last campaign tx ([86d52f1](https://github.com/qbitartifacts/rec-api/commit/86d52f15499aedcc6fe98d1557119cde9bff7025))
+* **lemonDocument:** add new status duplicated ([#812](https://github.com/qbitartifacts/rec-api/issues/812)) ([aaff40a](https://github.com/qbitartifacts/rec-api/commit/aaff40aad5aaa97daec73947f2e23fa34a2dc610))
+* **pos:** transactions panel and notifications ([#791](https://github.com/qbitartifacts/rec-api/issues/791)) ([4e20218](https://github.com/qbitartifacts/rec-api/commit/4e20218e148dae3888767b78a8b7d3dd6538456d))
+
 ### [2.28.1](https://github.com/qbitartifacts/rec-api/compare/v2.28.0...v2.28.1) (2021-12-27)
 
 ## [2.28.0](https://github.com/qbitartifacts/rec-api/compare/v2.27.0...v2.28.0) (2021-12-27)
