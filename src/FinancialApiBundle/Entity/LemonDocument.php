@@ -24,7 +24,8 @@ class LemonDocument extends Document implements LemonObject {
         "unreadable",
         "expired",
         "wrong_type",
-        "wrong_name"
+        "wrong_name",
+        "duplicated"
     ];
 
     use LemonObjectTrait;
@@ -33,7 +34,7 @@ class LemonDocument extends Document implements LemonObject {
      * @var string $status
      * @ORM\Column(type="string")
      * @StatusProperty(choices={
-     *     "submitted"={"to"={"approved", "declined", "on_hold", "unverified", "unreadable", "expired", "wrong_type", "wrong_name"}},
+     *     "submitted"={"to"={"approved", "declined", "on_hold", "unverified", "unreadable", "expired", "wrong_type", "wrong_name","duplicated"}},
      *     "unverified"={"to"={"approved", "declined", "on_hold", "unreadable", "expired", "wrong_type", "wrong_name"}},
      *     "on_hold"={"to"={"approved", "declined", "unreadable", "expired", "wrong_type", "wrong_name"}},
      *     "declined"={"to"={"archived"}},
@@ -44,6 +45,7 @@ class LemonDocument extends Document implements LemonObject {
      *     "auto_fetched"={"to"={"approved"}},
      *     "approved"={"to"={"expired"}},
      *     "archived"={"final"=true},
+     *     "duplicated"={"final"=true},
      * })
      * @Serializer\Groups({"manager"})
      */
