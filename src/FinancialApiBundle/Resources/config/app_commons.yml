@@ -33,6 +33,20 @@ services:
         arguments:
             - "@doctrine"
 
+    net.app.commons.transaction_flow_handler:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\TransactionFlowHandler
+        arguments:
+            - "@doctrine_mongodb"
+            - "@doctrine"
+            - "@net.app.commons.balance_manipulator"
+
+    net.app.commons.bonus_handler:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\BonusHandler
+        arguments:
+            - "@doctrine"
+            - "@net.app.commons.transaction_flow_handler"
+            - "@bonissim_service"
+
     net.app.commons.fee_manipulator:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\FeeManipulator
         arguments:

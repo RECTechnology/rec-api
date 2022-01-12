@@ -14,11 +14,11 @@ use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Exchange;
 use App\FinancialApiBundle\Financial\Currency;
 
-class CheckFiatCommand extends SynchronizedContainerAwareCommand{
+class CheckFiatCommand3 extends SynchronizedContainerAwareCommand{
     protected function configure()
     {
         $this
-            ->setName('rec:fiat:check')
+            ->setName('rec:fiatV3:check')
             ->setDescription('Check fiat transactions')
         ;
     }
@@ -32,19 +32,15 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
         $repoGroup = $em->getRepository('FinancialApiBundle:Group');
         $repoUser = $em->getRepository('FinancialApiBundle:User');
 
-        $output->writeln('get app');
 
-        /** @var IncomingController2 $transactionManager */
-        $transactionManager = $this->getContainer()->get('app.incoming_controller');
-
-        $output->writeln('CHECK FIAT');
+        $output->writeln('CHECK FIAT V3');
         foreach ($method_cname as $method) {
             $output->writeln($method . ' INIT');
 
             $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
                 ->field('method')->equals($method)
                 ->field('type')->equals($type)
-                ->field('version')->equals(1)
+                ->field('version')->equals(3)
                 ->field('status')->in(array('created', 'received'))
                 ->limit(6)
                 ->getQuery();
@@ -77,18 +73,22 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
                         $group = $repoGroup->findOneBy(array("id" =>$id_group_root));
                         $id_user_root = $group->getKycManager()->getId();
                         $user = $repoUser->findOneBy(array("id"=>$id_user_root));
+                        $userAccount = $repoGroup->findOneBy(array("id"=>$transaction->getGroup()));
 
-                        $request = array();
+/*                        $request = array();
                         $request['concept'] = 'Internal exchange';
                         $request['amount'] = $amount * 1000000;
                         $request['address'] = $group_commerce->getRecAddress();
                         $request['pin'] = $user->getPIN();
                         $request['internal_tx'] = '1';
-                        $request['destionation_id'] = $transaction->getGroup();
+                        $request['destionation_id'] = $transaction->getGroup();*/
 
                         $output->writeln('createTransaction');
                         sleep(1);
-                        $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
+                        $txFlowHandler = $this->getContainer()->get('net.app.commons.transaction_flow_handler');
+                        $txFlowHandler->sendRecsWithIntermediary($group, $group_commerce, $userAccount, $amount * 1000000);
+
+                        //$transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
                         $tx_group = $repoGroup->findOneBy(array("id" =>$transaction->getGroup()));
                         $output->writeln('post createTransaction');
                         sleep(1);
@@ -96,8 +96,11 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
                         $dm->persist($transaction);
                         $dm->flush();
                         $output->writeln('CHECK FIAT saved in success status');
-                        $transactionManager->checkCampaign($em, $transaction->getMethod(), $transaction->getAmount(), $transaction->getUser(), $tx_group);
-                        $transactionManager->checkRewardCultureCampaign($data, $tx_group, $output);
+                        //use $txBonusHandler
+                        //$transactionManager->checkCampaign($em, $transaction->getMethod(), $transaction->getAmount(), $transaction->getUser(), $tx_group);
+                        //$transactionManager->checkRewardCultureCampaign($data, $tx_group, $output);
+                        $txBonusHandler = $this->getContainer()->get('net.app.commons.bonus_handler');
+                        $txBonusHandler->bonificateTx($transaction);
                     }
                     else{
                         $output->writeln('ERROR: not commerce_id data');

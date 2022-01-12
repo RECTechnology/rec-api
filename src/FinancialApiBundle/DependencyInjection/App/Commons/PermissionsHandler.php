@@ -37,7 +37,7 @@ class PermissionsHandler{
         $company = $em->getRepository('FinancialApiBundle:Group')->find($transaction->getGroup());
         $tier = $company->getTier();
         $this->container->get('logger')->info('_checkMethodPermissions');
-        $method = $this->container->get('net.app.'.$transaction->getType().'.'.$transaction->getMethod().'.v'.$transaction->getVersion());
+        $method = $this->container->get('net.app.'.$transaction->getType().'.'.$transaction->getMethod().'.v1');
 
         if($method->getMinTier() > $tier){
             throw new HttpException(403, 'You don\'t have the necessary permissions. You must to be Tier '.$method->getMinTier().' and your current Tier is '.$tier);

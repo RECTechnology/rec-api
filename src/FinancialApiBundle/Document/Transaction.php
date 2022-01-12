@@ -8,6 +8,7 @@
 
 namespace App\FinancialApiBundle\Document;
 
+use App\FinancialApiBundle\Entity\Group;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\DependencyInjection\App\Interfaces\TransactionTiming;
@@ -167,6 +168,28 @@ class Transaction implements TransactionTiming {
         $transaction->setGroup($trans->getGroup());
         $transaction->setDeleteOnExpire(false);
         return $transaction;
+    }
+    
+    public static function createInternalTransactionV3(Group $group, $method, $type, $currency){
+        $tx = new Transaction();
+        $tx->setUser($group->getKycManager()->getId());
+        $tx->setGroup($group->getId());
+        $tx->setService($method);
+        $tx->setMethod($method);
+        $tx->setIp('127.0.0.1');
+        $tx->setVersion(3);
+        $tx->setStatus(Transaction::$STATUS_SUCCESS);
+        $tx->setType($type);
+        $tx->setCurrency($currency);
+        $tx->setVariableFee(0);
+        $tx->setFixedFee(0);
+        $tx->setMaxNotificationTries(3);
+        $tx->setNotificationTries(0);
+        $tx->setNotified(false);
+        $tx->setDeleteOnExpire(false);
+        $tx->setDeleted(false);
+
+        return $tx;
     }
 
     /**

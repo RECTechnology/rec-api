@@ -25,6 +25,14 @@ class BonissimAccountService {
 
 
     public function CreateCampaignAccount($user_id, $campaign_name, $amount=0){
+        $this->createAccountStuff($user_id, $campaign_name, $amount);
+    }
+
+    public function CreateCampaignAccountV2($user_id, $campaign_name, $amount=0){
+        return $this->createAccountStuff($user_id, $campaign_name, $amount);
+    }
+
+    private function createAccountStuff($user_id, $campaign_name, $amount=0){
         $em = $this->container->get('doctrine.orm.entity_manager');
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => $campaign_name]);
         $user = $em->getRepository(User::class)->findOneBy(['id' => $user_id]);
@@ -105,9 +113,8 @@ class BonissimAccountService {
             $em->persist($account);
             $em->persist($userAccount);
             $em->flush();
+
+            return $account;
         }
-
-
-
     }
 }

@@ -1,5 +1,10 @@
 #################################################### REAL SERVICE CALLS ##############################################
 
+method_call_createV2:
+    path:  /methods/v3/{type}/{method_cname}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\IncomingController3::make, _format: ~ }
+    methods: [POST]
+
 method_call_create:
     path:  /methods/v{version_number}/{type}/{method_cname}
     defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\IncomingController2::make, _format: ~ }

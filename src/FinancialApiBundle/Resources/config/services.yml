@@ -17,6 +17,11 @@ services:
         calls:
             - [setContainer, ["@service_container"] ]
 
+    app.incoming_controller3:
+        class: App\FinancialApiBundle\Controller\Transactions\IncomingController3
+        calls:
+            - [ setContainer, [ "@service_container" ] ]
+
     messenger:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator
         arguments:
