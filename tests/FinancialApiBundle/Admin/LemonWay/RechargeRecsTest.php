@@ -10,6 +10,7 @@ use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\LemonDocumentKind;
 use App\FinancialApiBundle\Entity\PaymentOrder;
+use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Exception\AppException;
@@ -362,7 +363,10 @@ class RechargeRecsTest extends AdminApiTest {
         $kyc0_id = $this->rest('GET', "/user/v3/tier?code=KYC0")[0]->id;
         $kyc2_id = $this->rest('GET', "/user/v3/tier?code=KYC2")[0]->id;
 
+        $this->setExchangerFunctionTest();
+
         $this->rechargeWhenAllCommerceHasKYC0ShouldFail($company_accounts, $kyc0_id, $data);
+        $this->rechargeWhenAllCommerceHasKYCNullShouldFail($data);
         $this->rechargeWhenAllCommerceHasKYC0AndGroupRootHasKYC2ShouldFail($kyc2_id, $data);
 
     }
@@ -448,6 +452,30 @@ class RechargeRecsTest extends AdminApiTest {
     }
 
     /**
+     * @param array $company_accounts
+     * @param $kyc0_id
+     * @param array $data
+     */
+    private function rechargeWhenAllCommerceHasKYCNullShouldFail(array $data): void
+    {
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $company_accounts = $em->getRepository(Group::class)->findBy(array("type" => "COMPANY"));
+        /** @var Group $account */
+        foreach ($company_accounts as $account) {
+            $account->setLevel(null);
+            $em->flush();
+        }
+
+        $resp = $this->rest(
+            'POST',
+            '/methods/v1/in/lemonway',
+            $data,
+            [],
+            403
+        );
+    }
+
+    /**
      * @param $kyc2_id
      * @param array $data
      */
@@ -505,5 +533,23 @@ class RechargeRecsTest extends AdminApiTest {
             [],
             201
         );
+    }
+
+    function setExchangerFunctionTest(){
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        //PUT at least one company with level null
+        $company_accounts = $em->getRepository(Group::class)->findBy(array("type" => "COMPANY"));
+        $company_accounts[0]->setLevel(null);
+        $em->flush();
+
+        $kyc2 = $em->getRepository(Tier::class)->findOneBy(array('code' => 'KYC2'));
+        $exchangers = $em->getRepository(Group::class)->findBy([
+            'type' => 'COMPANY',
+            'level' => $kyc2->getId(),
+            'active' => 1]);
+
+        foreach ($exchangers as $exchanger){
+            self::assertNotNull($exchanger->getLevel());
+        }
     }
 }

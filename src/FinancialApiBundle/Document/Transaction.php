@@ -98,11 +98,6 @@ class Transaction implements TransactionTiming {
     /**
      * @Exclude
      */
-    public static $TYPE_SWIFT = "swift";
-
-    /**
-     * @Exclude
-     */
     public static $TYPE_FEE = "fee";
 
     /**

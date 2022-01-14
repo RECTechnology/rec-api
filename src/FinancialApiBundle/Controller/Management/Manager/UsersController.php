@@ -83,7 +83,7 @@ class UsersController extends BaseApiController
         $securityContext = $this->get('security.authorization_checker');
 
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
-            throw new HttpException(403, 'You don\'t have the necessary permissions '. print_r($securityContext->getToken()->getUsername(), true));
+            throw new HttpException(403, 'You don\'t have the necessary permissions ');
 
         $result = $this->searchLike($request, User::class, ["id", "username", "email", "name", "phone"]);
         $total = $result['total'];
@@ -181,7 +181,7 @@ class UsersController extends BaseApiController
         $securityContext = $this->get('security.authorization_checker');
 
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
-            throw new HttpException(403, 'You don\'t have the necessary permissions '. print_r($securityContext->getToken()->getUsername(), true));
+            throw new HttpException(403, 'You don\'t have the necessary permissions ');
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -495,8 +495,8 @@ class UsersController extends BaseApiController
         $group_data = array();
         $group_data['id'] = $activeGroup->getId();
         $group_data['name'] = $activeGroup->getName();
-        $group_data['admin'] = $activeGroup->getCreator()->getName();
-        $group_data['email'] = $activeGroup->getCreator()->getEmail();
+        $group_data['admin'] = $activeGroup->getKycManager()->getName();
+        $group_data['email'] = $activeGroup->getKycManager()->getEmail();
 
         $entities->setGroupData($group_data);
 

@@ -74,7 +74,7 @@ class TransactionReportCommand extends ContainerAwareCommand
                 if ($method == "#") $method = $transaction->getService()!=""?$transaction->getService():"#";
                 //$output->writeln($transaction->getId() . " --- " . $transaction->getType() . " --- " . $method);
                 //falten els wallet_to_wallet
-                if($method=="wallet_to_wallet" || $method=="POS-SABADELL" || $method=="POS-BTC-virtual" || $method == "POS" || $method == "POS-FAC-virtual"){
+                if($method == "POS"){
                     //todo
                 }
                 else{
@@ -95,49 +95,7 @@ class TransactionReportCommand extends ContainerAwareCommand
                     if($type == "fee") {
                         $in_info = $transaction->getFeeInfo()['previous_transaction'];
                     }
-                    elseif($method == "btc-halcash_es" || $method == "fac-halcash_es" || $method == "btc-halcash_pl" || $method == "fac-halcash_pl"){
-                        $in_info = $transaction->getPayInInfo()['address'];
-                        //$in_subinfo = $transaction->getPayInInfo()['txid'];
-                        $out_info = "+" . $transaction->getPayOutInfo()['prefix'] . " " .$transaction->getPayOutInfo()['phone'];
-                        $out_subinfo = $transaction->getPayOutInfo()['halcashticket'];
-                    }
-                    elseif($method == "sepa-btc"){
-                        $in_info = $transaction->getPayInInfo()['iban'];
-                        $out_info = $transaction->getPayOutInfo()['address'];
-                        $out_subinfo = $transaction->getPayOutInfo()['txid'];
-                    }
-                    elseif($method == "btc-sepa"){
-                        $in_info = $transaction->getPayInInfo()['address'];
-                        //$in_subinfo = $transaction->getPayInInfo()['txid'];
-                        $out_info = $transaction->getPayOutInfo()['iban'];
-                    }
-                    elseif($method == "easypay-btc"){
-                        $in_info = $transaction->getPayInInfo()['account'];
-                        $in_subinfo = $transaction->getPayInInfo()['reference'];
-                        $out_info = $transaction->getPayOutInfo()['address'];
-                        $out_subinfo = isset($transaction->getPayOutInfo()['txid'])?$transaction->getPayOutInfo()['txid']:"#";
-                    }
-                    elseif($method == "btc-cryptocapital"){
-                        $in_info = $transaction->getPayInInfo()['address'];
-                        //$in_subinfo = $transaction->getPayInInfo()['txid'];
-                        $out_info = $transaction->getPayOutInfo()['email'];
-                    }
-                    elseif($method == "teleingreso-btc" || $method == "teleingreso_usa-btc"){
-                        $in_info = $transaction->getPayInInfo()['teleingreso_id'];
-                        $in_subinfo = $transaction->getPayInInfo()['charge_id'];
-                        $out_info = $transaction->getPayOutInfo()['address'];
-                        $out_subinfo = $transaction->getPayOutInfo()['txid'];
-                    }
-                    elseif($method == "paynet_reference-btc"){
-                        $in_info = $transaction->getPayInInfo()['paynet_id'];
-                        $in_subinfo = $transaction->getPayInInfo()['barcode'];
-                        $out_info = $transaction->getPayOutInfo()['address'];
-                        $out_subinfo = $transaction->getPayOutInfo()['txid'];
-                    }
-                    elseif(($method == "halcash_es" || $method == "halcash_pl") && $type == "out") {
-                        $out_info = "+" . $transaction->getPayOutInfo()['prefix'] . " " .$transaction->getPayOutInfo()['phone'];
-                        $out_subinfo = $transaction->getPayOutInfo()['halcashticket'];
-                    }
+
                     elseif($method == "sepa" && $type == "out") {
                         $out_info = $transaction->getPayOutInfo()['iban'];
                         $out_subinfo = $transaction->getPayOutInfo()['bic_swift'];
@@ -146,19 +104,6 @@ class TransactionReportCommand extends ContainerAwareCommand
                         $in_info = $transaction->getPayInInfo()['iban'];
                         //TODO: millor el hash
                         $in_subinfo = $transaction->getPayInInfo()['reference'];
-                    }
-                    elseif($method == "easypay" && $type == "in") {
-                        $in_info = $transaction->getPayInInfo()['account'];
-                        //TODO: millor el hash
-                        $in_subinfo = $transaction->getPayInInfo()['reference'];
-                    }
-                    elseif(($method == "btc" || $method == "fac") && $type == "out") {
-                        $out_info = $transaction->getPayOutInfo()['address'];
-                        $out_subinfo = $transaction->getPayOutInfo()['txid'];
-                    }
-                    elseif(($method == "btc" || $method == "fac") && $type == "in") {
-                        $in_info = $transaction->getPayInInfo()['address'];
-                        $in_subinfo = isset($transaction->getPayInInfo()['txid'])?$transaction->getPayInInfo()['txid']:"#";
                     }
                     elseif (strpos($method, 'exchange_') !== false) {
                         $in_info = $transaction->getPayInInfo()['currency'];
@@ -188,9 +133,6 @@ class TransactionReportCommand extends ContainerAwareCommand
                     }
 
                     $price = $transaction->getPrice()!=""?$transaction->getPrice()/(pow(10, $out_scale)):"#";
-                    if($out_currency == 'BTC' && $price>0){
-                        $price = pow(10, $in_scale+4)/$price;
-                    }
                     $created = $transaction->getCreated()!=""?$transaction->getCreated():"#";
                     $updated = $transaction->getUpdated()!=""?$transaction->getUpdated():"#";
 

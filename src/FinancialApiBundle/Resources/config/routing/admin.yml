@@ -202,3 +202,24 @@ admin_search_activities:
     path: /admin/v4/activities/search
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ActivityController::searchAdminActivitiesV4 }
     methods: [ GET ]
+
+########################## SYSTEM ############################
+system_get_load:
+    path:  /system/v1/load
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\System\SystemController::load }
+    methods: [GET]
+
+system_get_cores:
+    path:  /system/v1/cores
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\System\SystemController::cores }
+    methods: [GET]
+
+system_get_memory:
+    path:  /system/v1/mem
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\System\SystemController::mem }
+    methods: [GET]
+
+system_get_net:
+    path:  /system/v1/net
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\System\SystemController::net }
+    methods: [GET]

@@ -15,7 +15,6 @@ use App\FinancialApiBundle\Response\ApiResponseV2;
 use App\FinancialApiBundle\Response\ApiResponseV3;
 use App\FinancialApiBundle\Response\MethodResponse;
 use App\FinancialApiBundle\Response\POSResponse;
-use App\FinancialApiBundle\Response\SwiftResponse;
 
 class RestApiController extends FosRestController{
 
@@ -38,13 +37,6 @@ class RestApiController extends FosRestController{
         ));
     }
 
-    protected function restSwift($httpCode, $status, $message = "No info", $id, $method, $amount, $scale, $currency,$created, $updated, $pay_in_info = array(),$pay_out_info = array() ){
-        return $this->handleView($this->view(
-            new SwiftResponse($status, $message, $id, $method, $amount, $scale, $currency ,$created, $updated, $pay_in_info,$pay_out_info),
-            $httpCode
-        ));
-    }
-
     protected function restMethod($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency,$created, $updated, $pay_in_info = array(), $pay_out_info = array() ){
         return $this->handleView($this->view(
             new MethodResponse($status, $message, $id, $amount, $scale, $currency ,$created, $updated, $pay_in_info, $pay_out_info),
@@ -63,8 +55,6 @@ class RestApiController extends FosRestController{
         return $this->handleView($this->view($data, $code));
     }
 
-
-
     protected function restTransaction(Transaction $transaction, $message = "No info"){
         return $this->restV3(
             200,
@@ -76,23 +66,6 @@ class RestApiController extends FosRestController{
             $transaction->getCurrency(),
             $transaction->getUpdated(),
             $transaction->getDataOut()
-        );
-    }
-
-    protected function swiftTransaction(Transaction $transaction, $message = "No info"){
-        return $this->restSwift(
-            200,
-            $transaction->getStatus(),
-            $message,
-            $transaction->getId(),
-            $transaction->getService(),
-            $transaction->getAmount(),
-            $transaction->getScale(),
-            $transaction->getCurrency(),
-            $transaction->getCreated(),
-            $transaction->getUpdated(),
-            $transaction->getPayInInfo(),
-            $transaction->getPayOutInfo()
         );
     }
 

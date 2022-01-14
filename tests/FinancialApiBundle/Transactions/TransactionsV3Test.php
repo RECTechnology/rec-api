@@ -2,7 +2,6 @@
 
 namespace Test\FinancialApiBundle\Transactions;
 
-use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;

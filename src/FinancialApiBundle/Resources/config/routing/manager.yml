@@ -54,13 +54,6 @@ manager_groups_index_v2:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexV2Action, _format: ~ }
     methods: [GET]
 
-manager_groups_read:
-    path:  /groups/v1/show/{id}
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::showAction, _format: ~ }
-    methods: [GET]
-    requirements:
-        id: "[0-9]+"
-
 ##manager_groups_add:
 ##    path:  /manager/v1/groups
 ##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::createAction, _format: ~ }

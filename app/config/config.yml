@@ -9,9 +9,6 @@ imports:
     - { resource: "@FinancialApiBundle/Resources/config/app_drivers.yml" }
     - { resource: "@FinancialApiBundle/Resources/config/app_tickers.yml" }
     - { resource: "@FinancialApiBundle/Resources/config/app_wallets.yml" }
-    - { resource: "@FinancialApiBundle/Resources/config/app_money_ways.yml" }
-    - { resource: "@FinancialApiBundle/Resources/config/app_exchanges.yml" }
-    - { resource: "@FinancialApiBundle/Resources/config/app_config.yml" }
 
 framework:
     #esi:             ~

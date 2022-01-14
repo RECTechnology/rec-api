@@ -27,6 +27,8 @@
                 <directory>src/*Bundle/Resources</directory>
                 <directory>src/*/*Bundle/Resources</directory>
                 <directory>src/*/Bundle/*Bundle/Resources</directory>
+                <directory>src/*Bundle/Migrations</directory>
+                <directory>src/*Bundle/DataFixture</directory>
             </exclude>
         </whitelist>
     </filter>

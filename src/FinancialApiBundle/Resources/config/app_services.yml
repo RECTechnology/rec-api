@@ -3,11 +3,6 @@ services:
     net.app.service_provider:
         class: App\FinancialApiBundle\DependencyInjection\AppServiceProvider
 
-    net.app.swift_provider:
-        class: App\FinancialApiBundle\DependencyInjection\AppSwiftProvider
-        arguments:
-            - ["rec-sepa", "sepa-rec"]
-
     net.app.method_provider:
         class: App\FinancialApiBundle\DependencyInjection\AppMethodProvider
         arguments:

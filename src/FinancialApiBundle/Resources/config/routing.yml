@@ -14,12 +14,6 @@ User:
 Transactions:
     resource: routing/transactions.yml
 
-Exchange:
-    resource: routing/exchange.yml
-
-KYC:
-    resource: routing/kyc.yml
-
 Public:
     resource: routing/public.yml
 
