@@ -565,7 +565,8 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->assertStringContainsString((count($respPos) * 3) . ' notifications found', $output);
     }
 
-    function testPrivateNoCultureAccountPayToCultureCommerceShouldFail(): void
+    function testSendFromNoCultureAccountToCultureAccountShouldFail(): void
+
     {
         $this->setClientIp($this->faker->ipv4);
         $reciver = $this->getAsAdmin('/admin/v3/accounts?name='.AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name'])[0];

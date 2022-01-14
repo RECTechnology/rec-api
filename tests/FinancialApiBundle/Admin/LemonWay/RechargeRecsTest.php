@@ -146,7 +146,7 @@ class RechargeRecsTest extends AdminApiTest {
         $this->runCommand('rec:crypto:check');
     }
 
-    function testRechargeCultureAccountShuldSend50(){
+    function testRechargeCultureAndGetReward(){
 
         $transaccion_amount = 200;
 
@@ -194,9 +194,6 @@ class RechargeRecsTest extends AdminApiTest {
 
         // limits
         $this->sendFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
-        $this->receiveFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
-
-
     }
 
     /**
