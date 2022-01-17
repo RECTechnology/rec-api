@@ -187,7 +187,8 @@ class BonusHandler{
         //TODO calcular el bonificable amount
         $bonificableAmount = $this->getBonificable($ltabAccount);
 
-        $bonificationAmount =round($bonificableAmount * $campaign->getRedeemablePercentage()/100,2)*1e8;
+        $campaign_balance = $campaignAccount->getWallet('REC')->getBalance();
+        $bonificationAmount =min($campaign_balance, round($bonificableAmount * $campaign->getRedeemablePercentage()/100,2)*1e8);
         if($bonificationAmount > 0){
             $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $ltabAccount, $bonificationAmount);
             //QUItar redeemable y suamr al rewarded
