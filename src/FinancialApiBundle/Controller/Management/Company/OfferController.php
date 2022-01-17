@@ -48,10 +48,10 @@ class OfferController extends BaseApiController{
         /** @var Offer $offer */
         $offer = $em->getRepository('FinancialApiBundle:Offer')->find($offer_id);
 
+        if(!$offer) throw new HttpException(404, 'Offer not found');
+
         if($offer->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() || !$this->isGranted('ROLE_ADMIN') )
             throw new HttpException(403, 'You don\'t have the necessary permissions');
-
-        if(!$offer) throw new HttpException(404, 'Offer not found');
 
         if($request->request->has('end')){
             $end = date_create($request->request->get('end'));
