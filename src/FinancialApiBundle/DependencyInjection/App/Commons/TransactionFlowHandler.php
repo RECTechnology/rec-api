@@ -102,7 +102,10 @@ class TransactionFlowHandler{
             'address' => $to->getRecAddress(),
             'txid' => $rootOutTxId,
             'status' => Transaction::$STATUS_SENT,
-            'final' => true
+            'final' => true,
+            'receiver' => $to->getId(),
+            'name_receiver' => $to->getName(),
+            'image_receiver' => $to->getCompanyImage()
         ];
 
         $txOut->setPayOutInfo($payOutInfo);
@@ -126,6 +129,8 @@ class TransactionFlowHandler{
         $txIn->setScale(8);
         $txIn->setInternal($internal);
 
+        $senderInfo = $this->getSenderInfo($previousTx);
+
         $paymentInfo = $previousTx->getPayOutInfo();
         $payInInfo = [
             'amount' => $previousTx->getAmount(),
@@ -138,12 +143,40 @@ class TransactionFlowHandler{
             'confirmations' => 4,
             'concept' => $txDataIn['concept'],
             'status' => Transaction::$STATUS_SUCCESS,
-            'final' => true
+            'final' => true,
+            'image_sender' => $senderInfo['image_sender'],
+            'name_sender' => $senderInfo['name_sender'],
+            'sender' => $senderInfo['id_sender']
         ];
 
         $txIn->setPayInInfo($payInInfo);
 
         return $txIn;
+    }
+
+    private function getSenderInfo(Transaction $previousTx): array
+    {
+        $sender_id = $previousTx->getGroup();
+        /** @var Group $sender */
+        $sender = $this->doctrine->getRepository(Group::class)->find($sender_id);
+
+        if($previousTx->getInternal()){
+            $senderInfo = array(
+                'image_sender' => '',
+                'name_sender' => "Treasure account",
+                'id_sender' => 0
+            );
+        }else{
+            $senderInfo = array(
+                'image_sender' => $sender->getCompanyImage(),
+                'name_sender' => $sender->getName(),
+                'id_sender' => $sender->getId()
+            );
+        }
+
+
+        return $senderInfo;
+
     }
 
 }
