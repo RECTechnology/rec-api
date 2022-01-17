@@ -76,6 +76,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
             [],
             201
         );
+        self::assertEquals(10e8 * 0.15, $resp->extra_data->rewarded_ltab);
 
         $accountRoute = "/user/v1/account";
         //generate LTAB transaction

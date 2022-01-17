@@ -529,7 +529,7 @@ class IncomingController3 extends RestApiController{
         //if bonificable generate inetrnal tx from a to c throug b
         //check if tx has to be bonified
         $txBonusHandler = $this->get('net.app.commons.bonus_handler');
-        $txBonusHandler->bonificateTx($transaction);
+        $extra_data = $txBonusHandler->bonificateTx($transaction);
 
         $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
         $logger->info('(' . $group_id . ')(T) FINAL');
@@ -537,6 +537,7 @@ class IncomingController3 extends RestApiController{
 
         $response = $this->methodTransaction(201, $transaction, "Done");
         $content = json_decode($response->getContent(), true);
+        $content['extra_data'] = $extra_data;
         $response->setContent(json_encode($content));
         return $response;
 
@@ -789,5 +790,4 @@ class IncomingController3 extends RestApiController{
             }
         }
     }
-
 }

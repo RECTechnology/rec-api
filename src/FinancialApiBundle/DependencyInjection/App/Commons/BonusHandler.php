@@ -47,13 +47,14 @@ class BonusHandler{
     }
         //todo separate code (duplicated calls)
     public function bonificateTx(Transaction $tx){
-
+        $extra_data = [];
         $this->setUpBonificator($tx);
-        if($this->isLTABBonificable()) $this->generateLTABBonification();
+        if($this->isLTABBonificable()) $extra_data = $this->generateLTABBonification();
 
         if($this->isCultureBonificable()) $this->generateCultureBonification();
 
         if($this->isRedeemableLTAB()) $this->redeemTxLTAB();
+        return $extra_data;
     }
 
     private function setUpBonificator(Transaction $tx){
@@ -195,7 +196,12 @@ class BonusHandler{
             $ltabAccount->setRedeemableAmount($ltabAccount->getRedeemableAmount() - $bonificableAmount);
             $bonificatedAmount = $ltabAccount->getRewardedAmount();
             $ltabAccount->setRewardedAmount($bonificatedAmount + $bonificableAmount);
+            $em->flush();
             //TODO return extra_data;
+            $extra_data = ['rewarded_ltab' => $bonificationAmount];
+            return $extra_data;
+        }else{
+            return [];
         }
     }
 
