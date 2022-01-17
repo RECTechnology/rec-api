@@ -1360,10 +1360,10 @@ class IncomingController2 extends RestApiController{
                 $user_private_accounts = $accountRepo->findBy(['kyc_manager' => $user_id, 'type' => Group::ACCOUNT_TYPE_PRIVATE]);
                 $user_balance = 0;
                 foreach ($user_private_accounts as $account) {
-                    if (!$account->getCampaigns()->contains($campaign)) {
-                        $user_balance = $user_balance + $account->getWallets()[0]->getBalance();
-                    } else {
+                    if ($account->getCampaigns()->contains($campaign)) {
                         $bonissim_account = $account;
+                    } elseif(count($account->getCampaigns()) == 0) {
+                        $user_balance = $user_balance + $account->getWallets()[0]->getBalance();
                     }
                 }
                 $user_balance = max($user_balance - $params['amount'], 0);

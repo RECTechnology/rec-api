@@ -196,6 +196,18 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $orm,
             $faker,
             $user_LTAB,
+            [],
+            self::ACCOUNT_TYPE_PRIVATE,
+            self::ACCOUNT_SUBTYPE_NORMAL,
+            2,
+            Campaign::CULTURE_CAMPAIGN_NAME,
+            1000e8
+        );
+
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user_LTAB,
             [BaseApiV2Controller::ROLE_ORGANIZATION],
             self::ACCOUNT_TYPE_ORGANIZATION,
             self::ACCOUNT_SUBTYPE_RETAILER,

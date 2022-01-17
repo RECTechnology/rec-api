@@ -153,9 +153,6 @@ class RechargeV3RecsTest extends AdminApiTest {
         self::assertEquals(204, $resp->getStatusCode());
         $user_id = $user["data"]["id"];
 
-        $private_culture_account = $this->rest('GET', "/user/v3/groups/search?name=".Campaign::CULTURE_CAMPAIGN_NAME);
-        self::assertEquals(sizeof($private_culture_account), 1);
-
         $private_culture_accounts = $this->rest('GET', "/user/v3/accounts?campaigns=2&type=PRIVATE&kyc_manager=".$user_id);
         self::assertCount(1, $private_culture_accounts);
 

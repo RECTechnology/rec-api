@@ -723,10 +723,10 @@ class IncomingController3 extends RestApiController{
                 $user_private_accounts = $accountRepo->findBy(['kyc_manager' => $user_id, 'type' => Group::ACCOUNT_TYPE_PRIVATE]);
                 $user_balance = 0;
                 foreach ($user_private_accounts as $account) {
-                    if (!$account->getCampaigns()->contains($campaign)) {
-                        $user_balance = $user_balance + $account->getWallets()[0]->getBalance();
-                    } else {
+                    if ($account->getCampaigns()->contains($campaign)) {
                         $bonissim_account = $account;
+                    } elseif(count($account->getCampaigns()) == 0) {
+                        $user_balance = $user_balance + $account->getWallets()[0]->getBalance();
                     }
                 }
                 $user_balance = max($user_balance - $params['amount'], 0);
@@ -789,77 +789,5 @@ class IncomingController3 extends RestApiController{
             }
         }
     }
-
-    /**
-     * @param object|null $group
-     * @param object|null $campaign
-     * @param Group $destination
-     * @param $user_id
-     * @param bool $user_has_bouth_accounts
-     * @param $params
-     * @return array
-     */
-    private function bonificate_ltab(?object $group, ?object $campaign, Group $destination, $user_id, bool $user_has_bouth_accounts, $params): array
-    {
-        $extra_data = [];
-        $satoshi_decimals = 1e8;
-
-        /** @var EntityManagerInterface $em */
-        $em = $this->getDoctrine()->getManager();
-        $accountRepo = $em->getRepository(Group::class);
-        $sender_in_campaign = $accountRepo->find($group->getId())->getCampaigns()->contains($campaign);
-        $reciver_in_campaign = $accountRepo->find($destination->getId())->getCampaigns()->contains($campaign);
-        if (!$sender_in_campaign && $reciver_in_campaign &&
-            $destination->getType() == Group::ACCOUNT_TYPE_ORGANIZATION) { // sender is not bonissim and reciver is bonissim
-            $campaign_accounts = $campaign->getAccounts();
-
-            foreach ($campaign_accounts as $account) {
-                if ($account->getKycManager()->getId() == $user_id && $account->getType() == Group::ACCOUNT_TYPE_PRIVATE) { // account is bonissim and private
-
-
-                    //user id is the user who makes the tx
-                    //destination is the store account
-                    //TODO chek if this user is kyc manager in the store
-                    if (!$user_has_bouth_accounts) {
-                        $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
-                        $token = $this->get('security.token_storage')->getToken();
-                        $user = isset($token) ? $token->getUser() : null;
-
-                        $redeemable_amount = $account->getRedeemableAmount();
-                        $new_rewarded = min($redeemable_amount, $params['amount'] / $satoshi_decimals);
-
-                        if ($new_rewarded > 0 and isset($user)) {
-                            // send 15% from campaign account to commerce and from commerce to bonissim account
-
-                            $request = array();
-                            $request['concept'] = 'Internal exchange';
-                            $request['amount'] = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
-                            $request['pin'] = $user->getPin();
-                            $request['address'] = $destination->getRecAddress();
-                            $request['internal_tx'] = '1';
-                            $request['destionation_id'] = $account->getId();
-                            //$this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
-
-                            $amount = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
-                            $txFlowHandler = $this->get('net.app.commons.transaction_flow_handler');
-                            $txFlowHandler->sendRecsWithIntermediary($campaign_account, $destination, $account, $amount);
-
-
-                            $account->setRedeemableAmount($redeemable_amount - $new_rewarded);
-                            $rewarded_amount = $account->getRewardedAmount();
-                            $account->setRewardedAmount($rewarded_amount + $new_rewarded);
-                            $em->persist($account);
-                            $em->flush();
-
-
-                            $extra_data = ['rewarded_ltab' => $request['amount']];
-                        }
-                    }
-                }
-            }
-        }
-        return $extra_data;
-    }
-
 
 }

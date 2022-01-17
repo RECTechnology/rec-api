@@ -109,6 +109,9 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $culture_admin_account = $orm->getRepository(Group::class)
             ->findOneBy(['name' => 'CULT21']);
 
+        $culture_private_account = $orm->getRepository(Group::class)
+            ->findOneBy(['name' =>Campaign::CULTURE_CAMPAIGN_NAME]);
+
         $accountsInCampaign = array();
         $accountsInCampaign[] = $bonissim_organization_account;
         $accountsInCampaign[] = $bonissim_organization_account_ltab;
@@ -128,7 +131,8 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
 
         $culture_admin_account->setCampaigns([$culture_campaign]);
         $culture_organization_account->setCampaigns([$culture_campaign]);
-        $culture_campaign->setAccounts([$culture_organization_account, $culture_admin_account]);
+        $culture_private_account->setCampaigns([$culture_campaign]);
+        $culture_campaign->setAccounts([$culture_organization_account, $culture_admin_account, $culture_private_account]);
 
         $orm->persist($ltab_campaign);
         $orm->persist($culture_campaign);

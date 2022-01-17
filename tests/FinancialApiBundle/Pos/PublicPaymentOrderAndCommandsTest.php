@@ -466,7 +466,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     }
 
-    function testAccountPaysToNoBonissimCommerceShouldRecuceRedeemable()
+    function testAccountPaysToNoBonissimCommerceShouldReduceRedeemable()
     {
         $this->setClientIp($this->faker->ipv4);
 
@@ -514,7 +514,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         foreach ($accounts as $account){
             if($account->kyc_manager->username == $private_account->kyc_manager->username and
                 $account->type == 'PRIVATE' and
-                $account->name != Campaign::BONISSIM_CAMPAIGN_NAME){
+                !isset($account->campaigns[0])){
                 $usar_total_balance += $account->wallets[0]->available;
             }
         }
