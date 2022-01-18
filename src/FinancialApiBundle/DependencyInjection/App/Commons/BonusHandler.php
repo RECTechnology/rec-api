@@ -226,7 +226,7 @@ class BonusHandler{
         $satoshi_decimals = 1e8;
         $bonificableAmount = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
 
-        $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount);
+        $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount, 'Bonificació Cultural +' . $campaign->getRedeemablePercentage() . '%');
     }
 
     private function getExchanger($receiver_id): Group

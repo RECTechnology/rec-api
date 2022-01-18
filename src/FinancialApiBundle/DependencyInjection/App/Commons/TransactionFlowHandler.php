@@ -31,7 +31,8 @@ class TransactionFlowHandler{
         $this->balanceManipulator = $balanceManipulator;
     }
 
-    public function sendRecsWithIntermediary(Group $rootAccount, Group $intermediaryAccount, Group $userAccount, $amount){
+    public function sendRecsWithIntermediary(Group $rootAccount, Group $intermediaryAccount, Group $userAccount, $amount, $concept = 'Internal exchange'){
+        //TODO we need to know if it's a bonification
         //send money from root to intermediary
         //rec out root
         $rootTxOut = $this->sendRecsToAddress($rootAccount, $intermediaryAccount, $amount);
@@ -41,7 +42,7 @@ class TransactionFlowHandler{
         //rec out intermediary
         $intermediaryTxOut = $this->sendRecsToAddress($intermediaryAccount, $userAccount, $amount);
         //rec in final user
-        $userAccountTxIn = $this->receiveRecs($userAccount, $intermediaryTxOut, false);
+        $userAccountTxIn = $this->receiveRecs($userAccount, $intermediaryTxOut, false, $concept);
 
         $dm = $this->mongo->getManager();
         $dm->persist($rootTxOut);
@@ -87,7 +88,7 @@ class TransactionFlowHandler{
 
         $dataIn = [
             'amount' => $amount,
-            'concept' => 'Internal Exchange v2',
+            'concept' => 'Internal exchange',
             'url_notification' => ''
         ];
         $txOut->setDataIn($dataIn);
@@ -112,14 +113,15 @@ class TransactionFlowHandler{
         return $txOut;
     }
 
-    private function receiveRecs(Group $receiver, Transaction $previousTx, $internal = true){
+    private function receiveRecs(Group $receiver, Transaction $previousTx, $internal = true, $concept = 'Internal exchange'){
 
         $txIn = Transaction::createInternalTransactionV3($receiver, 'rec', 'in', Currency::$REC);
 
+        //TODO fix concept dependding if it's internal or not
         $txDataIn = $previousTx->getDataIn();
         $dataIn = [
             'amount' => $previousTx->getAmount(),
-            'concept' => $txDataIn['concept'],
+            'concept' => $concept,
             'url_notification' => ''
         ];
         $txIn->setDataIn($dataIn);

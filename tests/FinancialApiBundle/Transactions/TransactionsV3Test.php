@@ -24,7 +24,6 @@ class TransactionsV3Test extends BaseApiTest {
 
     }
 
-
     private function getSingleStore(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $store = $this->rest('GET', '/admin/v3/accounts?type=COMPANY')[0];
@@ -124,7 +123,6 @@ class TransactionsV3Test extends BaseApiTest {
             400
         );
     }
-
 
     function testPay10000RecToStoreShouldReturn400(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
