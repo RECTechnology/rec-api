@@ -10,11 +10,8 @@ use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use App\FinancialApiBundle\Exception\AppException;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
-use PhpOption\None;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,12 +20,9 @@ use App\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\LimitManipulator;
 use App\FinancialApiBundle\Document\Transaction;
-use App\FinancialApiBundle\Entity\CreditCard;
 use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\ServiceFee;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserWallet;
-use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\Controller\SecurityTrait;
 
 class IncomingController3 extends RestApiController{
@@ -74,7 +68,6 @@ class IncomingController3 extends RestApiController{
 
         $logger = $this->get('transaction.logger');
         $group_id = $group->getId();
-        $logger->info('(' . $group_id . ')(T) INIT');
         $logger->info('(' . $group_id . ') Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
         $method = $this->get('net.app.'.$type.'.'.$method_cname.'.v'.$version_number);
 
@@ -92,6 +85,9 @@ class IncomingController3 extends RestApiController{
         $user = $em->getRepository('FinancialApiBundle:User')->find($user_id);
         $logger->info('(' . $user_id . ')(T) FIND USER');
 
+        //set some global variables
+        $isPaymentOrder = false;
+        $paymentOrder = null;
         //obtain wallet and check founds for cash_out services for this group
 
         $logger->info("getting account wallet for {$group->getId()}, currency {$method->getCurrency()}");
@@ -121,6 +117,10 @@ class IncomingController3 extends RestApiController{
             $order = $orderRepo->findOneBy(
                 ['payment_address' => $data['address']]
             );
+            if($order){
+                $isPaymentOrder = true;
+                $paymentOrder = $order;
+            }
             if ($order and $order->getStatus() == PaymentOrder::STATUS_FAILED){
                 throw new HttpException(400, 'Failed payment transaction');
             };
@@ -338,31 +338,24 @@ class IncomingController3 extends RestApiController{
             $logger->info('(' . $group_id . ')(T) CHECK ADDRESS');
 
             if(!$destination){
-                // checking if the address belongs to an order
-                $orderRepo = $em->getRepository(PaymentOrder::class);
+                if($isPaymentOrder){
 
-                /** @var PaymentOrder $order */
-                $order = $orderRepo->findOneBy(
-                    ['payment_address' => $payment_info['address'], 'status' => PaymentOrder::STATUS_EXPIRED]
-                );
-                if($order) {
-                    throw new AppException(400, "Payment order has expired");
-                }
-
-                /** @var PaymentOrder $order */
-                $order = $orderRepo->findOneBy(
-                    ['payment_address' => $payment_info['address'], 'status' => PaymentOrder::STATUS_IN_PROGRESS]
-                );
-                if($order){
-                    if($payment_info['amount'] != $order->getAmount()) {
-                        throw new AppException(
-                            400,
-                            "Amount sent and order mismatch, (sent: {$payment_info['amount']}, order: {$order->getAmount()})"
-                        );
+                    if($paymentOrder->getStatus() === PaymentOrder::STATUS_EXPIRED) {
+                        throw new AppException(400, "Payment order has expired");
                     }
-                    $destination = $order->getPos()->getAccount();
-                }
-                else {
+
+                    if($paymentOrder->getStatus() === PaymentOrder::STATUS_IN_PROGRESS) {
+                        if($payment_info['amount'] !== $paymentOrder->getAmount()) {
+                            throw new AppException(
+                                400,
+                                "Amount sent and order mismatch, (sent: {$payment_info['amount']}, order: {$order->getAmount()})"
+                            );
+                        }
+                        $destination = $order->getPos()->getAccount();
+                    }else {
+                        throw new HttpException(400,'Destination address does not exists');
+                    }
+                }else{
                     throw new HttpException(400,'Destination address does not exists');
                 }
             }
@@ -478,24 +471,17 @@ class IncomingController3 extends RestApiController{
 
                 $em->getConnection()->commit();
 
-                $params = array(
-                    'amount' => $amount,
-                    'concept' => $concept,
-                    'address' => $address,
-                    'txid' => $txid,
-                    'sender' => $group->getId()
-                );
-                if(isset($data['internal_tx']) && $data['internal_tx']=='1') {
-                    $params['internal_tx']='1';
-                    $params['destionation_id']=$data['destionation_id'];
-                }
-
-                //TODO remove this call and create the in transaction directlly
-                $logger->info('(' . $group_id . ')(T) Incomig transaction... Create New');
+                $logger->info('(' . $group_id . ')(T) Incomig transaction... ReceiveRecsFromOutTx');
                 $txFlowHandler = $this->get('net.app.commons.transaction_flow_handler');
                 $txFlowHandler->receiveRecsFromOutTx($destination, $transaction);
-                //$this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, '127.0.0.1', $order);
-                $logger->info('(' . $group_id . ')(T) Incomig transaction... New created');
+                if($isPaymentOrder){
+                    $logger->info('(' . $group_id . ')(T) Incomig transaction... is Paymnent Order');
+                    $logger->info('(' . $group_id . ')(T) Incomig transaction... set payment status DONE');
+                    $paymentOrder->setPaymentTransaction($transaction);
+                    $paymentOrder->setStatus(PaymentOrder::STATUS_DONE);
+                    $em->flush();
+                }
+                $logger->info('(' . $group_id . ')(T) Incomig transaction... ');
             }
             else{
                 $transaction->setStatus($payment_info['status']);
@@ -525,15 +511,12 @@ class IncomingController3 extends RestApiController{
         $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
-        //TODO extract all of this in a method or better in a service
         //if bonificable generate inetrnal tx from a to c throug b
         //check if tx has to be bonified
         $txBonusHandler = $this->get('net.app.commons.bonus_handler');
         $extra_data = $txBonusHandler->bonificateTx($transaction);
 
-        $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
         $logger->info('(' . $group_id . ')(T) FINAL');
-
 
         $response = $this->methodTransaction(201, $transaction, "Done");
         $content = json_decode($response->getContent(), true);
