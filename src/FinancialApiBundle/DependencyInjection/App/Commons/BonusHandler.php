@@ -79,7 +79,7 @@ class BonusHandler{
 
             /** @var PaymentOrder $order */
             $order = $orderRepo->findOneBy(
-                ['payment_address' => $address, 'status' => PaymentOrder::STATUS_IN_PROGRESS]
+                ['payment_address' => $address]
             );
             if($order){
                 $destination = $order->getPos()->getAccount();
@@ -116,6 +116,7 @@ class BonusHandler{
         $accountRepo = $em->getRepository(Group::class);
         $client_campaigns = $accountRepo->find($this->clientGroup->getId())->getCampaigns();
         $shop = $this->getTxDestination();
+        if(!$shop) return false;
         $shop_campaigns = $accountRepo->find($shop->getId())->getCampaigns();
 
         if(!$shop_campaigns->contains($campaign)) return false;
