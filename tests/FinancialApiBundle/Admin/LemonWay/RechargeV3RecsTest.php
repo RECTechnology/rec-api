@@ -187,6 +187,73 @@ class RechargeV3RecsTest extends AdminApiTest {
         $this->sendFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
         $this->receiveFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
 
+        //TODO get last transactions and find one with required concept bonification
+        $signedUser = $this->getSignedInUser();
+        $this->rest('PUT', '/user/v1/activegroup', ['group_id' => $private_culture_accounts[0]->id]);
+        $txs = $this->rest('GET','/user/v2/wallet/transactions');
+        $conceptCulturaBonification = 'Bonificació Cultural +50%';
+        $existCulturaBonification = false;
+        foreach ($txs as $tx){
+            if($tx->type === 'in'){
+                $concept = $tx->pay_in_info->concept;
+                if($concept === $conceptCulturaBonification) {
+                    $existCulturaBonification = true;
+                }
+            }
+        }
+
+        self::assertTrue($existCulturaBonification);
+
+    }
+
+    function testRechargeCultureAccountShuldSend50AndCheckConcepts(){
+
+        $transaccion_amount = 200;
+
+        $campaign = $this->rest('GET', "/admin/v3/campaigns?name=".Campaign::CULTURE_CAMPAIGN_NAME)[0];
+        self::assertTrue(isset($campaign));
+
+        $user = json_decode($this->requestJson('GET', '/admin/v3/user/1')->getContent(), true);
+        self::assertFalse($user['data'][$campaign->tos]);
+
+        $resp = $this->requestJson('PUT', '/user/v4/campaign/accept_tos', ["campaign_code" => $campaign->code]);
+        self::assertEquals(204, $resp->getStatusCode());
+        $user_id = $user["data"]["id"];
+
+        $private_culture_accounts = $this->rest('GET', "/user/v3/accounts?campaigns=2&type=PRIVATE&kyc_manager=".$user_id);
+        self::assertCount(1, $private_culture_accounts);
+
+        $private_culture_account_id = $private_culture_accounts[0]->id;
+
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
+
+        $culture_commerce_account = $this->rest('GET', "/user/v3/groups/search?name=".AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']);
+        self::assertEquals(sizeof($culture_commerce_account), 1);
+
+        $data = ['status' => Transaction::$STATUS_RECEIVED,
+            'company_id' => $private_culture_account_id,
+            'amount' => $transaccion_amount * 100, // 2 decimals
+            'commerce_id' => $culture_commerce_account[0]->id,
+            'concept' => 'test recharge',
+            'pin' => $user_pin,
+            'save_card' => 0];
+
+
+        //update mock
+
+        $this->useLemonWayMock($data);
+        //make first recharge
+        $this->executeRecharge($data);
+        $private_culture_accounts = $this->rest('GET', "/user/v3/accounts?id=".$private_culture_account_id);
+
+        self::assertEquals(250, $private_culture_accounts[0]->wallets[0]->balance / 1e8);
+
+        // limits
+        $this->sendFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
+        $this->receiveFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
+
+
 
     }
 

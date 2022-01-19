@@ -143,7 +143,7 @@ class TransactionFlowHandler{
             'expires_in' => 1200,
             'min_confirmations' => 1,
             'confirmations' => 4,
-            'concept' => $txDataIn['concept'],
+            'concept' => $concept,
             'status' => Transaction::$STATUS_SUCCESS,
             'final' => true,
             'image_sender' => $senderInfo['image_sender'],
