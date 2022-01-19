@@ -61,4 +61,25 @@ class TransactionTest extends AdminBaseCalls {
         return $this->rest('GET', $route)[0];
     }
 
+    function testListTransactionsByCompanyShouldWork(){
+
+        $resp = $this->requestJson(
+            'GET',
+            '/company/1/v1/wallet/transactions',
+            [],
+            [],
+        );
+
+        $resp = json_decode($resp->getContent());
+
+        self::assertObjectHasAttribute('data', $resp);
+        $data = $resp->data;
+        self::assertObjectHasAttribute('total', $data);
+        self::assertObjectHasAttribute('daily', $data);
+        self::assertObjectHasAttribute('daily_custom', $data);
+        self::assertObjectHasAttribute('scales', $data);
+        self::assertObjectHasAttribute('balance', $data);
+        self::assertObjectHasAttribute('volume', $data);
+        self::assertObjectHasAttribute('elements', $data);
+    }
 }

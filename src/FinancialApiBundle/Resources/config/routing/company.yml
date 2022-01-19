@@ -25,3 +25,11 @@ map_search:
     path: /map/v1/search
     defaults: {_controller: App\FinancialApiBundle\Controller\Open\MapController::SearchAction }
     methods: [GET]
+
+
+###################   COMPANY WALLET #################
+
+company_wallet_transactions:
+    path:  /company/{company_id}/v1/wallet/transactions
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\WalletController::walletTransactions }
+    methods: [GET]
