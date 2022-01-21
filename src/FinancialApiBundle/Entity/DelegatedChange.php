@@ -75,6 +75,7 @@ class DelegatedChange extends AppObject {
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change", cascade={"remove"})
      * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(2)
      */
     protected $data;
 

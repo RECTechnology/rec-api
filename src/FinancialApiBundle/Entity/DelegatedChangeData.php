@@ -43,6 +43,7 @@ class DelegatedChangeData extends AppObject {
      * @Assert\NotBlank()
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\DelegatedChange", inversedBy="data")
      * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(1)
      */
     private $delegated_change;
 
@@ -53,6 +54,7 @@ class DelegatedChangeData extends AppObject {
      * @RECAssert\IsUser()
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
      * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(1)
      */
     private $account;
 
@@ -62,6 +64,7 @@ class DelegatedChangeData extends AppObject {
      * @RECAssert\IsCommerce()
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
      * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(1)
      */
     private $exchanger;
 
@@ -69,6 +72,7 @@ class DelegatedChangeData extends AppObject {
      * @Assert\NotNull
      * @ORM\Column(type="float", nullable=true)
      * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(1)
      */
     private $amount;
 
@@ -91,6 +95,7 @@ class DelegatedChangeData extends AppObject {
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\CreditCard")
      * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(1)
      */
     private $creditcard;
 
