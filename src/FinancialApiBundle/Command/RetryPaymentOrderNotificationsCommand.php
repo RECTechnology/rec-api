@@ -59,7 +59,7 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
 
         $notifications = $repo->findBy(
             ["status" => PaymentOrderNotification::STATUS_RETRYING],
-            ['updated' => 'ASC'], # older goes first
+            ['created' => 'ASC'], # older goes first
             $limit
         );
 
