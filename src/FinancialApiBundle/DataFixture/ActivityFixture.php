@@ -34,7 +34,7 @@ class ActivityFixture extends Fixture implements DependentFixtureInterface {
         $activity = new Activity();
         $activity->setName($name);
         $activity->setNameEs($name);
-        $activity->setNameCa($name);
+        $activity->setNameCa('Cat'.$name);
         $activity->setParent($parent);
         $orm->persist($activity);
         $orm->flush();

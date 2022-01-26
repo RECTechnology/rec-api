@@ -134,29 +134,40 @@ class ActivityController extends BaseApiController{
      * @return Response
      */
     public function searchAdminActivitiesV4(Request $request){
+
         $parent_id =$request->query->get('parent_id');
+        $name = $request->query->get('search', '');
+
         $em = $this->getDoctrine()->getManager();
-        $activities = [];
-        if(isset($parent_id) ){
-            if(is_numeric($parent_id)){
-                $parent = $em->getRepository(Activity::class)->find($parent_id);
 
-                if ($parent){
-                    $activities = $em->getRepository(Activity::class)->findBy(array(
-                        "parent"=>$parent_id
-                    ));
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder();
 
-                    array_push($activities, $parent);
-                }
-            }elseif($parent_id == 'null'){
-                $activities = $em->getRepository(Activity::class)->findBy(array(
-                    "parent"=> null
-                ));
-            }
-        }else{
-            $activities = $em->getRepository(Activity::class)->findAll();
+        $select = 'a.id, ' .
+            'a.name, ' .
+            'a.name_es, ' .
+            'a.name_ca, ' .
+            'identity(a.parent) as parent';
+
+        $qb->select($select)->from(Activity::class, 'a');
+
+        if($name !== '' && strlen($name) > 3) {
+            $qb->andWhere("(a.name LIKE '%$name%' OR a.name_es LIKE '%$name%' OR a.name_ca LIKE '%$name%')");
         }
-        return $this->restV2(200, "ok", "Done", $this->secureOutput($activities));
+
+        if(isset($parent_id)){
+            if(is_numeric($parent_id)){
+
+                $qb->andWhere("(a.id = '$parent_id' OR a.parent ='$parent_id')");
+
+            }elseif($parent_id === 'null'){
+
+                $qb->andWhere("a.parent IS NULL");
+            }
+        }
+        $activities = $qb->getQuery()->getResult();
+
+        return $this->restV2(200, "ok", "Done", $activities);
 
     }
 }
