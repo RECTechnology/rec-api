@@ -32,6 +32,11 @@ class Login2faController extends RestApiController{
 
         $username = strtoupper($request->get('username'));
         $username = preg_replace("/[^0-9A-Z]/", "", $username);
+        $user_checker = $this->container->get('net.app.commons.user_checker');
+        $dni_val = $user_checker->validateUserIdentification($username);
+        if(!$dni_val['result'])
+            throw new HttpException(400, $dni_val['errors'][0]);
+
         $pin = $request->request->get('pin');
         $kyc = 0;
         if($request->request->has('kyc')) $kyc = $request->get('kyc');

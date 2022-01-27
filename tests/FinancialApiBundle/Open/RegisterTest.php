@@ -70,6 +70,7 @@ class RegisterTest extends BaseApiTest {
             'phone' => random_int(600000000, 799999999),
             'prefix' => '34',
             'dni' => $dni,
+            'username' => $dni,
             'company_cif' => 'X8000107V',
             'company_name' => 'panaderia'
         ];

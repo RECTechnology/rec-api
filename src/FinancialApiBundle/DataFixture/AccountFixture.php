@@ -345,7 +345,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $kyc->setName($user->getName());
             $kyc->setEmail($user->getEmail());
             $kyc->setPhone("678678678");
-            if($user->getUsername() == 'USERPHONENONVALIDATED'){
+            if($user->getName() == 'USERPHONENONVALIDATED'){
                 $kyc->setPhoneValidated(false);
             }else{
                 $kyc->setPhoneValidated(true);

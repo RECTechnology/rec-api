@@ -47,6 +47,11 @@ services:
             - "@net.app.commons.transaction_flow_handler"
             - "@bonissim_service"
 
+    net.app.commons.user_checker:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\UserChecker
+        arguments:
+            - "@service_container"
+
     net.app.commons.fee_manipulator:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\FeeManipulator
         arguments:

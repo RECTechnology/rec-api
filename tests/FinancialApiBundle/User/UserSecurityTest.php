@@ -181,7 +181,7 @@ class UserSecurityTest extends BaseApiTest
     {
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         /** @var User $user */
-        $user = $em->getRepository(User::class)->findOneBy(['username' => "ADMINUSER"]);
+        $user = $em->getRepository(User::class)->findOneBy(['name' => "ADMINUSER"]);
 
         /** @var UserGroup $userGroups */
         $userGroups = $user->getGroups();
@@ -249,6 +249,7 @@ class UserSecurityTest extends BaseApiTest
             'POST',
             'oauth/v3/token',
             [
+                'username' => "37468884K",
                 'grant_type' => "client_credentials",
                 'client_id' => "1_".$client->getRandomId(),
                 'client_secret' => $client->getSecret()

@@ -33,6 +33,7 @@ use App\FinancialApiBundle\Controller\SecurityTrait;
 
 class AccountController extends BaseApiController {
 
+
     use SecurityTrait;
 
     function getRepositoryName()
@@ -342,54 +343,6 @@ class AccountController extends BaseApiController {
         return $this->restV2(201,"ok", "Request successful", $response);
     }
 
-    public function validar_dni($dni){
-        if(strpos($dni, " ")) return false;
-        $nie_letter = array('X','Y','Z');
-        $nie_letter_number = array('0','1','2');
-        $letra = substr($dni, -1);
-        $numeros = substr($dni, 0, -1);
-        $numeros = str_replace($nie_letter, $nie_letter_number, $numeros);
-        return ( substr("TRWAGMYFPDXBNJZSQVHLCKE", $numeros%23, 1) == $letra && strlen($letra) == 1 && strlen ($numeros) == 8 );
-    }
-
-    public function validate_cif ($cif) {
-        if(strpos($cif, " ")) return false;
-        $cif = strtoupper($cif);
-        $cif_codes = 'JABCDEFGHI';
-
-        $sum = (string) $this->getCifSum ($cif);
-        $n = (10 - substr ($sum, -1)) % 10;
-
-        if (preg_match ('/^[ABCDEFGHJNPQRSUVW]{1}/', $cif)) {
-            if (in_array ($cif[0], array ('A', 'B', 'E', 'H'))) {
-                return ($cif[8] == $n);
-            } elseif (in_array ($cif[0], array ('K', 'P', 'Q', 'S'))) {
-                return ($cif[8] == $cif_codes[$n]);
-            } else {
-                if (is_numeric ($cif[8])) {
-                    return ($cif[8] == $n);
-                } else {
-                    return ($cif[8] == $cif_codes[$n]);
-                }
-            }
-        }
-        return false;
-    }
-
-    function getCifSum($cif) {
-        $sum = $cif[2] + $cif[4] + $cif[6];
-
-        for ($i = 1; $i<8; $i += 2) {
-            $tmp = (string) (2 * $cif[$i]);
-
-            $tmp = $tmp[0] + ((strlen ($tmp) == 2) ?  $tmp[1] : 0);
-
-            $sum += $tmp;
-        }
-
-        return $sum;
-    }
-
     /**
      * @Rest\View
      * @param Request $request
@@ -447,8 +400,10 @@ class AccountController extends BaseApiController {
                 $params['username'] = "0" . $params['username'];
             }
         }
-        if(!$this->validar_dni((string)$params['username']))
-            throw new HttpException(400, 'NIF not valid');
+        $user_checker = $this->container->get('net.app.commons.user_checker');
+        $dni_val = $user_checker->validateUserIdentification((string)$params['username']);
+        if(!$dni_val['result'])
+            throw new HttpException(400, $dni_val['errors'][0]);
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'phone'  =>  $params['phone']
@@ -538,8 +493,10 @@ class AccountController extends BaseApiController {
         }
 
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
-            if(!$this->validate_cif($request->request->get('company_cif'))){
-                throw new HttpException(400, 'CIF not valid');
+            $user_checker = $this->container->get('net.app.commons.user_checker');
+            $cif_val = $user_checker->validateCompanyIdentification((string)$request->request->get('company_cif'));
+            if(!$cif_val['result']){
+                throw new HttpException(400, $cif_val['errors'][0]);
             }
             $company_cif = $request->request->get('company_cif');
         }
@@ -1205,8 +1162,10 @@ class AccountController extends BaseApiController {
                 $params['username'] = "0" . $params['username'];
             }
         }
-        if(!$this->validar_dni((string)$params['username']))
-            throw new HttpException(400, 'NIF not valid');
+        $user_checker = $this->container->get('net.app.commons.user_checker');
+        $dni_val = $user_checker->validateUserIdentification((string)$params['username']);
+        if(!$dni_val['result'])
+            throw new HttpException(400, $dni_val['errors'][0]);
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'phone'  =>  $params['phone']
@@ -1234,12 +1193,13 @@ class AccountController extends BaseApiController {
 
 
         $allowed_types = array('PRIVATE', 'COMPANY');
+
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
-            //We heave added the validar_dni comprobation because a commerce could be autonomous and it should work with dni too
-            if(!$this->validate_cif((string)$request->request->get('company_cif')) &&
-                !$this->validar_dni((string)$request->request->get('company_cif')))
+            $user_checker = $this->container->get('net.app.commons.user_checker');
+            $cif_val = $user_checker->validateCompanyIdentification((string)$request->request->get('company_cif'));
+            if(!$cif_val['result'])
             {
-                throw new HttpException(400, 'CIF not valid');
+                throw new HttpException(400, $cif_val['errors'][0]);
             }
             $type = $allowed_types[1];
             $company_cif = $request->request->get('company_cif');
@@ -1384,9 +1344,10 @@ class AccountController extends BaseApiController {
                 throw new HttpException(404, 'Param ' . $param . ' not found');
             }
         }
-
-        if(!$this->validar_dni($params['dni']))
-            throw new HttpException(400, 'DNI not valid');
+        $user_checker = $this->container->get('net.app.commons.user_checker');
+        $dni_val = $user_checker->validateUserIdentification($params['dni']);
+        if(!$dni_val['result'])
+            throw new HttpException(400, $dni_val['errors'][0]);
 
 
         $em = $this->getDoctrine()->getManager();
@@ -1562,7 +1523,7 @@ class AccountController extends BaseApiController {
             throw new HttpException(404, 'Expired smscode');
         }
         if(strtoupper($user->getDNI()) != strtoupper($params['dni'])){
-            throw new HttpException(404, 'Wrong DNI');
+            throw new HttpException(404, AccountController::DNI_NOT_VALID);
         }
         if($user->getPrefix() != $params['prefix']){
             throw new HttpException(404, 'Wrong prefix');
@@ -1904,7 +1865,7 @@ class AccountController extends BaseApiController {
         $user = $em->getRepository(User::class)->findOneBy(['usernameCanonical' => strtolower($params['dni'])]);
 
         if(!isset($user)){
-            throw new HttpException(404, 'Wrong DNI');
+            throw new HttpException(404, AccountController::DNI_NOT_VALID);
         }
         if($user->getPrefix() != $params['prefix']){
             throw new HttpException(404, 'Wrong prefix');

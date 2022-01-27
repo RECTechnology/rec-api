@@ -14,11 +14,11 @@ use Faker\Generator;
 class UserFixture extends Fixture {
 
     const TEST_USER_CREDENTIALS = ['name' => 'paco', 'username' => '01234567L', 'password' => 'user_user', 'pin' => '0123'];
-    const TEST_ADMIN_CREDENTIALS = ['name' => 'maria', 'username' => 'ADMINUSER', 'password' => 'admin_user', 'pin' => '3210'];
-    const TEST_USER_LOCKED_CREDENTIALS = ['name' => 'juan', 'username' => 'USERLOCKED', 'password' => 'user_locked', 'pin' => '1230'];
-    const TEST_USER_PHONE_NON_VALIDATED = ['name' => 'pepe', 'username' => 'USERPHONENONVALIDATED', 'password' => 'user_phone_non_validated', 'pin' => '2301'];
-    const TEST_USER_LTAB_CREDENTIALS = ['name' => 'eva', 'username' => 'USERLTAB', 'password' => 'user_LTAB', 'pin' => '3012'];
-    const TEST_USER_LTAB_COMMERCE_CREDENTIALS = ['name' => 'jose', 'username' => 'USERLTABCOMMERCE', 'password' => 'user_LTAB_commerce', 'pin' => '0012'];
+    const TEST_ADMIN_CREDENTIALS = ['name' => 'ADMINUSER', 'username' => '69816559J', 'password' => 'admin_user', 'pin' => '3210'];
+    const TEST_USER_LOCKED_CREDENTIALS = ['name' => 'USERLOCKED', 'username' => '89706253C', 'password' => 'user_locked', 'pin' => '1230'];
+    const TEST_USER_PHONE_NON_VALIDATED = ['name' => 'USERPHONENONVALIDATED', 'username' => '62477324D', 'password' => 'user_phone_non_validated', 'pin' => '2301'];
+    const TEST_USER_LTAB_CREDENTIALS = ['name' => 'USERLTAB', 'username' => '95145408C', 'password' => 'user_LTAB', 'pin' => '3012'];
+    const TEST_USER_LTAB_COMMERCE_CREDENTIALS = ['name' => 'USERLTABCOMMERCE', 'username' => '24670133B', 'password' => 'user_LTAB_commerce', 'pin' => '0012'];
     const TEST_SECOND_USER_CREDENTIALS = ['name' => 'paco', 'username' => '01234567B', 'password' => 'user_user', 'pin' => '0123'];
 
     const TEST_POS_MANAGER_CREDENTIALS = ['name' => 'pos', 'username' => '01234467B', 'password' => 'manager_pos', 'pin' => '1223'];
@@ -92,14 +92,14 @@ class UserFixture extends Fixture {
         $user->setLocale('es');
         $user->setTwoFactorAuthentication(true);
         $user->setTwoFactorCode(Google2FA::generate_secret_key());
-        if($credentials['username'] == "USERLOCKED"){
+        if($credentials['name'] == "USERLOCKED"){
             $code = strval(random_int(100000, 999999));
             $user->lockUser();
             $user->setEnabled(false);
             $user->setPasswordFailures(5);
             $user->setLastSmscode($code);
         }
-        if($credentials['username'] == "USERPHONENONVALIDATED"){
+        if($credentials['name'] == "USERPHONENONVALIDATED"){
             $user->setEnabled(false);
         }
         return $user;
