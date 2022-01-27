@@ -46,6 +46,7 @@ class TransactionsV3Test extends BaseApiTest {
             [],
             201
         );
+        $this->searchTransactions();
     }
 
     function testCheckWalletsAfterRecPayment(){
@@ -156,5 +157,70 @@ class TransactionsV3Test extends BaseApiTest {
             [],
             400
         );
+    }
+
+
+    function searchTransactions()
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+
+        $txs = $this->rest(
+            'GET',
+            '/admin/v1/transaction/list', //?start_date='.$start_date,
+            [],
+            [],
+            200
+        );
+
+        $company_id = $txs->list[0][1];
+
+        $resp = $this->requestJson(
+            'GET',
+            '/company/'.$company_id.'/v1/wallet/transactions',
+            [],
+            [],
+        );
+
+        $resp = json_decode($resp->getContent());
+        self::assertEquals($txs->total, $resp->data->total);
+
+        $start_date = date('Y-m-d',strtotime("-1 days"));
+        $finish_date = date('Y-m-d',strtotime("+1 days"));
+
+        $resp = $this->requestJson(
+            'GET',
+            '/company/'.$company_id.'/v1/wallet/transactions?limit=10&offset=0&order=desc&sort=id&query=%7B%22finish_date%22:%22'.$finish_date.'%22,%22start_date%22:%22'.$start_date.'%22,%22exchanges%22:%22all%22,%22methods_out%22:%22all%22,%22methods_in%22:%22all%22%7D',
+            [],
+            [],
+        );
+
+        $resp = json_decode($resp->getContent());
+        self::assertEquals($txs->total, $resp->data->total);
+
+        $start_date = date('Y-m-d',strtotime("-2 days"));
+        $finish_date = date('Y-m-d',strtotime("-1 days"));
+
+        $resp = $this->requestJson(
+            'GET',
+            '/company/'.$company_id.'/v1/wallet/transactions?limit=10&offset=0&order=desc&sort=id&query=%7B%22finish_date%22:%22'.$finish_date.'%22,%22start_date%22:%22'.$start_date.'%22,%22exchanges%22:%22all%22,%22methods_out%22:%22all%22,%22methods_in%22:%22all%22%7D',
+            [],
+            [],
+        );
+
+        $resp = json_decode($resp->getContent());
+        self::assertEquals(0, $resp->data->total);
+
+        $start_date = date('Y-m-d',strtotime("+1 days"));
+        $finish_date = date('Y-m-d',strtotime("+2 days"));
+
+        $resp = $this->requestJson(
+            'GET',
+            '/company/'.$company_id.'/v1/wallet/transactions?limit=10&offset=0&order=desc&sort=id&query=%7B%22finish_date%22:%22'.$finish_date.'%22,%22start_date%22:%22'.$start_date.'%22,%22exchanges%22:%22all%22,%22methods_out%22:%22all%22,%22methods_in%22:%22all%22%7D',
+            [],
+            [],
+        );
+
+        $resp = json_decode($resp->getContent());
+        self::assertEquals(0, $resp->data->total);
     }
 }

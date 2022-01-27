@@ -83,7 +83,7 @@ class WalletController extends RestApiController {
         $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction');
 
         if($request->query->get('query')){
-            $query = $request->query->get('query');
+            $query = json_decode($request->query->get('query'), true);
             $qb->field('group')->equals($company->getId());
 
             if(isset($query['start_date'])){
