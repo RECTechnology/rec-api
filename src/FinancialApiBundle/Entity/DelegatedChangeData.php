@@ -70,6 +70,7 @@ class DelegatedChangeData extends AppObject {
 
     /**
      * @Assert\NotNull
+     * @Assert\GreaterThan(0)
      * @ORM\Column(type="float", nullable=true)
      * @Serializer\Groups({"admin"})
      * @Serializer\MaxDepth(1)

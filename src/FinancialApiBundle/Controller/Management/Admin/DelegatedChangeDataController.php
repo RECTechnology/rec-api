@@ -216,6 +216,7 @@ class DelegatedChangeDataController extends BaseApiController{
 
             $accRepo = $this->getDoctrine()->getRepository(Group::class);
 
+            $rowCount = 0;
             try {
                 foreach ($contents as $dcdArray) {  // check constraints
                     /** @var Group $account */
@@ -223,6 +224,11 @@ class DelegatedChangeDataController extends BaseApiController{
                     if (!$account) throw new HttpException(
                         400,
                         "Invalid account ID: the csv 'account' value must be the 'id' of the user account (was not found in accounts)."
+                    );
+
+                    if (floatval($dcdArray["amount"]) <= 0) throw new HttpException(
+                        400,
+                        "Invalid order Amount: the amount has to be grater than 0."
                     );
 
                     /** @var Group $sender_account */
@@ -258,7 +264,7 @@ class DelegatedChangeDataController extends BaseApiController{
                     $this->checkSenderConstraints($kyc, $sender_account);
 
                 }
-                $rowCount = 0;
+
                 foreach ($contents as $dcdArray) {
                     $account = $accRepo->findOneBy(["id" => $dcdArray['account']]);
 

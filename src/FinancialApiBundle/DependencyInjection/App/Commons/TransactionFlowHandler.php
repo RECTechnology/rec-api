@@ -56,6 +56,7 @@ class TransactionFlowHandler{
         $this->addBalance($intermediaryAccount, $amount*-1, $intermediaryTxOut);
         $this->addBalance($userAccount, $amount, $userAccountTxIn);
 
+        return $userAccountTxIn;
     }
 
     public function receiveRecsFromOutTx(Group $receiver, Transaction $outTx){

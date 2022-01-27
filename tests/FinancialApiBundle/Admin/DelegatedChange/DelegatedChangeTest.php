@@ -5,6 +5,9 @@ namespace Test\FinancialApiBundle\Admin\DelegatedChange;
 use App\FinancialApiBundle\DataFixture\DelegatedChangeFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Entity\DelegatedChange;
+use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Financial\Methods\LemonWayMethod;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Test\FinancialApiBundle\BaseApiTest;
@@ -77,7 +80,7 @@ class DelegatedChangeTest extends BaseApiTest {
             );
             self::assertEquals(400, $resp->getStatusCode(), $resp->getContent());
         }
-
+        $this->createZeroAmountDelegatedChangeData($user, $exchanger, $dcContent);
     }
 
     function testUpdate()
@@ -198,5 +201,104 @@ class DelegatedChangeTest extends BaseApiTest {
         $resp = $this->request('POST', $route, null, [], []);
         $output = $this->runCommand('rec:mailing:send');
         self::assertRegExp("/Processing/", $output);
+    }
+
+    function _testDelegatedChangeImportCSVnew(){
+
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+
+        /** @var Group $rootAccount */
+        $rootAccount = $em->getRepository(Group::class)->find(6);
+        $exchangerAccount = $em->getRepository(Group::class)->find(2);
+        $tier2 = $em->getRepository(Tier::class)->findOneBy(array('code' => Tier::KYC_LEVELS[2]));
+        $rootAccount->setLevel($tier2);
+        $exchangerAccount->setLevel($tier2);
+        $em->flush();
+
+        $this->importCSV(array(5, 2, 0, 6), 400);
+        $this->importCSV(array(5, 2, 465, 6), 201);
+
+        $output = $this->runCommand('rec:delegated_change:run');
+        $delegatedChanges = $em->getRepository(DelegatedChange::class)->find(2);
+        self::assertEquals(1, $delegatedChanges->getStatistics()["result"]["success_tx"]);
+        $this->massiveTransaccionsReport();
+    }
+
+    function _testDelegatedChangeImportCSVWrongTxDataShouldFail(){
+
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+
+        /** @var Group $rootAccount */
+        $rootAccount = $em->getRepository(Group::class)->find(6);
+        $exchangerAccount = $em->getRepository(Group::class)->find(2);
+        $tier2 = $em->getRepository(Tier::class)->findOneBy(array('code' => Tier::KYC_LEVELS[2]));
+        $rootAccount->setLevel($tier2);
+
+        $exchangerAccount->setLevel($tier2);
+        $em->flush();
+
+        $this->importCSV(array(5, 2, 1e50, 6), 201);
+
+        $tier2 = $em->getRepository(Tier::class)->findOneBy(array('code' => Tier::KYC_LEVELS[0]));
+
+
+        $output = $this->runCommand('rec:delegated_change:run');
+        $delegatedChanges = $em->getRepository(DelegatedChange::class)->find(2);
+        self::assertEquals(1, $delegatedChanges->getStatistics()["result"]["failed_tx"]);
+
+    }
+
+    /**
+     * @param array $row
+     * @param int $status_code
+
+     */
+    private function importCSV(array $row, int $status_code)
+    {
+        $lista = array(
+            array('account', 'exchanger', 'amount', 'sender'),
+            $row
+        );
+
+        $fp = fopen('/opt/project/var/cache/file.csv', 'w');
+
+        foreach ($lista as $campos) {
+            fputcsv($fp, $campos);
+        }
+
+        fclose($fp);
+
+        $file_route = "/opt/project/var/cache/file.csv";
+        $resp = $this->rest(
+            'POST',
+            '/admin/v1/delegated_change_data/csv',
+            [
+                "path" => $file_route,
+                'delegated_change_id' => 2
+            ],
+            [],
+            $status_code
+        );
+    }
+
+    /**
+     * @param $user
+     * @param $exchanger
+     * @param $dcContent
+     */
+    private function createZeroAmountDelegatedChangeData($user, $exchanger, $dcContent): void
+    {
+        $this->rest(
+            'POST',
+            '/admin/v3/delegated_change_data',
+            [
+                'account_id' => $user->id,
+                'exchanger_id' => $exchanger->id,
+                'delegated_change_id' => $dcContent->data->id,
+                'amount' => 0
+            ],
+            [],
+            400
+        );
     }
 }

@@ -26,6 +26,7 @@ class DelegatedChange extends AppObject {
     const STATUS_DRAFT = "draft";
     const STATUS_SCHEDULED = "scheduled";
     const STATUS_IN_PROGRESS = "in_progress";
+    const STATUS_FAILED = "failed";
     const STATUS_FINISHED = "finished";
 
     const ALLOWED_STATUS_CHANGES = [
@@ -53,7 +54,7 @@ class DelegatedChange extends AppObject {
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Choice({"draft", "scheduled", "in_progress", "finished"})
+     * @Assert\Choice({"draft", "scheduled", "in_progress", "failed", "finished"})
      * @Serializer\Groups({"admin"})
      */
     protected $status;

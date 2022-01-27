@@ -95,6 +95,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             /** @var DelegatedChangeData $dcd */
             foreach ($dc->getData() as $dcd) {
                 $this->log($output, "Processing entry: " . $dcd->getId());
+
                 # Card is saved, launch lemonway
                 if($dcd->getCreditcard() != null) {
                     $this->log($output, "Card is saved, creating lw API tx");
@@ -165,71 +166,24 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                 elseif($dcd->getSender() != null) {
                     $this->log($output, "Sender is setted creating massive tx");
                     try {
-                        // get user
-                        $user = $dcd->getSender()->getKycManager();
                         $satoshi_decimals = 1e6;  // amount in cents
-                        $transactionManager = $this->getContainer()->get('app.incoming_controller');
                         // exchanger transfer
                         if($dcd->getExchanger() != null) {
-                            $request = array();
-                            $request['concept'] = $dc->getName();
-                            $request['amount'] = $dcd->getAmount() * $satoshi_decimals;
-                            $request['pin'] = $user->getPin();
-                            $request['address'] = $dcd->getExchanger()->getRecAddress();
-                            $request['internal_tx'] = '1';
-                            $request['destionation_id'] = $dcd->getAccount()->getId();
-                            $resp = $transactionManager->createTransaction($request, 1, 'out', 'rec', $user->getId(), $dcd->getSender(), '127.0.0.1');
-
-                        // direct transfer
-                        }else{
-                            $request = array();
-                            $request['concept'] = $dc->getName();
-                            $request['amount'] = $dcd->getAmount() * $satoshi_decimals;
-                            $request['pin'] = $user->getPin();
-                            $request['address'] = $dcd->getAccount()->getRecAddress();
-                            $resp = $transactionManager->createTransaction($request, 1, 'out', 'rec', $user->getId(), $dcd->getSender(), '127.0.0.1');
-                        }
-
-                        # if received is ok
-                        if (strpos($resp, 'success') !== false) {
-                            if(preg_match("/ID: ([a-zA-Z0-9]+)/", $resp, $matches)) {
-                                $txId = $matches[1];
-
-                                /** @var Transaction $tx */
-                                $tx = $txRepo->find($txId);
-                                $output->writeln("TX(id): " . $tx->getId());
-                                $dcd->setTransaction($tx);
-                                $em->persist($dcd); $em->flush();
-
-
-                                $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
-                                $em->persist($dcd); $em->flush();
-                                $sendParams = [
-                                    'to' => $dcd->getAccount()->getCIF(),
-                                    'amount' => number_format($dcd->getAmount()/100, 2)
-                                ];
-                            }
-                            else {
-                                $this->log($output, "Failed to fetch txid");
-                                $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
-                                $em->persist($dcd); $em->flush();
-                            }
-                        }
-                        else {
-                            $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
-                            $em->persist($dcd); $em->flush();
-                            $this->log(
-                                $output,
-                                "Transaction creation failed",
-                                DelegatedChangeV2Command::SEVERITY_CRITICAL
-                            );
+                            $txFlowHandler = $this->getContainer()->get('net.app.commons.transaction_flow_handler');
+                            /** @var Transaction $tx */
+                            $tx = $txFlowHandler->sendRecsWithIntermediary($dcd->getSender(), $dcd->getExchanger(), $dcd->getAccount(), $dcd->getAmount() * $satoshi_decimals);
+                            $this->updateStatus($dcd, $tx, $em, $dc, $satoshi_decimals, $output);
+                            if ($tx->getStatus() !== 'success') break;
                         }
                     } catch (\Exception $e){
+                        $dc->setStatus(DelegatedChange::STATUS_FAILED);
+                        $em->persist($dc); $em->flush();
                         $this->log(
                             $output,
                             "Transaction creation failed: " . $e->getMessage(),
                             DelegatedChangeV2Command::SEVERITY_CRITICAL
                         );
+                        break;
                     }
 
                 }
@@ -240,6 +194,36 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             $this->log($output, "Done delegated change: " . $dc->getId());
         }
         $this->log($output, "Finish");
+    }
+
+    /**
+     * @param DelegatedChangeData $dcd
+     * @param Transaction $tx
+     * @param EntityManagerInterface $em
+     * @param DelegatedChange $dc
+     * @param float $satoshi_decimals
+     */
+    protected function updateStatus(DelegatedChangeData $dcd, Transaction $tx, EntityManagerInterface $em, DelegatedChange $dc, float $satoshi_decimals, OutputInterface $output): void
+    {
+        if ($tx->getStatus() === 'success') {
+            $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
+            $dc->setResult('success_tx', $dc->getStatistics()["result"]["success_tx"] + 1);
+            $dc->setResult('issued_rec', $dc->getStatistics()["result"]["issued_rec"] + $dcd->getAmount() * $satoshi_decimals);
+            $output->writeln("TX(id): " . $tx->getId());
+        }else{
+            $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
+            $dc->setResult('failed_tx', $dc->getStatistics()["result"]["failed_tx"] + 1);
+            $dc->setStatus(DelegatedChange::STATUS_FAILED);
+            $this->log(
+                $output,
+                "Transaction creation failed",
+                DelegatedChangeV2Command::SEVERITY_CRITICAL
+            );
+        }
+        $dcd->setTransaction($tx);
+        $em->persist($dcd);
+        $em->persist($dc);
+        $em->flush();
     }
 
     /**
