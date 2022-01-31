@@ -151,7 +151,7 @@ class ActivityController extends BaseApiController{
 
         $qb->select($select)->from(Activity::class, 'a');
 
-        if($name !== '' && strlen($name) > 3) {
+        if($name !== '') {
             $qb->andWhere("(a.name LIKE '%$name%' OR a.name_es LIKE '%$name%' OR a.name_ca LIKE '%$name%')");
         }
 

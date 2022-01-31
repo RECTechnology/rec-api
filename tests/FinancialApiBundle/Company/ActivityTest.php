@@ -123,7 +123,7 @@ class ActivityTest extends BaseApiTest
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $resp = $this->rest(
             'GET',
-            '/admin/v4/activities/search?parent_id=null&search=Cult',
+            '/admin/v4/activities/search?parent_id=null&search=Cu',
             [],
             [],
             200
