@@ -20,8 +20,14 @@ class Login2faController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
 
+        $username = $request->get('username', '');
+
         if($request->get('grant_type') == "password"){
             $this->checkPlatformAndVersion($request);
+            $user_checker = $this->container->get('net.app.commons.user_checker');
+            $dni_val = $user_checker->validateUserIdentification($username);
+            if(!$dni_val['result'])
+                throw new HttpException(400, $dni_val['errors'][0]);
         }
 
         $headers = array(
@@ -29,13 +35,6 @@ class Login2faController extends RestApiController{
             'Cache-Control' => 'no-store',
             'Pragma' => 'no-cache',
         );
-
-        $username = strtoupper($request->get('username'));
-        $username = preg_replace("/[^0-9A-Z]/", "", $username);
-        $user_checker = $this->container->get('net.app.commons.user_checker');
-        $dni_val = $user_checker->validateUserIdentification($username);
-        if(!$dni_val['result'])
-            throw new HttpException(400, $dni_val['errors'][0]);
 
         $pin = $request->request->get('pin');
         $kyc = 0;
@@ -69,7 +68,7 @@ class Login2faController extends RestApiController{
 
         /** @var User $user */
         $user = $em->getRepository('FinancialApiBundle:User')
-            ->findOneBy(['username' => $username]);
+            ->findOneBy(['usernameCanonical' => strtolower($username)]);
 
         /** @var UserSecurityConfig $user_security_config */
         $unlock_user_config = $em->getRepository('FinancialApiBundle:UserSecurityConfig')

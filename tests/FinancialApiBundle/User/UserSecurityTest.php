@@ -44,7 +44,8 @@ class UserSecurityTest extends BaseApiTest
         );
     }
 
-    function testLogInFromPos()
+
+    function testLogInWhitespaceShouldFail()
     {
         $client = self::getOAuthClient();
         $credentials = UserFixture::TEST_USER_CREDENTIALS;
@@ -55,13 +56,13 @@ class UserSecurityTest extends BaseApiTest
                 'grant_type' => "password",
                 'client_id' => "1_".$client->getRandomId(),
                 'client_secret' => $client->getSecret(),
-                'username' => $credentials["username"],
+                'username' => $credentials["username"].' ',
                 'password' => $credentials["password"],
-                'version' => 1,
-                'platform' => 'rec-pos'
+                'version' => 300,
+                'platform' => 'android'
             ],
             [],
-            200
+            400
         );
     }
 
