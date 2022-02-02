@@ -16,20 +16,33 @@ class PosTest extends AdminApiTest implements CrudV3WriteTestInterface {
     function testCreate()
     {
         $account = $this->getOneAccount();
-        $this->createPos($account);
+        $pos = $this->createPos($account);
+
+        self::assertObjectHasAttribute('active', $pos);
+        self::assertObjectHasAttribute('account', $pos);
+        self::assertObjectHasAttribute('access_key', $pos);
+        self::assertObjectHasAttribute('access_secret', $pos);
     }
 
     function testUpdate()
     {
+        $url_notification = "https://admin.rec.qbitartifacts.com";
         $pos = $this->getOnePos();
         $this->updatePos($pos, ['active' => true]);
-        $this->updatePos($pos, ['notification_url' => "https://admin.rec.qbitartifacts.com"]);
+        $updatedPos = $this->updatePos($pos, ['notification_url' => $url_notification]);
+
+        self::assertObjectHasAttribute('notification_url', $updatedPos);
+        self::assertEquals($url_notification, $updatedPos->notification_url);
     }
 
     function testDelete()
     {
         $pos = $this->getOnePos();
         $this->deletePos($pos);
+        $resp = $this->createPaymentOrder($pos, 100000000, '', '');
+
+        $content = json_decode($resp->getContent(),true);
+        self::assertEquals($content['status'], 'error');
     }
 
     private function getOneAccount()
@@ -59,5 +72,36 @@ class PosTest extends AdminApiTest implements CrudV3WriteTestInterface {
     private function deletePos($pos)
     {
         return $this->rest('DELETE', self::ROUTE . "/{$pos->id}");
+    }
+
+    private function createPaymentOrder($pos, int $amount, string $okUrl, string $koUrl)
+    {
+        $route = "/public/v3/payment_orders";
+        $reference = "1234123412341234";
+        $concept = "Mercat do castelo 1234123412341234";
+        $signatureParams = [
+            'access_key' => $pos->access_key,
+            'reference' => $reference,
+            'ok_url' => $okUrl,
+            'ko_url' => $koUrl,
+            'signature_version' => 'hmac_sha256_v1',
+            'amount' => $amount,
+            'concept' => $concept,
+            'payment_type' => 'desktop',
+        ];
+        ksort($signatureParams);
+        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
+        $signature = hash_hmac('sha256', $signatureData, base64_decode($pos->access_secret));
+        return $this->requestJson('POST', $route, [
+            'access_key' => $pos->access_key,
+            'amount' => $amount,
+            'ok_url' => $okUrl,
+            'ko_url' => $koUrl,
+            'concept' => $concept,
+            'reference' => $reference,
+            'signature_version' => 'hmac_sha256_v1',
+            'signature' => $signature,
+            'payment_type' => 'desktop',
+        ]);
     }
 }

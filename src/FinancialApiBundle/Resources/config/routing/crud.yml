@@ -223,6 +223,16 @@ payment_orders_v3_create:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "payment_orders"
 
+##################### POS / V3 / (OVERRIDES CRUD) ############################
+
+pos_v3_index:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\PosController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self)"
+        object: "pos"
+
 ##################### CRUD / V3 ############################
 
 crud_v3_search:

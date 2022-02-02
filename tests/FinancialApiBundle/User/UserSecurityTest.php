@@ -44,6 +44,27 @@ class UserSecurityTest extends BaseApiTest
         );
     }
 
+    function testLogInFromPos()
+    {
+        $client = self::getOAuthClient();
+        $credentials = UserFixture::TEST_USER_CREDENTIALS;
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => $credentials["username"],
+                'password' => $credentials["password"],
+                'version' => 1,
+                'platform' => 'rec-pos'
+            ],
+            [],
+            200
+        );
+    }
+
     //function testLogInWithoutPlatformShouldFail()
     //{
     //    $client = self::getOAuthClient();

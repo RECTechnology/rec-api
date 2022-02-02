@@ -11,6 +11,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -46,7 +47,8 @@ class HybridPersistenceEventSubscriber implements EventSubscriber {
         return [
             Events::prePersist,
             Events::preUpdate,
-            Events::postLoad,
+            Events::postUpdate,
+            Events::postLoad
         ];
     }
 
@@ -54,7 +56,14 @@ class HybridPersistenceEventSubscriber implements EventSubscriber {
      * @param PreUpdateEventArgs $args
      */
     public function preUpdate(PreUpdateEventArgs $args){
-        $this->saveHybridIdentifier($args->getEntity(), $args->getEntityChangeSet());
+        //$this->saveHybridIdentifier($args->getEntity(), $args->getEntityChangeSet());
+    }
+
+    /**
+     * @param LifecycleEventArgs $args
+     */
+    public function postUpdate(LifecycleEventArgs $args){
+        $this->saveHybridIdentifier($args->getEntity());
     }
 
     /**
@@ -80,7 +89,9 @@ class HybridPersistenceEventSubscriber implements EventSubscriber {
                 $identifierProperty = $class->getProperty($identifierField);
                 $identifierProperty->setAccessible(true);
                 $object = $property->getValue($entity);
-                if($object) $identifierProperty->setValue($entity, $object->getId());
+                if($object) {
+                    $identifierProperty->setValue($entity, $object->getId());
+                }
             });
     }
 

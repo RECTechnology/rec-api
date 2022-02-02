@@ -52,15 +52,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     function testPayPollRefund()
     {
-        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
-        $account = $this->getOneAccount();
-        $pos = $this->createPos($account);
-        $this->activatePos($pos);
-        $this->listPosOrders($pos);
-
-        $all = $this->rest('GET', "/admin/v3/accounts");
-
-        $this->signOut();
+        $pos = $this->preparePOS();
         $sample_url = "https://rec.barcelona";
         $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
         $this->paymentOrderHasRequiredData($order);
@@ -68,6 +60,8 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->paymentOrderHasRequiredData($order);
         $this->setClientIp($this->faker->ipv4);
 
+        //TODO uncomment when fixed secureInput
+        //$this->tryEditingOtherThanStatusShouldFail($order, $pos);
         $tx = $this->payOrder($order);
         self::assertEquals("success", $tx->status);
         $order = $this->readPaymentOrder($order);
@@ -75,6 +69,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $order = $this->readPaymentOrderAdmin($order);
         self::assertNotEmpty($order->payment_transaction);
 
+        $this->refundOrderWithMoreAmountShouldFail($order);
         $order = $this->refundOrderPublic($order);
         self::assertEquals(PaymentOrder::STATUS_REFUNDED, $order->status);
 
@@ -82,6 +77,82 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
         $this->injectNotifier(self::SUCCESS_RESULT);
         $this->runCommand('rec:pos:notifications:retry');
+
+        //check if tx are done
+        $order = $this->readPaymentOrderAdmin($order);
+        self::assertEquals(PaymentOrder::STATUS_REFUNDED, $order->status);
+        self::assertObjectHasAttribute('refund_transaction', $order);
+        $refundTx = $order->refund_transaction;
+        self::assertEquals(1e8, $refundTx->amount);
+
+    }
+
+
+
+    function testPayWrongPinRetry()
+    {
+        $pos = $this->preparePOS();
+        $sample_url = "https://rec.barcelona";
+        $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
+        $this->paymentOrderHasRequiredData($order);
+        /** @var PaymentOrder $order */
+        $order = $this->readPaymentOrder($order);
+        $this->paymentOrderHasRequiredData($order);
+        $this->setClientIp($this->faker->ipv4);
+
+        $this->payOrderWrongPin($order);
+        $this->payOrderWrongPin($order);
+        $this->payOrderWrongPin($order);
+        $tx = $this->payOrderWrongPin($order);
+        self::assertEquals("Failed payment transaction", $tx->message);
+    }
+
+    function testPayWrongSignatureShouldFail(){
+
+        $pos = $this->preparePOS();
+
+        $route = "/public/v3/payment_orders";
+        $reference = "1234123412341234";
+        $concept = "Mercat do castelo 1234123412341234";
+        $signature = 'badsignature_fsafl';
+        $resp = $this->rest('POST', $route, [
+            'access_key' => $pos->access_key,
+            'amount' => 1e8,
+            'ok_url' => "https://rec.barcelona",
+            'ko_url' => "https://rec.barcelona",
+            'concept' => $concept,
+            'reference' => $reference,
+            'signature_version' => 'hmac_sha256_v1',
+            'signature' => $signature,
+            'payment_type' => 'desktop',
+        ], [], 400);
+
+        self::assertEquals('Validation error', $resp->message);
+        $errors = $resp->errors;
+        self::assertEquals('signature is not valid', $errors[0]->message);
+
+    }
+
+    function testNotificationCommand()
+    {
+
+        $kernel = self::bootKernel();
+        $application = new Application($kernel);
+
+        $command = $application->find('rec:pos:notifications:retry');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([]);
+
+        $this->assertEquals(0, $commandTester->getStatusCode());
+
+        // the output of the command in the console
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString('Listing order notifications', $output);
+
+        //get all pos
+        $respPos = $this->getAsAdmin('/admin/v3/pos');
+        //We are generating 2 tx for tpv and one of each one has 2 notifications
+        $this->assertStringContainsString((count($respPos) * 3) . ' notifications found', $output);
     }
 
     private function getOneAccount()
@@ -149,7 +220,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     private function paymentOrderHasRequiredData($order)
     {
-        $requiredFields = ['created', 'updated', 'payment_address', 'payment_url', 'pos'];
+        $requiredFields = ['id', 'amount', 'status', 'ko_url', 'ok_url', 'payment_type','created', 'updated', 'payment_address', 'payment_url', 'pos'];
         foreach ($requiredFields as $field){
             self::assertObjectHasAttribute($field, $order);
         }
@@ -221,22 +292,30 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             ]
         );
     }
-    function testPayWrongPinRetry()
-    {
-        $pos = $this->preparePOS();
-        $sample_url = "https://rec.barcelona";
-        $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
-        $this->paymentOrderHasRequiredData($order);
-        /** @var PaymentOrder $order */
-        $order = $this->readPaymentOrder($order);
-        $this->paymentOrderHasRequiredData($order);
-        $this->setClientIp($this->faker->ipv4);
 
-        $this->payOrderWrongPin($order);
-        $this->payOrderWrongPin($order);
-        $this->payOrderWrongPin($order);
-        $tx = $this->payOrderWrongPin($order);
-        self::assertEquals("Failed payment transaction", $tx->message);
+    private function refundOrderWithMoreAmountShouldFail($order)
+    {
+        $signatureVersion = 'hmac_sha256_v1';
+        $signatureParams = [
+            'status' => PaymentOrder::STATUS_REFUNDED,
+            'signature_version' => $signatureVersion,
+        ];
+        ksort($signatureParams);
+        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
+        $signature = hash_hmac('sha256', $signatureData, base64_decode($order->pos->access_secret));
+
+        $this->rest(
+            'PUT',
+            "/public/v3/payment_orders/{$order->id}",
+            [
+                'status' => PaymentOrder::STATUS_REFUNDED,
+                'refund_amount' => 10e8,
+                'signature_version' => $signatureVersion,
+                'signature' => $signature
+            ],
+            [],
+            400
+        );
     }
 
     private function preparePOS(){
@@ -251,31 +330,38 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         return $pos;
     }
 
-    function testPayWrongSignatureShouldFail(){
+    function tryEditingOtherThanStatusShouldFail($order, $pos){
+        //TODO change status
+        $signatureVersion = 'hmac_sha256_v1';
+        $signatureParams = [
+            'payment_address' => 'fake_address',
+            'signature_version' => $signatureVersion,
+        ];
+        ksort($signatureParams);
+        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
+        $signature = hash_hmac('sha256', $signatureData, base64_decode($pos->access_secret));
 
-        $pos = $this->preparePOS();
+        $resp = $this->requestJson(
+            'PUT',
+            "/public/v3/payment_orders/{$order->id}",
+            [
+                'payment_address' => 'fake_address',
+                'signature_version' => $signatureVersion,
+                'signature' => $signature
+            ]
+        );
 
-        $route = "/public/v3/payment_orders";
-        $reference = "1234123412341234";
-        $concept = "Mercat do castelo 1234123412341234";
-        $signature = 'badsignature_fsafl';
-        $resp = $this->rest('POST', $route, [
-            'access_key' => $pos->access_key,
-            'amount' => 1e8,
-            'ok_url' => "https://rec.barcelona",
-            'ko_url' => "https://rec.barcelona",
-            'concept' => $concept,
-            'reference' => $reference,
-            'signature_version' => 'hmac_sha256_v1',
-            'signature' => $signature,
-            'payment_type' => 'desktop',
-        ], [], 400);
-
-        self::assertEquals('Validation error', $resp->message);
-        $errors = $resp->errors;
-        self::assertEquals('signature is not valid', $errors[0]->message);
-
+        $updatedOrderResp = $this->requestJson('GET', "/public/v3/payment_orders/{$order->id}");
+        $content = json_decode($updatedOrderResp->getContent(),true);
+        self::assertNotEquals('fake_address', $content['data']['payment_address']);
     }
+
+
+
+
+
+
+    //TODO esta parte no toca nada de la tpv, deberiamos ponerla en otro sitio
 
     function testBonissimAccountPaysToBonissimCommerceShouldSuccess(){
         $this->setClientIp($this->faker->ipv4);
@@ -523,47 +609,6 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
     }
 
 
-    function testPayKycCheck(): void
-    {
-        $this->setClientIp($this->faker->ipv4);
-        $reciver = $this->getAsAdmin('/admin/v3/accounts?level=2')[1];
-
-        $resp = $this->rest(
-            'POST',
-            '/methods/v1/out/rec',
-            [
-                'address' => $reciver->rec_address,
-                'amount' => 300e8,
-                'concept' => 'Testing concept',
-                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
-            ],
-            [],
-            400
-        );
-
-    }
-
-    function testNotificationCommand()
-    {
-
-        $kernel = self::bootKernel();
-        $application = new Application($kernel);
-
-        $command = $application->find('rec:pos:notifications:retry');
-        $commandTester = new CommandTester($command);
-        $commandTester->execute([]);
-
-        $this->assertEquals(0, $commandTester->getStatusCode());
-
-        // the output of the command in the console
-        $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('Listing order notifications', $output);
-
-        //get all pos
-        $respPos = $this->getAsAdmin('/admin/v3/pos');
-        //We are generating 2 tx for tpv and one of each one has 2 notifications
-        $this->assertStringContainsString((count($respPos) * 3) . ' notifications found', $output);
-    }
 
     function testSendFromNoCultureAccountToCultureAccountShouldFail(): void
 
@@ -597,5 +642,23 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     }
 
+    function testPayKycCheck(): void
+    {
+        $this->setClientIp($this->faker->ipv4);
+        $reciver = $this->getAsAdmin('/admin/v3/accounts?level=2')[1];
 
+        $resp = $this->rest(
+            'POST',
+            '/methods/v1/out/rec',
+            [
+                'address' => $reciver->rec_address,
+                'amount' => 300e8,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+            ],
+            [],
+            400
+        );
+
+    }
 }

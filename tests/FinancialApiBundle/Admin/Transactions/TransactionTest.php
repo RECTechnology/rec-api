@@ -61,6 +61,28 @@ class TransactionTest extends AdminBaseCalls {
         return $this->rest('GET', $route)[0];
     }
 
+
+
+    function _testListTransactionsWithFilterShouldWork()
+    {
+
+        $txs = $this->rest(
+            'GET',
+            '/company/1/v1/wallet/transactions?limit=10&offset=0&order=desc&sort=id&query=%7B%22finish_date%22:%222022-01-20%22,%22start_date%22:%222020-01-01%22%7D',
+            [],
+            [],
+            200
+        );
+
+        self::assertObjectHasAttribute('total', $txs);
+        self::assertObjectHasAttribute('limit', $txs);
+        self::assertObjectHasAttribute('offset', $txs);
+        self::assertObjectHasAttribute('list', $txs);
+
+    }
+
+
+
     function testListTransactionsByCompanyShouldWork(){
 
         $resp = $this->requestJson(

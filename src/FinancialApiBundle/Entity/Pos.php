@@ -4,10 +4,9 @@ namespace App\FinancialApiBundle\Entity;
 
 use JMS\Serializer\Annotation as Serializer;
 use Doctrine\ORM\Mapping as ORM;
-use App\FinancialApiBundle\Entity\PaymentOrder;
-use App\FinancialApiBundle\Entity\AppObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation\MaxDepth;
 
 
 /**
@@ -60,6 +59,7 @@ class Pos extends AppObject
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="pos")
      * @Serializer\Groups({"public"})
+     * @MaxDepth(1)
      */
     private $account;
 
