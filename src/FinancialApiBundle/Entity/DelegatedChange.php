@@ -23,6 +23,8 @@ use App\FinancialApiBundle\Validator\Constraint as RECAssert;
  */
 class DelegatedChange extends AppObject {
 
+    const STATUS_CREATED = "created";
+    const STATUS_PENDING_VALIDATION = "pending_validation";
     const STATUS_DRAFT = "draft";
     const STATUS_SCHEDULED = "scheduled";
     const STATUS_IN_PROGRESS = "in_progress";
@@ -54,7 +56,7 @@ class DelegatedChange extends AppObject {
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Choice({"draft", "scheduled", "in_progress", "failed", "finished"})
+     * @Assert\Choice({"created", "pending_validation", "draft", "scheduled", "in_progress", "failed", "finished"})
      * @Serializer\Groups({"admin"})
      */
     protected $status;
@@ -112,6 +114,13 @@ class DelegatedChange extends AppObject {
      * @Serializer\Groups({"admin"})
      */
     private $type='delegated_change';
+
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $url_csv;
 
     /**
      * @return mixed
@@ -220,6 +229,23 @@ class DelegatedChange extends AppObject {
     {
         $this->type = $type;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getUrlCsv()
+    {
+        return $this->url_csv;
+    }
+
+    /**
+     * @param mixed $url_csv
+     */
+    public function setUrlCsv($url_csv): void
+    {
+        $this->url_csv = $url_csv;
+    }
+
 
 
 }

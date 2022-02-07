@@ -193,8 +193,8 @@ admin_delete_delegate_change_data:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::deleteAction }
     methods: [DELETE]
 
-admin_create_delegate_change_data_from_csv:
-    path:  /admin/v1/delegated_change_data/csv
+admin_import_csv:
+    path:  /admin/v1/txs_block/csv
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::importAction }
     methods: [POST]
 

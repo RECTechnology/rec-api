@@ -49,7 +49,7 @@ class DelegatedChangeFixture extends Fixture implements DependentFixtureInterfac
         $dc = new DelegatedChange();
         $dc->setName($name);
         $dc->setScheduledAt(new \DateTime());
-        $dc->setStatus(DelegatedChange::STATUS_SCHEDULED);
+        $dc->setStatus(DelegatedChange::STATUS_CREATED);
         $orm->persist($dc);
         $orm->flush();
         return $dc;

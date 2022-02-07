@@ -301,4 +301,46 @@ class DelegatedChangeTest extends BaseApiTest {
             400
         );
     }
+
+
+    function _testTxBlockImportCSV(){
+
+        $lista = array (
+            array('account', 'exchanger', 'amount', 'sender'),
+            array(2, 5, 465, 6)
+        );
+
+        $fp = fopen('/opt/project/var/cache/file.csv', 'w');
+
+        foreach ($lista as $campos) {
+            fputcsv($fp, $campos);
+        }
+
+        fclose($fp);
+        $fp = new UploadedFile('/opt/project/var/cache/file.csv', 'file.csv', "text/csv");
+        $resp = $this->request(
+            'POST',
+            '/user/v1/upload_file',
+            '',
+            [],
+            [],
+            ["file" => $fp]
+        );
+
+        $file_route = simplexml_load_string($resp->getContent(), "SimpleXMLElement", LIBXML_NOCDATA)->data->entry[0]->__tostring();
+        $file_route = "/opt/project/web/static".$file_route;
+        $resp = $this->rest(
+            'POST',
+            '/admin/v1/txs_block/csv',
+            [
+                "path" => $file_route,
+                'delegated_change_id' => 1
+            ]
+        );
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $tb = $em->getRepository(DelegatedChange::class)->find(1);
+        self::assertEquals($file_route, $tb->getUrlCsv());
+        self::assertEquals('pending_validation', $tb->getStatus());
+
+    }
 }
