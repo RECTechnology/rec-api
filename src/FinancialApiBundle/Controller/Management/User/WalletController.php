@@ -78,6 +78,51 @@ class WalletController extends RestApiController{
         return $this->restV2(200, "ok", "Last 10 transactions got successfully", $resArray);
     }
 
+    /**
+     * reads transactions by day
+     */
+    public function walletDayTransactions(Request $request){
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
+        $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction');
+
+        if($request->query->has('day') && $request->query->get('day')!=''){
+            $day = $request->query->get('day');
+            $start_time = new \MongoDate(strtotime(date($day . ' 00:00:00')));
+            $finish_time = new \MongoDate(strtotime(date($day . ' 23:59:59')));
+        }else{
+            throw new HttpException(400, "Incorrect day");
+        }
+
+        $transactions = $dm->getRepository('FinancialApiBundle:Transaction')->findTransactions($userGroup, $start_time, $finish_time, '', 'id', 'desc');
+        $in = 0;
+        $out = 0;
+        $total = 0;
+        foreach($transactions->toArray() as $res){
+            if(!$res->getDeleted() && !$res->getInternal()) {
+                $amount = $res->getTotal();
+                if ($amount > 0) {
+                    $in += $amount;
+                } else {
+                    $out += $amount;
+                }
+                $total += $amount;
+            }
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'in' => $in,
+                'out' => $out
+            )
+        );
+    }
+
+
 
     /**
      * reads transactions by wallets

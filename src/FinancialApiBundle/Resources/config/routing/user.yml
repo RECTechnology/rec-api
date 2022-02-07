@@ -33,6 +33,11 @@ commerce_list_exchangers:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\WalletController::listCommerce }
     methods: [GET]
 
+company_wallet_day_transactions:
+    path:  /user/v1/wallet/day/transactions
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\WalletController::walletDayTransactions }
+    methods: [GET]
+
 user_wallet_transactions_v2:
     path:  /user/v2/wallet/transactions
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\WalletController::walletTransactionsV2 }

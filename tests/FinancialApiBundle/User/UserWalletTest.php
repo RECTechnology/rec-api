@@ -54,6 +54,17 @@ class UserWalletTest extends BaseApiTest
         );
     }
 
+    function testGetWalletDayTransactions()
+    {
+        $resp = $this->rest(
+            'GET',
+            '/user/v1/wallet/day/transactions?day=2022-02-07',
+            [],
+            [],
+            200
+        );
+    }
+
     function testGetWalletTransactionsV2WithFilters()
     {
         self::markTestIncomplete();
