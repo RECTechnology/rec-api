@@ -1354,7 +1354,7 @@ class AccountController extends BaseApiController {
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'phone'  =>  $params['phone'],
             'prefix'  =>  $params['prefix'],
-            'username'  =>  strtoupper($params['dni'])
+            'usernameCanonical'  =>  strtolower($params['dni'])
         ));
 
         $logger = $this->get('manager.logger');

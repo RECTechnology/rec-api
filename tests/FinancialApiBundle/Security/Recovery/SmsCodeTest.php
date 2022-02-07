@@ -27,7 +27,7 @@ class SmsCodeTest extends BaseApiTest {
             'POST',
             $route,
             [
-                'dni' => "01234567L",
+                'dni' => "01234567l",
                 'phone' => 789789789,
                 'prefix' => 34
             ],

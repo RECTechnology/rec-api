@@ -37,7 +37,7 @@ class RegisterTest extends BaseApiTest {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         $pw = $this->faker->password(6);
         $pin = $this->faker->randomNumber(4, true);
-        $dni = '38305314X'; //got from https://generadordni.es/#dni
+        $dni = '38305314x'; //got from https://generadordni.es/#dni
         $content = [
             'password' => $pw,
             'phone' => random_int(600000000, 799999999),
@@ -64,7 +64,7 @@ class RegisterTest extends BaseApiTest {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         $pw = $this->faker->password(6);
         $pin = $this->faker->randomNumber(4, true);
-        $dni = 'X8000107V'; //got from https://generadordni.es/#dni
+        $dni = 'x8000107v'; //got from https://generadordni.es/#dni
         $content = [
             'password' => $pw,
             'phone' => random_int(600000000, 799999999),

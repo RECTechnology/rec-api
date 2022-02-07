@@ -29,6 +29,7 @@ class UserChecker{
     public function validateUserIdentification($identification){
         if ($this->containsWhitespaces($identification))
             return ['result' => false, 'data' => [], 'errors' => [$this::DOCUMENT_CONTAINS_WHITESPACES]];
+        $identification = strtoupper($identification);
         if($this->isValidDni($identification) || $this->isValidNie($identification))
             return ['result' => true, 'data' => [], 'errors' => []];
         return ['result' => false, 'data' => [],'errors' =>  [$this::IDENTITY_CARD_NOT_VALID]];
@@ -37,6 +38,7 @@ class UserChecker{
     public function validateCompanyIdentification($identification){
         if ($this->containsWhitespaces($identification))
             return ['result' => false, 'data' => [], 'errors' => [$this::DOCUMENT_CONTAINS_WHITESPACES]];
+        $identification = strtoupper($identification);
         if($this->isValidCif($identification) || $this->isValidDni($identification) || $this->isValidNie($identification))
             return ['result' => true, 'data' => [], 'errors' => []];
         return ['result' => false, 'data' => [],'errors' =>  [$this::DOCUMENT_NOT_VALID]];
