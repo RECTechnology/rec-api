@@ -30,6 +30,7 @@ use App\FinancialApiBundle\Validator\Constraint as RECAssert;
  */
 class DelegatedChangeData extends AppObject {
 
+    const STATUS_CREATED = "created";
     const STATUS_SUCCESS = "success";
     const STATUS_ERROR = "error";
 

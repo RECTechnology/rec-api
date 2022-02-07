@@ -25,6 +25,8 @@ class DelegatedChange extends AppObject {
 
     const STATUS_CREATED = "created";
     const STATUS_PENDING_VALIDATION = "pending_validation";
+    const STATUS_VALIDATING = "validating";
+    const STATUS_INVALID = "invalid";
     const STATUS_DRAFT = "draft";
     const STATUS_SCHEDULED = "scheduled";
     const STATUS_IN_PROGRESS = "in_progress";
@@ -39,6 +41,7 @@ class DelegatedChange extends AppObject {
     public function __construct()
     {
         $this->data = new ArrayCollection();
+        $this->logs = new ArrayCollection();
         $this->status = DelegatedChange::STATUS_DRAFT;
         $this->statistics = [
             "scheduled" => [
@@ -88,6 +91,22 @@ class DelegatedChange extends AppObject {
     public function getData()
     {
         return $this->data;
+    }
+
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\TransactionBlockLog", mappedBy="block_txs", cascade={"remove"})
+     * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(2)
+     */
+    protected $logs;
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getLogs()
+    {
+        return $this->logs;
     }
 
     /**
