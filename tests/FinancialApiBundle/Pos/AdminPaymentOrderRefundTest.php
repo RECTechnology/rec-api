@@ -125,7 +125,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
         $route = "/transaction/v1/vendor?address={$order->payment_address}";
         $commerce = $this->rest('GET', $route);
         self::assertCount(4, (array)$commerce);
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v3/out/rec";
         $resp = $this->rest(
             'POST',
             $route,

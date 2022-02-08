@@ -81,17 +81,17 @@ class PaymentOrderSubscriber implements EventSubscriber {
                     /** @var Transaction $senderTx */
                     $senderTx = $txRepo->findOneBy(['pay_out_info.txid' => $receiverTx->getPayInInfo()['txid']]);
                     /** @var Group $sender */
-                    $sender = $args->getEntityManager()
+                    $receiver = $args->getEntityManager()
                         ->getRepository(Group::class)
-                        ->find($senderTx->getGroup());
+                        ->find($receiverTx->getGroup());
 
                     /** @var IncomingController2 $tc */
-                    $tc = $this->container->get('app.incoming_controller');
+                    $tc = $this->container->get('app.incoming_controller3');
 
                     /** @var User $refunder */
                     $refunder = $order->getPos()->getAccount()->getKycManager();
                     $refundData = [
-                        "address" => $sender->getRecAddress(),
+                        "address" => $receiver->getRecAddress(),
                         "amount" => $refundAmount,
                         "concept" => "Refund for order {$order->getId()}",
                         "pin" => $refunder->getPin()

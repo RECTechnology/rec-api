@@ -1,4 +1,3 @@
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:crypto:check >> /api/var/logs/cron-crypto-check.log 2>&1
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:fiat:check >> /api/var/logs/cron-fiat-check.log 2>&1
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:fiatV3:check >> /api/var/logs/cron-fiat-check.log 2>&1
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:check:offers >> /api/var/logs/cron-check-offers.log 2>&1
