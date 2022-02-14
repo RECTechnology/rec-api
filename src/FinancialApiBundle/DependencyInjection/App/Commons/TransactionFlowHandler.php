@@ -60,7 +60,8 @@ class TransactionFlowHandler{
     }
 
     public function receiveRecsFromOutTx(Group $receiver, Transaction $outTx){
-        $inTx = $this->receiveRecs($receiver, $outTx, false);
+        $payOutInfo = $outTx->getPayOutInfo();
+        $inTx = $this->receiveRecs($receiver, $outTx, false, $payOutInfo['concept']);
         $dm = $this->mongo->getManager();
         $dm->persist($inTx);
         $dm->flush();
