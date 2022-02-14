@@ -65,8 +65,10 @@ class TransactionBlocksValidatorCommand extends SynchronizedContainerAwareComman
             if(count($validation['errors'] )> 0){
                 //mark as invalid
                 $txBlock->setStatus(DelegatedChange::STATUS_INVALID);
+                $txBlock->setResult('warnings', count($validation["warnings"]));
                 $em->flush();
             }else{
+                $txBlock->setResult('warnings', count($validation["warnings"]));
                 //generate tx block data
                 $data = $validation['data'];
                 //start tx
@@ -94,6 +96,7 @@ class TransactionBlocksValidatorCommand extends SynchronizedContainerAwareComman
                     }
                     $txBlock->setStatus(DelegatedChange::STATUS_DRAFT);
                     $em->getConnection()->commit();
+                    $em->flush();
                 } catch (\Exception $e) {
                     $em->getConnection()->rollBack();
                     $txBlock->setStatus(DelegatedChange::STATUS_FAILED);

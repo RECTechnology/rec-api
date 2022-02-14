@@ -565,7 +565,7 @@ class IncomingController3 extends RestApiController{
                 if ($out_amount / 1e8 > $tier->getMaxOut()) { // 1e8 satoshi = 1REC
                     throw new HttpException(400, 'KYC max_out limit has been reached');
                 }
-                $out_transaccions = $dm->getRepository(Transaction::class)->findBy(['group' => $group->getId(), 'type' => 'out']);
+                $out_transaccions = $dm->getRepository(Transaction::class)->findBy(['group' => $group->getId(), 'type' => 'out', 'internal' => false]);
                 foreach ($out_transaccions as $out_transaccion) {
                     $out_amount += $out_transaccion->getAmount();
                 }

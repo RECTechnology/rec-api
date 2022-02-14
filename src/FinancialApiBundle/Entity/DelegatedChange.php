@@ -51,7 +51,8 @@ class DelegatedChange extends AppObject {
             "result" => [
                 "success_tx" => 0,
                 "failed_tx" => 0,
-                "issued_rec" => 0.,
+                "issued_rec" => 0,
+                "warnings" => 0,
             ]
         ];
     }

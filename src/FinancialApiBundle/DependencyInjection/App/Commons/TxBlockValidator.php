@@ -52,17 +52,31 @@ class TxBlockValidator
 
     private function validateAllTx(array $tx_list): array
     {
-
+        $senders_amount = [];
         $errors = [];
         $warnings = [];
         foreach ($tx_list as $tx_data) {
+            $sender_id = $tx_data[3];
+            if(array_key_exists($sender_id, $senders_amount)) $senders_amount[$sender_id] += floatval($tx_data[2]);
+            else $senders_amount[$sender_id] = floatval($tx_data[2]);
             $val_res = $this->validateOneTx($tx_data);
             if (count($val_res['errors']) > 0) {
-                $errors[] = $val_res['errors'];
+                $errors = $errors + $val_res['errors'];
             }
             if (count($val_res['warnings']) > 0){
-                $warnings[] = $val_res['warnings'];
+                $warnings = $warnings + $val_res['warnings'];
             }
+        }
+        foreach ($senders_amount as $sender_id => $amount) {
+            $sender = $this->em->getRepository(Group::class)->find($sender_id);
+            if (isset($sender)) {
+                if($sender->getWallets()[0]->getBalance() < $amount * 1e8){
+                    $warn_text = 'Sender Account with id '.$sender_id.' has lower balance than amounts to send sum';
+                    $warnings[] = $warn_text;
+                    $this->persistLog(TransactionBlockLog::TYPE_WARN, $warn_text);
+                }
+            }
+
         }
         return ['result' => true, 'data' => [],'errors' => $errors, 'warnings' => $warnings];
     }
@@ -85,7 +99,7 @@ class TxBlockValidator
         if (isset($account)){
             $account_warnings = $this->checkAccountState($account, $tx_data[4]);
             if(count($account_warnings) > 0)
-                $warnings[] = $account_warnings;
+                $warnings = $warnings + $account_warnings;
         }else{
             $error_text = 'Account with id '.$tx_data[0].' not found (row '.$tx_data[4].')';
             $errors[] = $error_text;
@@ -94,7 +108,7 @@ class TxBlockValidator
         if (isset($exchanger)) {
             $account_warnings = $this->checkAccountState($exchanger, $tx_data[4]);
             if(count($account_warnings) > 0)
-                $warnings[] = $account_warnings;
+                $warnings = $warnings + $account_warnings;
         }else{
             $error_text = 'Exchanger Account with id '.$tx_data[1].' not found (row '.$tx_data[4].')';
             $errors[] = $error_text;
@@ -103,7 +117,9 @@ class TxBlockValidator
         if (isset($sender)) {
             $account_warnings = $this->checkAccountState($sender, $tx_data[4]);
             if(count($account_warnings) > 0)
-                $warnings[] = $account_warnings;
+                $$warnings = $warnings + $account_warnings;
+            if($sender->getWallets()[0]->getBalance() < floatval($tx_data[2]) * 1e8)
+                $warnings[] = 'Sender Account with id '.$tx_data[3].' has lower balance than amount (row '.$tx_data[4].')';
         }else{
             $error_text = 'Sender Account with id '.$tx_data[3].' not found (row '.$tx_data[4].')';
             $errors[] = $error_text;
