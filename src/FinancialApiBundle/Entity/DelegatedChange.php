@@ -42,7 +42,7 @@ class DelegatedChange extends AppObject {
     {
         $this->data = new ArrayCollection();
         $this->logs = new ArrayCollection();
-        $this->status = DelegatedChange::STATUS_DRAFT;
+        $this->status = DelegatedChange::STATUS_CREATED;
         $this->statistics = [
             "scheduled" => [
                 "tx_to_execute" => 0,

@@ -48,6 +48,7 @@ class DelegatedChangeTest extends BaseApiTest {
     {
         $dcContent = $this->createEmptyDelegatedChange();
         self::assertGreaterThan(0, $dcContent->data->id);
+        self::assertEquals(DelegatedChange::STATUS_CREATED, $dcContent->data->status);
 
         $resp = $this->requestJson('GET', '/admin/v3/accounts?type=PRIVATE');
         $users = json_decode($resp->getContent())->data->elements;
