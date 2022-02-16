@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LemonDocumentKind extends DocumentKind {
 
-    public const LW_DOCTYPES = [0,1,2,3,4,5,7,11,12,13,21];
+    public const LW_DOCTYPES = [0,1,2,3,4,5,7,11,12,13,14,15,16,17,18,19,21];
 
     public const DOCTYPE_LW_ID = 0;
     public const DOCTYPE_LW_PROOF_OF_ADDRESS = 1;
@@ -26,6 +26,13 @@ class LemonDocumentKind extends DocumentKind {
     public const DOCTYPE_LW_DRIVER_LICENSE = 11;
     public const DOCTYPE_LW_STATUS = 12;
     public const DOCTYPE_LW_SELFIE = 13;
+    public const DOCTYPE_LW_COMMERCIAL_REGISTER = 14;
+    public const DOCTYPE_LW_SECOND_ID = 15;
+    public const DOCTYPE_LW_CENSUS_STATUS_CERTIFICATE = 16;
+    public const DOCTYPE_LW_DECLARATION_OF_ACTIVITY = 17;
+    public const DOCTYPE_LW_GENERAL_ASSEMBLY_ACT  = 18;
+    public const DOCTYPE_LW_OFFICIAL_CORPORATE_JOURNAL = 19;
+    public const DOCTYPE_LW_OTHERS = 20;
     public const DOCTYPE_LW_SDD_MANDAT = 21;
 
     /**

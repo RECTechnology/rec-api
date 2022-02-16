@@ -42,7 +42,7 @@ class UploadDocumentTest extends AdminApiTest {
                 'description' => 'user dni',
                 'is_user_document' => 1,
                 'show_in_app' => 0,
-                'lemon_doctype' => LemonDocumentKind::DOCTYPE_LW_NON_EU_PASSPORT
+                'lemon_doctype' => LemonDocumentKind::DOCTYPE_LW_COMMERCIAL_REGISTER
             ]
         );
     }
