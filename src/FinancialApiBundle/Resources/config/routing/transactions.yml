@@ -19,6 +19,13 @@ method_delegated_create:
     requirements:
         service_cname: "[a-z0-9_]+"
 
+method_admin_third_create3:
+    path:  /admin/v3/third/{method_cname}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\IncomingController3::adminThirdTransaction, _format: ~ }
+    methods: [POST]
+    requirements:
+        service_cname: "[a-z0-9_]+"
+
 method_admin_third_create:
     path:  /admin/v{version_number}/third/{method_cname}
     defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\IncomingController2::adminThirdTransaction, _format: ~ }

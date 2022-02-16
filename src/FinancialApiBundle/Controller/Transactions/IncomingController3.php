@@ -23,6 +23,7 @@ use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserWallet;
+use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\Controller\SecurityTrait;
 
 class IncomingController3 extends RestApiController{
@@ -527,6 +528,56 @@ class IncomingController3 extends RestApiController{
         return $response;
 
     }
+
+    public function adminThirdTransaction(Request $request, $method_cname){
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
+        if (!$user->getTwoFactorAuthentication()) throw new HttpException(403, '2FA must be active');
+
+        if($method_cname != 'rec'){
+            throw new HttpException(400, 'Bad method');
+        }
+        $paramNames = array(
+            'sender',
+            'receiver',
+            'sec_code',
+            'concept',
+            'amount'
+        );
+        $params = array();
+        foreach ( $paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(400,'Missing parameter '.$paramName);
+            }
+        }
+        $code = $params['sec_code'];
+        $Google2FA = new Google2FA();
+        $twoFactorCode = $user->getTwoFactorCode();
+        if (!$Google2FA->verify_key($twoFactorCode, $code)) {
+            throw new HttpException(400,'The security code is incorrect.');
+        }
+
+
+        $em = $this->getDoctrine()->getManager();
+        $group_sender = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array('id'=>$params['sender'], 'active'=>true));
+        if(!$group_sender){
+            throw new HttpException(400,'Sender not found: ' . $params['sender']);
+        }
+        $group_receiver = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array('id'=>$params['receiver'], 'active'=>true));
+        if(!$group_receiver){
+            throw new HttpException(400,'Receiver not found: ' . $params['receiver']);
+        }
+
+        $request = array();
+        $request['concept'] = $params['concept'];
+        $request['amount'] = $params['amount'];
+        $request['pin'] = $user->getPin();
+        $request['address'] = $group_receiver->getRecAddress();
+        return $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $group_sender, '127.0.0.2');
+    }
+
 
     private function _checkPermissions(User $user, Group $group){
 

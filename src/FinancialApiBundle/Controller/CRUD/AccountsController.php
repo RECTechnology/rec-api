@@ -482,8 +482,8 @@ class AccountsController extends CRUDController {
         $eurAmount = $request->request->get('amount', 0);
         $request->request->set('amount', $eurAmount * 1e6);
 
-        /** @var IncomingController2 $tc */
-        $tc = $this->get('app.incoming_controller');
+        /** @var IncomingController3 $tc */
+        $tc = $this->get('app.incoming_controller3');
 
         $repo = $this->getDoctrine()->getRepository(Group::class);
         /** @var Group $receiver */
