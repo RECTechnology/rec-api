@@ -60,7 +60,7 @@ class DelegatedChange extends AppObject {
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Choice({"created", "pending_validation", "draft", "scheduled", "in_progress", "failed", "finished"})
+     * @Assert\Choice({"created", "pending_validation", "validating", "invalid", "draft", "scheduled", "in_progress", "failed", "finished"})
      * @Serializer\Groups({"admin"})
      */
     protected $status;

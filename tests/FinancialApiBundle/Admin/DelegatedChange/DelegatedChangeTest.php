@@ -92,7 +92,7 @@ class DelegatedChangeTest extends BaseApiTest {
         $resp = $this->requestJson(
             'PUT',
             $route,
-            ['scheduled_at' => $nextWeek->format('c')]
+            ['scheduled_at' => $nextWeek->format('c'), 'status' => 'scheduled']
         );
         self::assertEquals(
             200,
