@@ -1499,7 +1499,7 @@ class Group extends BaseGroup implements Uploadable
             throw new PreconditionFailedException("Product not related to this Account");
         }
         $this->producing_products->removeElement($product);
-        //if($recursive) $product->delProducingBy($this, false);
+        if($recursive) $product->delProducingBy($this, false);
     }
 
     /**
@@ -1531,11 +1531,11 @@ class Group extends BaseGroup implements Uploadable
      */
     public function delConsumingProduct(ProductKind $product, $recursive = true): void
     {
-        if (!$this->consuming_products->contains($product)) {
+        if (!in_array($product, $this->consuming_products->getValues())) {
             throw new PreconditionFailedException("Product not related to this Account");
         }
         $this->consuming_products->removeElement($product);
-        //if($recursive) $product->delConsumingBy($this, false);
+        if($recursive) $product->delConsumingBy($this, false);
     }
 
     /**
@@ -1571,7 +1571,7 @@ class Group extends BaseGroup implements Uploadable
             throw new PreconditionFailedException("Activity not related to this Account");
         }
         $this->activities->removeElement($activity);
-        //if($recursive) $activity->delAccount($this, false);
+        if($recursive) $activity->delAccount($this, false);
     }
 
     /**

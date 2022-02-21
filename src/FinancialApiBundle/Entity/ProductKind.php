@@ -234,7 +234,7 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
             throw new PreconditionFailedException("Account not related to this ProductKind");
         }
         $this->consuming_by->removeElement($consumer);
-        //if($recursive) $consumer->delConsumingProduct($this, false);
+        if($recursive) $consumer->delConsumingProduct($this, false);
     }
 
     /**
