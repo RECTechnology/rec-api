@@ -44,6 +44,9 @@ class Group extends BaseGroup implements Uploadable
     const ACCOUNT_SUBTYPE_WHOLESALE = 'WHOLESALE';
     const ACCOUNT_SUBTYPE_RETAILER = 'RETAILER';
 
+    const ACCESS_STATE_NOT_GRANTED = 'not_granted';
+    const ACCESS_STATE_PENDING = 'pending';
+    const ACCESS_STATE_GRANTED = 'granted';
 
     /**
      * Group constructor.
@@ -508,6 +511,21 @@ class Group extends BaseGroup implements Uploadable
      * @Serializer\Groups({"manager"})
      */
     private $disabled_at;
+
+    /**
+     * @ORM\Column(type="string", unique=true, nullable=true)
+     * @Serializer\Expose
+     * @Serializer\Groups({"user"})
+     */
+    private $rezero_b2b_username;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Assert\Choice({Group::ACCESS_STATE_NOT_GRANTED, Group::ACCESS_STATE_PENDING, Group::ACCESS_STATE_GRANTED})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user"})
+     */
+    private $rezero_b2b_access = Group::ACCESS_STATE_NOT_GRANTED;
 
     /**
      * @return mixed
@@ -1733,5 +1751,38 @@ class Group extends BaseGroup implements Uploadable
     {
         $this->disabled_at = $disabled_at;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getRezeroB2bUsername()
+    {
+        return $this->rezero_b2b_username;
+    }
+
+    /**
+     * @param mixed $rezero_b2b_username
+     */
+    public function setRezeroB2bUsername($rezero_b2b_username): void
+    {
+        $this->rezero_b2b_username = $rezero_b2b_username;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRezeroB2bAccess(): string
+    {
+        return $this->rezero_b2b_access;
+    }
+
+    /**
+     * @param string $rezero_b2b_access
+     */
+    public function setRezeroB2bAccess(string $rezero_b2b_access): void
+    {
+        $this->rezero_b2b_access = $rezero_b2b_access;
+    }
+
 
 }
