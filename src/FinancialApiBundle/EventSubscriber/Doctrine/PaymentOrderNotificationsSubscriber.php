@@ -49,34 +49,46 @@ class PaymentOrderNotificationsSubscriber implements EventSubscriber {
     public function postUpdate(LifecycleEventArgs $args){
         $order = $args->getEntity();
         if($order instanceof PaymentOrder && $order->getPos()->getNotificationUrl() != null){
-            $notification = new PaymentOrderNotification();
-            $notification->setPaymentOrder($order);
-
-            /** @var Pos $pos */
-            $pos = $order->getPos();
-            $notification->setUrl($pos->getNotificationUrl());
-
-            $amount = intval($order->getAmount());
-            $signature_version = "hmac_sha256_v1";
-            $dataToSign = [
-                "payment_order" => $order->getId(),
-                'reference' => $order->getReference(),
-                "amount" => $amount,
-                "time" => $order->getUpdated()->format('c'),
-                "status" => $order->getStatus(),
-                "signature_version" => $signature_version
-            ];
-
-            ksort($dataToSign);
-            $signaturePack = json_encode($dataToSign, JSON_UNESCAPED_SLASHES);
-
-            $signature = hash_hmac('sha256', $signaturePack, base64_decode($pos->getAccessSecret()));
-
-            $notification->setContent($dataToSign + ["signature" => $signature]);
             $em = $args->getEntityManager();
-            $em->persist($notification);
-            $em->persist($order);
-            $em->flush();
+            $existentNotification = $em->getRepository(PaymentOrderNotification::class)->findOneBy(
+                array(
+                    "status" => $order->getStatus(),
+                    "payment_order" => $order
+                )
+            );
+            if(!$existentNotification){
+                $notification = new PaymentOrderNotification();
+                $notification->setPaymentOrder($order);
+
+                /** @var Pos $pos */
+                $pos = $order->getPos();
+                $notification->setUrl($pos->getNotificationUrl());
+
+                $amount = intval($order->getAmount());
+                $signature_version = "hmac_sha256_v1";
+                $now = new \DateTime();
+                $nonce = $now->getTimestamp();
+                $dataToSign = [
+                    "payment_order" => $order->getId(),
+                    'reference' => $order->getReference(),
+                    "amount" => $amount,
+                    "time" => $order->getUpdated()->format('c'),
+                    "status" => $order->getStatus(),
+                    "nonce" => $nonce,
+                    "signature_version" => $signature_version
+                ];
+
+                ksort($dataToSign);
+                $signaturePack = json_encode($dataToSign, JSON_UNESCAPED_SLASHES);
+
+                $signature = hash_hmac('sha256', $signaturePack, base64_decode($pos->getAccessSecret()));
+
+                $notification->setContent($dataToSign + ["signature" => $signature]);
+                $em = $args->getEntityManager();
+                $em->persist($notification);
+                $em->flush();
+            }
+
         }
     }
 

@@ -9,6 +9,7 @@ use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\Pos;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Exception\AppException;
+use App\FinancialApiBundle\Exception\AttemptToChangeStatusException;
 use App\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriver;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -61,7 +62,9 @@ class PaymentOrderSubscriber implements EventSubscriber {
         if($order instanceof PaymentOrder){
             if ($args->hasChangedField("status")){
                 if($args->getNewValue("status") == PaymentOrder::STATUS_REFUNDED){
-
+                    if($args->getOldValue("status") == PaymentOrder::STATUS_IN_PROGRESS){
+                        throw new AttemptToChangeStatusException("Changing status is not allowed");
+                    }
                     $currentRequest = $this->requestStack->getCurrentRequest();
                     $refundAmount = $currentRequest->request->get("refund_amount", $order->getAmount());
                     if($refundAmount > $order->getAmount())
@@ -118,6 +121,7 @@ class PaymentOrderSubscriber implements EventSubscriber {
                         /** @var Transaction $refundTx */
                         $refundTx = $txRepo->find($id);
                         $order->setRefundTransaction($refundTx);
+                        $order->setRefundedAmount($refundAmount);
                     }
                     else {
                         throw new AppException(

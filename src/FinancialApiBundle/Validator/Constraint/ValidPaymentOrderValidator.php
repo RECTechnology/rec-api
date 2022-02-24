@@ -98,6 +98,13 @@ class ValidPaymentOrderValidator extends ConstraintValidator {
                     ->addViolation();
                 return;
             }
+
+            if(!key_exists("nonce", $dataToSign)){
+                $this->context->buildViolation("nonce not specified")
+                    ->atPath('nonce')
+                    ->addViolation();
+                return;
+            }
             unset($dataToSign['signature']);
 
             ksort($dataToSign);

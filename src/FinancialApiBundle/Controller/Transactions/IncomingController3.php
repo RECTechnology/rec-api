@@ -130,7 +130,9 @@ class IncomingController3 extends RestApiController{
                 if($user->getPIN()!==$pin){
                     if ($order) {
                         $order->incrementRetries();
-                        if ($order->getRetries() > 2) {
+                        $max_attempts = $em->getRepository('FinancialApiBundle:UserSecurityConfig')
+                            ->findOneBy(['type' => 'pin_failures'])->getMaxAttempts();
+                        if ($order->getRetries() >= $max_attempts) {
                             $order->setStatus(PaymentOrder::STATUS_FAILED);
                         }
                         $em->persist($order);

@@ -70,6 +70,12 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
     private $amount;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    private $refunded_amount;
+
+    /**
      * @Serializer\Groups({"public"})
      * @Assert\Url()
      */
@@ -490,5 +496,21 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
         $this->payment_type = $payment_type;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRefundedAmount()
+    {
+        return $this->refunded_amount;
+    }
+
+    /**
+     * @param mixed $refunded_amount
+     */
+    public function setRefundedAmount($refunded_amount): void
+    {
+        $this->refunded_amount = $refunded_amount;
     }
 }

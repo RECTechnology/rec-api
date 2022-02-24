@@ -69,8 +69,29 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
         foreach($notifications as $notification){
             $order = $notification->getPaymentOrder();
             $output->writeln('Notifying order: '.$order->getId());
+
             //each order can have many notifications, and if one fails, the rest should not be tried
             if(!in_array($order, $this->orderNotificationsFailed)){
+
+                //we need to recalculate signature and add a current nonce
+                $now = new \DateTime();
+                $nonce = $now->getTimestamp();
+
+                $content = $notification->getContent();
+
+                unset($content['signature'], $content['nonce']);
+
+                $content['nonce'] = $nonce;
+
+                ksort($content);
+                $signaturePack = json_encode($content, JSON_UNESCAPED_SLASHES);
+
+                $signature = hash_hmac('sha256', $signaturePack, base64_decode($order->getPos()->getAccessSecret()));
+
+                $notification->setContent($content + ["signature" => $signature]);
+
+                $em->flush();
+
                 $this->notifier->send(
                     $notification,
                     function($ignored) use ($notification) {

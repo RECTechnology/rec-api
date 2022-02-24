@@ -12,6 +12,7 @@ class AdminBaseCalls extends AdminApiTest
         $route = "/public/v3/payment_orders";
         $reference = "1234123412341234";
         $concept = "Mercat do castelo 1234123412341234";
+        $now = new \DateTime();
         $signatureParams = [
             'access_key' => $pos->access_key,
             'reference' => $reference,
@@ -20,22 +21,14 @@ class AdminBaseCalls extends AdminApiTest
             'signature_version' => 'hmac_sha256_v1',
             'amount' => $amount,
             'concept' => $concept,
-            'payment_type' => 'desktop'
+            'payment_type' => 'desktop',
+            'nonce' => $now->getTimestamp()
         ];
         ksort($signatureParams);
         $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
         $signature = hash_hmac('sha256', $signatureData, base64_decode($pos->access_secret));
-        return $this->rest('POST', $route, [
-            'access_key' => $pos->access_key,
-            'amount' => $amount,
-            'ok_url' => $okUrl,
-            'ko_url' => $koUrl,
-            'concept' => $concept,
-            'reference' => $reference,
-            'signature_version' => 'hmac_sha256_v1',
-            'signature' => $signature,
-            'payment_type' => 'desktop'
-        ]);
+        $params = $signatureParams + ["signature" => $signature];
+        return $this->rest('POST', $route, $params);
     }
 
     function payOrder($order)

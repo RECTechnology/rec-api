@@ -2,18 +2,10 @@
 
 namespace Test\FinancialApiBundle\Pos;
 
-use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\Notifier;
-use App\FinancialApiBundle\Entity\Campaign;
-use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\Mailing;
-use App\FinancialApiBundle\Entity\MailingDelivery;
 use App\FinancialApiBundle\Entity\Notification;
 use App\FinancialApiBundle\Entity\PaymentOrder;
-use App\FinancialApiBundle\Entity\User;
-use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Test\FinancialApiBundle\BaseApiTest;
@@ -60,8 +52,17 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->paymentOrderHasRequiredData($order);
         $this->setClientIp($this->faker->ipv4);
 
-        //TODO uncomment when fixed secureInput
-        //$this->tryEditingOtherThanStatusShouldFail($order, $pos);
+        //try refundind tx in progress
+        //necesitamos el order de admin porque necesitamos el access secret y en la publica no se devuelve
+        $order = $this->readPaymentOrderAdmin($order);
+        $resp = $this->refundOrderPublicInProgessShouldFail($order);
+        self::assertEquals("error",$resp->status);
+        self::assertEquals("Changing status is not allowed",$resp->message);
+        $resp = $this->changeStatusFromInProgessToDoneShouldFail($order);
+
+        $this->tryEditingOtherThanStatusShouldFail($order, $pos);
+
+        $order = $this->readPaymentOrder($order);
         $tx = $this->payOrder($order);
         self::assertEquals("success", $tx->status);
         $order = $this->readPaymentOrder($order);
@@ -72,6 +73,8 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->refundOrderWithMoreAmountShouldFail($order);
         $order = $this->refundOrderPublic($order);
         self::assertEquals(PaymentOrder::STATUS_REFUNDED, $order->status);
+        self::assertObjectHasAttribute('refunded_amount', $order);
+        self::assertEquals($order->amount, $order->refunded_amount);
 
         $this->runCommand('rec:pos:expire');
 
@@ -104,7 +107,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->payOrderWrongPin($order);
         $this->payOrderWrongPin($order);
         $tx = $this->payOrderWrongPin($order);
-        self::assertEquals("Failed payment transaction", $tx->message);
+        self::assertEquals("Incorrect Pin", $tx->message);
     }
 
     function testPayWrongSignatureShouldFail(){
@@ -125,6 +128,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             'signature_version' => 'hmac_sha256_v1',
             'signature' => $signature,
             'payment_type' => 'desktop',
+            'nonce' => 56478
         ], [], 400);
 
         self::assertEquals('Validation error', $resp->message);
@@ -175,6 +179,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $route = "/public/v3/payment_orders";
         $reference = "1234123412341234";
         $concept = "Mercat do castelo 1234123412341234";
+        $now = new \DateTime();
         $signatureParams = [
             'access_key' => $pos->access_key,
             'reference' => $reference,
@@ -184,21 +189,13 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             'amount' => $amount,
             'concept' => $concept,
             'payment_type' => 'desktop',
+            'nonce' => $now->getTimestamp()
         ];
         ksort($signatureParams);
         $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
         $signature = hash_hmac('sha256', $signatureData, base64_decode($pos->access_secret));
-        return $this->rest('POST', $route, [
-            'access_key' => $pos->access_key,
-            'amount' => $amount,
-            'ok_url' => $okUrl,
-            'ko_url' => $koUrl,
-            'concept' => $concept,
-            'reference' => $reference,
-            'signature_version' => 'hmac_sha256_v1',
-            'signature' => $signature,
-            'payment_type' => 'desktop',
-        ]);
+        $params = $signatureParams + ["signature" => $signature];
+        return $this->rest('POST', $route, $params);
     }
 
     private function readPaymentOrder($order)
@@ -273,46 +270,90 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     private function refundOrderPublic($order)
     {
+        $now = new \DateTime();
+        $nonce = $now->getTimestamp();
+
         $signatureVersion = 'hmac_sha256_v1';
         $signatureParams = [
             'status' => PaymentOrder::STATUS_REFUNDED,
             'signature_version' => $signatureVersion,
+            'nonce' => $nonce
         ];
-        ksort($signatureParams);
-        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
-        $signature = hash_hmac('sha256', $signatureData, base64_decode($order->pos->access_secret));
+        $signature = $this->calculateSignature($signatureParams, $order->pos);
+
+        $params = $signatureParams + ["signature" => $signature];
 
         return $this->rest(
             'PUT',
             "/public/v3/payment_orders/{$order->id}",
-            [
-                'status' => PaymentOrder::STATUS_REFUNDED,
-                'signature_version' => $signatureVersion,
-                'signature' => $signature
-            ]
+            $params
+        );
+    }
+
+    private function refundOrderPublicInProgessShouldFail($order)
+    {
+        $now = new \DateTime();
+        $nonce = $now->getTimestamp();
+        $signatureVersion = 'hmac_sha256_v1';
+        $signatureParams = [
+            'status' => PaymentOrder::STATUS_REFUNDED,
+            'signature_version' => $signatureVersion,
+            "nonce" => $nonce
+        ];
+        $signature = $this->calculateSignature($signatureParams, $order->pos);
+
+        $params = $signatureParams + ["signature" => $signature];
+
+        return $this->rest(
+            'PUT',
+            "/public/v3/payment_orders/{$order->id}",
+            $params,
+            [],
+            400
+        );
+    }
+
+    private function changeStatusFromInProgessToDoneShouldFail($order)
+    {
+        $now = new \DateTime();
+        $nonce = $now->getTimestamp();
+        $signatureVersion = 'hmac_sha256_v1';
+        $signatureParams = [
+            'status' => PaymentOrder::STATUS_DONE,
+            'signature_version' => $signatureVersion,
+            "nonce" => $nonce
+        ];
+        $signature = $this->calculateSignature($signatureParams, $order->pos);
+
+        $params = $signatureParams + ["signature" => $signature];
+        return $this->rest(
+            'PUT',
+            "/public/v3/payment_orders/{$order->id}",
+            $params,
+            [],
+            403
         );
     }
 
     private function refundOrderWithMoreAmountShouldFail($order)
     {
+        $now = new \DateTime();
+        $nonce = $now->getTimestamp();
         $signatureVersion = 'hmac_sha256_v1';
         $signatureParams = [
             'status' => PaymentOrder::STATUS_REFUNDED,
             'signature_version' => $signatureVersion,
+            'nonce' => $nonce,
+            'refund_amount' => 2e8
         ];
-        ksort($signatureParams);
-        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
-        $signature = hash_hmac('sha256', $signatureData, base64_decode($order->pos->access_secret));
+        $signature = $this->calculateSignature($signatureParams, $order->pos);
+
+        $params = $signatureParams + ["signature" => $signature];
 
         $this->rest(
             'PUT',
             "/public/v3/payment_orders/{$order->id}",
-            [
-                'status' => PaymentOrder::STATUS_REFUNDED,
-                'refund_amount' => 10e8,
-                'signature_version' => $signatureVersion,
-                'signature' => $signature
-            ],
+            $params,
             [],
             400
         );
@@ -331,24 +372,22 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
     }
 
     function tryEditingOtherThanStatusShouldFail($order, $pos){
-        //TODO change status
+        $now = new \DateTime();
+        $nonce = $now->getTimestamp();
         $signatureVersion = 'hmac_sha256_v1';
         $signatureParams = [
             'payment_address' => 'fake_address',
             'signature_version' => $signatureVersion,
+            'nonce' => $nonce
         ];
-        ksort($signatureParams);
-        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
-        $signature = hash_hmac('sha256', $signatureData, base64_decode($pos->access_secret));
+        $signature = $this->calculateSignature($signatureParams, $order->pos);
+
+        $params = $signatureParams + ["signature" => $signature];
 
         $resp = $this->requestJson(
             'PUT',
             "/public/v3/payment_orders/{$order->id}",
-            [
-                'payment_address' => 'fake_address',
-                'signature_version' => $signatureVersion,
-                'signature' => $signature
-            ]
+            $params
         );
 
         $updatedOrderResp = $this->requestJson('GET', "/public/v3/payment_orders/{$order->id}");
@@ -368,6 +407,12 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         return $resp;
 
+    }
+
+    private function calculateSignature($signatureParams, $pos){
+        ksort($signatureParams);
+        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
+        return hash_hmac('sha256', $signatureData, base64_decode($pos->access_secret));
     }
 
 }
