@@ -33,6 +33,7 @@ use App\FinancialApiBundle\Controller\SecurityTrait;
 
 class AccountController extends BaseApiController {
 
+    const PLATFORM_REZERO_B2B_WEB = 'rezero-b2b-web';
 
     use SecurityTrait;
 
@@ -1141,6 +1142,7 @@ class AccountController extends BaseApiController {
                 throw new HttpException(400, "Bad request: param '$param' is required");
             }
         }
+
         if(strlen($params['password'])<6)
             throw new HttpException(400, 'Password must be longer than 6 characters');
         $params['plain_password'] = $params['password'];
@@ -1230,6 +1232,24 @@ class AccountController extends BaseApiController {
         if(!UsersController::checkPhone($phone, $prefix)){
             throw new HttpException(400, "Incorrect phone or prefix number");
         }
+
+        if($request->request->has('platform')){
+            $platform = $request->request->get('platform');
+            if($platform !== AccountController::PLATFORM_REZERO_B2B_WEB) throw new HttpException(403, 'Platform not allowed');
+
+            if(!$request->request->has('rezero_b2b_username') || $request->request->get('rezero_b2b_username') === '')
+                throw new HttpException(403, 'Param rezero_b2b_username is required');
+            $b2b_username = $request->request->get('rezero_b2b_username');
+
+            if(strpos($b2b_username, " "))
+                throw new HttpException(403, 'Param rezero_b2b_username contains whitespaces');
+
+            if(strlen($b2b_username) > 32)
+                throw new HttpException(403, 'Param rezero_b2b_username is too long');
+
+            $company->setRezeroB2bUsername($b2b_username);
+        }
+
         $company->setName($company_name);
         $company->setCif(strtoupper($company_cif));
         $company->setType($type);

@@ -23,6 +23,9 @@ CRUD:
 App:
     resource: routing/app.yml
 
+B2B:
+    resource: routing/b2b.yml
+
 validate_email:
     path:  /register/v1/validate_email
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validateEmail }
