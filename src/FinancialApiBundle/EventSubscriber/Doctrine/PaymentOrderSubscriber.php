@@ -77,16 +77,19 @@ class PaymentOrderSubscriber implements EventSubscriber {
                     $order->skipStatusChecks(true);
                     $order->setStatus(PaymentOrder::STATUS_REFUNDING);
 
-                    $receiverTx = $order->getPaymentTransaction();
+                    //In tx received in shop
+                    $paymentInTx = $order->getPaymentTransaction();
                     /** @var DocumentManager $dm */
                     $dm = $this->container->get('doctrine_mongodb.odm.document_manager');
                     $txRepo = $dm->getRepository(Transaction::class);
                     /** @var Transaction $senderTx */
-                    $senderTx = $txRepo->findOneBy(['pay_out_info.txid' => $receiverTx->getPayInInfo()['txid']]);
-                    /** @var Group $sender */
-                    $receiver = $args->getEntityManager()
+                    //out tx sent by user
+                    $paymentOutTx = $txRepo->findOneBy(['pay_out_info.txid' => $paymentInTx->getPayInInfo()['txid']]);
+                    //account from where the original payment was done
+                    /** @var Group $payerAccount */
+                    $payerAccount = $args->getEntityManager()
                         ->getRepository(Group::class)
-                        ->find($receiverTx->getGroup());
+                        ->find($paymentOutTx->getGroup());
 
                     /** @var IncomingController2 $tc */
                     $tc = $this->container->get('app.incoming_controller3');
@@ -94,7 +97,7 @@ class PaymentOrderSubscriber implements EventSubscriber {
                     /** @var User $refunder */
                     $refunder = $order->getPos()->getAccount()->getKycManager();
                     $refundData = [
-                        "address" => $receiver->getRecAddress(),
+                        "address" => $payerAccount->getRecAddress(),
                         "amount" => $refundAmount,
                         "concept" => "Refund for order {$order->getId()}",
                         "pin" => $refunder->getPin()

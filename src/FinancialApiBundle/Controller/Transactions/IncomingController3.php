@@ -478,11 +478,11 @@ class IncomingController3 extends RestApiController{
 
                 $logger->info('(' . $group_id . ')(T) Incomig transaction... ReceiveRecsFromOutTx');
                 $txFlowHandler = $this->get('net.app.commons.transaction_flow_handler');
-                $txFlowHandler->receiveRecsFromOutTx($destination, $transaction);
+                $inTx = $txFlowHandler->receiveRecsFromOutTx($destination, $transaction);
                 if($isPaymentOrder){
                     $logger->info('(' . $group_id . ')(T) Incomig transaction... is Paymnent Order');
                     $logger->info('(' . $group_id . ')(T) Incomig transaction... set payment status DONE');
-                    $paymentOrder->setPaymentTransaction($transaction);
+                    $paymentOrder->setPaymentTransaction($inTx);
                     $paymentOrder->setStatus(PaymentOrder::STATUS_DONE);
                     $em->flush();
                 }

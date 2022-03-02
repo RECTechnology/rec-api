@@ -66,6 +66,7 @@ class TransactionFlowHandler{
         $dm->persist($inTx);
         $dm->flush();
         $this->addBalance($receiver, $inTx->getAmount(), $inTx);
+        return $inTx;
 
     }
 
