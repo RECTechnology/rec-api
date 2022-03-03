@@ -86,7 +86,7 @@ class TxBlockValidator
         $errors = [];
         $warnings = [];
 
-        if ($tx_data[0] === $tx_data[1] || $tx_data[1] === $tx_data[3] || $tx_data[3] === $tx_data[0]) {
+        if ($tx_data[0] == $tx_data[1] || $tx_data[1] == $tx_data[3] || $tx_data[3] == $tx_data[0]) {
             $error_text = 'Account, Exchanger and Sender has to be different (row '.$tx_data[4].')';
             $errors[] = $error_text;
             $this->persistLog(TransactionBlockLog::TYPE_ERROR, $error_text);
@@ -118,8 +118,11 @@ class TxBlockValidator
             $account_warnings = $this->checkAccountState($sender, $tx_data[4]);
             if(count($account_warnings) > 0)
                 $$warnings = $warnings + $account_warnings;
-            if($sender->getWallets()[0]->getBalance() < floatval($tx_data[2]) * 1e8)
-                $warnings[] = 'Sender Account with id '.$tx_data[3].' has lower balance than amount (row '.$tx_data[4].')';
+            if($sender->getWallets()[0]->getBalance() < floatval($tx_data[2]) * 1e8){
+                $warn_text = 'Sender Account with id '.$tx_data[3].' has lower balance than amount (row '.$tx_data[4].')';
+                $warnings[] = $warn_text;
+                $this->persistLog(TransactionBlockLog::TYPE_WARN, $warn_text);
+            }
         }else{
             $error_text = 'Sender Account with id '.$tx_data[3].' not found (row '.$tx_data[4].')';
             $errors[] = $error_text;
@@ -157,12 +160,22 @@ class TxBlockValidator
      */
     private function persistLog(string $type, string $error_text): void
     {
-        $log = new TransactionBlockLog();
-        $log->setBlockTxs($this->tb);
-        $log->setType($type);
-        $log->setLog($error_text);
-        $this->em->persist($log);
-        $this->em->flush();
+        $matchText = explode('(row', $error_text)[0];
+        $sameLog = $this->em->getRepository(TransactionBlockLog::class)->createQueryBuilder('l')
+            ->where('l.block_txs = '.$this->tb->getId())
+            ->andWhere("l.log LIKE '%$matchText%'")
+            ->getQuery()
+            ->getResult();
+
+        if(count($sameLog) == 0){
+            $log = new TransactionBlockLog();
+            $log->setBlockTxs($this->tb);
+            $log->setType($type);
+            $log->setLog($error_text);
+            $this->em->persist($log);
+            $this->em->flush();
+        }
+
     }
 
 }

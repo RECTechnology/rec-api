@@ -219,6 +219,14 @@ class DelegatedChange extends AppObject {
     }
 
     /**
+     * @param mixed $value
+     */
+    public function setWarnings($value)
+    {
+        $this->statistics['scheduled']['warnings'] = $value;
+    }
+
+    /**
      * @return mixed
      */
     public function getName()

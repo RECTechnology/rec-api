@@ -37,7 +37,8 @@ class TransactionBlocksTest extends BaseApiTest {
         $tb_id = 2;
         $lista = array (
             array('account', 'exchanger', 'amount', 'sender'),
-            array(2, 5, 10, 6),
+            array(5, 5, 10, 6),
+            array(5, 5, 11, 6),
             array(9, 5, 10000000, 6),
             array(2000, 5, 465, 6)
         );
@@ -78,9 +79,9 @@ class TransactionBlocksTest extends BaseApiTest {
         $this->runCommand('rec:transaction_block:validate');
         $tb = $em->getRepository(DelegatedChange::class)->find($tb_id);
         self::assertEquals(DelegatedChange::STATUS_INVALID, $tb->getStatus());
-        self::assertEquals(4, $tb->getStatistics()["result"]["warnings"]);
+        self::assertEquals(4, $tb->getStatistics()["scheduled"]["warnings"]);
         $logs = $em->getRepository(TransactionBlockLog::class)->findBy(['block_txs' => $tb_id]);
-        self::assertCount(4, $logs);
+        self::assertCount(6, $logs);
 
     }
 
@@ -129,7 +130,7 @@ class TransactionBlocksTest extends BaseApiTest {
         $this->runCommand('rec:transaction_block:validate');
         $tb = $em->getRepository(DelegatedChange::class)->find($tb_id);
         self::assertEquals(DelegatedChange::STATUS_DRAFT, $tb->getStatus());
-        self::assertEquals(2, $tb->getStatistics()["result"]["warnings"]);
+        self::assertEquals(2, $tb->getStatistics()["scheduled"]["warnings"]);
         $logs = $em->getRepository(TransactionBlockLog::class)->findBy(['block_txs' => $tb_id]);
         self::assertCount(0, $logs);
 

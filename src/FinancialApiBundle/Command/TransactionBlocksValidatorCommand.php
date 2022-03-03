@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Command;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\TxBlockValidator;
 use App\FinancialApiBundle\Entity\DelegatedChangeData;
 use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\TransactionBlockLog;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -62,13 +63,17 @@ class TransactionBlocksValidatorCommand extends SynchronizedContainerAwareComman
             //validate tx block
             $validation = $txBlockValidator->validateTxBlock($txBlock);
 
-            if(count($validation['errors'] )> 0){
+            $logs_repo = $em->getRepository(TransactionBlockLog::class);
+            $errors = $logs_repo->findBy(['block_txs' => $txBlock->getId(), 'type' => 'error']);
+            $warns = $logs_repo->findBy(['block_txs' => $txBlock->getId(), 'type' => 'warn']);
+
+            if(count($errors)> 0){
                 //mark as invalid
                 $txBlock->setStatus(DelegatedChange::STATUS_INVALID);
-                $txBlock->setResult('warnings', count($validation["warnings"]));
+                $txBlock->setWarnings(count($warns));
                 $em->flush();
             }else{
-                $txBlock->setResult('warnings', count($validation["warnings"]));
+                $txBlock->setWarnings(count($warns));
                 //generate tx block data
                 $data = $validation['data'];
                 //start tx
