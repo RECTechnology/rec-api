@@ -8,6 +8,7 @@ use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\DelegatedChangeData;
 use App\FinancialApiBundle\Entity\Mailing;
 use App\FinancialApiBundle\Entity\MailingDelivery;
+use App\FinancialApiBundle\Entity\SmsTemplates;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
 use App\FinancialApiBundle\Exception\AppException;
@@ -32,6 +33,7 @@ use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Stubs\DocumentManager;
 use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 
 /**
  * Class AccountsController
@@ -347,6 +349,17 @@ class AccountsController extends CRUDController {
             if($this->userCanUpdateAccount($user, $account))
                 return parent::updateAction($request, $role, $id);
             throw new HttpException(403, "Insufficient permissions for account");
+        }
+        if($request->request->has('rezero_b2b_access') && $request->request->get('rezero_b2b_access')==='granted'){
+            /** @var EntityManagerInterface $em */
+            $em = $this->getDoctrine()->getManager();
+            /** @var Group $account */
+            $account = $em->getRepository(Group::class)->find($id);
+            $template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => 'rezero_b2b_access_granted']);
+            $prefix = $account->getPrefix();
+            $phone = $account->getPhone();
+
+            UsersController::sendSMSv4($prefix, $phone, $template->getBody(), $this->container);
         }
         return parent::updateAction($request, $role, $id);
     }

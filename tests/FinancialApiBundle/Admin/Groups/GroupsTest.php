@@ -69,6 +69,22 @@ class GroupsTest extends BaseApiTest {
 
     }
 
+    function testUpdateAccountRezeroB2BAccessShouldWork()
+    {
+        $route = '/admin/v3/accounts/1';
+        $values = array(
+            'rezero_b2b_access' => 'granted'
+        );
+        $resp = $this->requestJson('PUT', $route, $values);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+        );
+        $content = json_decode($resp->getContent());
+        self::assertEquals('granted', $content->data->rezero_b2b_access);
+
+    }
+
     function testUpdateRelatedEntitiesInAccountWithoutIdShouldFail()
     {
         $route = '/admin/v3/accounts/1';

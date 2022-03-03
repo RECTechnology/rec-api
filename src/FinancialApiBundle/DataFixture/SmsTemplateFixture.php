@@ -26,6 +26,7 @@ class SmsTemplateFixture extends Fixture implements DependentFixtureInterface {
         $this->createTemplate($orm, 'pin_max_failures', "¡Alerta de seguridad! Tu usuario ha excedido el máximo intento de PINs y ha sido bloqueado. Desbloquealo desde este enlace https://rec.barcelona/%SMS_CODE%");
         $this->createTemplate($orm, 'password_max_failures', "¡Alerta de seguridad! Tu usuario ha excedido el máximo intento de contraseñas para acceder y ha sido bloqueado. Desbloquealo desde este enlace https://rec.barcelona/%SMS_CODE%");
         $this->createTemplate($orm, 'sms_unlock_user', "¡Alerta de seguridad! Tu usuario ha excedido el máximo intento de contraseñas para acceder y ha sido bloqueado. Desbloquealo desde este enlace https://rec.barcelona/%SMS_CODE%");
+        $this->createTemplate($orm, 'rezero_b2b_access_granted', "Ya tienes acceso a tu cuenta");
 
     }
 
