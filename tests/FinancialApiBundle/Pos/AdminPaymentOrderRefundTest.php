@@ -78,7 +78,11 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
         self::assertObjectHasAttribute("payment_transaction", $orderWithOutNotification);
         self::assertNotEmpty($orderWithOutNotification->payment_transaction);
 
-        $this->signOut();
+        $orderWithOutNotification = $this->refundOrder($orderWithOutNotification);
+        self::assertEquals(PaymentOrder::STATUS_REFUNDED, $orderWithOutNotification->status);
+        self::assertObjectHasAttribute("refund_transaction", $orderWithOutNotification);
+        self::assertNotEmpty($orderWithOutNotification->refund_transaction);
+
 
     }
 

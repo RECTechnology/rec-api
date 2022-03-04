@@ -48,8 +48,9 @@ class PaymentOrderNotificationsSubscriber implements EventSubscriber {
 
     public function postUpdate(LifecycleEventArgs $args){
         $order = $args->getEntity();
+        $em = $args->getEntityManager();
         if($order instanceof PaymentOrder && $order->getPos()->getNotificationUrl() != null){
-            $em = $args->getEntityManager();
+
             $existentNotification = $em->getRepository(PaymentOrderNotification::class)->findOneBy(
                 array(
                     "status" => $order->getStatus(),
@@ -86,10 +87,11 @@ class PaymentOrderNotificationsSubscriber implements EventSubscriber {
                 $notification->setContent($dataToSign + ["signature" => $signature]);
                 $em = $args->getEntityManager();
                 $em->persist($notification);
-                $em->flush();
+
             }
 
         }
+        $em->flush();
     }
 
 }
