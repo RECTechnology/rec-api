@@ -56,7 +56,7 @@ class HybridPersistenceEventSubscriber implements EventSubscriber {
      * @param PreUpdateEventArgs $args
      */
     public function preUpdate(PreUpdateEventArgs $args){
-        //$this->saveHybridIdentifier($args->getEntity(), $args->getEntityChangeSet());
+        $this->saveHybridIdentifier($args->getEntity(), $args->getEntityChangeSet());
     }
 
     /**

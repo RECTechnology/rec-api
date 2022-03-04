@@ -31,8 +31,8 @@ class POSFixture extends Fixture implements DependentFixtureInterface {
         $accounts = $orm->getRepository(Group::class)->findBy(array(
             'type' => 'COMPANY'
         ));
-        $totalAccounts = count($accounts) -1;
-        //generemos tpv para todos los comercios menos el ultimo para poder generarlo despues desde los tests y que no falle
+        $totalAccounts = count($accounts) -2;
+        //generemos tpv para todos los comercios menos los dos ultimos para poder generarlo despues desde los tests y que no falle
         //con dupolicated resource ya que la relacion es OneToOne y no puede tener dos tpvs
         for ($i =0; $i< $totalAccounts; $i++){
             $pos = new Pos();

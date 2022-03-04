@@ -28,6 +28,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
         $this->listPosOrders($pos);
 
         $this->signOut();
+
         $sample_url = "https://rec.barcelona";
         $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
         $this->paymentOrderHasRequiredData($order);
@@ -46,6 +47,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
         $order = $this->readPaymentOrder($order);
         self::assertEquals(PaymentOrder::STATUS_DONE, $order->status);
         $order = $this->readPaymentOrderAdmin($order);
+        self::assertObjectHasAttribute("payment_transaction", $order);
         self::assertNotEmpty($order->payment_transaction);
 
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
@@ -63,6 +65,19 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
         $paymentNotifications = $this->getPaymentNotifications($order);
         //TODO Descomentar esto cuenado se solucione el error de la duplicacion de notificaciones
         //self::assertEquals(count($paymentNotifications), 3);
+
+        $anotherAccount = $this->getAnotherAccount();
+        $posWithoutUrlNotification = $this->createPosWithOutUrlNotification($anotherAccount);
+        $this->activatePos($posWithoutUrlNotification);
+        $orderWithOutNotification = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
+        $txWithOutNotification = $this->payOrder($orderWithOutNotification);
+        self::assertEquals("success", $txWithOutNotification->status);
+        $orderWithOutNotification = $this->readPaymentOrder($orderWithOutNotification);
+        self::assertEquals(PaymentOrder::STATUS_DONE, $orderWithOutNotification->status);
+        $orderWithOutNotification = $this->readPaymentOrderAdmin($orderWithOutNotification);
+        self::assertObjectHasAttribute("payment_transaction", $orderWithOutNotification);
+        self::assertNotEmpty($orderWithOutNotification->payment_transaction);
+
         $this->signOut();
 
     }
@@ -71,6 +86,12 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
     {
         $route = "/admin/v3/accounts";
         return $this->rest('GET', $route)[0];
+    }
+
+    private function getAnotherAccount()
+    {
+        $route = "/admin/v3/accounts";
+        return $this->rest('GET', $route)[1];
     }
 
     private function getPaymentNotifications($order){
@@ -84,6 +105,14 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
         return $this->rest('POST', $route, [
             'account_id' => $account->id,
             'notification_url' => "https://rec.barcelona"
+        ]);
+    }
+
+    private function createPosWithOutUrlNotification($account)
+    {
+        $route = "/admin/v3/pos";
+        return $this->rest('POST', $route, [
+            'account_id' => $account->id
         ]);
     }
 
