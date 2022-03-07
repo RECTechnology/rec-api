@@ -4,6 +4,7 @@
 namespace App\FinancialApiBundle\DataFixture;
 
 use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\PaymentOrderUsedNonce;
 use App\FinancialApiBundle\Entity\Pos;
 use App\FinancialApiBundle\Entity\Tier;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -40,6 +41,13 @@ class POSFixture extends Fixture implements DependentFixtureInterface {
             $pos->setAccount($accounts[$i]);
             $pos->setNotificationUrl('https://webhook.site/ba1ec65d-affe-41f4-b489-ddc');
             $orm->persist($pos);
+            $orm->flush();
+
+            $nonce = new PaymentOrderUsedNonce();
+            $nonce->setPos($pos);
+            $nonce->setNonce(123);
+
+            $orm->persist($nonce);
             $orm->flush();
         }
 

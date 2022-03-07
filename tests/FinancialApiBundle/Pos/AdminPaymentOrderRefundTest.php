@@ -125,7 +125,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
         $route = "/public/v3/payment_orders";
         $reference = "1234123412341234";
         $concept = "Mercat do castelo 1234123412341234";
-        $now = new \DateTime();
+        $nonce = round(microtime(true) * 1000, 0);
         $signatureParams = [
             'access_key' => $pos->access_key,
             'reference' => $reference,
@@ -135,7 +135,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
             'amount' => $amount,
             'concept' => $concept,
             'payment_type' => 'desktop',
-            'nonce' => $now->getTimestamp()
+            'nonce' => $nonce
         ];
         ksort($signatureParams);
         $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);

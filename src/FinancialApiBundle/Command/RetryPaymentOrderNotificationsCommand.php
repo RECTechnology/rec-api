@@ -74,8 +74,7 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
             if(!in_array($order, $this->orderNotificationsFailed)){
 
                 //we need to recalculate signature and add a current nonce
-                $now = new \DateTime();
-                $nonce = $now->getTimestamp();
+                $nonce = round(microtime(true) * 1000, 0);
 
                 $content = $notification->getContent();
 

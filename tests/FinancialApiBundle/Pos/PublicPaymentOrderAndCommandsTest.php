@@ -46,6 +46,8 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
     {
         $pos = $this->preparePOS();
         $sample_url = "https://rec.barcelona";
+        $resp = $this->createPaymentOrderWrongNonce($pos, 1e8, $sample_url, $sample_url);
+        self::assertEquals(400, $resp->getStatusCode());
         $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
         $this->paymentOrderHasRequiredData($order);
         $order = $this->readPaymentOrder($order);
@@ -128,7 +130,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             'signature_version' => 'hmac_sha256_v1',
             'signature' => $signature,
             'payment_type' => 'desktop',
-            'nonce' => 56478
+            'nonce' => round(microtime(true) * 1000, 0)
         ], [], 400);
 
         self::assertEquals('Validation error', $resp->message);
@@ -179,7 +181,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $route = "/public/v3/payment_orders";
         $reference = "1234123412341234";
         $concept = "Mercat do castelo 1234123412341234";
-        $now = new \DateTime();
+        $nonce = round(microtime(true) * 1000, 0);
         $signatureParams = [
             'access_key' => $pos->access_key,
             'reference' => $reference,
@@ -189,13 +191,47 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             'amount' => $amount,
             'concept' => $concept,
             'payment_type' => 'desktop',
-            'nonce' => $now->getTimestamp()
+            'nonce' => $nonce
         ];
         ksort($signatureParams);
         $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
         $signature = hash_hmac('sha256', $signatureData, base64_decode($pos->access_secret));
         $params = $signatureParams + ["signature" => $signature];
-        return $this->rest('POST', $route, $params);
+        //this one should work
+        $resp1 = $this->rest('POST', $route, $params);
+        //this one should fail because of same pos and nonce
+        //Test replay
+        $resp2 = $this->requestJson('POST', $route, $params);
+        self::assertEquals(400, $resp2->getStatusCode());
+        $content = json_decode($resp2->getContent(),true);
+        $errors = $content['errors'];
+        self::assertEquals("nonce not valid", $errors[0]['message']);
+        return $resp1;
+    }
+
+    private function createPaymentOrderWrongNonce($pos, int $amount, string $okUrl, string $koUrl)
+    {
+        $route = "/public/v3/payment_orders";
+        $reference = "1234123412341234";
+        $concept = "Mercat do castelo 1234123412341234";
+        $nonce = round(microtime(true) * 1000, 0);
+
+        $signatureParams = [
+            'access_key' => $pos->access_key,
+            'reference' => $reference,
+            'ok_url' => $okUrl,
+            'ko_url' => $koUrl,
+            'signature_version' => 'hmac_sha256_v1',
+            'amount' => $amount,
+            'concept' => $concept,
+            'payment_type' => 'desktop',
+            'nonce' => $nonce -500000
+        ];
+        ksort($signatureParams);
+        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
+        $signature = hash_hmac('sha256', $signatureData, base64_decode($pos->access_secret));
+        $params = $signatureParams + ["signature" => $signature];
+        return $this->requestJson('POST', $route, $params);
     }
 
     private function readPaymentOrder($order)
@@ -243,6 +279,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->signOut();
         return $resp;
     }
+
     private function payOrderWrongPin($order)
     {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
@@ -270,8 +307,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     private function refundOrderPublic($order)
     {
-        $now = new \DateTime();
-        $nonce = $now->getTimestamp();
+        $nonce = round(microtime(true) * 1000, 0);
 
         $signatureVersion = 'hmac_sha256_v1';
         $signatureParams = [
@@ -292,8 +328,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     private function refundOrderPublicInProgessShouldFail($order)
     {
-        $now = new \DateTime();
-        $nonce = $now->getTimestamp();
+        $nonce = round(microtime(true) * 1000, 0);
         $signatureVersion = 'hmac_sha256_v1';
         $signatureParams = [
             'status' => PaymentOrder::STATUS_REFUNDED,
@@ -315,8 +350,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     private function changeStatusFromInProgessToDoneShouldFail($order)
     {
-        $now = new \DateTime();
-        $nonce = $now->getTimestamp();
+        $nonce = round(microtime(true) * 1000, 0);
         $signatureVersion = 'hmac_sha256_v1';
         $signatureParams = [
             'status' => PaymentOrder::STATUS_DONE,
@@ -337,8 +371,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
 
     private function refundOrderWithMoreAmountShouldFail($order)
     {
-        $now = new \DateTime();
-        $nonce = $now->getTimestamp();
+        $nonce = round(microtime(true) * 1000, 0);
         $signatureVersion = 'hmac_sha256_v1';
         $signatureParams = [
             'status' => PaymentOrder::STATUS_REFUNDED,

@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Validator\Constraint;
 
 use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\Entity\PaymentOrder;
+use App\FinancialApiBundle\Entity\PaymentOrderUsedNonce;
 use App\FinancialApiBundle\Entity\Pos;
 use App\FinancialApiBundle\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -105,6 +106,13 @@ class ValidPaymentOrderValidator extends ConstraintValidator {
                     ->addViolation();
                 return;
             }
+
+            if(!$this->isValidNonce($dataToSign['nonce'], $pos)){
+                $this->context->buildViolation("nonce not valid")
+                    ->atPath('nonce')
+                    ->addViolation();
+                return;
+            }
             unset($dataToSign['signature']);
 
             ksort($dataToSign);
@@ -118,6 +126,13 @@ class ValidPaymentOrderValidator extends ConstraintValidator {
                     ->addViolation();
             }
 
+            //save nonce
+            $usedNonce = new PaymentOrderUsedNonce();
+            $usedNonce->setNonce($dataToSign['nonce']);
+            $usedNonce->setPos($pos);
+            $this->em->persist($usedNonce);
+            $this->em->flush();
+
         }
     }
 
@@ -128,5 +143,28 @@ class ValidPaymentOrderValidator extends ConstraintValidator {
         $user = $this->tokenStorage->getToken()->getUser();
         $otp = Google2FA::oath_totp($user->getTwoFactorCode());
         return $otp == $currentRequest->request->get('otp');
+    }
+
+    private function isValidNonce($nonce,Pos $pos)
+    {
+
+        $nowTimestamp = round(microtime(true) * 1000, 0);
+        return ((int) $nonce === $nonce)
+            && ($nonce <= PHP_INT_MAX)
+            && ($nonce >= ~PHP_INT_MAX)
+            && ($nonce <= $nowTimestamp)
+            && ($nonce >= $nowTimestamp - 300000)
+            && ($this->isUniqueNonce($nonce, $pos));
+    }
+
+    private function isUniqueNonce($nonce, Pos $pos){
+        $usedNonce = $this->em->getRepository(PaymentOrderUsedNonce::class)->findOneBy(array(
+            "nonce" => $nonce,
+            "pos" => $pos
+        ));
+
+        if($usedNonce) return false;
+
+        return true;
     }
 }
