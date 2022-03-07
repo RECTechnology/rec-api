@@ -27,7 +27,7 @@ class PaymentOrderUsedNonce extends AppObject
 
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      * @Serializer\Groups({"admin"})
      */
     private $nonce;
