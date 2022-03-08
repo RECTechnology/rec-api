@@ -447,4 +447,35 @@ class UserSecurityTest extends BaseApiTest
         );
     }
 
+    function testLogInB2BAccessPendingShouldFail()
+    {
+        $client = self::getOAuthClient();
+        $credentials = UserFixture::TEST_USER_CREDENTIALS;
+        $user = $this->getSignedInUser();
+
+
+        $this->rest(
+            'PUT',
+            '/user/v1/activegroup',
+            ['group_id' => $user->accounts[0]->id],
+            [],
+            200
+        );
+        $resp = $this->rest(
+            'POST',
+            'oauth/v3/token',
+            [
+                'grant_type' => "password",
+                'client_id' => "1_".$client->getRandomId(),
+                'client_secret' => $client->getSecret(),
+                'username' => $credentials["username"],
+                'password' => $credentials["password"],
+                'version' => 300,
+                'platform' => 'rezero-b2b-web'
+            ],
+            [],
+            403
+        );
+    }
+
 }

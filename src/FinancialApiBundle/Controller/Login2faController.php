@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Entity\Config;
+use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\UserSecurityConfig;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use FOS\OAuthServerBundle\Controller\TokenController;
@@ -23,11 +24,11 @@ class Login2faController extends RestApiController{
         $username = $request->get('username', '');
 
         if($request->get('grant_type') == "password"){
-            $this->checkPlatformAndVersion($request);
             $user_checker = $this->container->get('net.app.commons.user_checker');
             $dni_val = $user_checker->validateUserIdentification($username);
             if(!$dni_val['result'])
                 throw new HttpException(400, $dni_val['errors'][0]);
+            $this->checkPlatformAndVersion($request, $username);
         }
 
         $headers = array(
@@ -301,7 +302,7 @@ class Login2faController extends RestApiController{
         $em->flush();
     }
 
-    private function checkPlatformAndVersion(Request $request){
+    private function checkPlatformAndVersion(Request $request, String  $username){
 
         $em = $this->getDoctrine()->getManager();
 
@@ -329,6 +330,20 @@ class Login2faController extends RestApiController{
                 $required_version = 0;
                 //Quick fix until version is sent from pos
                 if(!$request->request->has('version')) $request->request->add(['version' => INF]);
+                break;
+            case 'rezero-b2b-web':
+                $required_version = 0;
+                //Quick fix until version is sent from B2B
+                if(!$request->request->has('version')) $request->request->add(['version' => INF]);
+                /** @var User $user */
+                $user = $em->getRepository(User::class)->findOneBy(['usernameCanonical' => strtolower($username)]);
+                $account = $user->getActiveGroup();
+                if(!isset($account))
+                    throw new HttpException(403, 'User has no active account');
+                if($account->getRezeroB2bAccess() == Group::ACCESS_STATE_PENDING)
+                    throw new HttpException(403, 'User pending validation');
+                if($account->getRezeroB2bAccess() == Group::ACCESS_STATE_NOT_GRANTED)
+                    throw new HttpException(403, 'User not granted on this platform');
                 break;
             default:
                 throw new HttpException(403, 'Platform '.$request->request->get('platform').' inválido');
