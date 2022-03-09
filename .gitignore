@@ -54,7 +54,7 @@
 /.web-server-pid
 
 # Project
-/web/static
+/web/static/*
 
 # testing
 .phpunit.result.cache

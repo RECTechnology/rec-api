@@ -55,10 +55,12 @@ class TxBlockValidator
         $senders_amount = [];
         $errors = [];
         $warnings = [];
+
         foreach ($tx_list as $tx_data) {
-            $sender_id = $tx_data[3];
-            if(array_key_exists($sender_id, $senders_amount)) $senders_amount[$sender_id] += floatval($tx_data[2]);
-            else $senders_amount[$sender_id] = floatval($tx_data[2]);
+            $tx_sender_id = $tx_data[0];
+            $tx_amount = floatval($tx_data[3]);
+            if(array_key_exists($tx_sender_id, $senders_amount)) $senders_amount[$tx_sender_id] += floatval($tx_amount);
+            else $senders_amount[$tx_sender_id] = floatval($tx_amount);
             $val_res = $this->validateOneTx($tx_data);
             if (count($val_res['errors']) > 0) {
                 $errors = $errors + $val_res['errors'];
@@ -67,11 +69,11 @@ class TxBlockValidator
                 $warnings = $warnings + $val_res['warnings'];
             }
         }
-        foreach ($senders_amount as $sender_id => $amount) {
-            $sender = $this->em->getRepository(Group::class)->find($sender_id);
+        foreach ($senders_amount as $tx_sender_id => $amount) {
+            $sender = $this->em->getRepository(Group::class)->find($tx_sender_id);
             if (isset($sender)) {
                 if($sender->getWallets()[0]->getBalance() < $amount * 1e8){
-                    $warn_text = 'Sender Account with id '.$sender_id.' has lower balance than amounts to send sum';
+                    $warn_text = 'Sender Account with id '.$tx_sender_id.' has lower balance than amounts to send sum';
                     $warnings[] = $warn_text;
                     $this->persistLog(TransactionBlockLog::TYPE_WARN, $warn_text);
                 }
@@ -85,46 +87,52 @@ class TxBlockValidator
     {
         $errors = [];
         $warnings = [];
+        $tx_sender_id = $tx_data[0];
+        $tx_excahnger_id = $tx_data[1];
+        $tx_account_id = $tx_data[2];
+        $tx_amount = $tx_data[3];
+        $row = $tx_data[4];
 
-        if ($tx_data[0] == $tx_data[1] || $tx_data[1] == $tx_data[3] || $tx_data[3] == $tx_data[0]) {
-            $error_text = 'Account, Exchanger and Sender has to be different (row '.$tx_data[4].')';
+        if ($tx_sender_id == $tx_excahnger_id || $tx_excahnger_id == $tx_account_id || $tx_account_id == $tx_sender_id) {
+            $error_text = 'Account, Exchanger and Sender has to be different (row '.$row.')';
             $errors[] = $error_text;
             $this->persistLog(TransactionBlockLog::TYPE_ERROR, $error_text);
         }
 
-        $account = $this->em->getRepository(Group::class)->find($tx_data[0]);
-        $exchanger = $this->em->getRepository(Group::class)->find($tx_data[1]);
-        $sender = $this->em->getRepository(Group::class)->find($tx_data[3]);
+        $sender = $this->em->getRepository(Group::class)->find($tx_sender_id);
+        $exchanger = $this->em->getRepository(Group::class)->find($tx_excahnger_id);
+        $account = $this->em->getRepository(Group::class)->find($tx_account_id);
 
         if (isset($account)){
-            $account_warnings = $this->checkAccountState($account, $tx_data[4]);
+            $account_warnings = $this->checkAccountState($account, $row);
             if(count($account_warnings) > 0)
                 $warnings = $warnings + $account_warnings;
         }else{
-            $error_text = 'Account with id '.$tx_data[0].' not found (row '.$tx_data[4].')';
+            $error_text = 'Account with id '.$tx_amount.' not found (row '.$row.')';
             $errors[] = $error_text;
             $this->persistLog(TransactionBlockLog::TYPE_ERROR, $error_text);
         }
         if (isset($exchanger)) {
-            $account_warnings = $this->checkAccountState($exchanger, $tx_data[4]);
+            $account_warnings = $this->checkAccountState($exchanger, $row);
             if(count($account_warnings) > 0)
                 $warnings = $warnings + $account_warnings;
         }else{
-            $error_text = 'Exchanger Account with id '.$tx_data[1].' not found (row '.$tx_data[4].')';
+            $error_text = 'Exchanger Account with id '.$tx_excahnger_id.' not found (row '.$row.')';
             $errors[] = $error_text;
             $this->persistLog(TransactionBlockLog::TYPE_ERROR, $error_text);
         }
         if (isset($sender)) {
-            $account_warnings = $this->checkAccountState($sender, $tx_data[4]);
+            $account_warnings = $this->checkAccountState($sender, $row);
             if(count($account_warnings) > 0)
                 $$warnings = $warnings + $account_warnings;
-            if($sender->getWallets()[0]->getBalance() < floatval($tx_data[2]) * 1e8){
-                $warn_text = 'Sender Account with id '.$tx_data[3].' has lower balance than amount (row '.$tx_data[4].')';
+
+            if($sender->getWallets()[0]->getBalance() < floatval($tx_amount) * 1e8){
+                $warn_text = 'Sender Account with id '.$tx_sender_id.' has lower balance than amount (row '.$row.')';
                 $warnings[] = $warn_text;
                 $this->persistLog(TransactionBlockLog::TYPE_WARN, $warn_text);
             }
         }else{
-            $error_text = 'Sender Account with id '.$tx_data[3].' not found (row '.$tx_data[4].')';
+            $error_text = 'Sender Account with id '.$tx_sender_id.' not found (row '.$row.')';
             $errors[] = $error_text;
             $this->persistLog(TransactionBlockLog::TYPE_ERROR, $error_text);
         }
@@ -160,7 +168,9 @@ class TxBlockValidator
      */
     private function persistLog(string $type, string $error_text): void
     {
+
         $matchText = explode('(row', $error_text)[0];
+
         $sameLog = $this->em->getRepository(TransactionBlockLog::class)->createQueryBuilder('l')
             ->where('l.block_txs = '.$this->tb->getId())
             ->andWhere("l.log LIKE '%$matchText%'")

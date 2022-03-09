@@ -133,12 +133,15 @@ class DelegatedChangeDataController extends BaseApiController{
         $fileSrc = $request->request->get('path');
 
         $fileHandler = fopen($fileSrc, "r");
+        if(mime_content_type($fileHandler) !== "text/plain") throw new HttpException(400,"The file is not a CSV");
+        if(filesize($fileSrc) == 0) throw new HttpException(400,"The file not contain any data");
 
-        $fileHeaders = fgetcsv($fileHandler, 1000, ",");
-        $requiredHeaders = ["account", "exchanger", "amount", "sender"];
+        $fileHeaders = fgetcsv($fileHandler, 1000);
+        $requiredHeaders = ["sender", "exchanger", "account", "amount"];
         if($requiredHeaders !== $fileHeaders) throw new HttpException(400,"Missing required headers");
 
-        $firstRow = fgetcsv($fileHandler, 1000, ",");
+        $firstRow = fgetcsv($fileHandler, 1000);
+        if(count($firstRow) == 0) throw new HttpException(400,"No data found");
         if(count($firstRow) != 4) throw new HttpException(400,"No valid data found");
 
 

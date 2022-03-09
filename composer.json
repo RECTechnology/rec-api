@@ -54,7 +54,8 @@
         "symfony/swiftmailer-bundle": "~2.3",
         "symfony/symfony": "3.4.*",
         "telepay/php-sdk": "dev-master",
-        "twig/twig": "^2.0"
+        "twig/twig": "^2.0",
+        "ext-fileinfo": "*"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.2",

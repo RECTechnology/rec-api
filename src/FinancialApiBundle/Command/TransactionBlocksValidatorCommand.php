@@ -81,10 +81,10 @@ class TransactionBlocksValidatorCommand extends SynchronizedContainerAwareComman
                 try{
                     // do stuff
                     foreach ($data as $txData){
-                        $account = $em->getRepository(Group::class)->find($txData[0]);
+                        $sender = $em->getRepository(Group::class)->find($txData[0]);
                         $exchanger = $em->getRepository(Group::class)->find($txData[1]);
-                        $amount = $txData[2];
-                        $sender = $em->getRepository(Group::class)->find($txData[3]);
+                        $account = $em->getRepository(Group::class)->find($txData[2]);
+                        $amount = $txData[3];
                         $row = $txData[4];
 
                         //generate txBlockData

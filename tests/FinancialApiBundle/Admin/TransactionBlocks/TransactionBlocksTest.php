@@ -36,11 +36,11 @@ class TransactionBlocksTest extends BaseApiTest {
         $this->markTestIncomplete();
         $tb_id = 2;
         $lista = array (
-            array('account', 'exchanger', 'amount', 'sender'),
-            array(5, 5, 10, 6),
-            array(5, 5, 11, 6),
-            array(9, 5, 10000000, 6),
-            array(2000, 5, 465, 6)
+            array('sender', 'exchanger', 'account', 'amount'),
+            array(6, 5, 5, 10),
+            array(6, 5, 5, 11),
+            array(6, 5, 9, 10000000),
+            array(6, 5, 200, 465)
         );
 
         $fp = fopen('/opt/project/var/cache/file.csv', 'w');
@@ -89,9 +89,9 @@ class TransactionBlocksTest extends BaseApiTest {
         $this->markTestIncomplete();
         $tb_id = 2;
         $lista = array (
-            array('account', 'exchanger', 'amount', 'sender'),
-            array(2, 5, 10, 6),
-            array(4, 8, 465, 6)
+            array('sender', 'exchanger', 'account', 'amount'),
+            array(6, 5, 2 , 10),
+            array(6, 8, 4, 465)
         );
 
         $fp = fopen('/opt/project/var/cache/file.csv', 'w');
@@ -131,8 +131,10 @@ class TransactionBlocksTest extends BaseApiTest {
         $tb = $em->getRepository(DelegatedChange::class)->find($tb_id);
         self::assertEquals(DelegatedChange::STATUS_DRAFT, $tb->getStatus());
         self::assertEquals(2, $tb->getStatistics()["scheduled"]["warnings"]);
-        $logs = $em->getRepository(TransactionBlockLog::class)->findBy(['block_txs' => $tb_id]);
-        self::assertCount(0, $logs);
+
+        $errors = $em->getRepository(TransactionBlockLog::class)->findBy(['block_txs' => $tb_id, 'type' => 'error']);
+        self::assertCount(0, $errors);
+
 
         $tb->setStatus(DelegatedChange::STATUS_SCHEDULED);
         $em->flush();
