@@ -10,6 +10,7 @@ use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\TransactionBlockLog;
 use App\FinancialApiBundle\Financial\Methods\LemonWayMethod;
+use DateTime;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3WriteTestInterface;
@@ -137,14 +138,26 @@ class TransactionBlocksTest extends BaseApiTest {
 
 
         $tb->setStatus(DelegatedChange::STATUS_SCHEDULED);
+        $tb->setScheduledAt(new DateTime('tomorrow'));
         $em->flush();
 
         //run executor command
         $this->runCommand('rec:transaction_block:execute');
-        $tb = json_decode($this->requestJson('GET', '/admin/v3/delegated_changes?id='.$tb_id)->getContent())->data->elements[0];
-        self::assertEquals(DelegatedChange::STATUS_FINISHED, $tb->status);
-        self::assertEquals($tb->statistics->scheduled->tx_to_execute, $tb->statistics->result->success_tx);
-        self::assertEquals(0, $tb->statistics->result->failed_tx);
+        $resp = json_decode($this->requestJson('GET', '/admin/v3/delegated_changes?id='.$tb_id)->getContent())->data->elements[0];
+        self::assertEquals(DelegatedChange::STATUS_SCHEDULED, $resp->status);
+        self::assertEquals(0, $resp->statistics->result->success_tx);
+        self::assertEquals(0, $resp->statistics->result->failed_tx);
+
+
+        $tb->setScheduledAt(new DateTime('yesterday'));
+        $em->flush();
+
+        //run executor command
+        $this->runCommand('rec:transaction_block:execute');
+        $resp = json_decode($this->requestJson('GET', '/admin/v3/delegated_changes?id='.$tb_id)->getContent())->data->elements[0];
+        self::assertEquals(DelegatedChange::STATUS_FINISHED, $resp->status);
+        self::assertEquals($resp->statistics->scheduled->tx_to_execute, $resp->statistics->result->success_tx);
+        self::assertEquals(0, $resp->statistics->result->failed_tx);
 
     }
 }

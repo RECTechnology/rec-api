@@ -49,29 +49,34 @@ class TransactionBlocksExecutorCommand extends SynchronizedContainerAwareCommand
         $this->log($output, "Found " . count($txBlocks) . " transaction blocks to process");
 
         $txFlowHandler = $this->getContainer()->get('net.app.commons.transaction_flow_handler');
-        $satoshi_decimals = 1e6;  // amount in cents
+        $satoshi_decimals = 1e6; // amount in cents
+        $now = new Datetime('NOW');
         /** @var DelegatedChange $txBlock */
         foreach ($txBlocks as $txBlock){
-            $this->log($output, "Processing transaction block: " . $txBlock->getId());
-            $txBlock->setStatus(DelegatedChange::STATUS_IN_PROGRESS);
-            $em->flush();
+            if($txBlock->getScheduledAt() <= $now){
+                $this->log($output, "Processing transaction block: " . $txBlock->getId());
+                $txBlock->setStatus(DelegatedChange::STATUS_IN_PROGRESS);
+                $txBlock->setResult('failed_tx', 0);
+                $em->flush();
 
-            foreach ($txBlock->getData() as $txData) {
-                if ($txData->getStatus() !== DelegatedChangeData::STATUS_SUCCESS) {
-                    try{
-                        $this->log($output, "Processing entry: " . $txData->getId());
-                        $tx = $txFlowHandler->sendRecsWithIntermediary(
-                            $txData->getSender(),
-                            $txData->getExchanger(),
-                            $txData->getAccount(),
-                            $txData->getAmount() * $satoshi_decimals);
-                        $this->updateStatus($txData, $tx, $em, $txBlock, $satoshi_decimals, $output);
-                    } catch (\Exception $e) {
-                        $this->updateStatus($txData, null, $em, $txBlock, $satoshi_decimals, $output);
+                foreach ($txBlock->getData() as $txData) {
+                    if ($txData->getStatus() !== DelegatedChangeData::STATUS_SUCCESS) {
+                        try{
+                            $this->log($output, "Processing entry: " . $txData->getId());
+                            $tx = $txFlowHandler->sendRecsWithIntermediary(
+                                $txData->getSender(),
+                                $txData->getExchanger(),
+                                $txData->getAccount(),
+                                $txData->getAmount() * $satoshi_decimals);
+                            $this->updateStatus($txData, $tx, $em, $txBlock, $satoshi_decimals, $output);
+                        } catch (\Exception $e) {
+                            $this->updateStatus($txData, null, $em, $txBlock, $satoshi_decimals, $output);
+                            break;
+                        }
                     }
                 }
+                $this->log($output, "Done transaction block: " . $txBlock->getId());
             }
-            $this->log($output, "Done transaction block: " . $txBlock->getId());
         }
         $this->log($output, "Finish");
     }
