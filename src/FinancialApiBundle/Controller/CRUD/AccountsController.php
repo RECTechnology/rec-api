@@ -356,8 +356,8 @@ class AccountsController extends CRUDController {
             /** @var Group $account */
             $account = $em->getRepository(Group::class)->find($id);
             $template = $em->getRepository(SmsTemplates::class)->findOneBy(['type' => 'rezero_b2b_access_granted']);
-            $prefix = $account->getPrefix();
-            $phone = $account->getPhone();
+            $prefix = $account->getKycManager()->getPrefix();
+            $phone = $account->getKycManager()->getPhone();
 
             UsersController::sendSMSv4($prefix, $phone, $template->getBody(), $this->container);
         }
