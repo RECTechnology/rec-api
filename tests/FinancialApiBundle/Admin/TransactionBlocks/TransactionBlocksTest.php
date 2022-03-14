@@ -82,7 +82,7 @@ class TransactionBlocksTest extends BaseApiTest {
         self::assertEquals(DelegatedChange::STATUS_INVALID, $tb->getStatus());
         self::assertEquals(4, $tb->getStatistics()["scheduled"]["warnings"]);
         $logs = $em->getRepository(TransactionBlockLog::class)->findBy(['block_txs' => $tb_id]);
-        self::assertCount(6, $logs);
+        self::assertCount(10, $logs);
 
     }
 
@@ -133,7 +133,7 @@ class TransactionBlocksTest extends BaseApiTest {
         self::assertEquals(DelegatedChange::STATUS_DRAFT, $tb->getStatus());
         self::assertEquals(2, $tb->getStatistics()["scheduled"]["warnings"]);
 
-        $errors = $em->getRepository(TransactionBlockLog::class)->findBy(['block_txs' => $tb_id, 'type' => 'error']);
+        $errors = $em->getRepository(TransactionBlockLog::class)->findBy(['block_txs' => $tb_id, 'type' => TransactionBlockLog::TYPE_ERROR]);
         self::assertCount(0, $errors);
 
 

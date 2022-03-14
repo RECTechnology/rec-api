@@ -54,11 +54,18 @@ class TransactionBlocksValidatorCommand extends SynchronizedContainerAwareComman
         /** @var TxBlockValidator $txBlockValidator */
         $txBlockValidator = $this->getContainer()->get('net.app.commons.tx_block_validator');
 
+        $log_handler = $this->getContainer()->get('net.app.commons.tx_block_log_handler');
+
         /** @var DelegatedChange $txBlock */
         foreach ($txBlocks as $txBlock){
             $this->log($output, "Processing transaction block: " . $txBlock->getId());
             $txBlock->setStatus(DelegatedChange::STATUS_VALIDATING);
             $em->flush();
+
+            $log_text = sprintf('From %s to %s. Analyzing the data contained in the csv',
+                DelegatedChange::STATUS_PENDING_VALIDATION,
+                DelegatedChange::STATUS_VALIDATING);
+            $log_handler->persistLog($txBlock, TransactionBlockLog::TYPE_DEBUG, $log_text);
 
             //validate tx block
             $validation = $txBlockValidator->validateTxBlock($txBlock);
@@ -72,6 +79,10 @@ class TransactionBlocksValidatorCommand extends SynchronizedContainerAwareComman
                 $txBlock->setStatus(DelegatedChange::STATUS_INVALID);
                 $txBlock->setWarnings(count($warns));
                 $em->flush();
+                $log_text = sprintf('From %s to %s. Logical errors found in csv data',
+                    DelegatedChange::STATUS_VALIDATING,
+                    DelegatedChange::STATUS_INVALID);
+                $log_handler->persistLog($txBlock, TransactionBlockLog::TYPE_DEBUG, $log_text);
             }else{
                 $txBlock->setWarnings(count($warns));
                 //generate tx block data
@@ -102,11 +113,23 @@ class TransactionBlocksValidatorCommand extends SynchronizedContainerAwareComman
                     $txBlock->setStatus(DelegatedChange::STATUS_DRAFT);
                     $em->getConnection()->commit();
                     $em->flush();
+                    $log_text = sprintf('From %s to %s. Bulk txs data created successfully with %d warnings',
+                        DelegatedChange::STATUS_VALIDATING,
+                        DelegatedChange::STATUS_DRAFT,
+                        count($validation["warnings"])
+                        );
+                    $log_handler->persistLog($txBlock, TransactionBlockLog::TYPE_DEBUG, $log_text);
                 } catch (\Exception $e) {
                     $em->getConnection()->rollBack();
-                    $txBlock->setStatus(DelegatedChange::STATUS_FAILED);
+                    $txBlock->setStatus(DelegatedChange::STATUS_INVALID);
                     $em->flush();
-
+                    $log_text = sprintf('From %s to %s. There was an error saving the csv data. Rollback...
+                        Error: %s',
+                        DelegatedChange::STATUS_VALIDATING,
+                        DelegatedChange::STATUS_INVALID,
+                        $e->getMessage()
+                    );
+                    $log_handler->persistLog($txBlock, TransactionBlockLog::TYPE_ERROR, $log_text);
                 }
 
             }

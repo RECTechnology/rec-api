@@ -12,6 +12,7 @@ namespace App\FinancialApiBundle\Controller\Management\Admin;
 use App\FinancialApiBundle\Entity\DelegatedChange;
 use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\Tier;
+use App\FinancialApiBundle\Entity\TransactionBlockLog;
 use AssertionError;
 use DateTime;
 use Doctrine\Common\Annotations\AnnotationException;
@@ -130,6 +131,9 @@ class DelegatedChangeDataController extends BaseApiController{
         if (count($dc->getData()) > 0)
             throw new HttpException(400, "This transaction block already has transaction block data");
 
+        $log_handler = $this->container->get('net.app.commons.tx_block_log_handler');
+        $log_text = 'Could not read csv: ';
+
         $fileSrc = $request->request->get('path');
 
         $fileHandler = fopen($fileSrc, "r");
@@ -138,16 +142,28 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $fileHeaders = fgetcsv($fileHandler, 1000);
         $requiredHeaders = ["sender", "exchanger", "account", "amount"];
-        if($requiredHeaders !== $fileHeaders) throw new HttpException(400,"Missing required headers");
+        if($requiredHeaders !== $fileHeaders) {
+            $error_text = "Missing required headers";
+            $log_handler->persistLog($dc, TransactionBlockLog::TYPE_ERROR, $log_text.$error_text);
+            throw new HttpException(400, $error_text);
+        }
 
         $firstRow = fgetcsv($fileHandler, 1000);
-        if(count($firstRow) == 0) throw new HttpException(400,"No data found");
-        if(count($firstRow) != 4) throw new HttpException(400,"No valid data found");
+        if(count($firstRow) != 4) {
+            $error_text = "No valid data found";
+            $log_handler->persistLog($dc, TransactionBlockLog::TYPE_ERROR, $log_text.$error_text);
+            throw new HttpException(400, $error_text);
+        }
 
+        $log_text = sprintf('From %s to %s. The csv data is pending to validate', $dc->getStatus(),
+            DelegatedChange::STATUS_PENDING_VALIDATION);
+        $log_handler->persistLog($dc, TransactionBlockLog::TYPE_DEBUG, $log_text);
 
         $dc->setUrlCsv($request->request->get('path'));
         $dc->setStatus(DelegatedChange::STATUS_PENDING_VALIDATION);
         $em->flush();
+
+        $log_handler->persistLog($dc, TransactionBlockLog::TYPE_DEBUG, 'csv saved successfully');
 
         return $this->restV2(201, "success", "CSV added successfully");
 

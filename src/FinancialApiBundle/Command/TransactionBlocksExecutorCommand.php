@@ -5,6 +5,7 @@ use App\FinancialApiBundle\DependencyInjection\App\Commons\TxBlockValidator;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\DelegatedChangeData;
 use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\TransactionBlockLog;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -59,6 +60,12 @@ class TransactionBlocksExecutorCommand extends SynchronizedContainerAwareCommand
                 $txBlock->setResult('failed_tx', 0);
                 $em->flush();
 
+                $log_handler = $this->getContainer()->get('net.app.commons.tx_block_log_handler');
+                $log_text = sprintf('From %s to %s. Sending the transactions of this block',
+                    DelegatedChange::STATUS_SCHEDULED,
+                    DelegatedChange::STATUS_IN_PROGRESS);
+                $log_handler->persistLog($txBlock, TransactionBlockLog::TYPE_DEBUG, $log_text);
+
                 foreach ($txBlock->getData() as $txData) {
                     if ($txData->getStatus() !== DelegatedChangeData::STATUS_SUCCESS) {
                         try{
@@ -90,12 +97,19 @@ class TransactionBlocksExecutorCommand extends SynchronizedContainerAwareCommand
      */
     protected function updateStatus(DelegatedChangeData $dcd, $tx, EntityManagerInterface $em, DelegatedChange $dc, float $satoshi_decimals, OutputInterface $output): void
     {
+        $log_handler = $this->getContainer()->get('net.app.commons.tx_block_log_handler');
         if (isset($tx) && $tx->getStatus() === 'success') {
             $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
             $dc->setResult('success_tx', $dc->getStatistics()["result"]["success_tx"] + 1);
             $dc->setResult('issued_rec', $dc->getStatistics()["result"]["issued_rec"] + $dcd->getAmount() * $satoshi_decimals);
-            $dc->setStatus(DelegatedChange::STATUS_FINISHED);
+            if($dc->getStatistics()["scheduled"]["tx_to_execute"] == $dc->getStatistics()["result"]["success_tx"])
+                $dc->setStatus(DelegatedChange::STATUS_FINISHED);
             $output->writeln("TX(id): " . $tx->getId());
+
+            $log_text = sprintf('From %s to %s. All the transactions executed successfully',
+                DelegatedChange::STATUS_IN_PROGRESS,
+                DelegatedChange::STATUS_FINISHED);
+            $log_handler->persistLog($dc, TransactionBlockLog::TYPE_DEBUG, $log_text);
         }else{
             $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
             $dc->setResult('failed_tx', $dc->getStatistics()["result"]["failed_tx"] + 1);
@@ -105,6 +119,16 @@ class TransactionBlocksExecutorCommand extends SynchronizedContainerAwareCommand
                 "Transaction creation failed",
                 DelegatedChangeV2Command::SEVERITY_CRITICAL
             );
+            $log_text = sprintf('From %s to %s. An unexpected error occurred while executing the transaction %s 
+             error: %s .Please try to resolve the issue manually and click "Retry Send" to retry sending transactions 
+             since this last failed tx. If you cannot solve the problem, you must "Mark as incomplete" this block of 
+             transactions and create a new one.',
+                DelegatedChange::STATUS_IN_PROGRESS,
+                DelegatedChange::STATUS_FAILED,
+                $dc->getId(),
+                "Transaction creation failed"
+            );
+            $log_handler->persistLog($dc, TransactionBlockLog::TYPE_ERROR, $log_text);
         }
         $dcd->setTransaction($tx);
         $em->persist($dcd);

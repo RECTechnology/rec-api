@@ -57,6 +57,11 @@ services:
         arguments:
             - "@service_container"
 
+    net.app.commons.tx_block_log_handler:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\TxBlockLogHandler
+        arguments:
+            - "@service_container"
+
     net.app.commons.fee_manipulator:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\FeeManipulator
         arguments:

@@ -72,8 +72,11 @@ class TxBlockValidator
         foreach ($senders_amount as $tx_sender_id => $amount) {
             $sender = $this->em->getRepository(Group::class)->find($tx_sender_id);
             if (isset($sender)) {
-                if($sender->getWallets()[0]->getBalance() < $amount * 1e8){
-                    $warn_text = 'Sender Account with id '.$tx_sender_id.' has lower balance than amounts to send sum';
+                $sender_balance = $sender->getWallets()[0]->getBalance();
+                if($sender_balance < $amount * 1e8){
+                    //$warn_text = 'Sender Account with id '.$sender_id.' has lower balance than amounts to send sum';
+                    $warn_text = 'The sender '.$tx_sender_id.' must send '.$amount.'R but only has '.$sender_balance.'R.
+                     This will cause an ERROR in the sending';
                     $warnings[] = $warn_text;
                     $this->persistLog(TransactionBlockLog::TYPE_WARN, $warn_text);
                 }
@@ -93,8 +96,18 @@ class TxBlockValidator
         $tx_amount = $tx_data[3];
         $row = $tx_data[4];
 
-        if ($tx_sender_id == $tx_excahnger_id || $tx_excahnger_id == $tx_account_id || $tx_account_id == $tx_sender_id) {
-            $error_text = 'Account, Exchanger and Sender has to be different (row '.$row.')';
+        if ($tx_sender_id === $tx_excahnger_id) {
+            $error_text = 'Sender '.$tx_sender_id.' cannot send money to intermediary '.$tx_excahnger_id.'. 
+            They are the same account (row '.$row.')';
+            $errors[] = $error_text;
+            $this->persistLog(TransactionBlockLog::TYPE_ERROR, $error_text);
+        }
+
+
+        if ($tx_excahnger_id === $tx_account_id) {
+            $error_text = 'Intermediary '.$tx_excahnger_id.' cannot send money to beneficiary '.$tx_account_id.'. 
+            They are the same account (row '.$row.')';
+
             $errors[] = $error_text;
             $this->persistLog(TransactionBlockLog::TYPE_ERROR, $error_text);
         }
@@ -168,9 +181,7 @@ class TxBlockValidator
      */
     private function persistLog(string $type, string $error_text): void
     {
-
         $matchText = explode('(row', $error_text)[0];
-
         $sameLog = $this->em->getRepository(TransactionBlockLog::class)->createQueryBuilder('l')
             ->where('l.block_txs = '.$this->tb->getId())
             ->andWhere("l.log LIKE '%$matchText%'")
@@ -178,12 +189,8 @@ class TxBlockValidator
             ->getResult();
 
         if(count($sameLog) == 0){
-            $log = new TransactionBlockLog();
-            $log->setBlockTxs($this->tb);
-            $log->setType($type);
-            $log->setLog($error_text);
-            $this->em->persist($log);
-            $this->em->flush();
+            $log_handler = $this->container->get('net.app.commons.tx_block_log_handler');
+            $log_handler->persistLog($this->tb, $type, $error_text);
         }
 
     }

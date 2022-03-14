@@ -184,6 +184,25 @@ products_and_activities_v3_create:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "(product_kinds|activities)"
 
+##################### DELEGATED_CHANGE / V3 / (OVERRIDES CRUD) ############################
+
+delegated_changes_v3_create:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\TxBlockController::createAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(delegated_change|delegated_changes)"
+
+delegated_changes_v3_update:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\TxBlockController::UpdateAction }
+    methods: [PUT]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(delegated_change|delegated_changes)"
+        id: "[0-9A-Fa-f_-]+"
+
 ##################### PAYMENT_ORDERS / V3 / (OVERRIDES CRUD) ############################
 
 treasure_withdrawal_validations_v3_update:
