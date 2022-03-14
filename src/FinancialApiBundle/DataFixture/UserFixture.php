@@ -25,6 +25,10 @@ class UserFixture extends Fixture {
 
     const TEST_THIRD_USER_CREDENTIALS = ['name' => 'vicent', 'username' => '01234567C', 'password' => 'user_user', 'pin' => '1234'];
 
+    const TEST_REZERO_USER_1_CREDENTIALS = ['name' => 'rezero1', 'username' => '01233567C', 'password' => 'user_rezero', 'pin' => '2234'];
+
+    const TEST_REZERO_USER_2_CREDENTIALS = ['name' => 'rezero2', 'username' => '01233557C', 'password' => 'user_rezero2', 'pin' => '2233'];
+
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -46,6 +50,8 @@ class UserFixture extends Fixture {
         $manager_pos = $this->generateUser($faker, self::TEST_POS_MANAGER_CREDENTIALS);
 
         $user_third_user = $this->generateUser($faker, self::TEST_THIRD_USER_CREDENTIALS);
+        $user_rezero_1 = $this->generateUser($faker, self::TEST_REZERO_USER_1_CREDENTIALS);
+        $user_rezero_2 = $this->generateUser($faker, self::TEST_REZERO_USER_2_CREDENTIALS);
 
         $manager->persist($admin);
         $manager->persist($user);
@@ -58,6 +64,8 @@ class UserFixture extends Fixture {
         $manager->persist($manager_pos);
 
         $manager->persist($user_third_user);
+        $manager->persist($user_rezero_1);
+        $manager->persist($user_rezero_2);
 
         $manager->flush();
     }

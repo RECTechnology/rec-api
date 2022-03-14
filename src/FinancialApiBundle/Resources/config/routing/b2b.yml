@@ -12,3 +12,10 @@ b2b_validate_phone:
     path:  /rezero_b2b/v4/validate-phone
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validatePhoneCodeV4 }
     methods: [POST]
+
+discourse_bridge:
+    path:  /rezero_b2b/v1/bridge/{discourse_endpoint}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\DiscourseController::bridgeDiscourseAction }
+    methods: [GET, POST]
+    requirements:
+        discourse_endpoint: ".+"

@@ -528,6 +528,20 @@ class Group extends BaseGroup implements Uploadable
     private $rezero_b2b_access = Group::ACCESS_STATE_PENDING;
 
     /**
+     * @ORM\Column(type="string", unique=true, nullable=true)
+     * @Serializer\Expose
+     * @Serializer\Groups({"admin"})
+     */
+    private $rezero_b2b_api_key;
+
+    /**
+     * @ORM\Column(type="integer", unique=true, nullable=true)
+     * @Serializer\Expose
+     * @Serializer\Groups({"admin"})
+     */
+    private $rezero_b2b_user_id;
+
+    /**
      * @return mixed
      */
     public function getRedeemableAmount()
@@ -1782,6 +1796,38 @@ class Group extends BaseGroup implements Uploadable
     public function setRezeroB2bAccess(string $rezero_b2b_access): void
     {
         $this->rezero_b2b_access = $rezero_b2b_access;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRezeroB2bApiKey()
+    {
+        return $this->rezero_b2b_api_key;
+    }
+
+    /**
+     * @param mixed $rezero_b2b_api_key
+     */
+    public function setRezeroB2bApiKey($rezero_b2b_api_key): void
+    {
+        $this->rezero_b2b_api_key = $rezero_b2b_api_key;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRezeroB2bUserId()
+    {
+        return $this->rezero_b2b_user_id;
+    }
+
+    /**
+     * @param mixed $rezero_b2b_user_id
+     */
+    public function setRezeroB2bUserId($rezero_b2b_user_id): void
+    {
+        $this->rezero_b2b_user_id = $rezero_b2b_user_id;
     }
 
 

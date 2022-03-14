@@ -86,3 +86,8 @@ services:
             - "@service_container"
             - "@doctrine"
             - "@doctrine_mongodb"
+
+    net.app.commons.discourse.api_manager:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager
+        arguments:
+            - "@service_container"

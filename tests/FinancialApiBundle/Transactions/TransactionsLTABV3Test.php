@@ -348,7 +348,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
         $this->setClientIp($this->faker->ipv4);
 
 
-        $accounts = $this->getAsAdmin("/admin/v3/accounts");
+        $accounts = $this->getAsAdmin("/admin/v3/accounts?limit=50");
         self::assertGreaterThanOrEqual(1, count($accounts));
 
         $private_account = $this->getAsAdmin('/admin/v3/accounts?name='.AccountFixture::TEST_ACCOUNT_LTAB_PRIVATE['name'].'_private')[0];

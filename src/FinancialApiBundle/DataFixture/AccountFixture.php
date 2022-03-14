@@ -6,6 +6,7 @@ namespace App\FinancialApiBundle\DataFixture;
 use App\FinancialApiBundle\Controller\BaseApiV2Controller;
 use App\FinancialApiBundle\Entity\Activity;
 use App\FinancialApiBundle\Entity\Campaign;
+use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
@@ -32,6 +33,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     const TEST_ACCOUNT_LTAB_PRIVATE = ['name' => 'account_in_ltab'];
     const TEST_ACCOUNT_COMMERCE = ['name' => 'COMMERCEACCOUNT'];
     const TEST_ACCOUNT_COMMERCE_POS = ['name' => 'COMMERCEACCOUNT_POS'];
+    const TEST_ACCOUNT_REZERO_1 = ['name' => 'REZERO_1'];
+    const TEST_ACCOUNT_REZERO_2 = ['name' => 'REZERO_2'];
 
 
     /**
@@ -268,6 +271,34 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             100000e8
         );
 
+        $rezero_org_1 = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_REZERO_USER_1_CREDENTIALS['username']]);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $rezero_org_1,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_WHOLESALE,
+            2,
+            self::TEST_ACCOUNT_REZERO_1['name'],
+            100000e8
+        );
+
+        $rezero_org_2 = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_REZERO_USER_2_CREDENTIALS['username']]);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $rezero_org_2,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_WHOLESALE,
+            2,
+            self::TEST_ACCOUNT_REZERO_2['name'],
+            100000e8
+        );
+
         //This one has to be the last one because some tests like #testCountryNotValid are expecting this
         //because of use admin to retrieve all accounts and gets the first on and needs to be part of this account
         $this->createAccount(
@@ -324,6 +355,13 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $account->setLongitude(2);
         $level = $orm->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[$tier]]);
         $account->setLevel($level);
+
+        if($name === self::TEST_ACCOUNT_REZERO_2['name']){
+            $account->setRezeroB2bApiKey("hjgjkhg");
+            $account->setRezeroB2bUserId(34);
+            $account->setRezeroB2bUsername("Rezero_2_username");
+            $account->setRezeroB2bAccess(Group::ACCESS_STATE_GRANTED);
+        }
 
         $userAccount = new UserGroup();
         $userAccount->setGroup($account);

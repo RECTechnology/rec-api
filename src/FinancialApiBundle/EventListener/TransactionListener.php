@@ -29,15 +29,7 @@ class TransactionListener
 
     }
 
-    public function postUpdate(LifecycleEventArgs $args)
-    {
-        $entity = $args->getDocument();
-        $this->logger->info('(' . $entity->getGroup() . ') POST-UPDATE Transaction_Listener');
 
-        $entityManager = $args->getDocumentManager();
-        $uow = $entityManager->getUnitOfWork();
-
-    }
 
     public function preUpdate(LifecycleEventArgs $args){
         $entity = $args->getDocument();
@@ -56,12 +48,6 @@ class TransactionListener
             return;
         }
 
-    }
-
-    public function postPersist(LifecycleEventArgs $args){
-        $entity = $args->getDocument();
-        $this->logger->info('(' . $entity->getGroup() . ') POST-PERSIST transaction');
-        $entityManager = $args->getDocumentManager();
     }
 
     public function prePersist(LifecycleEventArgs $args)
