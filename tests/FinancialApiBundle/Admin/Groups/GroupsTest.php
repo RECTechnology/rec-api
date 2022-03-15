@@ -2,8 +2,11 @@
 
 namespace Test\FinancialApiBundle\Admin\Groups;
 
+use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
@@ -66,6 +69,26 @@ class GroupsTest extends BaseApiTest {
             200,
             $resp->getStatusCode(),
         );
+
+    }
+
+    function testUpdateAccountRezeroB2BAccessShouldWork()
+    {
+        /** @var EntityManagerInterface $em */
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Group $account */
+        $account = $em->getRepository(Group::class)->findOneBy(['name' => AccountFixture::TEST_ACCOUNT_REZERO_2['name']]);
+        $route = '/admin/v3/accounts/'.$account->getId();
+        $values = array(
+            'rezero_b2b_access' => 'granted'
+        );
+        $resp = $this->requestJson('PUT', $route, $values);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+        );
+        $content = json_decode($resp->getContent());
+        self::assertEquals('granted', $content->data->rezero_b2b_access);
 
     }
 

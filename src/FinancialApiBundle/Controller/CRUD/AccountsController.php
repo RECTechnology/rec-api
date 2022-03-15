@@ -350,7 +350,9 @@ class AccountsController extends CRUDController {
                 return parent::updateAction($request, $role, $id);
             throw new HttpException(403, "Insufficient permissions for account");
         }
-        if($request->request->has('rezero_b2b_access') && $request->request->get('rezero_b2b_access')==='granted'){
+        $resp = parent::updateAction($request, $role, $id);
+        if($resp->getStatusCode()==200 && $request->request->has('rezero_b2b_access') &&
+            $request->request->get('rezero_b2b_access')==='granted'){
             /** @var EntityManagerInterface $em */
             $em = $this->getDoctrine()->getManager();
             /** @var Group $account */
@@ -361,7 +363,7 @@ class AccountsController extends CRUDController {
 
             UsersController::sendSMSv4($prefix, $phone, $template->getBody(), $this->container);
         }
-        return parent::updateAction($request, $role, $id);
+        return $resp;
     }
 
 
