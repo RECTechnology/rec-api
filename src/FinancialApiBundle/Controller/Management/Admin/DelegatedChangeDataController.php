@@ -138,7 +138,7 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $fileHandler = fopen($fileSrc, "r");
         if(mime_content_type($fileHandler) !== "text/plain") throw new HttpException(400,"The file is not a CSV");
-        if(filesize($fileSrc) == 0) throw new HttpException(400,"The file not contain any data");
+        if(filesize($fileHandler) == 0) throw new HttpException(400,"The file not contain any data");
 
         $fileHeaders = fgetcsv($fileHandler, 1000);
         $requiredHeaders = ["sender", "exchanger", "account", "amount"];
