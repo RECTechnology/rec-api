@@ -52,12 +52,18 @@ class PaymentOrderNotificationsSubscriber implements EventSubscriber {
         if($order instanceof PaymentOrder && $order->getPos()->getNotificationUrl() != null){
 
             if($order->getStatus() !== PaymentOrder::STATUS_REFUNDING){
-                $existentNotification = $em->getRepository(PaymentOrderNotification::class)->findOneBy(
+                $existentNotifications = $em->getRepository(PaymentOrderNotification::class)->findBy(
                     array(
-                        "status" => $order->getStatus(),
                         "payment_order" => $order
                     )
                 );
+                $existentNotification = false;
+                foreach ($existentNotifications as $notification){
+                    $content = $notification->getContent();
+                    if($content['status'] === $order->getStatus()){
+                        $existentNotification = true;
+                    }
+                }
                 if(!$existentNotification){
                     $notification = new PaymentOrderNotification();
                     $notification->setPaymentOrder($order);

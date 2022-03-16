@@ -48,6 +48,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $sample_url = "https://rec.barcelona";
         $resp = $this->createPaymentOrderWrongNonce($pos, 1e8, $sample_url, $sample_url);
         self::assertEquals(400, $resp->getStatusCode());
+
         $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
         $this->paymentOrderHasRequiredData($order);
         $order = $this->readPaymentOrder($order);
@@ -77,6 +78,9 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         self::assertEquals(PaymentOrder::STATUS_REFUNDED, $order->status);
         self::assertObjectHasAttribute('refunded_amount', $order);
         self::assertEquals($order->amount, $order->refunded_amount);
+
+        $order = $this->readPaymentOrderAdmin($order);
+        $resp = $this->refundOrderPublicRefundedshouldFail($order);
 
         $this->runCommand('rec:pos:expire');
 
@@ -323,6 +327,29 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             'PUT',
             "/public/v3/payment_orders/{$order->id}",
             $params
+        );
+    }
+
+    private function refundOrderPublicRefundedshouldFail($order)
+    {
+        $nonce = round(microtime(true) * 1000, 0);
+
+        $signatureVersion = 'hmac_sha256_v1';
+        $signatureParams = [
+            'status' => PaymentOrder::STATUS_REFUNDED,
+            'signature_version' => $signatureVersion,
+            'nonce' => $nonce
+        ];
+        $signature = $this->calculateSignature($signatureParams, $order->pos);
+
+        $params = $signatureParams + ["signature" => $signature];
+
+        return $this->rest(
+            'PUT',
+            "/public/v3/payment_orders/{$order->id}",
+            $params,
+            [],
+            403
         );
     }
 

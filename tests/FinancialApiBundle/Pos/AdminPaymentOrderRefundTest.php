@@ -52,8 +52,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
 
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $paymentNotifications = $this->getPaymentNotifications($order);
-        //TODO Uncomment this when duplication in notifications is fixed
-        //self::assertEquals(count($paymentNotifications), 2);
+        self::assertEquals(count($paymentNotifications), 2);
         $this->signOut();
 
         $order = $this->refundOrder($order);
@@ -63,8 +62,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
 
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $paymentNotifications = $this->getPaymentNotifications($order);
-        //TODO Descomentar esto cuenado se solucione el error de la duplicacion de notificaciones
-        //self::assertEquals(count($paymentNotifications), 3);
+        self::assertEquals(count($paymentNotifications), 3);
 
         $anotherAccount = $this->getAnotherAccount();
         $posWithoutUrlNotification = $this->createPosWithOutUrlNotification($anotherAccount);
