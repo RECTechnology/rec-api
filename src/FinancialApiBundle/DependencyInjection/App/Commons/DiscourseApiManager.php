@@ -49,8 +49,8 @@ class DiscourseApiManager{
         );
         $response = $this->_callDiscourse('admin/api/keys', $this->getAdminCredentials(), 'POST', $data);
 
-        if(isset($response['key'])){
-            return $response['key']['key'];
+        if(isset($response->key)){
+            return $response->key->key;
         }
 
         return 'error';
@@ -97,10 +97,13 @@ class DiscourseApiManager{
             CURLOPT_HTTPHEADER => $credentials,
         ));
 
+
         if($method === 'POST'){
             $encodedData = http_build_query($data);
+            curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $encodedData);
         }
+
 
         $response = curl_exec($curl);
 
@@ -109,7 +112,7 @@ class DiscourseApiManager{
         $decodedResponse = json_decode($response);
 
         if(isset($decodedResponse->errors)){
-            throw new HttpException(400, $decodedResponse->errors[0]);
+            throw new HttpException(400, $decodedResponse->message);
         }
 
         return $decodedResponse;
@@ -122,7 +125,7 @@ class DiscourseApiManager{
         return array(
             'Api-Username: '.$admin_username,
             'Api-Key: '.$admin_api_key,
-            'Content-Type: application/json',
+            'Content-Type: multipart/form-data',
         );
     }
 

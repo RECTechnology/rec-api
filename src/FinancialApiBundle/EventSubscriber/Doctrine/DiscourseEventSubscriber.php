@@ -80,13 +80,13 @@ class DiscourseEventSubscriber implements EventSubscriber {
 
         $registerResponse = $discourseManager->register($account);
 
-        if(isset($registerResponse['success'])){
+        if(isset($registerResponse->success)){
             $response['registered'] = true;
-            $response['user_id'] = $registerResponse['user_id'];
+            $response['user_id'] = $registerResponse->user_id;
             $key = $discourseManager->generateApiKeys($account);
 
             if($key !== 'error'){
-                $response['api_key'] = $key['api_key'];
+                $response['api_key'] = $key;
             }else{
                 $response['api_key'] = false;
             }
