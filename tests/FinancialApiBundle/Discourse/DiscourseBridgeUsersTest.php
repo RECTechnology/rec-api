@@ -39,10 +39,8 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
 
         $params = array (
             'raw' => 'nisi Lorem in lksjhclkasjdchklsajdh',
-            'title' => 'veniam exercitation ut',
+            'title' => 'veniam exercitation utdszfg',
             'category' => 6,
-            'created_at' => 'sunt cupidatat voluptate deserunt',
-            'embed_url' => 'veniam ad exercitation quis',
         );
         $route = '/rezero_b2b/v1/bridge/posts.json';
         $this->useCreateTopicMock();

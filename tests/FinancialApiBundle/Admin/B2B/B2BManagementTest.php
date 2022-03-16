@@ -50,7 +50,7 @@ class B2BManagementTest extends BaseApiTest {
         self::assertEquals($content['message'],"Rezero Username is not set" );
 
         //Setting rezero username
-        $username = "rezero_test_46";
+        $username = "rezero_test_local";
         $resp = $this->requestJson('PUT', $route, array("rezero_b2b_username" => $username));
         self::assertEquals(
             200,
@@ -77,17 +77,17 @@ class B2BManagementTest extends BaseApiTest {
 
     private function useDiscourseMock(){
         $discMock = $this->createMock(DiscourseApiManager::class);
-        $objReg = new \stdClass();
-        $objReg->success = true;
-        $objReg->active = true;
-        $objReg->message = "Tu cuenta está activa y lista para usar";
-        $objReg->user_id = 14;
-        $discMock->method('register')->willReturn($objReg);
+        $response = array(
+            'success' => true,
+            'active' => true,
+            'message' => "Tu cuenta está activa y lista para usar",
+            'user_id' => 14
+        );
+        $discMock->method('register')->willReturn($response);
         $discMock->method('generateApiKeys')->willReturn("kjlhsdfljshflsdf");
 
         $this->override('net.app.commons.discourse.api_manager', $discMock);
 
     }
-
 
 }
