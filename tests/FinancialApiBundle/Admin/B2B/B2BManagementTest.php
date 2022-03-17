@@ -50,7 +50,7 @@ class B2BManagementTest extends BaseApiTest {
         self::assertEquals($content['message'],"Rezero Username is not set" );
 
         //Setting rezero username
-        $username = "rezero_test_local";
+        $username = "rezero_local";
         $resp = $this->requestJson('PUT', $route, array("rezero_b2b_username" => $username));
         self::assertEquals(
             200,

@@ -91,3 +91,4 @@ services:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager
         arguments:
             - "@service_container"
+            - "@discourse.logger"

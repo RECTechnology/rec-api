@@ -60,7 +60,7 @@ class DiscourseEventSubscriber implements EventSubscriber {
                     if(!$account->getRezeroB2bUserId()){
                         $resp = $this->setUpDiscourseAccount($account);
 
-                        if($resp['registered']){
+                        if(isset($resp['registered']) && $resp['registered'] === true){
                             $account->setRezeroB2bUserId($resp['user_id']);
                             if($resp['api_key']){
                                 $account->setRezeroB2bApiKey($resp['api_key']);

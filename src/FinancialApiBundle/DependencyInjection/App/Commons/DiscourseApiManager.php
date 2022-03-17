@@ -9,25 +9,30 @@
 namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
 use App\FinancialApiBundle\Entity\Group;
+use Monolog\Logger;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class DiscourseApiManager{
 
     private $container;
+    private $logger;
 
-    public function __construct(ContainerInterface $container){
+    public function __construct(ContainerInterface $container, Logger $logger){
         $this->container = $container;
+        $this->logger = $logger;
     }
 
     public function register(Group $account){
 
+        $this->logger->info("Registering account ".$account->getName());
         $password = $this->generateRandomPassword();
 
         $this->checkAccountHasNeededFields($account);
 
         $email = $account->getEmail();
         if(!$email){
+            $this->logger->info("Setting fake email");
             $email = $account->getRezeroB2bUsername()."@atarca_b2b.es";
         }
         $data = array(
@@ -44,7 +49,7 @@ class DiscourseApiManager{
     }
 
     public function generateApiKeys(Group $account){
-
+        $this->logger->info("Generating Api Keys for ".$account->getName());
         $data = array(
             "key" => [
                 "username" => $account->getRezeroB2bUsername(),
@@ -54,13 +59,15 @@ class DiscourseApiManager{
         $response = $this->_callDiscourse('admin/api/keys', $this->getAdminCredentials(), 'POST', $data);
 
         if(isset($response['key'])){
+            $this->logger->info("Api Keys Generated successfully for ".$account->getName());
             return $response['key']['key'];
         }
-
+        $this->logger->error("Something went wrong Generating Api Keys for ".$account->getName());
         return 'error';
     }
 
     public function bridgeCall(Group $account, $endpoint, $method, $data = array(), $urlParams = []){
+        $this->logger->info("Starting Bridge call for ".$account->getName());
         $credentials = array(
             'Api-Key: '.$account->getRezeroB2bApiKey(),
             'Api-Username: '. $account->getRezeroB2bUsername()
@@ -82,6 +89,7 @@ class DiscourseApiManager{
     }
 
     private function _callDiscourse($endpoint, $credentials, $method, $data = array(), $urlParams = array()){
+        $this->logger->info("Calling discourse...");
         $base_url  = $this->container->getParameter('discourse_url');
         $curl = curl_init();
 
@@ -116,9 +124,11 @@ class DiscourseApiManager{
         $decodedResponse = json_decode($response, true);
 
         if(isset($decodedResponse->errors)){
+            $this->logger->error("Something went wrong in DiscourseApiManager CallDiscourse");
             throw new HttpException(400, $decodedResponse->message);
         }
 
+        $this->logger->info("Call discourse went well");
         return $decodedResponse;
     }
 
