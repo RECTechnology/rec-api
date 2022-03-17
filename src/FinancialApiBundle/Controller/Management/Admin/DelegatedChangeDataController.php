@@ -138,17 +138,26 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $fileHandler = fopen($fileSrc, "r");
         if(mime_content_type($fileHandler) !== "text/plain") throw new HttpException(400,"The file is not a CSV");
+
+        $csv_content = file_get_contents($fileSrc);
         if(strlen(file_get_contents($fileSrc)) == 0) throw new HttpException(400,"The file not contain any data");
 
-        $fileHeaders = fgetcsv($fileHandler, 1000);
+        $rows = explode(PHP_EOL, $csv_content);
+        if (substr_count($rows[0], ',') > substr_count($rows[0], ';')){
+            $separator = ',';
+        }else{
+            $separator = ';';
+        }
+
+        $fileHeaders = explode($separator, $rows[0]);
         $requiredHeaders = ["sender", "exchanger", "account", "amount"];
-        if($requiredHeaders !== $fileHeaders) {
+        if($requiredHeaders != $fileHeaders) {
             $error_text = "Missing required headers";
             $log_handler->persistLog($dc, TransactionBlockLog::TYPE_ERROR, $log_text.$error_text);
             throw new HttpException(400, $error_text);
         }
 
-        $firstRow = fgetcsv($fileHandler, 1000);
+        $firstRow = explode($separator, $rows[1]);
         if(count($firstRow) != 4) {
             $error_text = "No valid data found";
             $log_handler->persistLog($dc, TransactionBlockLog::TYPE_ERROR, $log_text.$error_text);
