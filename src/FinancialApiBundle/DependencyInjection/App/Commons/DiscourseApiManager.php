@@ -33,7 +33,7 @@ class DiscourseApiManager{
         $email = $account->getEmail();
         if(!$email){
             $this->logger->info("Setting fake email");
-            $email = $account->getRezeroB2bUsername()."@atarca_b2b.es";
+            $email = $account->getRezeroB2bUsername()."@atarca-b2b.es";
         }
         $data = array(
             "name"=> $account->getName(),
@@ -57,12 +57,13 @@ class DiscourseApiManager{
             ]
         );
         $response = $this->_callDiscourse('admin/api/keys', $this->getAdminCredentials(), 'POST', $data);
-
+        $this->logger->info(json_encode($response));
         if(isset($response['key'])){
             $this->logger->info("Api Keys Generated successfully for ".$account->getName());
             return $response['key']['key'];
         }
         $this->logger->error("Something went wrong Generating Api Keys for ".$account->getName());
+
         return 'error';
     }
 
@@ -122,10 +123,11 @@ class DiscourseApiManager{
         curl_close($curl);
 
         $decodedResponse = json_decode($response, true);
-
-        if(isset($decodedResponse->errors)){
+        $this->logger->info($decodedResponse);
+        if(isset($decodedResponse['errors'])){
             $this->logger->error("Something went wrong in DiscourseApiManager CallDiscourse");
-            throw new HttpException(400, $decodedResponse->message);
+            $this->logger->error($decodedResponse['message']);
+            throw new HttpException(400, $decodedResponse['message']);
         }
 
         $this->logger->info("Call discourse went well");
