@@ -151,6 +151,14 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $fileHeaders = explode($separator, $rows[0]);
         $requiredHeaders = ["sender", "exchanger", "account", "amount"];
+
+        $logger = $this->get('manager.logger');
+        $logger->info('file path: '. $fileSrc);
+        $logger->info('content string: '. $csv_content);
+        $logger->info('separator: '. $separator);
+        $logger->info('rows size: '. strval(count($rows)));
+        $logger->info('headers size: '. strval(count($fileHeaders)));
+
         if($requiredHeaders != $fileHeaders) {
             $error_text = "Missing required headers";
             $log_handler->persistLog($dc, TransactionBlockLog::TYPE_ERROR, $log_text.$error_text);
