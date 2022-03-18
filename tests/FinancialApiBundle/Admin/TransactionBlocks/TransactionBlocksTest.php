@@ -90,7 +90,7 @@ class TransactionBlocksTest extends BaseApiTest {
         $this->markTestIncomplete();
         $tb_id = 2;
         $lista = array (
-            array('sender', 'exchanger', 'account', 'amount'),
+            array(' sender', 'exchanger ', ' account', 'amount '),
             array(6, 5, 2 , 10),
             array(6, 8, 4, 465)
         );

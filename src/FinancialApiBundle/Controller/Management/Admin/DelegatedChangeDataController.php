@@ -139,7 +139,8 @@ class DelegatedChangeDataController extends BaseApiController{
         $fileHandler = fopen($fileSrc, "r");
         if(mime_content_type($fileHandler) !== "text/plain") throw new HttpException(400,"The file is not a CSV");
 
-        $csv_content = file_get_contents($fileSrc);
+        $csv_raw_content = file_get_contents($fileSrc);
+        $csv_content = str_replace('"','', $csv_raw_content);
         if(strlen(file_get_contents($fileSrc)) == 0) throw new HttpException(400,"The file not contain any data");
 
         $rows = explode(PHP_EOL, $csv_content);
@@ -152,12 +153,19 @@ class DelegatedChangeDataController extends BaseApiController{
         $fileHeaders = explode($separator, $rows[0]);
         $requiredHeaders = ["sender", "exchanger", "account", "amount"];
 
+        foreach ($fileHeaders as $index=>$header){
+            $fileHeaders[$index] = trim($header);
+        }
+
         $logger = $this->get('manager.logger');
         $logger->info('file path: '. $fileSrc);
         $logger->info('content string: '. $csv_content);
+        $logger->info('The all headers: <'.$rows[0].'> size is '. strlen($rows[0]));
+        $logger->info('last header size: '. strlen($fileHeaders[3]));
+        $logger->info('amount: <'. $fileHeaders[3].'>');
+        $logger->info('content string: <'. $csv_content.'>');
         $logger->info('separator: '. $separator);
         $logger->info('rows size: '. strval(count($rows)));
-        $logger->info('headers size: '. strval(count($fileHeaders)));
 
         if($requiredHeaders != $fileHeaders) {
             $error_text = "Missing required headers";
