@@ -80,7 +80,7 @@ class DiscourseEventSubscriber implements EventSubscriber {
 
         $registerResponse = $discourseManager->register($account);
 
-        if(isset($registerResponse["success"])){
+        if(isset($registerResponse["success"]) && $registerResponse['success'] === true){
             $response['registered'] = true;
             $response['user_id'] = $registerResponse['user_id'];
             $key = $discourseManager->generateApiKeys($account);
@@ -91,7 +91,7 @@ class DiscourseEventSubscriber implements EventSubscriber {
                 $response['api_key'] = false;
             }
         }else{
-            throw new HttpException(400, $registerResponse['errors'][0]);
+            throw new HttpException(400, $registerResponse['message']);
         }
 
         return $response;

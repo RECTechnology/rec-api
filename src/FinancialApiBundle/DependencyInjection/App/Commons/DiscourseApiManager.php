@@ -123,7 +123,7 @@ class DiscourseApiManager{
         curl_close($curl);
 
         $decodedResponse = json_decode($response, true);
-        $this->logger->info($decodedResponse);
+
         if(isset($decodedResponse['errors'])){
             $this->logger->error("Something went wrong in DiscourseApiManager CallDiscourse");
             $this->logger->error($decodedResponse['message']);
