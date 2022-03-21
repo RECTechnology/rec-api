@@ -36,10 +36,18 @@ class TxBlockValidator
     private function getTxListFromCSV(): array
     {
         $path = $this->tb->getUrlCsv();
+        $csv_content = str_replace('"','', file_get_contents($path));
+        $rows = explode(PHP_EOL, $csv_content);
+        if (substr_count($rows[0], ',') > substr_count($rows[0], ';')){
+            $separator = ',';
+        }else{
+            $separator = ';';
+        }
+
         $tbd_list = [];
         $row = 0;
         if (($handle = fopen($path, "r")) !== FALSE) {
-            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            while (($data = fgetcsv($handle, 1000, $separator)) !== FALSE) {
                 $data[] = strval($row);
                 if($row > 0) $tbd_list[$row] = $data;
                 $row++;
