@@ -352,7 +352,7 @@ class AccountsController extends CRUDController {
         }
         $resp = parent::updateAction($request, $role, $id);
         if($resp->getStatusCode()==200 && $request->request->has('rezero_b2b_access') &&
-            $request->request->get('rezero_b2b_access')==='granted'){
+            $request->request->get('rezero_b2b_access')===Group::ACCESS_STATE_GRANTED){
             /** @var EntityManagerInterface $em */
             $em = $this->getDoctrine()->getManager();
             /** @var Group $account */

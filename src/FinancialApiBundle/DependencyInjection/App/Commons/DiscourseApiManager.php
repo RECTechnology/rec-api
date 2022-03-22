@@ -42,6 +42,7 @@ class DiscourseApiManager{
             "username"=> $account->getRezeroB2bUsername(),
             "active"=> true,
             "approved"=> true,
+            "user_fields" => array($account->getName(), $account->getKycManager()->getName())
         );
 
         return $this->_callDiscourse('users.json', $this->getAdminCredentials(), 'POST', $data);
@@ -67,7 +68,16 @@ class DiscourseApiManager{
         return 'error';
     }
 
-    public function bridgeCall(Group $account, $endpoint, $method, $data = array(), $urlParams = []){
+    public function updateName(Group $account, $name){
+        $this->logger->info("Changing name for ".$account->getName()." to ".$name);
+        $data = array(
+            "name" => $name
+        );
+        return $this->bridgeCall($account, 'users/'.$account->getRezeroB2bUsername().'.json', 'PUT', $data);
+
+    }
+
+    public function bridgeCall(Group $account, $endpoint, $method, $data = [], $urlParams = []){
         $this->logger->info("Starting Bridge call for ".$account->getName());
         $credentials = array(
             'Api-Key: '.$account->getRezeroB2bApiKey(),
@@ -107,13 +117,18 @@ class DiscourseApiManager{
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_HTTPHEADER => $credentials,
+            CURLOPT_HTTPHEADER => $credentials
         ));
 
 
         if($method === 'POST'){
             $encodedData = http_build_query($data);
             curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $encodedData);
+        }
+
+        if($method === 'PUT'){
+            $encodedData = http_build_query($data);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $encodedData);
         }
 
@@ -126,8 +141,13 @@ class DiscourseApiManager{
 
         if(isset($decodedResponse['errors'])){
             $this->logger->error("Something went wrong in DiscourseApiManager CallDiscourse");
-            $this->logger->error($decodedResponse['message']);
-            throw new HttpException(400, $decodedResponse['message']);
+            if(isset($decodedResponse['message'])){
+                $this->logger->error($decodedResponse['message']);
+                throw new HttpException(400, $decodedResponse['message']);
+            }else{
+                $this->logger->error($decodedResponse['errors'][0]);
+                throw new HttpException(400, $decodedResponse['errors'][0]);
+            }
         }
 
         $this->logger->info("Call discourse went well");

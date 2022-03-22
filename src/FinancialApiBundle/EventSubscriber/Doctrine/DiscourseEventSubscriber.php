@@ -69,6 +69,13 @@ class DiscourseEventSubscriber implements EventSubscriber {
                     }
                 }
             }
+
+            if($args->hasChangedField("name")){
+                /** @var DiscourseApiManager $discourseManager */
+                $discourseManager = $this->getDiscourseManager();
+                $discourseManager->updateName($account, $args->getNewValue("name"));
+
+            }
         }
     }
 
@@ -95,6 +102,11 @@ class DiscourseEventSubscriber implements EventSubscriber {
         }
 
         return $response;
+    }
+
+    private function getDiscourseManager(){
+        /** @var DiscourseApiManager $discourseManager */
+        return $this->container->get('net.app.commons.discourse.api_manager');
     }
 
 }

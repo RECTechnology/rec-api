@@ -38,8 +38,8 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
     function testCallWithPostParamsBridge(){
 
         $params = array (
-            'raw' => 'nisi Lorem in lksjhclkasjdchklsajdh',
-            'title' => 'veniam exercitation utdszfg',
+            'raw' => 'nisi Lorem in ggg mas de 20 caracteres',
+            'title' => 'veniam exercitation ggg y mas',
             'category' => 6,
         );
         $route = '/rezero_b2b/v1/bridge/posts.json';
