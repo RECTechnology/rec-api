@@ -6,6 +6,7 @@ namespace Test\FinancialApiBundle\Discourse;
 use App\FinancialApiBundle\Controller\Management\User\DiscourseController;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Test\FinancialApiBundle\BaseApiTest;
 
 class DiscourseBridgeUsersTest extends BaseApiTest{
@@ -36,17 +37,43 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
     }
 
     function testCallWithPostParamsBridge(){
-
         $params = array (
-            'raw' => 'nisi Lorem in ggg mas de 20 caracteres',
-            'title' => 'veniam exercitation ggg y mas',
+            'raw' => $this->faker->sentence(28, true),
+            'title' => $this->faker->sentence(4, true),
             'category' => 6,
+            'tags' => ["test-tag", "new-tag"]
         );
         $route = '/rezero_b2b/v1/bridge/posts.json';
         $this->useCreateTopicMock();
         $resp = $this->requestJson('POST', $route, $params);
         $content = json_decode($resp->getContent(),true);
         self::assertArrayHasKey('data', $content);
+
+    }
+
+    function testCallUploadsBridge(){
+
+        $copied = copy(__DIR__.'/assets/foto.png', __DIR__.'/assets/foto2.png');
+        $fp = new UploadedFile(__DIR__.'/assets/foto2.png', 'foto2.png');
+        $params = array(
+            "type" => "composer",
+            "synchronous" => true
+        );
+        $route = '/rezero_b2b/v1/bridge/uploads.json';
+        $this->useUploadMock();
+        $resp = $this->request(
+            'POST',
+            $route,
+            '',
+            [],
+            $params,
+            ["file" => $fp]
+        );
+
+        $content = json_decode($resp->getContent(),true);
+        self::assertArrayHasKey('data', $content);
+        $data = $content['data'];
+        self::assertArrayHasKey('id', $data);
 
     }
 
@@ -71,6 +98,14 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
     private function useCreateTopicMock(){
         $discMock = $this->createMock(DiscourseApiManager::class);
         $response = $this->getCreateTopicMockResponse();
+        $discMock->method('bridgeCall')->willReturn($response);
+
+        $this->override('net.app.commons.discourse.api_manager', $discMock);
+    }
+
+    private function useUploadMock(){
+        $discMock = $this->createMock(DiscourseApiManager::class);
+        $response = $this->getUploadMockResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
         $this->override('net.app.commons.discourse.api_manager', $discMock);
@@ -1208,6 +1243,24 @@ What can they fi&hellip;',
             'edit_reason' => NULL,
             'can_view_edit_history' => true,
             'wiki' => false,
+        );
+    }
+
+    private function getUploadMockResponse(){
+        return array (
+            'id' => 47,
+            'url' => 'https://community.stage.atarca.es/uploads/default/original/1X/811b5fd7e9ea14559e62bd023da1182889ad1851.jpeg',
+            'original_filename' => 'fondo53-11.jpg',
+            'filesize' => 108933,
+            'width' => 1280,
+            'height' => 720,
+            'thumbnail_width' => 1280,
+            'thumbnail_height' => 720,
+            'extension' => 'jpeg',
+            'short_url' => 'upload://iq8f4gikhlQ4DleWQGcU4ZeQe65.jpeg',
+            'short_path' => '/uploads/short-url/iq8f4gikhlQ4DleWQGcU4ZeQe65.jpeg',
+            'retain_hours' => NULL,
+            'human_filesize' => '106 KB',
         );
     }
 

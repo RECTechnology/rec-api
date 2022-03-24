@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Controller\Management\User;
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Controller\RestApiController;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use App\FinancialApiBundle\Entity\Document;
@@ -16,6 +17,7 @@ use App\FinancialApiBundle\Exception\AppException;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\This;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 use App\FinancialApiBundle\Entity\CashInTokens;
 use App\FinancialApiBundle\Entity\Group;
@@ -55,11 +57,17 @@ class DiscourseController extends RestApiController {
 
         $params = $request->request->all();
         $urlParams = $request->query->all();
+        $fileData = null;
+        if($request->files->has('file')){
+            $file = $request->files->get('file');
+            $fileData = $this->file_uploader($file);
+        }
+
         //TODO call discourse
         /** @var DiscourseApiManager $discourseManager */
         $discourseManager = $this->container->get('net.app.commons.discourse.api_manager');
         try{
-            $discourseResponse = $discourseManager->bridgeCall($account, $discourse_endpoint, $request->getMethod(), $params, $urlParams);
+            $discourseResponse = $discourseManager->bridgeCall($account, $discourse_endpoint, $request->getMethod(), $params, $urlParams, $fileData);
         }catch (HttpException $e){
             throw new HttpException($e->getStatusCode(), $e->getMessage());
         }catch (\Exception $e){
@@ -79,6 +87,28 @@ class DiscourseController extends RestApiController {
         }
 
         return $this->restV2($statusCode, 'success', 'Request successful', $discourseResponse);
+    }
+
+    /**
+     * @param UploadedFile $file
+     * @return array
+     */
+    public function file_uploader($file){
+
+        if(!$file->isValid()) throw new HttpException(400, "Invalid file");
+
+        $mimeType = $file->getMimeType();
+        if(!in_array($mimeType, UploadManager::allMimeTypes()))
+            throw new HttpException(400, "Bad mime type, '" . $mimeType . "' is not a valid file");
+
+
+        $fileManager = $this->get('file_manager');
+        $hash = $fileManager->getHash();
+        $ext = $file->guessExtension();
+        $fileName = $hash . '.tmp.' . $ext;
+        $file->move($fileManager->getUploadsDir(), $fileName);
+
+        return  ['path'=>$fileManager->getFilesPath(), 'name'=>$fileName, 'mime'=>$mimeType];
     }
 
 }
