@@ -1603,6 +1603,7 @@ class Group extends BaseGroup implements Uploadable
             throw new PreconditionFailedException("Activity not related to this Account");
         }
         $this->activities->removeElement($activity);
+        if ($this->activity_main == $activity) $this->activity_main = null;
         if($recursive) $activity->delAccount($this, false);
     }
 

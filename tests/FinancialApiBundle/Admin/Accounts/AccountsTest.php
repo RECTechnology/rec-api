@@ -27,7 +27,8 @@ class AccountsTest extends BaseApiTest
         $resp = $this->requestJson('POST', $route, ["name" => "test"]);
         $product = json_decode($resp->getContent())->data;
 
-        $route = "/admin/v3/activity/1";
+        $activity_id = $account->activity_main->id;
+        $route = "/admin/v3/activity/".$activity_id;
         $resp = $this->requestJson('GET', $route);
         $activity = json_decode($resp->getContent())->data;
 
@@ -130,5 +131,6 @@ class AccountsTest extends BaseApiTest
         $route = "/admin/v3/accounts/{$account->id}";
         $resp = $this->requestJson('GET', $route);
         self::assertCount(0, json_decode($resp->getContent())->data->activities);
+        self::assertFalse(isset(json_decode($resp->getContent())->data->activity_main));
     }
 }
