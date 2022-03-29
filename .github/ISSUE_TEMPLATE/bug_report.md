@@ -5,16 +5,16 @@ about: Create a report to help us improve
 
 ### Information
 <!-- PRE | SANDBOX | PROD -->
-**Environment**: ` `  
+**Environment**: ``  
 
 <!-- If it's related with a request -->
 <!-- [e.g. /admin/v1/users] -->
-**Endpoint**: ` `  
+**Endpoint**: ``  
 [Ver endpoints](https://github.com/QbitArtifacts/rec-api/wiki)
 <!-- [e.g. { "name": "test" }] -->
-**Params**: ` `  
+**Params**: ``  
 <!-- error or response returned by api -->
-**Result/Error**: ` `  
+**Result/Error**: ``  
 
 ### Description
 <!-- A clear and concise description of what the bug is. -->
