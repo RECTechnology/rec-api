@@ -4,25 +4,17 @@ about: Create a report to help us improve
 ---
 
 ### Information
-<!-- PRE | PROD -->
+<!-- PRE | SANDBOX | PROD -->
 **Environment**: ` `  
 
 <!-- If it's related with a request -->
 <!-- [e.g. /admin/v1/users] -->
 **Endpoint**: ` `  
+[Ver endpoints](https://github.com/QbitArtifacts/rec-api/wiki)
 <!-- [e.g. { "name": "test" }] -->
 **Params**: ` `  
 <!-- error or response returned by api -->
 **Result/Error**: ` `  
-<!-- e.g. v0.2.9 -->
-**API Version** ` `  
-
-### Timing  
-*Please dev. fill in this details*  
-<!-- In h, m, s  -->
-**Estimated time**:  
-<!-- From 1 (easy) to 5 (hard) -->
-**Difficulty**:  
 
 ### Description
 <!-- A clear and concise description of what the bug is. -->
@@ -44,4 +36,3 @@ Steps to reproduce the behavior:
 
 **Additional context**  
 <!-- Add any other context about the problem here. -->
-
