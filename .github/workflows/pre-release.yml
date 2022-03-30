@@ -32,7 +32,7 @@ jobs:
       - name: Deploy
         uses: joelwmale/webhook-action@1.0.1
         env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_API_RELEASE }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_API_SANDBOX }}
           data: "ignored"
 
   build-cron:
@@ -62,7 +62,7 @@ jobs:
       - name: Deploy
         uses: joelwmale/webhook-action@1.0.1
         env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_CRON_RELEASE }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_CRON_SANDBOX }}
           data: "ignored"
 
   build-dev:
@@ -92,5 +92,5 @@ jobs:
       - name: Deploy
         uses: joelwmale/webhook-action@1.0.1
         env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_DEV_RELEASE }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_DEV_SANDBOX }}
           data: "ignored"
