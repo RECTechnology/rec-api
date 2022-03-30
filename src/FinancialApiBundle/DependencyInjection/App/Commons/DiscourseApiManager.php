@@ -148,6 +148,25 @@ class DiscourseApiManager{
 
             $encodedData = http_build_query($data);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $encodedData);
+        }elseif ($method === 'DELETE'){
+            //TODO needs more invetigation
+            //este curl parece iwal que el del else , solo cambia el orden de CURLOPT_POST y CURLOPT_POSTFIELDS
+            //por algun motivo que no entiendo si cambio el orden peta
+            $credentials[] = 'Content-Type: application/json';
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $base_url.'/'.$endpoint,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => $method,
+                CURLOPT_POST => $isPostMethod,
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => $credentials
+            ));
+
         }else{
 
             $credentials[] = 'Content-Type: application/json';

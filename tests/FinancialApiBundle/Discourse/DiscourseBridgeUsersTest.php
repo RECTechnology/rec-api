@@ -51,6 +51,31 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
 
     }
 
+    function testCallDeleteBridge(){
+        $params = array (
+            'id' => 109,
+            'post_action_type_id' => 2
+        );
+        $route = '/rezero_b2b/v1/bridge/post_actions.json';
+
+        $this->useLikeMock();
+
+        $resp = $this->requestJson('POST', $route, $params);
+        $content = json_decode($resp->getContent(),true);
+        self::assertArrayHasKey('data', $content);
+        self::assertArrayHasKey('id', $content["data"]);
+        $params = array (
+            'post_action_type_id' => 2
+        );
+        $route = '/rezero_b2b/v1/bridge/post_actions/109.json';
+        $resp = $this->requestJson('DELETE', $route, $params);
+        $content = json_decode($resp->getContent(),true);
+        self::assertArrayHasKey('data', $content);
+        self::assertArrayHasKey('id', $content["data"]);
+
+
+    }
+
     function testCallUploadsBridge(){
 
         $copied = copy(__DIR__.'/assets/foto.png', __DIR__.'/assets/foto2.png');
@@ -106,6 +131,14 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
     private function useUploadMock(){
         $discMock = $this->createMock(DiscourseApiManager::class);
         $response = $this->getUploadMockResponse();
+        $discMock->method('bridgeCall')->willReturn($response);
+
+        $this->override('net.app.commons.discourse.api_manager', $discMock);
+    }
+
+    private function useLikeMock(){
+        $discMock = $this->createMock(DiscourseApiManager::class);
+        $response = $this->getLikeMockResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
         $this->override('net.app.commons.discourse.api_manager', $discMock);
@@ -1261,6 +1294,95 @@ What can they fi&hellip;',
             'short_path' => '/uploads/short-url/iq8f4gikhlQ4DleWQGcU4ZeQe65.jpeg',
             'retain_hours' => NULL,
             'human_filesize' => '106 KB',
+        );
+    }
+
+    private function getLikeMockResponse(){
+        return array (
+            'id' => 109,
+            'name' => 'Sofia',
+            'username' => 'Sofia',
+            'avatar_template' => '/letter_avatar_proxy/v4/letter/s/35a633/{size}.png',
+            'created_at' => '2022-02-08T09:27:19.687Z',
+            'cooked' => '<aside class="quote no-group" data-username="Julia" data-post="4" data-topic="50">
+<div class="title">
+<div class="quote-controls"></div>
+<img alt="" width="20" height="20" src="https://community.stage.atarca.es/letter_avatar_proxy/v4/letter/j/2bfe46/40.png" class="avatar"> Julia:</div>
+<blockquote>
+<p>ME GUSTA MUCHO,</p>
+</blockquote>
+</aside>
+<p>Quiero saber quien ha votado header oscuro!</p>',
+            'post_number' => 6,
+            'post_type' => 1,
+            'updated_at' => '2022-02-08T09:27:19.687Z',
+            'reply_count' => 1,
+            'reply_to_post_number' => NULL,
+            'quote_count' => 1,
+            'incoming_link_count' => 0,
+            'reads' => 11,
+            'readers_count' => 10,
+            'score' => 37,
+            'yours' => false,
+            'topic_id' => 50,
+            'topic_slug' => 'propuesta-diseno-plataforma-b2b',
+            'display_username' => 'Sofia',
+            'primary_group_name' => NULL,
+            'primary_group_flair_url' => NULL,
+            'primary_group_flair_bg_color' => NULL,
+            'primary_group_flair_color' => NULL,
+            'version' => 1,
+            'can_edit' => false,
+            'can_delete' => false,
+            'can_recover' => false,
+            'can_wiki' => false,
+            'user_title' => NULL,
+            'bookmarked' => false,
+            'actions_summary' =>
+                array (
+                    0 =>
+                        array (
+                            'id' => 2,
+                            'count' => 4,
+                            'can_act' => true,
+                        ),
+                    1 =>
+                        array (
+                            'id' => 3,
+                            'can_act' => true,
+                        ),
+                    2 =>
+                        array (
+                            'id' => 4,
+                            'can_act' => true,
+                        ),
+                    3 =>
+                        array (
+                            'id' => 8,
+                            'can_act' => true,
+                        ),
+                    4 =>
+                        array (
+                            'id' => 6,
+                            'can_act' => true,
+                        ),
+                    5 =>
+                        array (
+                            'id' => 7,
+                            'can_act' => true,
+                        ),
+                ),
+            'moderator' => false,
+            'admin' => false,
+            'staff' => false,
+            'user_id' => 8,
+            'hidden' => false,
+            'trust_level' => 1,
+            'deleted_at' => NULL,
+            'user_deleted' => false,
+            'edit_reason' => NULL,
+            'can_view_edit_history' => true,
+            'wiki' => false,
         );
     }
 

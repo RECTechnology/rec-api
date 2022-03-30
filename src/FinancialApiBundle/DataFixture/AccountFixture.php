@@ -357,9 +357,9 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $account->setLevel($level);
 
         if($name === self::TEST_ACCOUNT_REZERO_2['name']){
-            $account->setRezeroB2bApiKey("e7f7df8620f2cf931cd08cf32d5324608043d8539056fcc01cb6aab61d6cc1a4");
+            $account->setRezeroB2bApiKey("747f3b325834998029ee869518a00e7e4f9952aea9eac40fabae57e2a4837e50");
             $account->setRezeroB2bUserId(40);
-            $account->setRezeroB2bUsername("rossifumi4646");
+            $account->setRezeroB2bUsername("anbton");
             $account->setRezeroB2bAccess(Group::ACCESS_STATE_GRANTED);
         }
 

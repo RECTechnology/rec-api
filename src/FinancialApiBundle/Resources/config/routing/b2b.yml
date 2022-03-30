@@ -16,6 +16,6 @@ b2b_validate_phone:
 discourse_bridge:
     path:  /rezero_b2b/v1/bridge/{discourse_endpoint}
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\DiscourseController::bridgeDiscourseAction }
-    methods: [GET, POST]
+    methods: [GET, POST, PUT, DELETE]
     requirements:
         discourse_endpoint: ".+"
