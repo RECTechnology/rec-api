@@ -15,12 +15,14 @@ class TxBlockValidator
 
     /** @var ContainerInterface $container */
     private $container;
+    private $logger;
     private $tb;
     private $em;
 
-    function __construct(ContainerInterface $container)
+    function __construct(ContainerInterface $container, $logger)
     {
         $this->container = $container;
+        $this->logger = $logger;
     }
 
     public function validateTxBlock(DelegatedChange $tb): array
@@ -48,13 +50,16 @@ class TxBlockValidator
         $row = 0;
         if (($handle = fopen($path, "r")) !== FALSE) {
             while (($data = fgetcsv($handle, 1000, $separator)) !== FALSE) {
-                $data[] = strval($row);
-                if($row > 0) $tbd_list[$row] = $data;
+                if (count($data) == 4){
+                    $data[] = strval($row);
+                    if($row > 0) $tbd_list[$row] = $data;
+                }
                 $row++;
-
             }
             fclose($handle);
         }
+        $this->logger->info( 'Rows:'.$row);
+        $this->logger->info( 'TB_data:'.count($tbd_list));
         return $tbd_list;
     }
 
