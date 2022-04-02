@@ -122,6 +122,7 @@ class MapController extends BaseApiController{
             'a.web, ' .
             'a.offered_products, ' .
             'a.needed_products, '.
+            'a.activity_main_id, '.
             'cp.code AS campaign';
 
         $elements = $qb
