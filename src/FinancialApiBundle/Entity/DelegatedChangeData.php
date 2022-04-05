@@ -18,15 +18,7 @@ use App\FinancialApiBundle\Validator\Constraint as RECAssert;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="delegated_change_data",uniqueConstraints={
- *     @ORM\UniqueConstraint(
- *          name="fk_idx",
- *          columns={
- *              "delegated_change_id",
- *              "account_id"
- *          }
- *     )
- * })
+ * @ORM\Table(name="delegated_change_data")
  */
 class DelegatedChangeData extends AppObject {
 

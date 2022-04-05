@@ -92,7 +92,7 @@ class TransactionBlocksTest extends BaseApiTest {
         $lista = array (
             array(' sender', 'exchanger ', ' account', 'amount '),
             array(6, 5, 2 , 10),
-            array(6, 8, 4, 465)
+            array(6, 8, 2, 465)
         );
 
         $fp = fopen('/opt/project/var/cache/file.csv', 'w');
