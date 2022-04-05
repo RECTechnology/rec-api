@@ -48,6 +48,29 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
         $resp = $this->requestJson('POST', $route, $params);
         $content = json_decode($resp->getContent(),true);
         self::assertArrayHasKey('data', $content);
+        $post_id = $content['data']['id'];
+        $topic_id = $content['data']['topic_id'];
+        $routeUpdatePost = '/rezero_b2b/v1/bridge/posts/'.$post_id.'.json';
+        $paramsUpdatePost = array (
+            'post' => array(
+                "raw" => $this->faker->sentence(28, true),
+                "edit_reason" => "dolore in"
+            )
+        );
+
+        $this->useUpdatePostMock();
+
+        $resp = $this->requestJson('PUT', $routeUpdatePost, $paramsUpdatePost);
+
+        $routeUpdateTopic = '/rezero_b2b/v1/bridge/t/-/'.$topic_id.'.json';
+        $paramsUpdateTopic = array (
+            "title" => $this->faker->sentence(4, true)
+        );
+
+        $this->useUpdateTopicMock();
+        $resp = $this->requestJson('PUT', $routeUpdateTopic, $paramsUpdateTopic);
+
+
 
     }
 
@@ -139,6 +162,22 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
     private function useLikeMock(){
         $discMock = $this->createMock(DiscourseApiManager::class);
         $response = $this->getLikeMockResponse();
+        $discMock->method('bridgeCall')->willReturn($response);
+
+        $this->override('net.app.commons.discourse.api_manager', $discMock);
+    }
+
+    private function useUpdatePostMock(){
+        $discMock = $this->createMock(DiscourseApiManager::class);
+        $response = $this->getUpdatePostResponse();
+        $discMock->method('bridgeCall')->willReturn($response);
+
+        $this->override('net.app.commons.discourse.api_manager', $discMock);
+    }
+
+    private function useUpdateTopicMock(){
+        $discMock = $this->createMock(DiscourseApiManager::class);
+        $response = $this->getUpdateTopicResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
         $this->override('net.app.commons.discourse.api_manager', $discMock);
@@ -1383,6 +1422,96 @@ What can they fi&hellip;',
             'edit_reason' => NULL,
             'can_view_edit_history' => true,
             'wiki' => false,
+        );
+    }
+
+    private function getUpdatePostResponse(){
+        return array (
+            'post' =>
+                array (
+                    'id' => 282,
+                    'name' => 'changedf_namne',
+                    'username' => 'rossifumi4646',
+                    'avatar_template' => '/user_avatar/community.stage.atarca.es/rossifumi4646/{size}/43_2.png',
+                    'created_at' => '2022-04-04T06:57:15.885Z',
+                    'cooked' => '<p>ahopra esta updatedao kjlhlh kljhlkj lkjhklj h</p>',
+                    'post_number' => 1,
+                    'post_type' => 1,
+                    'updated_at' => '2022-04-04T11:06:49.838Z',
+                    'reply_count' => 0,
+                    'reply_to_post_number' => NULL,
+                    'quote_count' => 0,
+                    'incoming_link_count' => 0,
+                    'reads' => 2,
+                    'readers_count' => 1,
+                    'score' => 0.4,
+                    'yours' => true,
+                    'topic_id' => 210,
+                    'topic_slug' => 'este-es-el-titulo-modificado',
+                    'display_username' => 'changedf_namne',
+                    'primary_group_name' => NULL,
+                    'primary_group_flair_url' => NULL,
+                    'primary_group_flair_bg_color' => NULL,
+                    'primary_group_flair_color' => NULL,
+                    'version' => 4,
+                    'can_edit' => true,
+                    'can_delete' => false,
+                    'can_recover' => false,
+                    'can_wiki' => true,
+                    'user_title' => NULL,
+                    'bookmarked' => false,
+                    'actions_summary' =>
+                        array (
+                            0 =>
+                                array (
+                                    'id' => 3,
+                                    'can_act' => true,
+                                ),
+                            1 =>
+                                array (
+                                    'id' => 4,
+                                    'can_act' => true,
+                                ),
+                            2 =>
+                                array (
+                                    'id' => 8,
+                                    'can_act' => true,
+                                ),
+                            3 =>
+                                array (
+                                    'id' => 7,
+                                    'can_act' => true,
+                                ),
+                        ),
+                    'moderator' => false,
+                    'admin' => false,
+                    'staff' => false,
+                    'user_id' => 15,
+                    'draft_sequence' => 7,
+                    'hidden' => false,
+                    'trust_level' => 4,
+                    'deleted_at' => NULL,
+                    'user_deleted' => false,
+                    'edit_reason' => 'dolore in',
+                    'can_view_edit_history' => true,
+                    'wiki' => false,
+                    'reviewable_id' => NULL,
+                    'reviewable_score_count' => 0,
+                    'reviewable_score_pending_count' => 0,
+                ),
+        );
+    }
+
+    private function getUpdateTopicResponse(){
+        return array (
+            'basic_topic' =>
+                array (
+                    'id' => 210,
+                    'title' => 'Este es el titulo modificado',
+                    'fancy_title' => 'Este es el titulo modificado',
+                    'slug' => 'este-es-el-titulo-modificado',
+                    'posts_count' => 1,
+                ),
         );
     }
 
