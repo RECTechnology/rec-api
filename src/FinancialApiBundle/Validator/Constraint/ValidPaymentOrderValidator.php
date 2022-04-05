@@ -124,6 +124,7 @@ class ValidPaymentOrderValidator extends ConstraintValidator {
                 $this->context->buildViolation("signature is not valid")
                     ->atPath('signature')
                     ->addViolation();
+                return;
             }
 
             //save nonce

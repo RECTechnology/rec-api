@@ -66,6 +66,7 @@ class PaymentOrderSubscriber implements EventSubscriber {
                         throw new AttemptToChangeStatusException("Changing status is not allowed");
                     }
                     $currentRequest = $this->requestStack->getCurrentRequest();
+
                     $refundAmount = $currentRequest->request->get("refund_amount", $order->getAmount());
                     if($refundAmount > $order->getAmount())
                         throw new AppException(400, "Refund cannot exceed order amount");

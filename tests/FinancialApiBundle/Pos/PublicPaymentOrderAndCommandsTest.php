@@ -74,6 +74,11 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         self::assertNotEmpty($order->payment_transaction);
 
         $this->refundOrderWithMoreAmountShouldFail($order);
+        $this->refundOrderWithBadSignatureShouldFail($order);
+
+        $order = $this->readPaymentOrderAdmin($order);
+        self::assertEquals(PaymentOrder::STATUS_DONE, $order->status);
+
         $order = $this->refundOrderPublic($order);
         self::assertEquals(PaymentOrder::STATUS_REFUNDED, $order->status);
         self::assertObjectHasAttribute('refunded_amount', $order);
@@ -327,6 +332,29 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             'PUT',
             "/public/v3/payment_orders/{$order->id}",
             $params
+        );
+    }
+
+    private function refundOrderWithBadSignatureShouldFail($order)
+    {
+        $nonce = round(microtime(true) * 1000, 0);
+
+        $signatureVersion = 'hmac_sha256_v1';
+        $signatureParams = [
+            'status' => PaymentOrder::STATUS_REFUNDED,
+            'signature_version' => $signatureVersion,
+            'nonce' => $nonce
+        ];
+        $signature = "fake_signature";
+
+        $params = $signatureParams + ["signature" => $signature];
+
+        return $this->rest(
+            'PUT',
+            "/public/v3/payment_orders/{$order->id}",
+            $params,
+            [],
+            400
         );
     }
 
