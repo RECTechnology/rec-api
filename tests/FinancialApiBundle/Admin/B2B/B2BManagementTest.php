@@ -152,6 +152,7 @@ class B2BManagementTest extends BaseApiTest {
         );
         $discMock->method('register')->willReturn($response);
         $discMock->method('generateApiKeys')->willReturn("kjlhsdfljshflsdf");
+        $discMock->method('subscribeToNewsCategory')->willReturn(array("success" => "OK"));
 
         $this->override('net.app.commons.discourse.api_manager', $discMock);
 

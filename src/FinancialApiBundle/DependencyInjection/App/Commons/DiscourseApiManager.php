@@ -68,6 +68,15 @@ class DiscourseApiManager{
         return 'error';
     }
 
+    public function subscribeToNewsCategory(Group $account){
+        $this->logger->info("Subscribing ".$account->getName()." to news category");
+        $news_category_id = $this->container->getParameter("discourse_news_category_id");
+        $data = array(
+            "notification_level" => 4
+        );
+        return $this->bridgeCall($account, 'category/'.$news_category_id.'/notifications', 'POST', $data);
+    }
+
     public function updateName(Group $account, $name){
         $this->logger->info("Changing name for ".$account->getName()." to ".$name);
         $data = array(

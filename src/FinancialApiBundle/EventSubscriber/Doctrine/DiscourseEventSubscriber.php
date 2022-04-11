@@ -64,6 +64,9 @@ class DiscourseEventSubscriber implements EventSubscriber {
                             $account->setRezeroB2bUserId($resp['user_id']);
                             if($resp['api_key']){
                                 $account->setRezeroB2bApiKey($resp['api_key']);
+                                /** @var DiscourseApiManager $discourseManager */
+                                $discourseManager = $this->getDiscourseManager();
+                                $discourseManager->subscribeToNewsCategory($account);
                             }
                         }
                     }
