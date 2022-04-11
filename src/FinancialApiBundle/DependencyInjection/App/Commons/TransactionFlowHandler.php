@@ -16,6 +16,7 @@ use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Financial\Currency;
 use FOS\OAuthServerBundle\Util\Random;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TransactionFlowHandler{
 
@@ -32,6 +33,7 @@ class TransactionFlowHandler{
     }
 
     public function sendRecsWithIntermediary(Group $rootAccount, Group $intermediaryAccount, Group $userAccount, $amount, $concept = 'Internal exchange'){
+        $this->checkBalance($rootAccount, $amount);
         //TODO we need to know if it's a bonification
         //send money from root to intermediary
         //rec out root
@@ -182,6 +184,14 @@ class TransactionFlowHandler{
 
         return $senderInfo;
 
+    }
+
+    private function checkBalance(Group $account, $amount){
+        /** @var UserWallet $recWallet */
+        $recWallet = $account->getWallet(Currency::$REC);
+        if($recWallet->getAvailable() < $amount){
+            throw new HttpException(403, 'Not funds enough');
+        }
     }
 
 }

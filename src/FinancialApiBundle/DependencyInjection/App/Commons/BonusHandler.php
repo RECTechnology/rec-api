@@ -189,21 +189,25 @@ class BonusHandler{
         //TODO calcular el bonificable amount
         $bonificableAmount = $this->getBonificable($ltabAccount);
 
-        $campaign_balance = $campaignAccount->getWallet('REC')->getBalance();
+        $campaign_balance = $campaignAccount->getWallet(Currency::$REC)->getBalance();
         $bonificationAmount =min($campaign_balance, round($bonificableAmount * $campaign->getRedeemablePercentage()/100,2)*1e8);
         if($bonificationAmount > 0){
-            $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $ltabAccount, $bonificationAmount);
-            //QUItar redeemable y suamr al rewarded
-            $ltabAccount->setRedeemableAmount($ltabAccount->getRedeemableAmount() - $bonificableAmount);
-            $bonificatedAmount = $ltabAccount->getRewardedAmount();
-            $ltabAccount->setRewardedAmount($bonificatedAmount + $bonificableAmount);
-            $em->flush();
-            //TODO return extra_data;
-            $extra_data = ['rewarded_ltab' => $bonificationAmount];
+            try{
+                $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $ltabAccount, $bonificationAmount);
+                //QUItar redeemable y suamr al rewarded
+                $ltabAccount->setRedeemableAmount($ltabAccount->getRedeemableAmount() - $bonificableAmount);
+                $bonificatedAmount = $ltabAccount->getRewardedAmount();
+                $ltabAccount->setRewardedAmount($bonificatedAmount + $bonificableAmount);
+                $em->flush();
+                $extra_data = ['rewarded_ltab' => $bonificationAmount];
+            }catch (HttpException $e){
+                $extra_data = [];
+            }
+
             return $extra_data;
-        }else{
-            return [];
         }
+
+        return [];
     }
 
     private function getBonificable(Group $ltabAccount){
@@ -227,7 +231,11 @@ class BonusHandler{
         $satoshi_decimals = 1e8;
         $bonificableAmount = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
 
-        $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount, 'Bonificació Cultural +' . $campaign->getRedeemablePercentage() . '%');
+        try{
+            $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount, 'Bonificació Cultural +' . $campaign->getRedeemablePercentage() . '%');
+        }catch (HttpException $e){
+            //Do something here
+        }
     }
 
     private function getExchanger($receiver_id): Group

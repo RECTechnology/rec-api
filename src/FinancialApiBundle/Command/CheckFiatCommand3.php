@@ -86,21 +86,22 @@ class CheckFiatCommand3 extends SynchronizedContainerAwareCommand{
                         $output->writeln('createTransaction');
                         sleep(1);
                         $txFlowHandler = $this->getContainer()->get('net.app.commons.transaction_flow_handler');
-                        $txFlowHandler->sendRecsWithIntermediary($group, $group_commerce, $userAccount, $amount * 1000000);
+                        try{
 
-                        //$transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
-                        $tx_group = $repoGroup->findOneBy(array("id" =>$transaction->getGroup()));
-                        $output->writeln('post createTransaction');
-                        sleep(1);
-                        $transaction->setStatus('success');
-                        $dm->persist($transaction);
-                        $dm->flush();
-                        $output->writeln('CHECK FIAT saved in success status');
-                        //use $txBonusHandler
-                        //$transactionManager->checkCampaign($em, $transaction->getMethod(), $transaction->getAmount(), $transaction->getUser(), $tx_group);
-                        //$transactionManager->checkRewardCultureCampaign($data, $tx_group, $output);
-                        $txBonusHandler = $this->getContainer()->get('net.app.commons.bonus_handler');
-                        $txBonusHandler->bonificateTx($transaction);
+                            $txFlowHandler->sendRecsWithIntermediary($group, $group_commerce, $userAccount, $amount * 1000000);
+                            //$transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
+                            $output->writeln('post createTransaction');
+                            sleep(1);
+                            $transaction->setStatus('success');
+                            $dm->persist($transaction);
+                            $dm->flush();
+                            $output->writeln('CHECK FIAT saved in success status');
+                            //use $txBonusHandler
+                            $txBonusHandler = $this->getContainer()->get('net.app.commons.bonus_handler');
+                            $txBonusHandler->bonificateTx($transaction);
+                        }catch (HttpException $e){
+                            $output->writeln($group->getName().' '.$e->getMessage());
+                        }
                     }
                     else{
                         $output->writeln('ERROR: not commerce_id data');
