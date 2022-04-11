@@ -102,14 +102,15 @@ class TransactionBlocksExecutorCommand extends SynchronizedContainerAwareCommand
             $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
             $dc->setResult('success_tx', $dc->getStatistics()["result"]["success_tx"] + 1);
             $dc->setResult('issued_rec', $dc->getStatistics()["result"]["issued_rec"] + $dcd->getAmount() * $satoshi_decimals);
-            if($dc->getStatistics()["scheduled"]["tx_to_execute"] == $dc->getStatistics()["result"]["success_tx"])
-                $dc->setStatus(DelegatedChange::STATUS_FINISHED);
             $output->writeln("TX(id): " . $tx->getId());
+            if($dc->getStatistics()["scheduled"]["tx_to_execute"] == $dc->getStatistics()["result"]["success_tx"]){
+                $dc->setStatus(DelegatedChange::STATUS_FINISHED);
+                $log_text = sprintf('From %s to %s. All the transactions executed successfully',
+                    DelegatedChange::STATUS_IN_PROGRESS,
+                    DelegatedChange::STATUS_FINISHED);
+                $log_handler->persistLog($dc, TransactionBlockLog::TYPE_DEBUG, $log_text);
+            }
 
-            $log_text = sprintf('From %s to %s. All the transactions executed successfully',
-                DelegatedChange::STATUS_IN_PROGRESS,
-                DelegatedChange::STATUS_FINISHED);
-            $log_handler->persistLog($dc, TransactionBlockLog::TYPE_DEBUG, $log_text);
         }else{
             $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
             $dc->setResult('failed_tx', $dc->getStatistics()["result"]["failed_tx"] + 1);
