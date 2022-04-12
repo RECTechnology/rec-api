@@ -80,10 +80,24 @@ class MapTest extends BaseApiTest {
         }
     }
 
-    public function testPublicMapSearch(){
+    public function testPublicMapSearchOffers(){
+        $response = $this->requestJson('GET', '/public/map/v1/search?only_with_offers=1');
+        $response_content = json_decode($response->getContent(),true);
+        $accounts = $response_content['data']['elements'];
+        foreach ($accounts as $account){
+            self::assertTrue($account["offers"][0]["active"]);
+        }
+    }
 
+    public function testPublicMapSearchCampaign(){
         $response = $this->requestJson('GET', '/public/map/v1/search?campaign_code=LTAB20');
         $response_content = json_decode($response->getContent(),true);
         self::assertEquals('LTAB20', $response_content['data']['elements'][0]['campaign']);
+    }
+
+    public function testPublicMapSearchActivity(){
+        $response = $this->requestJson('GET', '/public/map/v1/search?activity_id=1');
+        $response_content = json_decode($response->getContent(),true);
+        self::assertEquals('1', $response_content["data"]["elements"][0]["activity"]);
     }
 }

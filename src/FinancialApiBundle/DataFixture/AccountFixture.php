@@ -339,7 +339,9 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $account->setName($faker->name);
         }
         if ($type == self::ACCOUNT_TYPE_ORGANIZATION) {
-            $account->setActivityMain($orm->getRepository(Activity::class)->find(['id' => $tier]));
+            $activity = $orm->getRepository(Activity::class)->find(['id' => $tier]);
+            $account->setActivityMain($activity);
+            $account->addActivity($activity);
         }
         $account->setRecAddress($faker->shuffle('abcdefghijklmnopqrstuvwxyz0123456789'));
         $account->setMethodsList(['rec']);

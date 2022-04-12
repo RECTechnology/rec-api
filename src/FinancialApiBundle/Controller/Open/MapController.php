@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Open;
 
+use App\FinancialApiBundle\Entity\Activity;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -40,6 +41,8 @@ class MapController extends BaseApiController{
         $account_subtype = strtoupper($request->query->get('subtype', ''));
         $only_with_offers = $request->query->get('only_with_offers', 0);
         $rect_box = $request->query->get('rect_box', [-90.0, -90.0, 90.0, 90.0]);
+        $activity_id = $request->query->get('activity_id');
+        $hasActivity = isset($activity_id) and is_numeric($activity_id);
 
         if (!in_array($account_subtype, ["RETAILER", "WHOLESALE", ""])) {
             throw new HttpException(400, "Invalid subtype '$account_subtype', valid options: 'retailer', 'wholesale'");
@@ -86,11 +89,29 @@ class MapController extends BaseApiController{
         if ($account_subtype != '') $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
         if ($only_with_offers == 1) {
+            $_and = $qb->expr()->andX();
+            $_and->add($qb->expr()->eq('o2.company', 'a.id'));
+            $_and->add($qb->expr()->eq('o2.active', 1));
             $qbAux = $em->createQueryBuilder()
                 ->select('count(o2)')
                 ->from(Offer::class, 'o2')
-                ->where($qb->expr()->eq('o2.company', 'a.id'));
+                ->where($_and);
+
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
+        }
+        if($hasActivity) {
+            $a_qb = $em->createQueryBuilder();
+            $activities = $a_qb
+                ->select('ac')
+                ->from(Activity::class, 'ac')
+                ->where('ac.id =' . $activity_id. ' OR ac.parent = '.$activity_id)
+                ->getQuery()
+                ->getResult();
+            $activities_ids = [];
+            foreach($activities as $activity){
+                array_push($activities_ids, $activity->getId());
+            }
+            $and->add($qb->expr()->in('a.activity_main', $activities_ids));
         }
 
         $qb = $qb
@@ -122,6 +143,7 @@ class MapController extends BaseApiController{
             'a.web, ' .
             'a.offered_products, ' .
             'a.needed_products, '.
+            'identity(a.activity_main) as activity, ' .
             'cp.code AS campaign';
 
         $elements = $qb
@@ -133,13 +155,12 @@ class MapController extends BaseApiController{
 
         $elements = $this->secureOutput($elements);
 
-        $now = new \DateTime();
         for($i = 0; $i < count($elements); $i++){
             $offersInGroup = $em
-                ->createQuery('SELECT o FROM '.Offer::class.' o WHERE o.company = :companyid AND o.end < :today')
+                ->createQuery('SELECT o FROM '.Offer::class.' o WHERE o.company = :companyid AND o.active = :active')
                 ->setParameters(array(
                     'companyid' => $elements[$i]["id"],
-                    'today' => $now))
+                    'active' => 1))
                 ->getResult();
 
             $elements[$i]["offers"] = $offersInGroup;

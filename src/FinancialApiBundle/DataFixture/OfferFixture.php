@@ -36,7 +36,6 @@ class OfferFixture extends Fixture implements DependentFixtureInterface {
      */
     private function createOffer(ObjectManager $orm, Group $company){
         $offer = new Offer();
-        $offer->setActive(true);
         $offer->setType(Offer::OFFER_TYPE_PERCENTAGE);
         $offer->setDiscount(10);
         $offer->setInitialPrice(10);
@@ -45,8 +44,10 @@ class OfferFixture extends Fixture implements DependentFixtureInterface {
         $offer->setStart(new \DateTime('-2 days'));
         if($company->getName() == AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']){
             $offer->setEnd(new \DateTime('-1 year'));
+            $offer->setActive(false);
         }else{
             $offer->setEnd(new \DateTime('+1 year'));
+            $offer->setActive(true);
         }
         $offer->setImage('https://image.test/flower.jpg');
 
