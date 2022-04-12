@@ -41,7 +41,7 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
             'raw' => $this->faker->sentence(28, true),
             'title' => $this->faker->sentence(4, true),
             'category' => 6,
-            'tags' => ["test-tag", "new-tag"]
+            'tags' => ["test-tag"]
         );
         $route = '/rezero_b2b/v1/bridge/posts.json';
         $this->useCreateTopicMock();
@@ -64,7 +64,8 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
 
         $routeUpdateTopic = '/rezero_b2b/v1/bridge/t/-/'.$topic_id.'.json';
         $paramsUpdateTopic = array (
-            "title" => $this->faker->sentence(4, true)
+            "title" => $this->faker->sentence(4, true),
+            'tags' => ["test-tag", "new-tag"]
         );
 
         $this->useUpdateTopicMock();

@@ -73,12 +73,22 @@ class DiscourseEventSubscriber implements EventSubscriber {
                 }
             }
 
-            if($args->hasChangedField("name")){
-                /** @var DiscourseApiManager $discourseManager */
-                $discourseManager = $this->getDiscourseManager();
-                $discourseManager->updateName($account, $args->getNewValue("name"));
+            if($account->getRezeroB2bApiKey()){
+                if($args->hasChangedField("name")){
+                    /** @var DiscourseApiManager $discourseManager */
+                    $discourseManager = $this->getDiscourseManager();
+                    $discourseManager->updateName($account, $args->getNewValue("name"));
 
+                }
+
+                if($args->hasChangedField("rezero_b2b_username")){
+                    /** @var DiscourseApiManager $discourseManager */
+                    $discourseManager = $this->getDiscourseManager();
+                    $discourseManager->updateUsername($account, $args->getOldValue("rezero_b2b_username"), $args->getNewValue("rezero_b2b_username"));
+
+                }
             }
+
         }
     }
 

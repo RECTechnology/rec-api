@@ -86,6 +86,19 @@ class DiscourseApiManager{
 
     }
 
+    public function updateUsername(Group $account, $old_username, $new_username){
+        $this->logger->info("Changing username for ".$account->getName()." to ".$new_username);
+        $data = array(
+            "new_username" => $new_username
+        );
+        $credentials = array(
+            'Api-Key: '.$account->getRezeroB2bApiKey(),
+            'Api-Username: '. $old_username
+        );
+        return $this->_callDiscourse('u/'.$old_username.'/preferences/username.json', $credentials, 'PUT', $data);
+
+    }
+
     public function bridgeCall(Group $account, $endpoint, $method, $data = [], $urlParams = [], $fileData = null){
         $this->logger->info("Starting Bridge call for ".$account->getName());
         $credentials = array(
@@ -142,6 +155,10 @@ class DiscourseApiManager{
 
 
         }elseif ($method === 'PUT'){
+
+            //TODO needs more investigation
+            //ese curl parece igual que el ultimno pero si no pongo asi los postfields en el put falla
+            $credentials[] = 'Content-Type: application/json';
             curl_setopt_array($curl, array(
                 CURLOPT_URL => $base_url.'/'.$endpoint,
                 CURLOPT_RETURNTRANSFER => true,
@@ -155,8 +172,9 @@ class DiscourseApiManager{
                 CURLOPT_HTTPHEADER => $credentials
             ));
 
-            $encodedData = http_build_query($data);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $encodedData);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+
+
         }elseif ($method === 'DELETE'){
             //TODO needs more invetigation
             //este curl parece iwal que el del else , solo cambia el orden de CURLOPT_POST y CURLOPT_POSTFIELDS
