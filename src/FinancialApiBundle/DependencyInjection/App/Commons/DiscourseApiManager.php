@@ -11,6 +11,7 @@ namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 use App\FinancialApiBundle\Entity\Group;
 use Monolog\Logger;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class DiscourseApiManager{
@@ -99,6 +100,35 @@ class DiscourseApiManager{
 
     }
 
+    public function updatePublicImage(Group $account, $filename){
+        //this filename arrives like /something.jpg
+        $this->logger->info("Synchronizing profile image for ".$account->getName());
+        $fileData = array(
+            'name' => str_replace("/", "", $filename)
+        );
+
+        $data = array(
+            'type' => 'avatar',
+            'synchronous' => true,
+            'user_id' => $account->getRezeroB2bUserId()
+        );
+
+        $uploadResponse = $this->bridgeCall($account, 'uploads.json', "POST", $data, [], $fileData);
+
+        //set profile image on discourse
+        $pickEndpoint = '/u/'.$account->getRezeroB2bUsername().'/preferences/avatar/pick.json';
+        $avatarData = array(
+            "upload_id" => $uploadResponse["id"],
+            "type" => "custom"
+        );
+        $setImageResponse = $this->bridgeCall($account, $pickEndpoint, "PUT", $avatarData, [], null);
+
+        if(!isset($setImageResponse["success"]) || $setImageResponse['success'] !== "OK"){
+            throw new HttpException(400, "Something went wrong synchronizing image with discourse. Please try again");
+        }
+
+    }
+
     public function bridgeCall(Group $account, $endpoint, $method, $data = [], $urlParams = [], $fileData = null){
         $this->logger->info("Starting Bridge call for ".$account->getName());
         $credentials = array(
@@ -148,7 +178,6 @@ class DiscourseApiManager{
                 CURLOPT_HTTPHEADER => $credentials
             ));
 
-            $this->container->getParameter('uploads_dir');
             $filepath = realpath($this->container->getParameter('uploads_dir').'/'.$fileData['name']);
             $data['file'] = new \CURLFile($filepath);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $data);

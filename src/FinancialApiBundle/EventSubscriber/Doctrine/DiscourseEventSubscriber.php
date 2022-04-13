@@ -74,18 +74,19 @@ class DiscourseEventSubscriber implements EventSubscriber {
             }
 
             if($account->getRezeroB2bApiKey()){
-                if($args->hasChangedField("name")){
-                    /** @var DiscourseApiManager $discourseManager */
-                    $discourseManager = $this->getDiscourseManager();
-                    $discourseManager->updateName($account, $args->getNewValue("name"));
 
+                /** @var DiscourseApiManager $discourseManager */
+                $discourseManager = $this->getDiscourseManager();
+                if($args->hasChangedField("name")){
+                    $discourseManager->updateName($account, $args->getNewValue("name"));
                 }
 
                 if($args->hasChangedField("rezero_b2b_username")){
-                    /** @var DiscourseApiManager $discourseManager */
-                    $discourseManager = $this->getDiscourseManager();
                     $discourseManager->updateUsername($account, $args->getOldValue("rezero_b2b_username"), $args->getNewValue("rezero_b2b_username"));
+                }
 
+                if($args->hasChangedField("public_image")) {
+                    $discourseManager->updatePublicImage($account, $args->getNewValue("public_image"));
                 }
             }
 
