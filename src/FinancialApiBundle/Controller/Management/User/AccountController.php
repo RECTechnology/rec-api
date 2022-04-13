@@ -1192,8 +1192,6 @@ class AccountController extends BaseApiController {
 
         $methodsList = array('rec-out', 'rec-in');
 
-
-
         $allowed_types = array('PRIVATE', 'COMPANY');
 
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
@@ -1246,6 +1244,13 @@ class AccountController extends BaseApiController {
 
             if(strlen($b2b_username) > 32)
                 throw new HttpException(403, 'Param rezero_b2b_username is too long');
+
+            $account = $em->getRepository(Group::class)->findOneBy(array(
+                'rezero_b2b_username'  =>  $b2b_username
+            ));
+            if($account){
+                throw new HttpException(400, "Rezero b2b username already registered");
+            }
 
             $company->setRezeroB2bUsername($b2b_username);
         }

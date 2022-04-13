@@ -37,6 +37,23 @@ class B2BRegisterTest extends BaseApiTest {
             $response->getStatusCode(),
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );
+
+        $duplicatedContent = [
+            'password' => $pw,
+            'phone' => random_int(600000000, 799999999),
+            'prefix' => '34',
+            'dni' => '58720506B',
+            'company_cif' => 'H68168178',
+            'company_name' => 'panaderia2',
+            'platform' => 'rezero-b2b-web',
+            'rezero_b2b_username' => 'B2B_user_name'
+        ];
+        $response = $this->requestJson('POST', '/rezero_b2b/v4/register', $duplicatedContent, $header);
+        self::assertEquals(
+            400,
+            $response->getStatusCode(),
+            "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
+        );
     }
 
     public function testRegisterV4WrongPlatformResponds403(){
