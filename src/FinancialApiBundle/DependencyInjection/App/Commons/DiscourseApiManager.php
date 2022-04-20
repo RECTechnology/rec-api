@@ -103,8 +103,11 @@ class DiscourseApiManager{
     public function updatePublicImage(Group $account, $filename){
         //this filename arrives like /something.jpg
         $this->logger->info("Synchronizing profile image for ".$account->getName());
+        $this->logger->info("Synchronizing file ".$filename);
+        $files_path = $this->container->getParameter("files_path");
+        $name = str_replace($files_path.'/',"", $filename);
         $fileData = array(
-            'name' => str_replace("/", "", $filename)
+            'name' => $name
         );
 
         $data = array(
@@ -115,6 +118,7 @@ class DiscourseApiManager{
 
         $uploadResponse = $this->bridgeCall($account, 'uploads.json', "POST", $data, [], $fileData);
 
+        $this->logger->info("File uploaded file ".$filename);
         //set profile image on discourse
         $pickEndpoint = '/u/'.$account->getRezeroB2bUsername().'/preferences/avatar/pick.json';
         $avatarData = array(
@@ -126,6 +130,8 @@ class DiscourseApiManager{
         if(!isset($setImageResponse["success"]) || $setImageResponse['success'] !== "OK"){
             throw new HttpException(400, "Something went wrong synchronizing image with discourse. Please try again");
         }
+
+        $this->logger->info("Synchronized file ".$filename);
 
     }
 
