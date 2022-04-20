@@ -30,6 +30,6 @@ RUN sed 's/^upload_max_filesize = 2M$/upload_max_filesize = 20M/g' -i /etc/php/7
 WORKDIR /api
 COPY . /api
 
-RUN composer install --no-dev --no-interaction
+RUN composer install --no-dev --no-interaction --no-scripts
 
 CMD docker/prod/api/docker-entrypoint.sh

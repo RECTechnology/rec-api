@@ -35,7 +35,7 @@ RUN chmod 644 /etc/cron.d/app
 WORKDIR /api
 COPY . /api
 
-RUN composer install --no-dev --no-interaction
+RUN composer install --no-dev --no-interaction --no-scripts
 
 RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console --env=prod \"\$@\"\n cd - > /dev/null" > /usr/bin/rec && chmod +x /usr/bin/rec
 
