@@ -14,6 +14,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectManager;
 use PhpOption\None;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
@@ -1437,9 +1438,9 @@ class IncomingController2 extends RestApiController{
      * @param $type
      * @param $group
      * @param $data
-     * @param DocumentManager $dm
+     * @param ObjectManager $dm
      */
-    private function ckeckKYC($type, $group, $data, DocumentManager $dm): void
+    private function ckeckKYC($type, $group, $data, ObjectManager $dm): void
     {
         if ($type == 'out') {
             $tier = $group->getLevel();

@@ -2,27 +2,19 @@
 
 namespace Test\FinancialApiBundle\Admin\TransactionBlocks;
 
-use App\FinancialApiBundle\DataFixture\DelegatedChangeFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\DelegatedChange;
-use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\TransactionBlockLog;
-use App\FinancialApiBundle\Financial\Methods\LemonWayMethod;
 use DateTime;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3WriteTestInterface;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class TransactionBlocksTest
  * @package Test\FinancialApiBundle\Admin\TransactionBlocks
+ * @group mongo
  */
 class TransactionBlocksTest extends BaseApiTest {
-
-    use MongoDBTrait;
 
     function setUp(): void
     {

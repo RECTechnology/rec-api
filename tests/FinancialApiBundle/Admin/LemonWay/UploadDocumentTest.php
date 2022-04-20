@@ -28,8 +28,8 @@ class UploadDocumentTest extends AdminApiTest {
         $fm = $this->createMock(UploadManager::class);
         $fm->method('saveFile')->willReturn('/default_file.jpg');
 
-        $this->override('net.app.driver.lemonway.eur', $lw);
-        $this->override('file_manager', $fm);
+        $this->inject('net.app.driver.lemonway.eur', $lw);
+        $this->inject('file_manager', $fm);
     }
 
 
@@ -82,6 +82,13 @@ class UploadDocumentTest extends AdminApiTest {
 
 
     function syncLemon(){
+
+        $lw = $this->createMock(LemonWayInterface::class);
+        //TODO: check LemonWay call 'GetWalletDetailsBatch' for better testing
+        $lw->method('callService')->willReturn(json_decode('{"wallets": []}'));
+
+        $this->inject('net.app.driver.lemonway.eur', $lw);
+
         $this->runCommand('rec:sync:lemonway');
     }
 

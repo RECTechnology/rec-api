@@ -4,7 +4,6 @@ namespace Test\FinancialApiBundle\Admin\Translations;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
  * Class TranslationsTest

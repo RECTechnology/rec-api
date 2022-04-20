@@ -4,10 +4,9 @@
 namespace App\FinancialApiBundle\DataFixture;
 
 use App\FinancialApiBundle\Controller\Google2FA;
-use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
 use App\FinancialApiBundle\Entity\User;
+use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Faker\Generator;
 
@@ -91,7 +90,7 @@ class UserFixture extends Fixture {
             $user->setPrefix(34);
             $user->setPhone(789789789);
         }else{
-            $user->setDNI($faker->shuffle('01234567') . 'A');
+            $user->setDNI($credentials["username"]);
             $user->setPhone(random_int(600000000, 799999999));
         }
         $user->setPrefix('34');

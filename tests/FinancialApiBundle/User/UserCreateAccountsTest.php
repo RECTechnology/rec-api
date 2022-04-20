@@ -3,10 +3,8 @@
 namespace Test\FinancialApiBundle\User;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Tier;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 
 /**
  * Class CrudV3ReadTest

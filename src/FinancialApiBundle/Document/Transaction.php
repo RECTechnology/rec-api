@@ -463,6 +463,15 @@ class Transaction implements TransactionTiming {
      */
     private $comment;
 
+
+    /**
+     * @param $id
+     * @return void
+     */
+    public function setId($id) {
+        $this->id = $id;
+    }
+
     /**
      * Get id
      *
@@ -1165,4 +1174,11 @@ class Transaction implements TransactionTiming {
         $this->comment = $comment;
     }
 
+    public static function __set_state(array $array): self {
+        $transaction = new self();
+        foreach($array as $field => $value) {
+            $transaction->{$field} = $value;
+        }
+        return $transaction;
+    }
 }

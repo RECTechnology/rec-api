@@ -1,4 +1,4 @@
-name: Coverage > 20%
+name: Code Coverage
 
 on:
   release:
@@ -12,4 +12,10 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Running test suite
-        run: test `make coverage | tail +2` -ge 20
+        run: make coverage
+
+      - name: Upload coverage results
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          verbose: true # optional (default = false)

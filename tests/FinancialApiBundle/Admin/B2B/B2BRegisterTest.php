@@ -3,7 +3,6 @@
 namespace Test\FinancialApiBundle\Admin\B2B;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use Symfony\Component\HttpFoundation\Response;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**

@@ -4,15 +4,13 @@ namespace Test\FinancialApiBundle\Admin\TreasureWithdrawal;
 
 use App\FinancialApiBundle\Entity\TreasureWithdrawal;
 use Test\FinancialApiBundle\Admin\AdminApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class TreasureWithdrawalTest
  * @package Test\FinancialApiBundle\Admin\TreasureWithdrawal
+ * @group mongo
  */
 class TreasureWithdrawalTest extends AdminApiTest {
-
-    use MongoDBTrait;
 
     function testFullProcess(){
 

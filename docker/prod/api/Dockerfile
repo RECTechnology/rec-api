@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bullseye
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install -y \
     php \
@@ -20,21 +20,16 @@ RUN apt update && apt install -y \
     git
 
 COPY docker/prod/api/vhost.conf /etc/apache2/sites-available/000-default.conf
-RUN a2enmod rewrite php7.3
+RUN a2enmod rewrite php7.4
 RUN sed 's/^ServerTokens OS/ServerTokens Prod/' -i /etc/apache2/conf-available/security.conf
 RUN sed 's/^ServerSignature On/ServerSignature Off/' -i /etc/apache2/conf-available/security.conf
-RUN sed 's/^memory_limit = 128M$/memory_limit = 1G/g' -i /etc/php/7.3/apache2/php.ini
-RUN sed 's/^post_max_size = 8M$/post_max_size = 20M/g' -i /etc/php/7.3/apache2/php.ini
-RUN sed 's/^upload_max_filesize = 2M$/upload_max_filesize = 20M/g' -i /etc/php/7.3/apache2/php.ini
+RUN sed 's/^memory_limit = 128M$/memory_limit = 1G/g' -i /etc/php/7.4/apache2/php.ini
+RUN sed 's/^post_max_size = 8M$/post_max_size = 20M/g' -i /etc/php/7.4/apache2/php.ini
+RUN sed 's/^upload_max_filesize = 2M$/upload_max_filesize = 20M/g' -i /etc/php/7.4/apache2/php.ini
 
-COPY composer.lock /api/composer.lock
-COPY composer.json /api/composer.json
 WORKDIR /api
-RUN composer global require hirak/prestissimo --no-plugins --no-scripts
-RUN composer install --no-ansi --no-dev --no-interaction --no-progress --no-scripts --no-autoloader && rm -rf /root/.composer
-
 COPY . /api
 
-RUN composer dump-autoload --no-ansi --no-interaction --no-scripts --no-dev --optimize
+RUN composer install --no-dev --no-interaction
 
 CMD docker/prod/api/docker-entrypoint.sh

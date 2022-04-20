@@ -111,7 +111,7 @@ class AccountsTest extends BaseApiTest
         $route = "/admin/v3/accounts/{$account->id}/activities";
         $resp = $this->requestJson('POST', $route, ["id" => $activity->id]);
         self::assertEquals(
-            201,
+            409,
             $resp->getStatusCode(),
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );

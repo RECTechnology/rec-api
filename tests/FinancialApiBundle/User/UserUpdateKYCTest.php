@@ -3,9 +3,7 @@
 namespace Test\FinancialApiBundle\User;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Entity\Tier;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 
 /**
  * Class UserUpdateKYCTest
@@ -33,7 +31,7 @@ class UserUpdateKYCTest extends BaseApiTest
             ]
         );
         $output = $this->runCommand('rec:mailing:send');
-        self::assertRegExp("/Processing 0 mailings/", $output);
+        self::assertMatchesRegularExpression("/Processing 0 mailings/", $output);
     }
 
     function testUpdateKycV3()

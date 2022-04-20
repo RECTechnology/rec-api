@@ -35,7 +35,7 @@ class DashboardController extends CRUDController {
     public function totalODMAction()
     {
         /** @var DocumentManager $em */
-        $dm = $this->get('doctrine.odm.mongodb.document_manager');
+        $dm = $this->get('doctrine_mongodb.odm.document_manager');
         /** @var TransactionRepository $repo */
         $repo = $dm->getRepository(Transaction::class);
         return $this->restV2(
@@ -247,7 +247,7 @@ class DashboardController extends CRUDController {
     function timeSeriesTransactions($intervalName){
 
         /** @var DocumentManager $em */
-        $dm = $this->get('doctrine.odm.mongodb.document_manager');
+        $dm = $this->get('doctrine_mongodb.odm.document_manager');
         /** @var TransactionRepository $repo */
         $repo = $dm->getRepository(Transaction::class);
 

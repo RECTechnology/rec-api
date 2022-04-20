@@ -4,31 +4,19 @@ namespace Test\FinancialApiBundle\Admin\LemonWay;
 
 use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\LemonDocumentKind;
-use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\User;
-use App\FinancialApiBundle\Entity\UserWallet;
-use App\FinancialApiBundle\Exception\AppException;
-use App\FinancialApiBundle\Financial\Driver\LemonWayInterface;
 use App\FinancialApiBundle\Financial\Methods\LemonWayMethod;
-use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Http\Client\Exception;
 use Test\FinancialApiBundle\Admin\AdminApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Class RechargeV3RecsTest
  * @package Test\FinancialApiBundle\Admin\LemonWay
+ * @group mongo
  */
 class RechargeV3RecsTest extends AdminApiTest {
-
-    use MongoDBTrait;
 
     function setUp(): void
     {
@@ -121,8 +109,9 @@ class RechargeV3RecsTest extends AdminApiTest {
         $lw->method('getPayInInfoWithCommerce')->willReturn($data);
         $lw->method('getCname')->willReturn('lemonway');
         $lw->method('getType')->willReturn('in');
+        $lw->method('getPayInStatus')->willReturn($data);
 
-        $this->override('net.app.in.lemonway.v1', $lw);
+        $this->inject('net.app.in.lemonway.v1', $lw);
     }
 
     /**

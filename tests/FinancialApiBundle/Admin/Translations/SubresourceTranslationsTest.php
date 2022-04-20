@@ -4,7 +4,6 @@ namespace Test\FinancialApiBundle\Admin\Translations;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
  * Class SubresourceTranslationsTest
@@ -19,6 +18,7 @@ class SubresourceTranslationsTest extends BaseApiTest {
     ];
 
     private $account;
+    private $activity;
 
     /**
      * @brief Given a ADMIN login, associate activity and products to the activity, and after read in specific language
@@ -32,6 +32,7 @@ class SubresourceTranslationsTest extends BaseApiTest {
         $route = '/admin/v3/activities';
         $lang = 'en';
 
+        // create activity, Lang: en
         $resp = $this->requestJson(
             'POST',
             $route,
@@ -46,7 +47,9 @@ class SubresourceTranslationsTest extends BaseApiTest {
         );
         $activity = json_decode($resp->getContent())->data;
         self::assertIsNumeric($activity->id);
+        $this->activity = $activity;
 
+        // add more languages (self::LANG_PARAMS)
         foreach (self::LANG_PARAMS as $lang => $param){
             $resp = $this->requestJson(
                 'PUT',
@@ -102,9 +105,18 @@ class SubresourceTranslationsTest extends BaseApiTest {
                     )
                     ->getContent()
             );
+            // ensure we got the specified account
             self::assertEquals($content->data->id, $this->account->id);
+
+            // ensure has activities and the working activity
+            self::assertObjectHasAttribute('activities', $content->data);
+
+            $filtered = array_values(array_filter($content->data->activities, fn($a) => $a->id == $this->activity->id));
+            self::assertGreaterThan(0, count($filtered));
+            $activity = $filtered[0];
+
             foreach ($params as $param => $value) {
-                self::assertEquals($value, $content->data->activities[0]->$param, "req LANG: $lang");
+                self::assertEquals($value, $activity->$param, "req LANG: $lang");
             }
         }
 

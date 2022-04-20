@@ -8,7 +8,6 @@ use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use App\FinancialApiBundle\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Client;
 
 trait TestDataFactory {
 

@@ -24,7 +24,7 @@ class CheckCryptoCommand extends SynchronizedContainerAwareCommand
         $type = 'in';
 
         /** @var DocumentManager $dm */
-        $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
+        $dm = $this->getContainer()->get('doctrine_mongodb.odm.document_manager');
 
         /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get('doctrine')->getManager();

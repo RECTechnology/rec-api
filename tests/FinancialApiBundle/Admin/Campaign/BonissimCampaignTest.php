@@ -3,10 +3,7 @@
 namespace Test\FinancialApiBundle\Admin\Campaign;
 
 use App\FinancialApiBundle\Entity\Campaign;
-use App\FinancialApiBundle\Entity\Group;
-use DateTime;
 use Test\FinancialApiBundle\Admin\AdminApiTest;
-
 
 
 /**

@@ -2,6 +2,8 @@
 
 namespace Test\FinancialApiBundle;
 
+use App\FinancialApiBundle\Document\Transaction;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Faker\Factory;
 use Faker\Generator;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -50,7 +52,7 @@ abstract class BaseApiTest extends WebTestCase {
     /** @var array $token */
     protected $token;
 
-    private $overrides = [];
+    protected static $injections = [];
 
     private $ip = '127.0.0.1';
 
@@ -58,12 +60,12 @@ abstract class BaseApiTest extends WebTestCase {
         $this->ip = $ip;
     }
 
-    protected function override($service_id, $mock){
-        $this->overrides[$service_id] = $mock;
+    protected static function inject($service, $mock){
+        static::$injections[$service] = $mock;
     }
 
-    protected function enforce($service_id){
-        unset($this->overrides[$service_id]);
+    protected static function restore($service){
+        unset(static::$injections[$service]);
     }
 
     /**
@@ -78,9 +80,14 @@ abstract class BaseApiTest extends WebTestCase {
     protected function request(string $method, string $url, string $content = null, array $headers = [], array $parameters = [], array $files = []) {
         if($this->token) $headers['HTTP_AUTHORIZATION'] = "Bearer {$this->token['access_token']}";
         $client = static::createClient([], ['REMOTE_ADDR' => $this->ip]);
-        foreach ($this->overrides as $service => $mock) $client->getContainer()->set($service, $mock);
         $client->request($method, $url, $parameters, $files, $headers, $content);
         return $client->getResponse();
+    }
+
+    protected static function createClient(array $options = [], array $server = []) {
+        $client = parent::createClient($options, $server);
+        foreach (static::$injections as $service => $mock) $client->getContainer()->set($service, $mock);
+        return $client;
     }
 
     /**
@@ -187,6 +194,14 @@ abstract class BaseApiTest extends WebTestCase {
         $this->runCommand('doctrine:schema:create');
     }
 
+    protected function clearMongo() {
+        /** @var DocumentManager $dm */
+        $dm = self::createClient()->getContainer()->get('doctrine_mongodb.odm.document_manager');
+        $txs = $dm->getRepository(Transaction::class)->findAll();
+        foreach ($txs as $tx) $dm->remove($tx);
+        $dm->flush();
+    }
+
     /**
      * @param string $string
      * @return string|string[]|null
@@ -244,13 +259,12 @@ abstract class BaseApiTest extends WebTestCase {
         $this->faker = Factory::create();
         $this->clearDatabase();
         $this->loadFixtures();
-        if(method_exists($this, 'startMongo')) $this->startMongo();
+        $this->clearMongo();
     }
 
     protected function tearDown(): void {
-        if(method_exists($this, 'stopMongo')) $this->stopMongo();
-        parent::tearDown();
         $this->removeDatabase();
+        parent::tearDown();
     }
 
     private function getDebugDir(){

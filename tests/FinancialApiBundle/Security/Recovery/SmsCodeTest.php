@@ -1,11 +1,9 @@
 <?php
 
-namespace Test\FinancialApiBundle\Transactions;
+namespace Test\FinancialApiBundle\Security\Recovery;
 
-use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class TransactionsTest

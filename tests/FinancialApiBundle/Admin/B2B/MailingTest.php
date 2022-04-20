@@ -24,7 +24,7 @@ class MailingTest extends BaseApiTest {
             ->withAnyParameters()
             ->willReturn(1);
 
-        $this->override('mailer', $mailer);
+        $this->inject('mailer', $mailer);
 
         $this->accounts = $this->rest('GET', '/admin/v3/accounts');
     }
@@ -89,7 +89,7 @@ class MailingTest extends BaseApiTest {
         }
 
         $output = $this->runCommand('rec:mailing:send');
-        self::assertRegExp("/Processing 0 mailings/", $output);
+        self::assertMatchesRegularExpression("/Processing 0 mailings/", $output);
 
         $route = '/admin/v3/mailings/' . $mailing->id;
         $resp = $this->requestJson('GET', $route);
@@ -116,6 +116,6 @@ class MailingTest extends BaseApiTest {
         );
 
         $output = $this->runCommand('rec:mailing:send');
-        self::assertRegExp("/Processing 1 mailings/", $output);
+        self::assertMatchesRegularExpression("/Processing 1 mailings/", $output);
     }
 }

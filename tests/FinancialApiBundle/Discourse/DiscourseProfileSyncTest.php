@@ -3,12 +3,9 @@
 namespace Test\FinancialApiBundle\Discourse;
 
 
-use App\FinancialApiBundle\Controller\Management\User\DiscourseController;
 use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
-use App\FinancialApiBundle\Entity\Group;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Test\FinancialApiBundle\BaseApiTest;
 
 class DiscourseProfileSyncTest extends BaseApiTest{
@@ -53,7 +50,7 @@ class DiscourseProfileSyncTest extends BaseApiTest{
         $response = $this->getUpdateUsernameMockeResponse();
         $discMock->method('updateUsername')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
 

@@ -3,7 +3,6 @@
 namespace Test\FinancialApiBundle\Open;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use Faker\Factory;
 use Test\FinancialApiBundle\BaseApiTest;
 
 class RegisterTest extends BaseApiTest {

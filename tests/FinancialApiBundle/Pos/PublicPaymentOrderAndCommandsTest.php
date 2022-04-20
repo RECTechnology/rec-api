@@ -9,15 +9,13 @@ use App\FinancialApiBundle\Entity\PaymentOrder;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class PublicPaymentOrderAndCommandsTest
  * @package Test\FinancialApiBundle\Open\Pos
+ * @group mongo
  */
 class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
-
-    use MongoDBTrait;
 
     const SUCCESS_RESULT = true;
     const FAILURE_RESULT = false;
@@ -32,7 +30,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
                     $on_finally();
                 }
             ));
-        $this->override(Notifier::class, $notifier);
+        $this->inject(Notifier::class, $notifier);
     }
 
     function setUp(): void

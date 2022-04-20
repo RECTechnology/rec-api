@@ -11,16 +11,12 @@ use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Financial\Methods\LemonWayMethod;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3WriteTestInterface;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class ReportClientsAndProvidersTest
  * @package Test\FinancialApiBundle\Admin\DelegatedChange
  */
 class DelegatedChangeTest extends BaseApiTest {
-
-    use MongoDBTrait;
 
     function setUp(): void
     {
@@ -123,7 +119,7 @@ class DelegatedChangeTest extends BaseApiTest {
         $lw->method('getCname')->willReturn('lemonway');
         $lw->method('getType')->willReturn('in');
 
-        $this->override('net.app.in.lemonway.v1', $lw);
+        $this->inject('net.app.in.lemonway.v1', $lw);
     }
 
     function _testDelegatedChange(){  // test disabled because the mock fails with $this->runCommand('rec:delegated_change:run');
@@ -201,7 +197,7 @@ class DelegatedChangeTest extends BaseApiTest {
         $route = "/admin/v4/reports/massive-transactions/1";
         $resp = $this->request('POST', $route, null, [], []);
         $output = $this->runCommand('rec:mailing:send');
-        self::assertRegExp("/Processing/", $output);
+        self::assertMatchesRegularExpression("/Processing/", $output);
     }
 
     function _testDelegatedChangeImportCSVnew(){

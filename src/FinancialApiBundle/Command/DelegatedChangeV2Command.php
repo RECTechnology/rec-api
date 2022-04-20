@@ -78,7 +78,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
         /** @var DocumentManager $odm */
-        $odm = $this->getContainer()->get('doctrine.odm.mongodb.document_manager');
+        $odm = $this->getContainer()->get('doctrine_mongodb.odm.document_manager');
 
         $dcRepo = $em->getRepository('FinancialApiBundle:DelegatedChange');
 

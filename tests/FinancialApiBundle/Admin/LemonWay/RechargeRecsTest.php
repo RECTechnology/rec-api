@@ -4,38 +4,25 @@ namespace Test\FinancialApiBundle\Admin\LemonWay;
 
 use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\LemonDocumentKind;
-use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
-use App\FinancialApiBundle\Entity\UserWallet;
-use App\FinancialApiBundle\Exception\AppException;
-use App\FinancialApiBundle\Financial\Driver\LemonWayInterface;
 use App\FinancialApiBundle\Financial\Methods\LemonWayMethod;
-use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Http\Client\Exception;
 use Test\FinancialApiBundle\Admin\AdminApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Class RechargeRecsTest
  * @package Test\FinancialApiBundle\Admin\LemonWay
+ * @group mongo
  */
 class RechargeRecsTest extends AdminApiTest {
-
-    use MongoDBTrait;
 
     function setUp(): void
     {
         parent::setUp();
         $this->setClientIp($this->faker->ipv4);
-
     }
 
     function testLemonTransfer(){
@@ -128,8 +115,9 @@ class RechargeRecsTest extends AdminApiTest {
         $lw->method('getPayInInfoWithCommerce')->willReturn($data);
         $lw->method('getCname')->willReturn('lemonway');
         $lw->method('getType')->willReturn('in');
+        $lw->method('getPayInStatus')->willReturn($data);
 
-        $this->override('net.app.in.lemonway.v1', $lw);
+        $this->inject('net.app.in.lemonway.v1', $lw);
     }
 
     /**
@@ -301,19 +289,19 @@ class RechargeRecsTest extends AdminApiTest {
 
         $campaign = $this->rest('GET', "/admin/v3/campaigns?name=" . Campaign::BONISSIM_CAMPAIGN_NAME)[0];
         self::assertTrue(isset($campaign));
-      
+
         $private_accounts = $this->rest('GET', "/user/v3/accounts?type=PRIVATE&kyc_manager=" . $user_id);
         self::assertGreaterThanOrEqual(1, count($private_accounts));
         $private_account_id = $private_accounts[0]->id;
-      
-      $acc = $em->getRepository(Group::class)->find($private_account_id);
+
+        $acc = $em->getRepository(Group::class)->find($private_account_id);
         $acc->setCompanyImage('');
         $em->persist($acc);
         $em->flush();
 
         $company_accounts = $this->rest('GET', "/user/v3/accounts?type=COMPANY&kyc_manager=" . $user_id);
-      
-      self::assertGreaterThanOrEqual(1, count($company_accounts));
+
+        self::assertGreaterThanOrEqual(1, count($company_accounts));
         $company_account_id = $company_accounts[0]->id;
 
         $data = ['status' => Transaction::$STATUS_RECEIVED,
@@ -325,11 +313,11 @@ class RechargeRecsTest extends AdminApiTest {
             'save_card' => 0];
 
         $this->useLemonWayMock($data);
-      
-      $this->whenDissabledBonificationNoLtabAccountCreated($campaign, $data, $user_id);
+
+        $this->whenDissabledBonificationNoLtabAccountCreated($campaign, $data, $user_id);
         $this->whenEabledBonificationLtabAccountCreatedAndRedeemable($campaign, $data, $user_id);
         $this->whenDissabledBonificationNoRedeemable($campaign, $data, $user_id);
-      
+
     }
 
     function testSetExchanger()
@@ -337,11 +325,11 @@ class RechargeRecsTest extends AdminApiTest {
         $user_id = 2;
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
         $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
-      
+
         $private_accounts = $this->rest('GET', "/user/v3/accounts?type=PRIVATE&kyc_manager=" . $user_id);
         self::assertGreaterThanOrEqual(1, count($private_accounts));
         $private_account_id = $private_accounts[0]->id;
-        
+
         $company_accounts = $this->rest('GET', "/user/v3/accounts?type=COMPANY");
         self::assertGreaterThanOrEqual(1, count($company_accounts));
         $company_account_id = $company_accounts[0]->id;
@@ -356,7 +344,7 @@ class RechargeRecsTest extends AdminApiTest {
 
         $this->useLemonWayMock($data);
 
-        
+
         $kyc0_id = $this->rest('GET', "/user/v3/tier?code=KYC0")[0]->id;
         $kyc2_id = $this->rest('GET', "/user/v3/tier?code=KYC2")[0]->id;
 
@@ -426,7 +414,7 @@ class RechargeRecsTest extends AdminApiTest {
         //no redeemable added
         self::assertEquals(60, $private_bonissim_account[0]->redeemable_amount);
     }
-  
+
     /**
      * @param array $company_accounts
      * @param $kyc0_id

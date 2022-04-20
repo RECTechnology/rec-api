@@ -12,7 +12,7 @@ use Doctrine\Common\Annotations\Annotation\Target;
  */
 class HybridProperty {
 
-    const DEFAULT_MANAGER = "doctrine.odm.mongodb.document_manager";
+    const DEFAULT_MANAGER = "doctrine_mongodb.odm.document_manager";
 
     /** @var string $identifier */
     private $identifier;

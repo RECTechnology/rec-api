@@ -4,10 +4,6 @@ namespace Test\FinancialApiBundle\Open;
 
 use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\Offer;
-use DateTime;
-use Faker\Factory;
 use Test\FinancialApiBundle\BaseApiTest;
 
 class MapTest extends BaseApiTest {

@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bullseye
 ENV DEBIAN_FRONTEND noninteractive
 # PHP and deps
 RUN apt update && apt install -y \
@@ -13,7 +13,6 @@ RUN apt update && apt install -y \
     php-zip \
     php-redis \
     php-gd \
-    php-xdebug \
     composer \
     phpunit
 
@@ -37,15 +36,10 @@ RUN apt update && apt install -y \
     mongodb-org \
     mongodb-org-server=4.2.10
 
-COPY composer.lock /api/composer.lock
-COPY composer.json /api/composer.json
 WORKDIR /api
-RUN composer global require hirak/prestissimo --no-plugins --no-scripts
-RUN composer install --no-ansi --no-interaction --no-progress --no-scripts --no-autoloader && rm -rf /root/.composer
-
 COPY . /api
 
-RUN composer dump-autoload --no-ansi --no-interaction --no-scripts --optimize
+RUN composer install --no-interaction
 
-ENTRYPOINT ["docker/test/docker-entrypoint.sh"]
+ENTRYPOINT ["docker/dev/docker-entrypoint.sh"]
 CMD ["test"]

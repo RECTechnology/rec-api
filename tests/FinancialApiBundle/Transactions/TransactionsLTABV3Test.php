@@ -2,22 +2,19 @@
 
 namespace Test\FinancialApiBundle\Transactions;
 
-use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\User;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class TransactionsLTABV3Test
  * @package Test\FinancialApiBundle\Transactions
+ * @group mongo
  */
 class TransactionsLTABV3Test extends BaseApiTest {
-
-    use MongoDBTrait;
 
     private $store;
 
@@ -309,7 +306,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
         $resp = $this->request('POST', $route, null, [],
             ['since' => '2020-01-10', 'to' => '2021-10-01']);
         $output = $this->runCommand('rec:mailing:send');
-        self::assertRegExp("/Processing/", $output);
+        self::assertMatchesRegularExpression("/Processing/", $output);
     }
 
     /**

@@ -3,9 +3,7 @@
 namespace Test\FinancialApiBundle\Admin\Users;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Entity\User;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
  * Class KycTest

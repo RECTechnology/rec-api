@@ -47,7 +47,7 @@ class MailingImportAccountsTest extends BaseApiTest {
 
         $fm = $this->createMock(UploadManager::class);
         $fm->method('readFileUrl')->willReturn($csv);
-        $this->override('file_manager', $fm);
+        $this->inject('file_manager', $fm);
 
         $route = '/admin/v3/mailing_deliveries/import';
         $this->rest(
@@ -68,7 +68,7 @@ class MailingImportAccountsTest extends BaseApiTest {
 
         $fm = $this->createMock(UploadManager::class);
         $fm->method('readFileUrl')->willReturn($csv);
-        $this->override('file_manager', $fm);
+        $this->inject('file_manager', $fm);
 
         $route = '/admin/v3/mailing_deliveries/import';
         $resp = $this->requestJson(

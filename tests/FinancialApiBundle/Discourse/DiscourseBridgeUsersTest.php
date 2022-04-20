@@ -3,7 +3,6 @@
 namespace Test\FinancialApiBundle\Discourse;
 
 
-use App\FinancialApiBundle\Controller\Management\User\DiscourseController;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -132,7 +131,7 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
         $response = $this->getLatestMockResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
     private function useDiscourseMockDirectoryItems()
@@ -141,7 +140,7 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
         $response = $this->getDirectoryItemsMockResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
     private function useCreateTopicMock(){
@@ -149,7 +148,7 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
         $response = $this->getCreateTopicMockResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
     private function useUploadMock(){
@@ -157,7 +156,7 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
         $response = $this->getUploadMockResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
     private function useLikeMock(){
@@ -165,7 +164,7 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
         $response = $this->getLikeMockResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
     private function useUpdatePostMock(){
@@ -173,7 +172,7 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
         $response = $this->getUpdatePostResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
     private function useUpdateTopicMock(){
@@ -181,7 +180,7 @@ class DiscourseBridgeUsersTest extends BaseApiTest{
         $response = $this->getUpdateTopicResponse();
         $discMock->method('bridgeCall')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
     private function getLatestMockResponse(){

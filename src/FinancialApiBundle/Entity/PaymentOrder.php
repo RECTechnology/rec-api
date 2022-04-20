@@ -180,7 +180,7 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
      * @HybridProperty(
      *     targetEntity="App\FinancialApiBundle\Document\Transaction",
      *     identifier="payment_transaction_id",
-     *     manager="doctrine.odm.mongodb.document_manager"
+     *     manager="doctrine_mongodb.odm.document_manager"
      * )
      * @Serializer\Groups({"admin"})
      */
@@ -198,7 +198,7 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
      * @HybridProperty(
      *     targetEntity="App\FinancialApiBundle\Document\Transaction",
      *     identifier="refund_transaction_id",
-     *     manager="doctrine.odm.mongodb.document_manager"
+     *     manager="doctrine_mongodb.odm.document_manager"
      * )
      * @Serializer\Groups({"admin"})
      */

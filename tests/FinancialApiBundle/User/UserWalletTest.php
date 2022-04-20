@@ -3,17 +3,14 @@
 namespace Test\FinancialApiBundle\User;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Entity\Offer;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class UserWalletTest
  * @package Test\FinancialApiBundle\User
+ * @group mongo
  */
-class UserWalletTest extends BaseApiTest
-{
-    use MongoDBTrait;
+class UserWalletTest extends BaseApiTest {
 
     function setUp(): void
     {

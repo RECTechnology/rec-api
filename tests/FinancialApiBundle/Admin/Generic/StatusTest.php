@@ -4,8 +4,6 @@ namespace Test\FinancialApiBundle\Admin\Generic;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3ReadTestInterface;
-use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
  * Class StatusTest

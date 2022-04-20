@@ -4,9 +4,7 @@ namespace Test\FinancialApiBundle\User;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
-use App\FinancialApiBundle\Entity\Offer;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class ManageAccountTest
@@ -61,7 +59,7 @@ class ManageAccountTest extends BaseApiTest
         $response = $this->getUpdateNameMock();
         $discMock->method('updateName')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
     private function useDiscourseChangeAvatarMock()
@@ -69,7 +67,7 @@ class ManageAccountTest extends BaseApiTest
         $discMock = $this->createMock(DiscourseApiManager::class);
         $discMock->method('updatePublicImage')->willReturn(null);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
 
     private function getUpdateNameMock(){

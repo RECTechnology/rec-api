@@ -27,7 +27,7 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
         $method_cname = array('lemonway');
         $type = 'in';
 
-        $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
+        $dm = $this->getContainer()->get('doctrine_mongodb.odm.document_manager');
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repoGroup = $em->getRepository('FinancialApiBundle:Group');
         $repoUser = $em->getRepository('FinancialApiBundle:User');

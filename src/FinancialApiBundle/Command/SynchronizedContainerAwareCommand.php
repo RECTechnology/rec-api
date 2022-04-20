@@ -12,6 +12,9 @@ abstract class SynchronizedContainerAwareCommand extends ContainerAwareCommand {
 
     abstract protected function executeSynchronized(InputInterface $input, OutputInterface $output);
 
+    /**
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output){
         $lock = new LockHandler($this->getName() . '.lock');
         if(!$lock->lock()) {
@@ -24,8 +27,7 @@ abstract class SynchronizedContainerAwareCommand extends ContainerAwareCommand {
 
             $output->writeln("Command exited with exception: " . $e->getMessage());
             $lock->release();
-            $exitCode = $e->getCode();
-            exit($exitCode!=0?$exitCode:-2);
+            throw $e;
         }
         $lock->release();
     }

@@ -30,7 +30,7 @@ class Issue201Test extends BaseApiTest {
         $fm = $this->createMock(UploadManager::class);
         $fm->method('saveFile')->willReturn('/file.jpg');
 
-        $this->override('net.app.driver.lemonway.eur', $lw);
+        $this->inject('net.app.driver.lemonway.eur', $lw);
     }
 
     function testIssueIsSolved(){

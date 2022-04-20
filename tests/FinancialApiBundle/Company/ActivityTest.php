@@ -2,13 +2,8 @@
 
 namespace Test\FinancialApiBundle\Company;
 
-use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Entity\Tier;
-use App\FinancialApiBundle\Entity\User;
-use App\FinancialApiBundle\Entity\UserGroup;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 
 /**
  * @package Test\FinancialApiBundle\Company

@@ -19,13 +19,14 @@
         }
     },
     "require": {
-        "php": "^7.3",
+        "php": "^7.4",
         "ext-bcmath": "*",
         "ext-curl": "*",
         "ext-json": "*",
         "ext-mongodb": "*",
         "ext-xml": "*",
         "ext-zip": "*",
+        "ext-fileinfo": "*",
         "alcaeus/mongo-php-adapter": "~1.1",
         "beberlei/doctrineextensions": "^1.2",
         "doctrine/doctrine-bundle": "^1.6",
@@ -53,17 +54,15 @@
         "symfony/polyfill-iconv": "~1.0",
         "symfony/swiftmailer-bundle": "~2.3",
         "symfony/symfony": "3.4.*",
-        "telepay/php-sdk": "dev-master",
-        "twig/twig": "^2.0",
-        "ext-fileinfo": "*"
+        "twig/twig": "^2.0"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.2",
         "friendsofphp/php-cs-fixer": "^2.15",
         "fzaninotto/faker": "^1.8",
-        "phpunit/phpunit": "<8.3",
+        "phpunit/phpunit": "^9.5",
         "symfony/maker-bundle": "^1.14",
-        "symfony/test-pack": "^1.0"
+        "symfony/phpunit-bridge": "^6.0"
     },
     "scripts": {
         "symfony-scripts": [

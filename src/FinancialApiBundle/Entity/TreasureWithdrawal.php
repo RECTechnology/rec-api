@@ -46,7 +46,7 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
      * @HybridProperty(
      *     targetEntity="App\FinancialApiBundle\Document\Transaction",
      *     identifier="transaction_id",
-     *     manager="doctrine.odm.mongodb.document_manager"
+     *     manager="doctrine_mongodb.odm.document_manager"
      * )
      */
     private $transaction;

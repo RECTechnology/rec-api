@@ -4,19 +4,15 @@ namespace Test\FinancialApiBundle\Pos;
 
 use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\Notifier;
-use App\FinancialApiBundle\Entity\Notification;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class AdminPaymentOrderRefundTest
  * @package Test\FinancialApiBundle\Pos
+ * @group mongo
  */
 class AdminPaymentOrderRefundTest extends BaseApiTest {
-
-    use MongoDBTrait;
 
     function testPayPollRefund()
     {

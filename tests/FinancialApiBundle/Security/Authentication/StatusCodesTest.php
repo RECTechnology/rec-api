@@ -4,8 +4,8 @@ namespace Test\FinancialApiBundle\Security\Authentication;
 
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Routing\Route;
-use Test\FinancialApiBundle\BaseApiTest;
 use Symfony\Component\Routing\RouterInterface;
+use Test\FinancialApiBundle\BaseApiTest;
 
 /**
  * Class StatusCodesTest

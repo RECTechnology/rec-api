@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bullseye
 ENV DEBIAN_FRONTEND noninteractive
 
 # PHP and deps
@@ -24,7 +24,8 @@ RUN apt update && apt install -y \
     wget \
     unzip \
     jq \
-    gnupg
+    gnupg \
+    npm
 
 # required to render PDFs
 RUN apt update && apt install -y \
@@ -39,14 +40,12 @@ RUN apt update && apt install -y \
     mongodb-org-server=4.2.10
 
 # Install standard-version
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-RUN apt install -y nodejs
 RUN npm i -g standard-version
 
 RUN apt clean
 
 # To have composer and npm cache
-RUN mkdir /.composer /.npm && chmod -R 777 /.composer /.npm
+RUN mkdir /.composer /.npm /.cache && chmod -R 777 /.composer /.npm /.cache
 RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console \"\$@\"\n cd -" > /usr/bin/rec && chmod +x /usr/bin/rec
 
 WORKDIR /api

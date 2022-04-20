@@ -4,15 +4,13 @@ namespace Test\FinancialApiBundle\Admin\Transactions;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\Admin\Base\AdminBaseCalls;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class TransactionTest
  * @package Test\FinancialApiBundle\Admin\Transactions
+ * @group mongo
  */
 class TransactionTest extends AdminBaseCalls {
-
-    use MongoDBTrait;
 
     function testListTransactionsShouldWork(){
 

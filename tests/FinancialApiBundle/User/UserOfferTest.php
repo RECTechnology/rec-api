@@ -3,7 +3,6 @@
 namespace Test\FinancialApiBundle\User;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Entity\Offer;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**

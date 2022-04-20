@@ -2,12 +2,10 @@
 
 namespace Test\FinancialApiBundle\Admin\B2B;
 
-use App\FinancialApiBundle\Controller\Management\User\DiscourseController;
 use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
 use App\FinancialApiBundle\Entity\Group;
-use PHPUnit\Util\Json;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**
@@ -154,7 +152,7 @@ class B2BManagementTest extends BaseApiTest {
         $discMock->method('generateApiKeys')->willReturn("kjlhsdfljshflsdf");
         $discMock->method('subscribeToNewsCategory')->willReturn(array("success" => "OK"));
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
 
     }
 
@@ -163,7 +161,7 @@ class B2BManagementTest extends BaseApiTest {
         $response = $this->badEmailMockResponse();
         $discMock->method('register')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
 
     }
 
@@ -172,7 +170,7 @@ class B2BManagementTest extends BaseApiTest {
         $response = $this->tooMuchRetriesFromSameIp();
         $discMock->method('register')->willReturn($response);
 
-        $this->override('net.app.commons.discourse.api_manager', $discMock);
+        $this->inject('net.app.commons.discourse.api_manager', $discMock);
 
     }
 

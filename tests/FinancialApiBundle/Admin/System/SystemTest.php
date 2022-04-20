@@ -4,15 +4,12 @@ namespace Test\FinancialApiBundle\Admin\System;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class SystemTest
  * @package Test\FinancialApiBundle\Admin\System
  */
 class SystemTest extends BaseApiTest {
-
-    use MongoDBTrait;
 
     function setUp(): void
     {

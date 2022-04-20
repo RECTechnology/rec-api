@@ -2,7 +2,6 @@
 
 namespace Test\FinancialApiBundle\Transactions;
 
-use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Entity\Campaign;
@@ -10,15 +9,13 @@ use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserWallet;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class TransactionsTest
  * @package Test\FinancialApiBundle\Transactions
+ * @group mongo
  */
 class TransactionsLTABTest extends BaseApiTest {
-
-    use MongoDBTrait;
 
     private $store;
 
