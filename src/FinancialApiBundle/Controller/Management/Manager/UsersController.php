@@ -265,7 +265,6 @@ class UsersController extends BaseApiController
      * @param Request $request
      * @param $id
      * @return \Symfony\Component\HttpFoundation\Response
-     * @deprecated by indexByGroupV2
      */
     public function indexByGroup(Request $request, $id){
         //Only the superadmin can access here
@@ -314,66 +313,6 @@ class UsersController extends BaseApiController
             )
         );
     }
-
-
-    /**
-     * @Rest\View
-     * Permissions: ROLE_READONLY(active_group), ROLE_SUPER_ADMIN(all)
-     * @param Request $request
-     * @param $id
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function indexByGroupV2(Request $request, $id){
-        //Only the superadmin can access here
-
-        /** @var User $admin */
-        $admin = $this->get('security.token_storage')->getToken()->getUser();
-        $adminGroup = $admin->getActiveGroup();
-
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) {
-            throw new HttpException(403, 'You don\'t have the necessary permissions');
-        }
-
-        $result = $this->searchLike($request, UserGroup::class, ["id", "username", "email", "name"]);
-        $total = $result['total'];
-        $all = $result['elements'];
-
-
-        $current_group = $this->getDoctrine()->getRepository('FinancialApiBundle:Group')->find($id);
-        if(!$current_group) throw new HttpException(404, 'Group not found');
-
-        $all = $this->getDoctrine()
-            ->getRepository('FinancialApiBundle:UserGroup')
-            ->findBy(['group' => $current_group]);
-
-        $filtered = [];
-
-        /** @var UserGroup $user_group */
-        foreach($all as $user_group){
-            $user = $user_group->getUser();
-            $filtered[] = [
-                "id" => $user->getId(),
-                "username" => $user->getUsername(),
-                "email" => $user->getEmail(),
-                "roles" => $user->getRolesCompany($current_group->getId()),
-                "phone" => $user->getPhone(),
-                "name" => $user->getName(),
-                "profile_image" => $user->getProfileImage(),
-            ];
-        }
-        $total = count($filtered);
-        $entities = array_slice($filtered, $offset, $limit);
-        return $this->rest(
-            200,
-            "Request successful",
-            array(
-                'total' => $total,
-                'elements' => $entities
-            )
-        );
-    }
-
-
 
     /**
      * @Rest\View

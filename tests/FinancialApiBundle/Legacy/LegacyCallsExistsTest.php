@@ -72,7 +72,7 @@ class LegacyCallsExistsTest extends BaseApiTest {
     }
 
     public function testAllLegacyCallsArePresent(){
-        $this->markTestIncomplete("This test will be incompleted until https://github.com/qbitartifacts/rec-issues#31 resolves.");
+        $this->markTestIncomplete("This test will be incompleted until https://github.com/qbitartifacts/rec-issues#31 resolves.Reviewed");
         $client = $this->request();
         $routes = $this->getAllRoutes($client);
 
