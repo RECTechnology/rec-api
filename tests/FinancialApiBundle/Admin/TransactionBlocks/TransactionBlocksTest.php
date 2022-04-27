@@ -6,6 +6,7 @@ use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Entity\DelegatedChange;
 use App\FinancialApiBundle\Entity\TransactionBlockLog;
 use DateTime;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Test\FinancialApiBundle\BaseApiTest;
 
@@ -26,7 +27,7 @@ class TransactionBlocksTest extends BaseApiTest {
      * @requires extension mysqli
      */
     function testTxBlockImportKoCSV(){
-        $this->markTestIncomplete();
+        self::markTestIncomplete("fails on github");
         $tb_id = 2;
         $lista = array (
             array('sender', 'exchanger', 'account', 'amount'),
@@ -54,6 +55,7 @@ class TransactionBlocksTest extends BaseApiTest {
         );
 
         $file_route = simplexml_load_string($resp->getContent(), "SimpleXMLElement", LIBXML_NOCDATA)->data->entry[0]->__tostring();
+        $file_route = str_replace(self::createClient()->getKernel()->getContainer()->getParameter("files_path"),"", $file_route);
         $file_route = "/opt/project/web/static".$file_route;
         $resp = $this->rest(
             'POST',
@@ -79,7 +81,7 @@ class TransactionBlocksTest extends BaseApiTest {
     }
 
     function testTxBlockImportOkCSV(){
-        $this->markTestIncomplete();
+        self::markTestIncomplete("fails on github");
         $tb_id = 2;
         $lista = array (
             array(' sender', 'exchanger ', ' account', 'amount '),
@@ -105,6 +107,7 @@ class TransactionBlocksTest extends BaseApiTest {
         );
 
         $file_route = simplexml_load_string($resp->getContent(), "SimpleXMLElement", LIBXML_NOCDATA)->data->entry[0]->__tostring();
+        $file_route = str_replace(self::createClient()->getKernel()->getContainer()->getParameter("files_path"),"", $file_route);
         $file_route = "/opt/project/web/static".$file_route;
         $resp = $this->rest(
             'POST',

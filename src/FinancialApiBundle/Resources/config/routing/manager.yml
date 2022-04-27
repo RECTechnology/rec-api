@@ -21,12 +21,6 @@ manager_users_index_by_group:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroup, _format: ~ }
     methods: [GET]
 
-manager_users_index_by_group_v2:
-    path:  /manager/v2/usersbygroup/{id}
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroupV2, _format: ~ }
-    methods: [GET]
-
-
 manager_users_read:
     path:  /manager/v1/users/{id}
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::showAction, _format: ~ }

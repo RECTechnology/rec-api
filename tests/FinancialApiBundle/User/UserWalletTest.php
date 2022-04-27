@@ -64,16 +64,18 @@ class UserWalletTest extends BaseApiTest {
 
     function testGetWalletTransactionsV2WithFilters()
     {
-        self::markTestIncomplete();
+
         //no se como se pasa el filtro
         $user = $this->getSignedInUser();
         //creamos una in y una out para poder filtrar, se crea una en success y otra en created
+        //TODO hay que hacer un ejemplo con filtros y revisar los que se necesitan
         $this->pay1RecToStore();
         $this->receive1Rec($user->group_data->rec_address);
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+
         $resp = $this->rest(
             'GET',
-            '/user/v2/wallet/transactions?query[status]',
+            '/user/v2/wallet/transactions',
             [],
             [],
             200

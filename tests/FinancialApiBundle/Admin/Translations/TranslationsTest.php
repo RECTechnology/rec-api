@@ -98,7 +98,7 @@ class TranslationsTest extends BaseApiTest {
     }
 
     function testUpdate() {
-        $this->markTestIncomplete("not working yet :(2");
+        $this->markTestIncomplete("not working yet :(2. Reviewed");
         foreach (self::ROUTES_TO_TEST as $name => $params) {
             $route = '/admin/v3/' . $name;
             $lang = self::LANGUAGES_TO_TEST[0];

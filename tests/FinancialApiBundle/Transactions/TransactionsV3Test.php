@@ -30,7 +30,7 @@ class TransactionsV3Test extends BaseApiTest {
     }
 
     function testPay1RecToStoreShouldWork(){
-        $this->markTestIncomplete("Not the scope of the current PR, need to fix");
+        self::markTestIncomplete("fails on github");
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         $route = "/methods/v3/out/rec";
         $resp = $this->rest(

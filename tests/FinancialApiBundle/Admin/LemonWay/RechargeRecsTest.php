@@ -482,11 +482,13 @@ class RechargeRecsTest extends AdminApiTest {
     //demonstrates old Tier bug
     function testRechargeWhenAllCommerceHasKYC2AndTier0ShouldPass(): void
     {
-        $this->markTestIncomplete();
-        $user_id = 2;
+
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        $user = $em->getRepository(User::class)->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
+        $user_id = $user->getId();
         $user_pin = $em->getRepository(User::class)->findOneBy(['id' => $user_id])->getPin();
 
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         $private_accounts = $this->rest('GET', "/user/v3/accounts?type=PRIVATE&kyc_manager=" . $user_id);
         self::assertGreaterThanOrEqual(1, count($private_accounts));
         $private_account_id = $private_accounts[0]->id;
@@ -507,10 +509,11 @@ class RechargeRecsTest extends AdminApiTest {
 
         $kyc2_id = $this->rest('GET', "/user/v3/tier?code=KYC2")[0]->id;
         foreach ($company_accounts as $account) {
+            $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
             $route = "/admin/v3/accounts/{$account->id}";
             $this->rest('PUT', $route, ['level_id' => $kyc2_id, 'tier' => 0]);
         }
-
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         $resp = $this->rest(
             'POST',
             '/methods/v1/in/lemonway',
