@@ -32,13 +32,12 @@ push:
 	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 build-test:
-	docker build -q . -f docker/test/Dockerfile -t $(DOCKER_IMAGE):test
+	docker build -q . -f docker/test/Dockerfile -t $(STACK):test
 
 test: build-test
-	docker run $(DOCKER_IMAGE):test test
+	docker run $(STACK):test test
 
-coverage:
-	docker build -q . -f docker/test/Dockerfile -t $(STACK):test
+coverage: build-test
 	docker run --name $(STACK)-test $(STACK):test coverage
 	docker cp $(STACK)-test:/api/coverage.xml .
 
