@@ -66,8 +66,8 @@ class ActivityTest extends BaseApiTest
         self::assertObjectHasAttribute("name_ca", $resp[0]);
 
         foreach ($resp as $activity){
-            if(isset($activity->parent)){
-                self::assertEquals(1, $activity->parent);
+            if(isset($activity->parent_id)){
+                self::assertEquals(1, $activity->parent_id);
             }else{
                 self::assertEquals(1, $activity->id);
             }

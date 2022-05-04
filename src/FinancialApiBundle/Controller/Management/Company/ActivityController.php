@@ -89,13 +89,16 @@ class ActivityController extends BaseApiController{
             'a.name, ' .
             'a.name_es, ' .
             'a.name_ca, ' .
-            'identity(a.parent) as parent';
+            'p.id as parent_id, ' .
+            'p.name as parent_name, ' .
+            'p.name_es as parent_name_es, ' .
+            'p.name_ca as parent_name_ca';
+
+        $qb->select($select)->from(Activity::class, 'a')->leftJoin('a.parent', 'p');
 
         if(isset($parent_id) ){
             if(is_numeric($parent_id)){
                 $activities = $qb
-                    ->select($select)
-                    ->from(Activity::class, 'a')
                     ->where("a.id = '$parent_id'")
                     ->getQuery()
                     ->getResult();
@@ -110,16 +113,12 @@ class ActivityController extends BaseApiController{
                 }
             }elseif($parent_id == 'null'){
                 $activities = $qb
-                    ->select($select)
-                    ->from(Activity::class, 'a')
                     ->where('a.parent IS NULL')
                     ->getQuery()
                     ->getResult();
             }
         }else{
             $activities = $qb
-                ->select($select)
-                ->from(Activity::class, 'a')
                 ->getQuery()
                 ->getResult();
         }
