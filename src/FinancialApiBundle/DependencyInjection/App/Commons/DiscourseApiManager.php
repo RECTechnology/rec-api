@@ -100,7 +100,7 @@ class DiscourseApiManager{
 
     }
 
-    public function updatePublicImage(Group $account, $filename){
+    public function updateCompanyImage(Group $account, $filename){
         //this filename arrives like /something.jpg
         $this->logger->info("Synchronizing profile image for ".$account->getName());
         $this->logger->info("Synchronizing file ".$filename);

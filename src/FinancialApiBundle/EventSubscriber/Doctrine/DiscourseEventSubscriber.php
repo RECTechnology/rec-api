@@ -86,8 +86,8 @@ class DiscourseEventSubscriber implements EventSubscriber {
                     $discourseManager->updateName($account, $args->getNewValue("name"));
                 }
 
-                if($args->hasChangedField("public_image")) {
-                    $discourseManager->updatePublicImage($account, $args->getNewValue("public_image"));
+                if($args->hasChangedField("company_image")) {
+                    $discourseManager->updateCompanyImage($account, $args->getNewValue("company_image"));
                 }
             }
 

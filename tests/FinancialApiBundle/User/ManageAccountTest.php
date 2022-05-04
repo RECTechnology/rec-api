@@ -37,12 +37,12 @@ class ManageAccountTest extends BaseApiTest
 
     }
 
-    function testUpdateB2BPublicImageAccountShouldUpdateOnDiscourse()
+    function testUpdateB2BCompanyImageAccountShouldUpdateOnDiscourse()
     {
         $this->signIn(UserFixture::TEST_REZERO_USER_2_CREDENTIALS);
         $user = $this->getSignedInUser();
         $this->useDiscourseChangeAvatarMock();
-        $params = array("public_image" => 'https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg');
+        $params = array("company_image" => 'https://rec.barcelona/wp-content/uploads/2018/12/RecNadal-2.jpg');
         $resp = $this->rest(
             'PUT',
             '/user/v3/accounts/'.$user->group_data->id,
@@ -65,7 +65,7 @@ class ManageAccountTest extends BaseApiTest
     private function useDiscourseChangeAvatarMock()
     {
         $discMock = $this->createMock(DiscourseApiManager::class);
-        $discMock->method('updatePublicImage')->willReturn(null);
+        $discMock->method('updateCompanyImage')->willReturn(null);
 
         $this->inject('net.app.commons.discourse.api_manager', $discMock);
     }
