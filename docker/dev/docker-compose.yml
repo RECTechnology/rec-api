@@ -6,7 +6,7 @@ volumes:
 
 services:
   api:
-    user: ${UID:-1000}:${UID:-1000}
+    user: ${UID}:${GID}
     build:
       context: ../..
       dockerfile: docker/dev/Dockerfile

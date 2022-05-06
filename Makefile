@@ -1,9 +1,14 @@
+#!/usr/bin/make
 
+# Getting same user to avoid perm. errors
+export UID := $(id -u)
+export GID := $(id -g)
+
+DOCKERFILE_DIR := .
 STACK := rec-api
 DOCKER_IMAGE := rec-api
 DOCKER_TAG := master
 BUILD_DIR := .
-DOCKERFILE_DIR := .
 
 dev:
 	@docker-compose -f docker/dev/docker-compose.yml -p $(STACK) up --build
