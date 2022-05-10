@@ -108,6 +108,7 @@ class TxBlockValidator
         $tx_account_id = $tx_data[2];
         $tx_amount = $tx_data[3];
         $row = $tx_data[4];
+        $this->logger->info( 'Validating row:'.$row);
 
         if ($tx_sender_id === $tx_excahnger_id) {
             $error_text = 'Sender '.$tx_sender_id.' cannot send money to intermediary '.$tx_excahnger_id.'. 

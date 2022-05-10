@@ -67,12 +67,19 @@ class TransactionBlocksValidatorCommand extends SynchronizedContainerAwareComman
                 DelegatedChange::STATUS_VALIDATING);
             $log_handler->persistLog($txBlock, TransactionBlockLog::TYPE_DEBUG, $log_text);
 
-            //validate tx block
-            $validation = $txBlockValidator->validateTxBlock($txBlock);
+            try{
+                //validate tx block
+                $validation = $txBlockValidator->validateTxBlock($txBlock);
+            } catch (\Exception $e) {
+                $this->log($output, $e->getMessage());
+            }
+
 
             $logs_repo = $em->getRepository(TransactionBlockLog::class);
             $errors = $logs_repo->findBy(['block_txs' => $txBlock->getId(), 'type' => 'error']);
             $warns = $logs_repo->findBy(['block_txs' => $txBlock->getId(), 'type' => 'warn']);
+            $this->log($output, "Found " . count($errors) . " errors");
+            $this->log($output, "Found " . count($warns) . " warns");
 
             if(count($errors)> 0){
                 //mark as invalid
