@@ -7,7 +7,7 @@
 */5  *   * * * www-data timeout 300 /usr/bin/rec rec:sync:lemonway >> /api/var/logs/cron-sync-lemonway.log 2>&1
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:expire >> /api/var/logs/cron-pos-expire.log 2>&1
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:notifications:retry >> /api/var/logs/cron-pos-notifications-retry.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:transaction_block:validate >> /api/var/logs/cron-tx_block-validate.log 2>&1
+*    *   * * * www-data /usr/bin/rec rec:transaction_block:validate >> /api/var/logs/cron-tx_block-validate.log 2>&1
 *    *   * * * www-data /usr/bin/rec rec:transaction_block:execute >> /api/var/logs/cron-tx_block-execute.log 2>&1
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:delete:expired_nonces >> /api/var/logs/cron-delete-expired-nonces.log 2>&1
 
