@@ -128,5 +128,19 @@ class ActivityTest extends BaseApiTest
         self::assertEquals("Culture", $resp[0]->name);
     }
 
+    function testAdminSearchActivitiesWithLimit(): void
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $resp = $this->rest(
+            'GET',
+            '/admin/v4/activities/search?limit=3&search=',
+            [],
+            [],
+            200
+        );
+
+        self::assertCount(3, $resp);
+    }
+
 
 }

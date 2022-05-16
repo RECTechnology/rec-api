@@ -136,6 +136,8 @@ class ActivityController extends BaseApiController{
 
         $parent_id =$request->query->get('parent_id');
         $name = $request->query->get('search', '');
+        $limit = $request->query->get('limit', 10);
+        $offset = $request->query->get('offset', 0);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -164,9 +166,22 @@ class ActivityController extends BaseApiController{
                 $qb->andWhere("a.parent IS NULL");
             }
         }
+
+        $allActivities = $qb->getQuery()->getResult();
+        $totalActivities = count($allActivities);
+
+        $qb->setFirstResult($offset);
+        $qb->setMaxResults($limit);
+
         $activities = $qb->getQuery()->getResult();
 
-        return $this->restV2(200, "ok", "Done", $activities);
+        $response = array(
+            'elements' => $activities,
+            'total' => $totalActivities
+        );
+
+
+        return $this->restV2(200, "ok", "Done", $response);
 
     }
 }
