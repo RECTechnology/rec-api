@@ -276,6 +276,10 @@ class Group extends BaseGroup implements Uploadable
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"public"})
+     * @Assert\Regex(
+     *     pattern="/^[0-9]{2}$/",
+     *     message="Invalid prefix format"
+     * )
      */
     private $prefix = '';
 

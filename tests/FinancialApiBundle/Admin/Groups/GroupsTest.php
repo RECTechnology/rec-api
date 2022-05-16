@@ -58,13 +58,35 @@ class GroupsTest extends BaseApiTest {
     {
         $route = '/admin/v3/accounts/1';
         $values = array(
-            'kyc_manager_id' => 2
+            'kyc_manager_id' => 2,
+            'prefix' => '34'
         );
         $resp = $this->requestJson('PUT', $route, $values);
         self::assertEquals(
             200,
             $resp->getStatusCode(),
         );
+
+    }
+
+    function testUpdatePrefixBadFormatShouldFail()
+    {
+        $route = '/admin/v3/accounts/1';
+        $values = array(
+            'kyc_manager_id' => 2,
+            'prefix' => '+34'
+        );
+        $resp = $this->requestJson('PUT', $route, $values);
+        self::assertEquals(
+            400,
+            $resp->getStatusCode(),
+            "Invalid prefix format"
+        );
+
+        $content = json_decode($resp->getContent(),true);
+        $errors = $content['errors'];
+        $errorMessage = $errors[0]['message'];
+        self::assertEquals("Invalid prefix format", $errorMessage);
 
     }
 
