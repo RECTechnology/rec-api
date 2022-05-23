@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class StatusEventSubscriber
@@ -22,14 +23,19 @@ class StatusEventSubscriber implements EventSubscriber {
 
     /** @var EntityManagerInterface $em */
     private $em;
+    protected $container;
+    protected $logger;
 
     /**
      * MailingDeliveryEventSubscriber constructor.
      * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
      */
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
+        $this->container = $container;
+        $this->logger = $this->container->get('logger');
     }
 
     /**
@@ -78,8 +84,12 @@ class StatusEventSubscriber implements EventSubscriber {
                             $rp->setAccessible(true);
                             if($an->isFinal($args->getOldValue($rp->name)))
                                 throw new AttemptToChangeFinalObjectException("Cannot update final object");
-                            if(!$an->isStatusChangeAllowed($args->getOldValue($rp->name), $args->getNewValue($rp->name)))
+                            if(!$an->isStatusChangeAllowed($args->getOldValue($rp->name), $args->getNewValue($rp->name))){
+                                $this->logger->info('variable: '.$rp->name);
+                                $this->logger->info('old value: '.$args->getOldValue($rp->name));
+                                $this->logger->info('new value: '.$args->getNewValue($rp->name));
                                 throw new AttemptToChangeStatusException("Changing '{$rp->name}' is not allowed");
+                            }
                         }
                     }
                 }

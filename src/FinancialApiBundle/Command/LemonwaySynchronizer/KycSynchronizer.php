@@ -52,6 +52,9 @@ class KycSynchronizer extends AbstractSynchronizer {
                         $this->em->persist($kind);
                         $this->em->persist($account);
                     }
+                    $this->output->writeln("updating document status {$document->getId()}");
+                    $this->output->writeln("old status {$document->getStatus()}");
+                    $this->output->writeln("new status {LemonDocument::LW_STATUSES[$lwdoc->S]}");
                     $document->setStatus(LemonDocument::LW_STATUSES[$lwdoc->S]);
                     $this->em->persist($document);
                 }
