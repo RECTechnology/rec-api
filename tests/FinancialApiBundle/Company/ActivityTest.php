@@ -79,7 +79,7 @@ class ActivityTest extends BaseApiTest
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $resp = $this->rest(
             'GET',
-            '/admin/v4/activities/search?parent_id=1',
+            '/admin/v4/activities/search?parent_id=1&sort=id&order=desc',
             [],
             [],
             200
@@ -89,6 +89,7 @@ class ActivityTest extends BaseApiTest
         self::assertObjectHasAttribute("name", $resp[0]);
         self::assertObjectHasAttribute("name_es", $resp[0]);
         self::assertObjectHasAttribute("name_ca", $resp[0]);
+        self::assertGreaterThan(1, $resp[0]->id);
         foreach ($resp as $activity){
             if(isset($activity->parent)){
                 self::assertEquals(1, $activity->parent);

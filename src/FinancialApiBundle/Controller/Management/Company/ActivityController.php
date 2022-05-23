@@ -138,6 +138,8 @@ class ActivityController extends BaseApiController{
         $name = $request->query->get('search', '');
         $limit = $request->query->get('limit', 10);
         $offset = $request->query->get('offset', 0);
+        $sort = $request->query->get('sort', 'id');
+        $order = $request->query->getAlpha('order', 'DESC');
 
         $em = $this->getDoctrine()->getManager();
 
@@ -172,6 +174,7 @@ class ActivityController extends BaseApiController{
 
         $qb->setFirstResult($offset);
         $qb->setMaxResults($limit);
+        $qb->addOrderBy('a.'.$sort, $order);
 
         $activities = $qb->getQuery()->getResult();
 
