@@ -112,7 +112,7 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
                     $message->attach(Swift_Attachment::newInstance($content, $filename));
                 }
 
-                if($account->getEmail() == null || $account->getEmail() != '') {
+                if($account->getEmail() != null || $account->getEmail() != '') {
                     $message->setTo($account->getEmail());
                     $message->setFrom($this->container->getParameter('no_reply_email'));
 
