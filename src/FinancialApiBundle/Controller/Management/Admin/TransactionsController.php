@@ -70,7 +70,7 @@ class TransactionsController extends RestApiController {
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
         $search = $request->query->get("search", "");
-        $sort = $request->query->getAlnum("sort", "updated");
+        $sort = $request->query->get("sort", "updated");
         $order = $request->query->getAlpha("order", "desc");
         $total = 0;
 
@@ -123,7 +123,6 @@ class TransactionsController extends RestApiController {
                 ->field('updated')->gte($start_date)
                 ->field('updated')->lte($finish_date)
                 ->field('type')->equals('out')
-                ->sort($sort, $order)
                 ->limit($limit)
                 ->skip($offset)
                 ->getQuery();
@@ -167,6 +166,22 @@ class TransactionsController extends RestApiController {
                 $transaction->getUpdated()
             );
         }
+
+        $sort_cols = [
+          'sender_id' => 1,
+          'sender_type' => 2,
+          'receiver_id' => 4,
+          'receiver_type' => 5,
+          'method' => 7,
+          'amount' => 10,
+          'updated' => 11
+        ];
+        if ($order == "desc"){
+            array_multisort(array_column($result, $sort_cols[$sort]), SORT_DESC, $result);
+        }else{
+            array_multisort(array_column($result, $sort_cols[$sort]), SORT_ASC, $result);
+        }
+
         $data = array(
             'list' => $result,
             'total' => $total,

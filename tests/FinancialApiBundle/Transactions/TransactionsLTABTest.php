@@ -119,7 +119,7 @@ class TransactionsLTABTest extends BaseApiTest {
 
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
 
-        $txRoute = "/admin/v1/transaction/list";
+        $txRoute = "/admin/v1/transaction/list?sort=sender_id&order=desc'";
         $txs = $this->rest(
             'GET',
             $txRoute,
@@ -128,7 +128,9 @@ class TransactionsLTABTest extends BaseApiTest {
             200
         );
 
+        self::assertGreaterThan($txs->list[sizeof($txs->list) - 1][1], $txs->list[0][1]);
     }
+
 
     function testPay10RecToYourOwnLTABStoreShouldNotBonifyTx(){
         $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
