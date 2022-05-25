@@ -5,6 +5,11 @@ super_admin_transaction_list:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\TransactionsController::listAction }
     methods: [GET]
 
+super_admin_transactions:
+    path:  /admin/v3/transactions
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\TransactionsController::listActionV3 }
+    methods: [GET]
+
 super_admin_transaction_search:
     path:  /admin/v1/transaction/{id}
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\TransactionsController::findAction }

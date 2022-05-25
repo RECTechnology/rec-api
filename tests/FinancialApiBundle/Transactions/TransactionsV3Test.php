@@ -165,13 +165,18 @@ class TransactionsV3Test extends BaseApiTest {
 
         $txs = $this->rest(
             'GET',
-            '/admin/v1/transaction/list', //?start_date='.$start_date,
+            '/admin/v3/transactions',
             [],
             [],
             200
         );
 
-        $company_id = $txs->list[0][1];
+        self::assertObjectHasAttribute('total', $txs);
+        self::assertObjectHasAttribute('limit', $txs);
+        self::assertObjectHasAttribute('offset', $txs);
+        self::assertObjectHasAttribute('list', $txs);
+
+        $company_id = $txs->list[0]->group;
 
         $resp = $this->requestJson(
             'GET',
