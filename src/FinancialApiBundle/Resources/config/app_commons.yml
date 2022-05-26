@@ -47,6 +47,28 @@ services:
             - "@net.app.commons.transaction_flow_handler"
             - "@bonissim_service"
 
+    net.app.commons.qualification_handler:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\QualificationHandler
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+
+    net.app.commons.shop_badge_handler:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\ShopBadgeHandler
+        arguments:
+            - "@doctrine"
+
+    net.app.commons.garden_handler:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\GardenHandler
+        arguments:
+            - "@doctrine"
+
+    net.app.commons.campaign_checker:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\CampaignChecker
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+
     net.app.commons.user_checker:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\UserChecker
         arguments:

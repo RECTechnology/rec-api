@@ -1,0 +1,18 @@
+##################### QUALIFICATIONS / V3 / OVERRIDES ############################
+
+qualifications_v3_index:
+  path:  /{role}/v3/{object}
+  defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\QualificationsController::indexAction }
+  methods: [GET]
+  requirements:
+    role: "(public|user|manager|self)"
+    object: "qualifications"
+
+qualification_v3_update:
+  path:  /{role}/v3/{object}/{id}
+  defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\QualificationsController::updateAction }
+  methods: [PUT]
+  requirements:
+    role: "(public|user|manager|self)"
+    object: "qualifications"
+    id: "[0-9]+"

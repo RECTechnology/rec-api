@@ -46,6 +46,8 @@ class TransactionsV3Test extends BaseApiTest {
             201
         );
         $this->searchTransactions();
+
+        $this->getPendingQualifications();
     }
 
     function testCheckWalletsAfterRecPayment(){
@@ -226,5 +228,19 @@ class TransactionsV3Test extends BaseApiTest {
 
         $resp = json_decode($resp->getContent());
         self::assertEquals(0, $resp->data->total);
+    }
+
+    function getPendingQualifications(){
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = "/user/v3/qualifications?status=pending";
+        $resp = $this->requestJson('GET', $route);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+        $content = json_decode($resp->getContent(), true);
+        self::assertEquals(9, $content['data']['total']);
     }
 }

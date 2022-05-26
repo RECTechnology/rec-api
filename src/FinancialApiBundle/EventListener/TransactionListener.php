@@ -5,12 +5,12 @@
  * Date: 9/11/16
  * Time: 12:33
  */
-// src/AppBundle/EventListener/SearchIndexer.php
 namespace App\FinancialApiBundle\EventListener;
 
-use Blockchain\Exception\HttpError;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\GardenHandler;
+use App\FinancialApiBundle\DependencyInjection\App\Interfaces\QualificationHandlerInterface;
+use App\FinancialApiBundle\Financial\Currency;
 use Doctrine\ODM\MongoDB\Event\LifecycleEventArgs;
-use Doctrine\ORM\EntityManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Document\Transaction;
@@ -45,9 +45,45 @@ class TransactionListener
 //                $this->_checkMethodPermissions($entity, $documentManager);
                 $this->permissionsHandler->checkMethodPermissions($entity);
             }
-            return;
         }
 
+    }
+
+    public function postUpdate(LifecycleEventArgs $args){
+        $entity = $args->getDocument();
+        $this->logger->info('(' . $entity->getGroup() . ') Post-UPDATE Transaction_Listener');
+
+        $entityManager = $args->getDocumentManager();
+        $uow = $entityManager->getUnitOfWork();
+
+        if ($entity instanceof Transaction) {
+            $changeset = $uow->getDocumentChangeSet($entity);
+            /** @var GardenHandler $gardenHandler */
+            $gardenHandler = $this->container->get('net.app.commons.garden_handler');
+            if($entity->getType() === Transaction::$TYPE_OUT && $entity->getCurrency() === Currency::$REC){
+
+                if(isset($changeset['status'])){
+                    if($changeset['status'][1] === Transaction::$STATUS_SUCCESS){
+                        //create a qualification battery (payments in rec)
+                        /** @var QualificationHandlerInterface $qualificationHandler */
+                        $qualificationHandler = $this->container->get('net.app.commons.qualification_handler');
+                        $qualificationHandler->createQualificationBattery($entity);
+
+                        $gardenHandler->updateGarden(GardenHandler::ACTION_BUY);
+
+                    }
+                }
+            }
+
+            if($entity->getType() === Transaction::$TYPE_IN && $entity->getMethod() === 'lemonway'){
+                if(isset($changeset['status'])) {
+                    if ($changeset['status'][1] == Transaction::$STATUS_SUCCESS) {
+
+                        $gardenHandler->updateGarden(GardenHandler::ACTION_RECHARGE);
+                    }
+                }
+            }
+        }
     }
 
     public function prePersist(LifecycleEventArgs $args)

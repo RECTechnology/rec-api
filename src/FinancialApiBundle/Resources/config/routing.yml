@@ -17,6 +17,12 @@ Transactions:
 Public:
     resource: routing/public.yml
 
+CRUD_badges_overrides:
+    resource: routing/CRUDsOverrides/badges.yml
+
+CRUD_qualifications_overrides:
+    resource: routing/CRUDsOverrides/qualifications.yml
+
 CRUD:
     resource: routing/crud.yml
 
@@ -55,3 +61,11 @@ change_password_request:
     path:  /user/v4/users/security/sms-code/change-password
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::changePasswordRequest }
     methods: [POST]
+
+discourse_notificate:
+    path:  /notifications/v{version_number}/discourse
+    defaults: { _controller: App\FinancialApiBundle\Controller\Open\DiscourseNotificationsController::notificate, _format: ~ }
+    methods: [POST]
+    requirements:
+        service_cname: "[a-z0-9_]+"
+        id: "[a-z0-9]+"

@@ -155,6 +155,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             self::ROLE_SUPER_ADMIN => Group::SERIALIZATION_GROUPS_ADMIN,
             self::ROLE_SUPER_MANAGER => Group::SERIALIZATION_GROUPS_MANAGER,
             self::ROLE_SUPER_USER => Group::SERIALIZATION_GROUPS_USER,
+            self::ROLE_USER => Group::SERIALIZATION_GROUPS_USER,
             'IS_AUTHENTICATED_ANONYMOUSLY' => Group::SERIALIZATION_GROUPS_PUBLIC,
         ];
 

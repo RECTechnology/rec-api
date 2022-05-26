@@ -35,6 +35,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     const TEST_ACCOUNT_COMMERCE_POS = ['name' => 'COMMERCEACCOUNT_POS'];
     const TEST_ACCOUNT_REZERO_1 = ['name' => 'REZERO_1'];
     const TEST_ACCOUNT_REZERO_2 = ['name' => 'REZERO_2'];
+    const TEST_SHOP_ACCOUNT = ['name' => 'Shop'];
 
 
     /**
@@ -55,6 +56,9 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
 
         $third_user = $orm->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_THIRD_USER_CREDENTIALS['username']]);
+
+        $user_in_shop = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_USER_IN_SHOP['username']]);
 
         //This user has a private USER account, a bonissim account and a bmincomer account
         $this->createAccount(
@@ -109,7 +113,19 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_TYPE_PRIVATE,
             self::ACCOUNT_SUBTYPE_BMINCOME,
             1,
-            $faker->name,
+            'private_account_1',
+            1000e8
+        );
+
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user_in_shop,
+            [],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_RETAILER,
+            1,
+            self::TEST_SHOP_ACCOUNT['name'],
             1000e8
         );
 

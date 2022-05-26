@@ -109,6 +109,7 @@ services:
         arguments: ["@service_container", "@net.app.commons.permissions_checker"]
         tags:
             - { name: doctrine_mongodb.odm.event_listener, event: preUpdate }
+            - { name: doctrine_mongodb.odm.event_listener, event: postUpdate }
             - { name: doctrine_mongodb.odm.event_listener, event: prePersist }
 
     oauth_event_listener:

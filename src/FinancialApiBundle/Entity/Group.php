@@ -68,6 +68,7 @@ class Group extends BaseGroup implements Uploadable
         $this->on_map = 1;
         $this->campaigns = new ArrayCollection();
         $this->created = new \DateTime();
+        $this->badges = new ArrayCollection();
 
         if ($this->access_key == null) {
             $this->access_key = sha1(random_bytes(32));
@@ -544,6 +545,18 @@ class Group extends BaseGroup implements Uploadable
      * @Serializer\Groups({"admin"})
      */
     private $rezero_b2b_user_id;
+
+    /**
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Badge",
+     *     mappedBy="accounts",
+     *     fetch="EXTRA_LAZY"
+     * )
+     * @Assert\Count(max="10")
+     * @Serializer\MaxDepth(2)
+     * @Serializer\Groups({"public"})
+     */
+    private $badges;
 
     /**
      * @return mixed
@@ -1833,6 +1846,42 @@ class Group extends BaseGroup implements Uploadable
     public function setRezeroB2bUserId($rezero_b2b_user_id): void
     {
         $this->rezero_b2b_user_id = $rezero_b2b_user_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBadges()
+    {
+        return $this->badges;
+    }
+
+    /**
+     * @param Badge $badge
+     * @param bool $recursive
+     * @throws PreconditionFailedException
+     */
+    public function addBadge(Badge $badge, $recursive = true): void
+    {
+        if ($this->badges->contains($badge)) {
+            throw new PreconditionFailedException("Badge already related to this Account");
+        }
+        $this->badges[] = $badge;
+        if ($recursive) $badge->addAccount($this, false);
+    }
+
+    /**
+     * @param badge $baddge
+     * @param bool $recursive
+     * @throws PreconditionFailedException
+     */
+    public function delBadge(Badge $badge, $recursive = true)
+    {
+        if (!$this->badges->contains($badge)) {
+            throw new PreconditionFailedException("Activity not related to this Account");
+        }
+        $this->badges->removeElement($badge);
+        if($recursive) $badge->delAccount($this, false);
     }
 
 

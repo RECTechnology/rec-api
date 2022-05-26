@@ -27,6 +27,7 @@ class UserFixture extends Fixture {
     const TEST_REZERO_USER_1_CREDENTIALS = ['name' => 'rezero1', 'username' => '01233567C', 'password' => 'user_rezero', 'pin' => '2234'];
 
     const TEST_REZERO_USER_2_CREDENTIALS = ['name' => 'rezero2', 'username' => '01233557C', 'password' => 'user_rezero2', 'pin' => '2233'];
+    const TEST_USER_IN_SHOP = ['name' => 'user_shop', 'username' => '01200557C', 'password' => 'user_shop', 'pin' => '8888'];
 
 
     /**
@@ -52,6 +53,8 @@ class UserFixture extends Fixture {
         $user_rezero_1 = $this->generateUser($faker, self::TEST_REZERO_USER_1_CREDENTIALS);
         $user_rezero_2 = $this->generateUser($faker, self::TEST_REZERO_USER_2_CREDENTIALS);
 
+        $user_in_shop = $this->generateUser($faker, self::TEST_USER_IN_SHOP);
+
         $manager->persist($admin);
         $manager->persist($user);
         $manager->persist($user_locked);
@@ -65,6 +68,7 @@ class UserFixture extends Fixture {
         $manager->persist($user_third_user);
         $manager->persist($user_rezero_1);
         $manager->persist($user_rezero_2);
+        $manager->persist($user_in_shop);
 
         $manager->flush();
     }

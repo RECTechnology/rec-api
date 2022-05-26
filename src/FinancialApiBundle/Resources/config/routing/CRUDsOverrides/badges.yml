@@ -1,0 +1,34 @@
+
+##################### BADGES / V3 / OVERRIDES ############################
+badge_v3_search:
+    path:  /{role}/v3/{object}/search
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\BadgesController::searchAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "badges"
+
+badges_v3_index:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\BadgesController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "badges"
+
+badge_v3_show:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\BadgesController::showAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "badges"
+        id: "[0-9]+"
+
+badges_v3_export:
+    path:  /{role}/v3/{object}/export
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\BadgesController::exportAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "badges"
