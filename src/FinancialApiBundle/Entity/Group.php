@@ -552,7 +552,6 @@ class Group extends BaseGroup implements Uploadable
      *     mappedBy="accounts",
      *     fetch="EXTRA_LAZY"
      * )
-     * @Assert\Count(max="10")
      * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"public"})
      */
@@ -1878,11 +1877,9 @@ class Group extends BaseGroup implements Uploadable
     public function delBadge(Badge $badge, $recursive = true)
     {
         if (!$this->badges->contains($badge)) {
-            throw new PreconditionFailedException("Activity not related to this Account");
+            throw new PreconditionFailedException("Badge not related to this Account");
         }
         $this->badges->removeElement($badge);
         if($recursive) $badge->delAccount($this, false);
     }
-
-
 }

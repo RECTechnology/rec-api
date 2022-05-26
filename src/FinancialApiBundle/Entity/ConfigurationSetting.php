@@ -15,6 +15,11 @@ class ConfigurationSetting extends AppObject
 {
     public const SHOP_BADGES_SCOPE = 'shop_badges';
 
+    public const QUALIFICATIONS_SCOPE = 'qualifications';
+
+    public const SETTING_QUALIFICATIONS_SYSTEM_STATUS = 'qualifications_system_status';
+
+
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"public"})

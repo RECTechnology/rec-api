@@ -56,7 +56,8 @@ class CampaignChecker
         return false;
     }
 
-    public function isShopInCampaign(Transaction $tx, $campaignName){
+
+    public function isReceiverInCampaign(Transaction $tx, $campaignName){
         $em = $this->getEntityManager();
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => $campaignName]);
 

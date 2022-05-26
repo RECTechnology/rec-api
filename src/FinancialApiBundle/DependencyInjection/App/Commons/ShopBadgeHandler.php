@@ -27,7 +27,8 @@ class ShopBadgeHandler
 
         /** @var EntityManagerInterface $em */
         $em = $this->getEntityManager();
-        //search last 10
+
+        //search last max_qualifications
         $qualifications = $em->getRepository(Qualification::class)->findBy(array(
             'badge' => $qualification->getBadge(),
             'account' => $shop,
@@ -36,35 +37,36 @@ class ShopBadgeHandler
         ['updated' => 'DESC'],
             $settings['max_qualifications']);
 
-        $total = count($qualifications);
-        $positiveReview = 0;
-        $threshold = $total * $settings['threshold'];
-        if($total >= $settings['min_qualifications']){
-            /** @var Qualification $qualy */
-            foreach ($qualifications as $qualy){
-                if($qualy->getValue() === 1){
-                    $positiveReview++;
+        if($qualifications){
+            $total = count($qualifications);
+            $positiveReview = 0;
+            $threshold = $total * $settings['threshold'];
+            if($total >= $settings['min_qualifications']){
+                /** @var Qualification $qualy */
+                foreach ($qualifications as $qualy){
+                    if($qualy->getValue() === 1){
+                        $positiveReview++;
+                    }
                 }
-            }
-            if($positiveReview >= $threshold){
-                try {
-                    $shop->addBadge($qualification->getBadge(), true);
-                    $em->flush();
-                }catch (PreconditionFailedException $e){
-                    //do nothing
-                }
+                if($positiveReview >= $threshold){
+                    try {
+                        $shop->addBadge($qualification->getBadge(), true);
+                        $em->flush();
+                    }catch (PreconditionFailedException $e){
+                        //do nothing
+                    }
 
-            }else{
-                try {
-                    $shop->delBadge($qualification->getBadge());
-                    $em->flush();
-                }catch (PreconditionFailedException $e){
-                    //do nothing
-                }
+                }else{
+                    try {
+                        $shop->delBadge($qualification->getBadge());
+                        $em->flush();
+                    }catch (PreconditionFailedException $e){
+                        //do nothing
+                    }
 
+                }
             }
         }
-
     }
 
     private function getEntityManager(){

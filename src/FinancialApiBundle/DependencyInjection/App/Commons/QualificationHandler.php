@@ -32,7 +32,7 @@ class QualificationHandler implements QualificationHandlerInterface
         $em = $this->getEntityManager();
 
         $reviewer = $this->getReviewerFromTx($tx);
-        $shop = $this->getShopFromTx($tx);
+        $receiver = $this->getReceiverFromTx($tx);
 
         if($this->isTxQualificable($tx)){
             $badges = $this->getRandomBadges(9);
@@ -41,7 +41,7 @@ class QualificationHandler implements QualificationHandlerInterface
                 $qualification->setStatus(Qualification::STATUS_PENDING);
                 $qualification->setValue(null);
                 $qualification->setReviewer($reviewer);
-                $qualification->setAccount($shop);
+                $qualification->setAccount($receiver);
                 $qualification->setBadge($badge);
 
                 $em->persist($qualification);
@@ -75,36 +75,36 @@ class QualificationHandler implements QualificationHandlerInterface
         return $em->getRepository(Group::class)->find($tx->getGroup());
     }
 
-    private function getShopFromTx(Transaction $tx){
+    private function getReceiverFromTx(Transaction $tx){
         $em = $this->getEntityManager();
-        $shop = $em->getRepository(Group::class)->findOneBy(array('rec_address' => $tx->getPayOutInfo()['address']));
+        $receiver = $em->getRepository(Group::class)->findOneBy(array('rec_address' => $tx->getPayOutInfo()['address']));
 
-        if(!$shop){
+        if(!$receiver){
             //buscar en paymentOrders
             $paymentOrder = $em->getRepository(PaymentOrder::class)->findOneBy(array(
                 'payment_address' => $tx->getPayOutInfo()['address']
             ));
 
-            $shop = $paymentOrder->getPos()->getAccount();
+            $receiver = $paymentOrder->getPos()->getAccount();
         }
 
-        return $shop;
+        return $receiver;
     }
 
     private function isTxQualificable(Transaction $tx){
-        //TODO make some checks
+
         //check if system es enabled
         if(!$this->isQualificationSystemEnabled()) return false;
 
         //is receiver a shop?
-        /** @var Group $shop */
-        $shop = $this->getShopFromTx($tx);
-        if($shop->getType() === Group::ACCOUNT_TYPE_PRIVATE) return false;
+        /** @var Group $receiver */
+        $receiver = $this->getReceiverFromTx($tx);
+        if($receiver->getType() === Group::ACCOUNT_TYPE_PRIVATE) return false;
 
         /** @var CampaignChecker $campaignChecker */
         $campaignChecker = $this->container->get('net.app.commons.campaign_checker');
         try {
-            $isCultureCampaign = $campaignChecker->isShopInCampaign($tx, Campaign::CULTURE_CAMPAIGN_NAME);
+            $isCultureCampaign = $campaignChecker->isReceiverInCampaign($tx, Campaign::CULTURE_CAMPAIGN_NAME);
             if($isCultureCampaign) return false;
         }catch (HttpException $e){
             return false;
@@ -116,8 +116,8 @@ class QualificationHandler implements QualificationHandlerInterface
     private function isQualificationSystemEnabled(){
         $em = $this->getEntityManager();
         $qualificationSystemStatus = $em->getRepository(ConfigurationSetting::class)->findOneBy(array(
-            'scope' => 'qualifications',
-            'name' => 'qualifications_system_status'
+            'scope' => ConfigurationSetting::QUALIFICATIONS_SCOPE,
+            'name' => ConfigurationSetting::SETTING_QUALIFICATIONS_SYSTEM_STATUS
         ));
 
         if(!$qualificationSystemStatus) return false;
