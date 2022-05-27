@@ -40,28 +40,6 @@ class UserGroupTest extends BaseApiTest
         );
     }
 
-    function testListUsersV1FromSuperShouldWork()
-    {
-        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
-        $this->rest(
-            'GET',
-            '/manager/v1/users',
-            [],
-            [],
-            200
-        );
-    }
-
-    function testListUsersV1FromUserShouldFail()
-    {
-        $this->rest(
-            'GET',
-            '/manager/v1/users',
-            [],
-            [],
-            403
-        );
-    }
 
     function testShowUserV1FromSuperShouldWork()
     {

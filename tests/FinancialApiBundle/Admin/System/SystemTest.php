@@ -67,7 +67,6 @@ class SystemTest extends BaseApiTest {
     }
 
     function testGetMem(){
-        self::markTestIncomplete("falla el comando free del controller");
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
 
         $route = '/system/v1/mem';
@@ -82,8 +81,6 @@ class SystemTest extends BaseApiTest {
     }
 
     function testGetNet(){
-        self::markTestIncomplete("ifstat not found");
-        //ifstat not found
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
 
         $route = '/system/v1/net';

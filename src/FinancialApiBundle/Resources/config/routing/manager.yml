@@ -1,11 +1,6 @@
 
 ##################### manager/users ############################
 
-manager_users_index:
-    path:  /manager/v1/users
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::indexAction, _format: ~ }
-    methods: [GET]
-
 manager_users_index_v2:
     path:  /manager/v2/users
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::indexV2Action, _format: ~ }

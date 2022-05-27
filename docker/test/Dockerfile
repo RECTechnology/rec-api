@@ -14,7 +14,9 @@ RUN apt update && apt install -y \
     php-redis \
     php-gd \
     composer \
-    phpunit
+    phpunit \
+    procps \
+    ifstat
 
 # System utils
 RUN apt update && apt install -y \

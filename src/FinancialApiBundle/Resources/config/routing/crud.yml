@@ -191,7 +191,7 @@ delegated_changes_v3_create:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\TxBlockController::createAction }
     methods: [POST]
     requirements:
-        role: "(public|user|manager|self|admin|sadmin)"
+        role: "(admin|sadmin)"
         object: "(delegated_change|delegated_changes)"
 
 delegated_changes_v3_update:
@@ -199,7 +199,7 @@ delegated_changes_v3_update:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\TxBlockController::UpdateAction }
     methods: [PUT]
     requirements:
-        role: "(public|user|manager|self|admin|sadmin)"
+        role: "(admin|sadmin)"
         object: "(delegated_change|delegated_changes)"
         id: "[0-9A-Fa-f_-]+"
 

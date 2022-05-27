@@ -99,10 +99,9 @@ class DelegatedChangeTest extends BaseApiTest {
         self::assertEquals($content->data->id, $contentChanged->data->id);
     }
 
-    //TODO disabled to avoid errors in github tests
-    function _testDelete()
+    function testDelete()
     {
-        $this->markTestIncomplete("disabled to avoid errors in github tests. Reviewed");
+        //$this->markTestIncomplete("disabled to avoid errors in github tests. Reviewed");
         $content = $this->createEmptyDelegatedChange();
         $route = '/admin/v3/delegated_changes/' . $content->data->id;
         $this->rest('DELETE', $route);

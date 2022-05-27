@@ -17,7 +17,9 @@ RUN apt update && apt install -y \
     gettext-base \
     apache2 \
     wget \
-    git
+    git \
+    procps \
+    ifstat
 
 COPY docker/prod/api/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite php7.4

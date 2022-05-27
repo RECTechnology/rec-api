@@ -259,6 +259,7 @@ class UsersController extends BaseApiController
         );
     }
 
+
     /**
      * @Rest\View
      * Permissions: ROLE_READONLY(active_group), ROLE_SUPER_ADMIN(all)

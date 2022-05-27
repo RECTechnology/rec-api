@@ -16,7 +16,9 @@ RUN apt update && apt install -y \
     php-gd \
     php-xdebug \
     composer \
-    phpunit
+    phpunit \
+    procps \
+    ifstat
 
 # System utils
 RUN apt update && apt install -y \

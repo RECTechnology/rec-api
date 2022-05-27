@@ -45,6 +45,7 @@ class TransactionsV3Test extends BaseApiTest {
             [],
             201
         );
+        sleep(3);
         $this->searchTransactions();
 
         $this->getPendingQualifications();
@@ -172,6 +173,7 @@ class TransactionsV3Test extends BaseApiTest {
             [],
             200
         );
+
 
         self::assertObjectHasAttribute('total', $txs);
         self::assertObjectHasAttribute('limit', $txs);
