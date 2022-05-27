@@ -201,7 +201,7 @@ class TransactionsController extends RestApiController {
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
         $search = $request->query->get("search", "");
-        $sort = $request->query->getAlnum("sort", "updated");
+        $sort = $request->query->get("sort", "updated");
         $order = $request->query->getAlpha("order", "desc");
         $total = 0;
 
@@ -262,8 +262,35 @@ class TransactionsController extends RestApiController {
 
         $result = array();
         foreach ($qb as $transaction) {
-            $result[]=$transaction;
+            $sender = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array(
+                'id' => $transaction->getGroup()
+            ));
+            $payment_info = $transaction->getPayOutInfo();
+            $address = $payment_info['address'];
+            $receiver = $this->getReceiverFromAddress($em, $address);
+            if($receiver){
+                $re_id = $receiver->getId();
+                $re_type = $receiver->getType();
+            }
+            else{
+                $re_id = '-';
+                $re_type = '-';
+            }
+
+            $s_tx = $this->secureOutput($transaction);
+            $s_tx['sender_id'] = $sender->getId();
+            $s_tx['sender_type'] = $sender->getType();
+            $s_tx['receiver_id'] = $re_id;
+            $s_tx['receiver_type'] = $re_type;
+            $result[]=$s_tx;
         }
+
+        if ($order == "desc"){
+            array_multisort(array_column($result, $sort), SORT_DESC, $result);
+        }else{
+            array_multisort(array_column($result, $sort), SORT_ASC, $result);
+        }
+
         $data = array(
             'list' => $result,
             'total' => $total,

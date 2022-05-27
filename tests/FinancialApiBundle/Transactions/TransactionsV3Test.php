@@ -167,7 +167,7 @@ class TransactionsV3Test extends BaseApiTest {
 
         $txs = $this->rest(
             'GET',
-            '/admin/v3/transactions',
+            '/admin/v3/transactions?sort=sender_id&order=desc',
             [],
             [],
             200
