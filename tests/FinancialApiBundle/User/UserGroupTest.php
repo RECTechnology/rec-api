@@ -42,7 +42,6 @@ class UserGroupTest extends BaseApiTest
 
     function testListUsersV1FromSuperShouldWork()
     {
-        $this->markTestIncomplete("Takes too long to complete -> deprecated endpoint, use v2. Reviewed");
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $this->rest(
             'GET',
@@ -66,7 +65,6 @@ class UserGroupTest extends BaseApiTest
 
     function testShowUserV1FromSuperShouldWork()
     {
-        $this->markTestIncomplete("Takes too long to complete -> must be the serializer. Reviewed");
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $this->rest(
             'GET',
@@ -79,7 +77,6 @@ class UserGroupTest extends BaseApiTest
 
     function testShowUserV1FromUserShouldWork()
     {
-        $this->markTestIncomplete("Takes too long to complete. Reviewed");
         $user = $this->getSignedInUser();
         $this->rest(
             'GET',
@@ -92,7 +89,6 @@ class UserGroupTest extends BaseApiTest
 
     function testListUsersV2FromSuperShouldWork()
     {
-        $this->markTestIncomplete("Takes too long to complete. Reviewed");
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $resp = $this->rest(
             'GET',

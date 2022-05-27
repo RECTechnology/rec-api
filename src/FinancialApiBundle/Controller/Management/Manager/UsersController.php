@@ -117,7 +117,7 @@ class UsersController extends BaseApiController
         return $this->rest(
             200,
             "Request successful",
-            ['total' => $total, 'elements' => $elements]
+            ['total' => $total, 'elements' => $this->secureOutput($elements)]
         );
     }
 
@@ -254,7 +254,7 @@ class UsersController extends BaseApiController
             "Request successful",
             array(
                 'total' => $total,
-                'elements' => $entities
+                'elements' => $this->secureOutput($entities)
             )
         );
     }
@@ -309,7 +309,7 @@ class UsersController extends BaseApiController
             "Request successful",
             array(
                 'total' => $total,
-                'elements' => $entities
+                'elements' => $this->secureOutput($entities)
             )
         );
     }
@@ -439,7 +439,7 @@ class UsersController extends BaseApiController
 
         $entities->setGroupData($group_data);
 
-        return $this->rest(200, "Request successful", $entities);
+        return $this->rest(200, "Request successful", $this->secureOutput($entities));
     }
 
     /**

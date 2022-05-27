@@ -146,7 +146,6 @@ class GroupsTest extends BaseApiTest {
 
     function testGetGroups()
     {
-        $this->markTestIncomplete("Need to check why this test takes too much time to complete");
         $route = '/manager/v1/groups';
         $resp = $this->requestJson('GET', $route);
         self::assertEquals(
@@ -165,7 +164,6 @@ class GroupsTest extends BaseApiTest {
 
     function testGetGroupsV2()
     {
-        $this->markTestIncomplete("Need to check why this test takes too much time to complete");
         $route = '/manager/v2/groups';
         $resp = $this->requestJson('GET', $route);
         self::assertEquals(

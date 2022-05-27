@@ -91,6 +91,7 @@ class GroupsController extends BaseApiController
             }
         }
         $entities = array_slice($all, $offset, $limit);
+        $entities = $this->secureOutput($entities);
         return $this->restV2(
             200,
             "ok",
@@ -194,7 +195,7 @@ class GroupsController extends BaseApiController
             "Request successful",
             array(
                 'total' => intval($total[0][1]),
-                'elements' => $result
+                'elements' => $this->secureOutput($result)
             )
         );
 
