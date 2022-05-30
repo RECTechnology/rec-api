@@ -858,7 +858,7 @@ class IncomingController3 extends RestApiController{
 
                     throw new AppException(
                         400,
-                        "Amount sent and order mismatch, (sent: {$payment_info}, order: {$order->getAmount()})"
+                        "Amount sent and order mismatch, (sent: {$payment_info['amount']}, order: {$order->getAmount()})"
                     );
                 }
                 $destination = $order->getPos()->getAccount();
