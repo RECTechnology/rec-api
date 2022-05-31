@@ -56,7 +56,7 @@ class DiscourseEventSubscriber implements EventSubscriber {
         if($account instanceof Group){
             if ($args->hasChangedField("rezero_b2b_access")){
                 if($args->getNewValue("rezero_b2b_access") == Group::ACCESS_STATE_GRANTED){
-                    //TODO check if discourse user exist
+                    //check if discourse user exist
                     if(!$account->getRezeroB2bUserId()){
                         $resp = $this->setUpDiscourseAccount($account);
 

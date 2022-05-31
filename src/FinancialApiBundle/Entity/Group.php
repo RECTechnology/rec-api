@@ -530,7 +530,7 @@ class Group extends BaseGroup implements Uploadable
      * @Serializer\Expose
      * @Serializer\Groups({"user"})
      */
-    private $rezero_b2b_access = Group::ACCESS_STATE_PENDING;
+    private $rezero_b2b_access = Group::ACCESS_STATE_NOT_GRANTED;
 
     /**
      * @ORM\Column(type="string", unique=true, nullable=true)

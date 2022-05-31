@@ -3,6 +3,7 @@
 namespace Test\FinancialApiBundle\Open;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Group;
 use Test\FinancialApiBundle\BaseApiTest;
 
 class RegisterTest extends BaseApiTest {
@@ -30,6 +31,10 @@ class RegisterTest extends BaseApiTest {
             $response->getStatusCode(),
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );
+
+        $respContent = json_decode($response->getContent(),true);
+        $data= $respContent['data'];
+        self::assertEquals(Group::ACCESS_STATE_NOT_GRANTED, $data['company']['rezero_b2b_access']);
     }
 
     public function testGoodRegisterV4Responds204(){

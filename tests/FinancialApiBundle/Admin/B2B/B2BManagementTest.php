@@ -34,7 +34,7 @@ class B2BManagementTest extends BaseApiTest {
         self::assertArrayHasKey('elements', $data);
         self::assertGreaterThan(0, count($data['elements']));
         $account = $data['elements'][0];
-        self::assertEquals(Group::ACCESS_STATE_PENDING, $account["rezero_b2b_access"]);
+        self::assertEquals(Group::ACCESS_STATE_NOT_GRANTED, $account["rezero_b2b_access"]);
 
         //grant access to forum
         $route = '/admin/v3/accounts/'.$account['id'];
@@ -93,7 +93,7 @@ class B2BManagementTest extends BaseApiTest {
         self::assertArrayHasKey('elements', $data);
         self::assertGreaterThan(0, count($data['elements']));
         $account = $data['elements'][0];
-        self::assertEquals(Group::ACCESS_STATE_PENDING, $account["rezero_b2b_access"]);
+        self::assertEquals(Group::ACCESS_STATE_NOT_GRANTED, $account["rezero_b2b_access"]);
 
         //grant access to forum
         $route = '/admin/v3/accounts/'.$account['id'];

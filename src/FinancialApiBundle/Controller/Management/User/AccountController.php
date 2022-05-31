@@ -1253,6 +1253,7 @@ class AccountController extends BaseApiController {
             }
 
             $company->setRezeroB2bUsername($b2b_username);
+            $company->setRezeroB2bAccess(Group::ACCESS_STATE_PENDING);
         }
 
         $company->setName($company_name);
