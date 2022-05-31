@@ -82,6 +82,24 @@ class Badge extends AppObject
     private $image_url;
 
     /**
+     * @ORM\Column(type="string", unique=true, nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    private $group_name;
+
+    /**
+     * @ORM\Column(type="string", unique=true, nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    private $group_name_es;
+
+    /**
+     * @ORM\Column(type="string", unique=true, nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    private $group_name_ca;
+
+    /**
      * @return mixed
      */
     public function getName()
@@ -244,5 +262,52 @@ class Badge extends AppObject
         $this->image_url = $image_url;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getGroupName()
+    {
+        return $this->group_name;
+    }
+
+    /**
+     * @param mixed $group_name
+     */
+    public function setGroupName($group_name): void
+    {
+        $this->group_name = $group_name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroupNameEs()
+    {
+        return $this->group_name_es;
+    }
+
+    /**
+     * @param mixed $group_name_es
+     */
+    public function setGroupNameEs($group_name_es): void
+    {
+        $this->group_name_es = $group_name_es;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroupNameCa()
+    {
+        return $this->group_name_ca;
+    }
+
+    /**
+     * @param mixed $group_name_ca
+     */
+    public function setGroupNameCa($group_name_ca): void
+    {
+        $this->group_name_ca = $group_name_ca;
+    }
 
 }
