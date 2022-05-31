@@ -23,6 +23,9 @@ CRUD_badges_overrides:
 CRUD_qualifications_overrides:
     resource: routing/CRUDsOverrides/qualifications.yml
 
+CRUD_configuration_settings_overrides:
+    resource: routing/CRUDsOverrides/configuration_settings.yml
+
 CRUD:
     resource: routing/crud.yml
 

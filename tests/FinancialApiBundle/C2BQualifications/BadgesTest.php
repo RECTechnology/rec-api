@@ -52,13 +52,14 @@ class BadgesTest extends BaseApiTest
 
     }
 
-    function testListBadgesFromUserShouldFail(){
+    function testListBadgesFromPublicShouldWork(){
 
-        $route = '/user/v3/badges';
+        $this->signOut();
+        $route = '/public/v3/badges';
         $resp = $this->requestJson('GET', $route);
 
         self::assertEquals(
-            403,
+            200,
             $resp->getStatusCode(),
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
