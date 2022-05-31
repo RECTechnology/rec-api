@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Controller\CRUD;
 
 use App\FinancialApiBundle\Controller\Transactions\IncomingController2;
+use App\FinancialApiBundle\DataFixture\ActivityFixture;
 use App\FinancialApiBundle\Entity\Activity;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\DelegatedChangeData;
@@ -181,6 +182,7 @@ class AccountsController extends CRUDController {
         $campaign_code = $request->query->get('campaign_code');
         $search = $request->query->get('search');
         $activity_id = $request->query->get('activity_id');
+        $green_commerce = $request->query->get('green_commerce', false);
         $account_subtype = strtoupper($request->query->get('subtype', ''));
         $only_with_offers = $request->query->get('only_with_offers', false);
         $rect_box = $request->query->get('rect_box', [-90.0, -90.0, 90.0, 90.0]);
@@ -273,6 +275,9 @@ class AccountsController extends CRUDController {
         $hasActivity = isset($activity_id) and is_numeric($activity_id);
         $isAdmin = $role == 'admin';
 
+        $activities_id = [];
+        $same_activity_elements = [];
+
         if($hasActivity and !$isAdmin) {
             $a_qb = $em->createQueryBuilder();
             $a_qb = $a_qb
@@ -285,14 +290,25 @@ class AccountsController extends CRUDController {
                 ->getQuery()
                 ->getResult();
 
-            $activities_id = [];
             for ($i = 0; $i < sizeof($activities); $i++) {
                 if(isset($activities[$i])){
                     array_push($activities_id, $activities[$i]->getId());
                 }
             }
-            $same_activity_elements = [];
         }
+        if ($green_commerce == 1){
+            $name = ActivityFixture::GREEN_COMMERCE_ACTIVITY;
+            $green_commerce_activity = $em->createQueryBuilder()
+                                        ->select('act')
+                                        ->from(Activity::class, 'act')
+                                        ->where('upper(act.name) = upper(:name)')
+                                        ->setParameter('name', $name)
+                                        ->getQuery()
+                                        ->execute();
+
+            array_push($activities_id, $green_commerce_activity[0]->getId());
+        }
+
         $elements = $this->secureOutput($query_resp);
         for ($i = 0; $i < sizeof($elements); $i++) {
             // TODO Remove it when version higher than 2.1.0
@@ -311,13 +327,18 @@ class AccountsController extends CRUDController {
             }
             $elements[$i]['campaigns'] = $campaigns_id_list;
             unset($elements[$i]['account']);
-            if($hasActivity and !$isAdmin){
+            if(($hasActivity and !$isAdmin) or $green_commerce == 1){
                 if(in_array('activity', array_keys($elements[$i])) and in_array($elements[$i]['activity'], $activities_id)){
                     array_push($same_activity_elements, $elements[$i]);
                 }
+                foreach ($query_resp[$i]["account"]->getActivities() as $account_activity){
+                    if(in_array($account_activity->getId(), $activities_id)){
+                        array_push($same_activity_elements, $elements[$i]);
+                    }
+                }
             }
         }
-        if($hasActivity and !$isAdmin){
+        if(($hasActivity and !$isAdmin) or $green_commerce == 1){
             $elements = $same_activity_elements;
         }
 

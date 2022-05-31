@@ -10,6 +10,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class ActivityFixture extends Fixture implements DependentFixtureInterface {
 
+    const GREEN_COMMERCE_ACTIVITY = 'Green commerce';
+
     /**
      * Load data fixtures with the passed EntityManager
      *
@@ -20,6 +22,7 @@ class ActivityFixture extends Fixture implements DependentFixtureInterface {
     {
         $act1 = $this->createActivity($orm, 'Culture', null);
         $act3 = $this->createActivity($orm, 'Alimentacion', null);
+        $act7 = $this->createActivity($orm, $this::GREEN_COMMERCE_ACTIVITY, null);
         $act2 = $this->createActivity($orm, 'Musica', $act1);
         $act4 = $this->createActivity($orm, 'Musica_pop', $act2);
         $act5 = $this->createActivity($orm, 'Verdura', $act3);

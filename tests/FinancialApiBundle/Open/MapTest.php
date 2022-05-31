@@ -96,4 +96,19 @@ class MapTest extends BaseApiTest {
         $response_content = json_decode($response->getContent(),true);
         self::assertEquals('1', $response_content["data"]["elements"][0]["activity"]);
     }
+
+    public function testMapSearchGreenCommerceResponds200(){
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+
+        $resp = $this->requestJson('PUT', '/admin/v3/accounts/6', ["active" => 0]);
+        $query_string = "?green_commerce=1";
+        $response = $this->requestJson('GET', '/user/v4/accounts/search'.$query_string);
+        self::assertEquals(
+            200,
+            $response->getStatusCode(),
+            "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
+        );
+        $accounts = json_decode($response->getContent(),true);
+        self::assertEquals($accounts["data"]["elements"][0]["name"], 'REZERO_2');
+    }
 }
