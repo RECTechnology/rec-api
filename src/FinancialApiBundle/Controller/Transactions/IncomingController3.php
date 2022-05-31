@@ -854,7 +854,7 @@ class IncomingController3 extends RestApiController{
 
             if ($paymentOrder->getStatus() === PaymentOrder::STATUS_IN_PROGRESS) {
 
-                if ($payment_info['amount'] !== $paymentOrder->getAmount()) {
+                if ($payment_info['amount'] != $paymentOrder->getAmount()) {
 
                     throw new AppException(
                         400,

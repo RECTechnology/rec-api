@@ -278,7 +278,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
             $route,
             [
                 'address' => $order->payment_address,
-                'amount' => $order->amount,
+                'amount' => $order->amount*1,
                 'concept' => 'Testing pay',
                 'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
             ]
