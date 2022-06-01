@@ -102,7 +102,7 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\Column(type="text")
-     * @Serializer\Groups({"manager"})
+     * @Serializer\Groups({"user"})
      */
     private $company_image = "";
 

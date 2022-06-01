@@ -30,6 +30,8 @@ class QualificationsTest extends BaseApiTest
         self::assertEquals(10, $content['data']['total']);
         foreach ($elements as $qualification){
             self::assertEquals(Qualification::STATUS_PENDING, $qualification['status']);
+            self::assertArrayHasKey('public_image', $qualification['account']);
+            self::assertArrayHasKey('company_image', $qualification['account']);
         }
 
         $data = array('value' => 1);
