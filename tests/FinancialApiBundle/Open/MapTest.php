@@ -97,18 +97,21 @@ class MapTest extends BaseApiTest {
         self::assertEquals('1', $response_content["data"]["elements"][0]["activity"]);
     }
 
-    public function testMapSearchGreenCommerceResponds200(){
+    public function testMapGreenCommerceResponds200(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
 
         $resp = $this->requestJson('PUT', '/admin/v3/accounts/6', ["active" => 0]);
-        $query_string = "?green_commerce=1";
-        $response = $this->requestJson('GET', '/user/v4/accounts/search'.$query_string);
+        $response = $this->requestJson('GET', '/user/v4/accounts/search');
         self::assertEquals(
             200,
             $response->getStatusCode(),
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );
         $accounts = json_decode($response->getContent(),true);
-        self::assertEquals($accounts["data"]["elements"][0]["name"], 'REZERO_2');
+        foreach ($accounts["data"]["elements"] as $account){
+            if($account['name'] == AccountFixture::TEST_ACCOUNT_REZERO_2['name']){
+                self::assertEquals($account["is_commerce_verd"], 1);
+            }
+        }
     }
 }

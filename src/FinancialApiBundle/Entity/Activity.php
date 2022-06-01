@@ -23,6 +23,7 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     public const STATUS_CREATED = "created";
     public const STATUS_REVIEWED = "reviewed";
+    public const GREEN_COMMERCE_ACTIVITY = 'Green commerce';
 
     use TranslatableTrait;
 

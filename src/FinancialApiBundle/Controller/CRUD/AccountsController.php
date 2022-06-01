@@ -182,7 +182,6 @@ class AccountsController extends CRUDController {
         $campaign_code = $request->query->get('campaign_code');
         $search = $request->query->get('search');
         $activity_id = $request->query->get('activity_id');
-        $green_commerce = $request->query->get('green_commerce', false);
         $account_subtype = strtoupper($request->query->get('subtype', ''));
         $only_with_offers = $request->query->get('only_with_offers', false);
         $rect_box = $request->query->get('rect_box', [-90.0, -90.0, 90.0, 90.0]);
@@ -296,7 +295,7 @@ class AccountsController extends CRUDController {
                 }
             }
         }
-        if ($green_commerce == 1){
+/*        if ($green_commerce == 1){
             $name = ActivityFixture::GREEN_COMMERCE_ACTIVITY;
             $green_commerce_activity = $em->createQueryBuilder()
                                         ->select('act')
@@ -307,7 +306,7 @@ class AccountsController extends CRUDController {
                                         ->execute();
 
             array_push($activities_id, $green_commerce_activity[0]->getId());
-        }
+        }*/
 
         $elements = $this->secureOutput($query_resp);
         for ($i = 0; $i < sizeof($elements); $i++) {
@@ -327,18 +326,22 @@ class AccountsController extends CRUDController {
             }
             $elements[$i]['campaigns'] = $campaigns_id_list;
             unset($elements[$i]['account']);
-            if(($hasActivity and !$isAdmin) or $green_commerce == 1){
-                if(in_array('activity', array_keys($elements[$i])) and in_array($elements[$i]['activity'], $activities_id)){
+
+            if(in_array('activity', array_keys($elements[$i])) and in_array($elements[$i]['activity'], $activities_id)){
+                array_push($same_activity_elements, $elements[$i]);
+            }
+            $is_commerce_verd = 0;
+            foreach ($query_resp[$i]["account"]->getActivities() as $account_activity){
+                if(in_array($account_activity->getId(), $activities_id)){
                     array_push($same_activity_elements, $elements[$i]);
                 }
-                foreach ($query_resp[$i]["account"]->getActivities() as $account_activity){
-                    if(in_array($account_activity->getId(), $activities_id)){
-                        array_push($same_activity_elements, $elements[$i]);
-                    }
+                if($account_activity->getName() == Activity::GREEN_COMMERCE_ACTIVITY){
+                    $is_commerce_verd = 1;
                 }
             }
+            $elements[$i]["is_commerce_verd"] = $is_commerce_verd;
         }
-        if(($hasActivity and !$isAdmin) or $green_commerce == 1){
+        if(($hasActivity and !$isAdmin)){
             $elements = $same_activity_elements;
         }
 

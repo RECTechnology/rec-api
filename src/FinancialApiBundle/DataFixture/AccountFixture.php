@@ -380,7 +380,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $account->setRezeroB2bUsername("anbton");
             $account->setRezeroB2bAccess(Group::ACCESS_STATE_GRANTED);
 
-            $activity = $orm->getRepository(Activity::class)->find(['id' => 3]);
+            $activity = $orm->getRepository(Activity::class)->findOneBy(['name' => Activity::GREEN_COMMERCE_ACTIVITY]);
             $account->addActivity($activity);
         }
 
