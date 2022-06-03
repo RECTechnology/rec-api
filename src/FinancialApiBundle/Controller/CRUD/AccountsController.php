@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Controller\CRUD;
 use App\FinancialApiBundle\Controller\Transactions\IncomingController2;
 use App\FinancialApiBundle\DataFixture\ActivityFixture;
 use App\FinancialApiBundle\Entity\Activity;
+use App\FinancialApiBundle\Entity\Badge;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\DelegatedChangeData;
 use App\FinancialApiBundle\Entity\Mailing;
@@ -181,10 +182,12 @@ class AccountsController extends CRUDController {
         $campaign = $request->query->get('campaigns');
         $campaign_code = $request->query->get('campaign_code');
         $search = $request->query->get('search');
+
         $activity_id = $request->query->get('activity_id');
         $account_subtype = strtoupper($request->query->get('subtype', ''));
         $only_with_offers = $request->query->get('only_with_offers', false);
         $rect_box = $request->query->get('rect_box', [-90.0, -90.0, 90.0, 90.0]);
+        $badge_id = $request->query->get('badge_id', '');
 
         if (!in_array($account_subtype, ["RETAILER", "WHOLESALE", ""])) {
             throw new HttpException(400, "Invalid subtype '$account_subtype', valid options: 'retailer', 'wholesale'");
@@ -243,8 +246,15 @@ class AccountsController extends CRUDController {
             ->from(Group::class, 'a')
             ->leftJoin('a.category', 'c')
             ->leftJoin('a.campaigns', 'cp')
-            ->leftJoin('a.offers', 'o')
-            ->where($and);
+            ->leftJoin('a.offers', 'o');
+
+        if($badge_id != ''){
+            $qb = $qb->leftJoin('a.badges', 'b')->setParameter('badge_id', $badge_id);
+            $select = $select.', b.name AS badge';
+            $and->add('b.id = :badge_id');
+        }
+
+        $qb = $qb->where($and);
 
         $now = new \DateTime('NOW');
 
@@ -295,18 +305,6 @@ class AccountsController extends CRUDController {
                 }
             }
         }
-/*        if ($green_commerce == 1){
-            $name = ActivityFixture::GREEN_COMMERCE_ACTIVITY;
-            $green_commerce_activity = $em->createQueryBuilder()
-                                        ->select('act')
-                                        ->from(Activity::class, 'act')
-                                        ->where('upper(act.name) = upper(:name)')
-                                        ->setParameter('name', $name)
-                                        ->getQuery()
-                                        ->execute();
-
-            array_push($activities_id, $green_commerce_activity[0]->getId());
-        }*/
 
         $elements = $this->secureOutput($query_resp);
         for ($i = 0; $i < sizeof($elements); $i++) {

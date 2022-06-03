@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\DataFixture;
 
 use App\FinancialApiBundle\Controller\BaseApiV2Controller;
 use App\FinancialApiBundle\Entity\Activity;
+use App\FinancialApiBundle\Entity\Badge;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\KYC;
@@ -358,6 +359,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $activity = $orm->getRepository(Activity::class)->find(['id' => $tier]);
             $account->setActivityMain($activity);
             $account->addActivity($activity);
+            $badge = $orm->getRepository(Badge::class)->find(['id' => 0]);
+            //$account->addBadge($badge);
         }
         $account->setRecAddress($faker->shuffle('abcdefghijklmnopqrstuvwxyz0123456789'));
         $account->setMethodsList(['rec']);
@@ -382,6 +385,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
 
             $activity = $orm->getRepository(Activity::class)->findOneBy(['name' => Activity::GREEN_COMMERCE_ACTIVITY]);
             $account->addActivity($activity);
+            $badge = $orm->getRepository(Badge::class)->findOneBy(['name' => "Test"]);
+            $account->addBadge($badge);
         }
 
         $userAccount = new UserGroup();

@@ -20,6 +20,7 @@ class BadgesFixture extends Fixture
     public function load(ObjectManager $orm)
     {
         // TODO: Implement load() method.
+        $this->createBadge($orm, "Test");
         for ($i =0;$i<10; $i++){
             $this->createBadge($orm);
         }
@@ -28,10 +29,13 @@ class BadgesFixture extends Fixture
     /**
      * @param ObjectManager $orm
      */
-    private function createBadge(ObjectManager $orm){
+    private function createBadge(ObjectManager $orm, $name=null){
         $faker = Factory::create();
         $badge = new Badge();
-        $name = $faker->name;
+
+        if($name == null){
+            $name = $faker->name;
+        }
         $badge->setName($name);
         $badge->setNameEs($name.'_es');
         $badge->setNameCa($name.'_cat');

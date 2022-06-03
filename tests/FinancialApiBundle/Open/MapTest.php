@@ -4,6 +4,7 @@ namespace Test\FinancialApiBundle\Open;
 
 use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Activity;
 use Test\FinancialApiBundle\BaseApiTest;
 
 class MapTest extends BaseApiTest {
@@ -113,5 +114,20 @@ class MapTest extends BaseApiTest {
                 self::assertEquals($account["is_commerce_verd"], 1);
             }
         }
+    }
+
+    public function testMapSearchBadgeResponds200(){
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+
+        $resp = $this->requestJson('PUT', '/admin/v3/accounts/6', ["active" => 0]);
+        $query_string = "?badge_id=1";
+        $response = $this->requestJson('GET', '/user/v4/accounts/search'.$query_string);
+        self::assertEquals(
+            200,
+            $response->getStatusCode(),
+            "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
+        );
+        $accounts = json_decode($response->getContent(),true);
+        self::assertEquals($accounts["data"]["elements"][0]["badge"], 'Test');
     }
 }

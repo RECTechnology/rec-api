@@ -27,7 +27,7 @@ class QualificationsTest extends BaseApiTest
 
         $content = json_decode($resp->getContent(),true);
         $elements = $content['data']['elements'];
-        self::assertEquals(10, $content['data']['total']);
+        self::assertEquals(11, $content['data']['total']);
         foreach ($elements as $qualification){
             self::assertEquals(Qualification::STATUS_PENDING, $qualification['status']);
             self::assertArrayHasKey('public_image', $qualification['account']);
@@ -60,7 +60,7 @@ class QualificationsTest extends BaseApiTest
         );
 
         $content = json_decode($resp->getContent(),true);
-        self::assertEquals(9, $content['data']['total']);
+        self::assertEquals(10, $content['data']['total']);
 
         //check shop badge
         $routeGetShop = 'user/v3/accounts/'.$elements[0]['account']['id'];
