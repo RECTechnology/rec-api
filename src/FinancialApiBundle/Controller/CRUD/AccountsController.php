@@ -328,13 +328,13 @@ class AccountsController extends CRUDController {
             if(in_array('activity', array_keys($elements[$i])) and in_array($elements[$i]['activity'], $activities_id)){
                 array_push($same_activity_elements, $elements[$i]);
             }
-            $is_commerce_verd = 0;
+            $is_commerce_verd = false;
             foreach ($query_resp[$i]["account"]->getActivities() as $account_activity){
                 if(in_array($account_activity->getId(), $activities_id)){
                     array_push($same_activity_elements, $elements[$i]);
                 }
                 if($account_activity->getName() == Activity::GREEN_COMMERCE_ACTIVITY){
-                    $is_commerce_verd = 1;
+                    $is_commerce_verd = true;
                 }
             }
             $elements[$i]["is_commerce_verd"] = $is_commerce_verd;

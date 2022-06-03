@@ -111,7 +111,7 @@ class MapTest extends BaseApiTest {
         $accounts = json_decode($response->getContent(),true);
         foreach ($accounts["data"]["elements"] as $account){
             if($account['name'] == AccountFixture::TEST_ACCOUNT_REZERO_2['name']){
-                self::assertEquals($account["is_commerce_verd"], 1);
+                self::assertTrue($account["is_commerce_verd"]);
             }
         }
     }
