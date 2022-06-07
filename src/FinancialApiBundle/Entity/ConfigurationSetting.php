@@ -13,7 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class ConfigurationSetting extends AppObject
 {
-    public const SHOP_BADGES_SCOPE = 'shop_badges';
+    public const SHOP_BADGES_SCOPE = 'badges';
     public const QUALIFICATIONS_SCOPE = 'qualifications';
     public const APP_SCOPE = 'app';
 
