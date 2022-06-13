@@ -34,6 +34,7 @@ use App\FinancialApiBundle\Controller\SecurityTrait;
 class AccountController extends BaseApiController {
 
     const PLATFORM_REZERO_B2B_WEB = 'rezero-b2b-web';
+    const DNI_NOT_VALID = 'Wrong DNI';
 
     use SecurityTrait;
 
@@ -1532,6 +1533,16 @@ class AccountController extends BaseApiController {
             throw new HttpException(404, 'Smscode not found');
         }
 
+        if(strtoupper($user->getDNI()) != strtoupper($params['dni'])){
+            throw new HttpException(404, AccountController::DNI_NOT_VALID);
+        }
+        if($user->getPrefix() != $params['prefix']){
+            throw new HttpException(404, 'Wrong prefix');
+        }
+        if($user->getPhone() != $params['phone']){
+            throw new HttpException(404, 'Wrong phone');
+        }
+
         if($user->isPasswordRequestNonExpired(1200)){
             if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 characters');
             if($params['password'] != $params['repassword']) throw new HttpException('Password and repassword are differents');
@@ -1547,15 +1558,6 @@ class AccountController extends BaseApiController {
             $logger->info('PASS RECOVERY: Pass updated (' . $user->getId() .')');
         }else{
             throw new HttpException(404, 'Expired smscode');
-        }
-        if(strtoupper($user->getDNI()) != strtoupper($params['dni'])){
-            throw new HttpException(404, AccountController::DNI_NOT_VALID);
-        }
-        if($user->getPrefix() != $params['prefix']){
-            throw new HttpException(404, 'Wrong prefix');
-        }
-        if($user->getPhone() != $params['phone']){
-            throw new HttpException(404, 'Wrong phone');
         }
         $logger->info('PASS RECOVERY: All done');
         return $this->restV2(204,"ok", "password recovered");

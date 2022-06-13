@@ -299,6 +299,7 @@ class UserSecurityTest extends BaseApiTest
         $user = $em->getRepository(User::class)->findOneBy(['dni' => UserFixture::TEST_USER_CREDENTIALS['username']]);
         $sms_code = $user->getLastSmscode();
         $this->unlockUser($sms_code);
+        $this->recoverPasswordWrongDni($sms_code);
         $this->recoverPassword($sms_code);
         $this->changePassword($sms_code);
         $this->validatePhone($sms_code);
@@ -382,6 +383,30 @@ class UserSecurityTest extends BaseApiTest
                 'Authorization' => $this->token
             ],
             204
+        );
+    }
+
+    /**
+     * @param $sms_code
+     */
+    private function recoverPasswordWrongDni($sms_code): void
+    {
+        $resp = $this->rest(
+            'POST',
+            '/app/v4/recover-password',
+            [
+                'dni' => "37468884K",
+                'prefix' => 34,
+                'phone' => 789789789,
+                'smscode' => $sms_code,
+                'password' => "user_user1",
+                'repassword' => "user_user1"
+            ],
+            [
+                'Content-Type' => 'application/json',
+                'Authorization' => $this->token
+            ],
+            404
         );
     }
 
