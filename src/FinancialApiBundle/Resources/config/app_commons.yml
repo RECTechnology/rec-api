@@ -57,6 +57,7 @@ services:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\ShopBadgeHandler
         arguments:
             - "@doctrine"
+            - "@badges.logger"
 
     net.app.commons.garden_handler:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\GardenHandler

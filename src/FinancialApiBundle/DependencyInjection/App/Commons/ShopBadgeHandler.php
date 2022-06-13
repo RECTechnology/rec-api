@@ -7,19 +7,25 @@ use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\Qualification;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Logger;
 
 class ShopBadgeHandler
 {
 
     private $doctrine;
 
-    public function __construct($doctrine)
+    /** @var Logger $logger */
+    private $logger;
+
+    public function __construct($doctrine, Logger $logger)
     {
         $this->doctrine = $doctrine;
+        $this->logger = $logger;
     }
 
     public function recalculateShopBadge(Qualification $qualification): void
     {
+        $this->logger->info('Recalculate badge '.$qualification->getBadge()->getName().' for account '.$qualification->getAccount()->getName());
         $settings = $this->getSettings();
 
         /** @var Group $shop */
@@ -44,13 +50,14 @@ class ShopBadgeHandler
             if($total >= $settings['min_qualifications']){
                 /** @var Qualification $qualy */
                 foreach ($qualifications as $qualy){
-                    if($qualy->getValue() === 1){
+                    if($qualy->getValue()){
                         $positiveReview++;
                     }
                 }
                 if($positiveReview >= $threshold){
                     try {
                         $shop->addBadge($qualification->getBadge(), true);
+                        $this->logger->info("Added badge");
                         $em->flush();
                     }catch (PreconditionFailedException $e){
                         //do nothing
@@ -59,6 +66,7 @@ class ShopBadgeHandler
                 }else{
                     try {
                         $shop->delBadge($qualification->getBadge());
+                        $this->logger->info("Removed badge");
                         $em->flush();
                     }catch (PreconditionFailedException $e){
                         //do nothing

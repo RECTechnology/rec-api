@@ -236,6 +236,7 @@ class User extends BaseUser implements Uploadable {
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\CreditCard", mappedBy="user", cascade={"remove"})
+     * @Expose
      * @Groups({"manager"})
      */
     private $bank_cards;

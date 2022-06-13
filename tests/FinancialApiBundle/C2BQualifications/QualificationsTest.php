@@ -27,7 +27,7 @@ class QualificationsTest extends BaseApiTest
 
         $content = json_decode($resp->getContent(),true);
         $elements = $content['data']['elements'];
-        self::assertEquals(11, $content['data']['total']);
+        self::assertGreaterThan(10, $content['data']['total']);
         foreach ($elements as $qualification){
             self::assertEquals(Qualification::STATUS_PENDING, $qualification['status']);
             self::assertArrayHasKey('public_image', $qualification['account']);
@@ -47,9 +47,10 @@ class QualificationsTest extends BaseApiTest
 
         $updatedContent = json_decode($respUpdate->getContent(),true);
 
-        $data = $updatedContent["data"];
-        self::assertEquals(true, $data['value']);
-        self::assertEquals(Qualification::STATUS_REVIEWED, $data['status']);
+        $dataResp = $updatedContent["data"];
+        self::assertEquals(true, $dataResp['value']);
+        self::assertEquals(Qualification::STATUS_REVIEWED, $dataResp['status']);
+
 
         $resp = $this->requestJson('GET', $route);
 
