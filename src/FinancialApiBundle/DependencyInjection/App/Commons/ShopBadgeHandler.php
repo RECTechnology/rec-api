@@ -73,6 +73,17 @@ class ShopBadgeHandler
                     }
 
                 }
+            }else{
+                //recalculate if settings changed
+                if($shop->getBadges()->contains($qualification->getBadge())){
+                    try {
+                        $shop->delBadge($qualification->getBadge());
+                        $this->logger->info("Removed badge because of less than min qualifications");
+                        $em->flush();
+                    }catch (PreconditionFailedException $e){
+                        //do nothing
+                    }
+                }
             }
         }
     }

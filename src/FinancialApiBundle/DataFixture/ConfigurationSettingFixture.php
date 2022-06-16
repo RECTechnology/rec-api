@@ -21,6 +21,7 @@ class ConfigurationSettingFixture extends Fixture {
         $this->_createSetting($orm, ConfigurationSetting::SHOP_BADGES_SCOPE, 'max_qualifications', '10');
         $this->_createSetting($orm, ConfigurationSetting::SHOP_BADGES_SCOPE, 'min_qualifications', '0');
         $this->_createSetting($orm, ConfigurationSetting::APP_SCOPE, 'badges_filter', 'disabled');
+        $this->_createSetting($orm, ConfigurationSetting::QUALIFICATIONS_SCOPE, ConfigurationSetting::SETTING_QUALIFICATIONS_SYSTEM_STATUS, 'enabled');
 
     }
 

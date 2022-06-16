@@ -122,7 +122,7 @@ class QualificationHandler implements QualificationHandlerInterface
 
         if(!$qualificationSystemStatus) return false;
 
-        if($qualificationSystemStatus === 'disabled') return false;
+        if($qualificationSystemStatus->getValue() === 'disabled') return false;
 
         return true;
     }
