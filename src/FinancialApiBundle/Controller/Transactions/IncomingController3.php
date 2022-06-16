@@ -495,14 +495,15 @@ class IncomingController3 extends RestApiController{
             }
             if (isset($data['card_id'])) {
                 $logger->info('(' . $account_to_id . ')(T) WITH CARD');
-                if (array_key_exists('pin', $data) && $data['pin'] !== '' && intval($data['pin']) >= 0) {
+                //This part has been commented for a Novact decision on 16/6/2022
+                /**if (array_key_exists('pin', $data) && $data['pin'] !== '' && intval($data['pin']) >= 0) {
                     $pin = $data['pin'];
                     if ($user_to->getPIN() !== $pin) {
                         throw new HttpException(400, 'Incorrect Pin');
                     }
                 } else {
                     throw new HttpException(400, 'Param pin not found or incorrect');
-                }
+                }**/
                 if (array_key_exists('creditCardPertainsBeneficiary', $data) && $data['creditCardPertainsBeneficiary'] == false) {
                     $credit_card = $em->getRepository('FinancialApiBundle:CreditCard')->findOneBy(array(
                         'id' => $data['card_id'],
