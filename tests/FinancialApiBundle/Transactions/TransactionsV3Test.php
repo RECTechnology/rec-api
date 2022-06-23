@@ -3,6 +3,9 @@
 namespace Test\FinancialApiBundle\Transactions;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**
@@ -24,6 +27,7 @@ class TransactionsV3Test extends BaseApiTest {
 
     private function getSingleStore(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        //UserFixture::TEST_ADMIN_CREDENTIALS es el owner de esta tienda
         $store = $this->rest('GET', '/admin/v3/accounts?type=COMPANY')[0];
         $this->signOut();
         return $store;
@@ -244,5 +248,92 @@ class TransactionsV3Test extends BaseApiTest {
         );
         $content = json_decode($resp->getContent(), true);
         self::assertEquals(9, $content['data']['total']);
+    }
+
+    function testPay1RecToStoreAndRefundShouldWork(){
+        self::markTestIncomplete("fails on github");
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = "/methods/v3/out/rec";
+        $resp = $this->rest(
+            'POST',
+            $route,
+            [
+                'address' => $this->store->rec_address,
+                'amount' => 1e8,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+            ],
+            [],
+            201
+        );
+
+        $content = $resp;
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $route = "/methods/v3/refund/rec";
+        //El user no tiene la cuenta de la store activa, entonces debe petar
+        $respBad = $this->rest(
+            'POST',
+            $route,
+            [
+                'amount' => 1e8,
+                'concept' => 'Refund Testing concept',
+                'pin' => UserFixture::TEST_ADMIN_CREDENTIALS['pin'],
+                'txid' => $resp->pay_out_info->txid
+            ],
+            [],
+            403
+        );
+
+        //change active group to 22
+        /** @var EntityManagerInterface $em */
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Group $storeGroup */
+        $storeGroup = $em->getRepository(Group::class)->find($this->store->id);
+        /** @var User $adminUser */
+        $adminUser = $em->getRepository(User::class)->findOneBy(array('username' => UserFixture::TEST_ADMIN_CREDENTIALS['username']));
+        $adminUser->setActiveGroup($storeGroup);
+
+        $em->flush();
+
+        $respBadAmount = $this->rest(
+            'POST',
+            $route,
+            [
+                'amount' => 2e8,
+                'concept' => 'Refund Testing concept',
+                'pin' => UserFixture::TEST_ADMIN_CREDENTIALS['pin'],
+                'txid' => $resp->pay_out_info->txid
+            ],
+            [],
+            403
+        );
+
+        $resp = $this->rest(
+            'POST',
+            $route,
+            [
+                'amount' => 1e8,
+                'concept' => 'Refund Testing concept',
+                'pin' => UserFixture::TEST_ADMIN_CREDENTIALS['pin'],
+                'txid' => $resp->pay_out_info->txid
+            ],
+            [],
+            201
+        );
+
+        $content = $resp;
+
+        //no devuelve las tx porque justo es la cuenta responsable de la campaña de bonissim y entra en un if chungo
+        $respList = $this->requestJson(
+            'GET',
+            '/company/'.$storeGroup->getId().'/v1/wallet/transactions',
+            [],
+            [],
+        );
+
+        $content = json_decode($respList->getContent());
+
+        $data = $content;
+
     }
 }

@@ -98,6 +98,11 @@ class Transaction implements TransactionTiming {
     /**
      * @Exclude
      */
+    public static $TYPE_REFUND = "refund";
+
+    /**
+     * @Exclude
+     */
     public static $TYPE_FEE = "fee";
 
     /**
@@ -462,6 +467,21 @@ class Transaction implements TransactionTiming {
      * @Serializer\Groups({"public"})
      */
     private $comment;
+
+    /**
+     * @var
+     * @MongoDB\ReferenceOne(
+     *     targetDocument=Transaction::class,
+     *     storeAs="id"
+     * )
+     */
+    private $refund_parent_transaction;
+
+    /**
+     * @var
+     * @MongoDB\Field(type="hash")
+     */
+    private $refund_txs;
 
 
     /**
@@ -1180,5 +1200,37 @@ class Transaction implements TransactionTiming {
             $transaction->{$field} = $value;
         }
         return $transaction;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRefundParentTransaction()
+    {
+        return $this->refund_parent_transaction;
+    }
+
+    /**
+     * @param mixed $refund_parent_transaction
+     */
+    public function setRefundParentTransaction($refund_parent_transaction): void
+    {
+        $this->refund_parent_transaction = $refund_parent_transaction;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRefundTxs()
+    {
+        return $this->refund_txs;
+    }
+
+    /**
+     * @param mixed $refund_txs
+     */
+    public function setRefundTxs($refund_txs): void
+    {
+        $this->refund_txs = $refund_txs;
     }
 }

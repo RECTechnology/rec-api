@@ -74,6 +74,7 @@ class IncomingController3 extends RestApiController{
         $logger = $this->get('transaction.logger');
         $group_id = $group->getId();
         $logger->info('(' . $group_id . ') Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
+        //TODO change this method to allow refund type
         $method = $this->get('net.app.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $em->getRepository('FinancialApiBundle:User')->find($user_id);
@@ -118,7 +119,12 @@ class IncomingController3 extends RestApiController{
         $transaction->setUser($user_id);
         $transaction->setGroup($group->getId());
         $transaction->setVersion(3);
-        $transaction->setType($type);
+        //TODO aqui pondria refund
+        if($type === 'refund'){
+            $transaction->setType(Transaction::$TYPE_OUT);
+        }else{
+            $transaction->setType($type);
+        }
         $transaction->setInternal(false);
         $transaction->setAmount($amount);
         $transaction->setVariableFee(0);
@@ -130,12 +136,14 @@ class IncomingController3 extends RestApiController{
         $logger->info('(' . $group_id . ')(T) CREATE TRANSACTION');
         $logger->info('(' . $group_id . ') Incomig transaction...getPaymentInfo for company '.$group->getId());
 
-        if($type === 'out'){
-            $data = $this->outTransactionProcess($data, $user, $group, $transaction);
-        }
-
-        if($type === 'in'){
+        if($type === Transaction::$TYPE_OUT){
+            $data = $this->outTransactionProcess($data, $user, $group, $transaction, false);
+        }elseif ($type === Transaction::$TYPE_REFUND){
+            $data = $this->outTransactionProcess($data, $user, $group, $transaction, true);
+        }elseif ($type === Transaction::$TYPE_IN){
             $this->inTransactionProcess($data, $user, $group, $transaction);
+        }else{
+            throw new HttpException(403, 'Type not allowed');
         }
 
         $logger->info('(' . $group_id . ')(T) INIT NOTIFICATION');
@@ -146,6 +154,7 @@ class IncomingController3 extends RestApiController{
         //if bonificable generate inetrnal tx from a to c throug b
         //check if tx has to be bonified
         $txBonusHandler = $this->get('net.app.commons.bonus_handler');
+        //TODO revisar que pasaria aqui
         $extra_data = $txBonusHandler->bonificateTx($transaction);
 
         $logger->info('(' . $group_id . ')(T) FINAL');
@@ -596,7 +605,7 @@ class IncomingController3 extends RestApiController{
      * @return mixed
      * @throws \Doctrine\DBAL\ConnectionException
      */
-    private function outTransactionProcess($data, ?object $user_from, $account_from, Transaction $transaction)
+    private function outTransactionProcess($data, ?object $user_from, $account_from, Transaction $transaction, ?bool $isRefund)
     {
         $em = $this->getEntityManager();
         $dm = $this->getDocumentManager();
@@ -617,17 +626,44 @@ class IncomingController3 extends RestApiController{
         if ($wallet->getAvailable() < $amount) throw new HttpException(400, 'Not funds enough');
         if ($amount < $method->getMinimumAmount()) throw new HttpException(400, 'Amount under minimum');
 
-        $order = $orderRepo->findOneBy(['payment_address' => $data['address']]);
-        if ($order) {
-            if ($order->getStatus() === PaymentOrder::STATUS_FAILED)
-                throw new HttpException(400, 'Failed payment transaction');
-
-            $isPaymentOrder = true;
-            $paymentOrder = $order;
-        }else{
+        if($isRefund){
+            if(!isset($data['txid'])) throw new HttpException(404, 'txid is required to make a refund');
             $isPaymentOrder = false;
             $paymentOrder = null;
-            //obtain wallet and check founds for cash_out services for this group
+            $order = null;
+
+            $originalTxid = $data['txid'];
+            //get original in and out
+            /** @var Transaction $originalInTx */
+            $originalInTx = $this->getOriginalTxFromTxId($originalTxid, Transaction::$TYPE_IN);
+            /** @var Transaction $originalOutTx */
+            $originalOutTx = $this->getOriginalTxFromTxId($originalTxid, Transaction::$TYPE_OUT);
+
+            //refund checkers
+            $this->checkRefundConstraints($originalOutTx, $originalInTx, $account_from, $amount);
+
+            if($originalInTx && $originalOutTx){
+                //get sender address, now is the receiver
+                $groupId = $originalOutTx->getGroup();
+                $refundReceiver = $em->getRepository(Group::class)->find($groupId);
+                $data['address'] = $refundReceiver->getRecAddress();
+            }else{
+                throw new HttpException(404, 'Original transaction not found');
+            }
+        }else{
+            if(!isset($data['address'])) throw new HttpException(403, 'address is required');
+            $order = $orderRepo->findOneBy(['payment_address' => $data['address']]);
+            if ($order) {
+                if ($order->getStatus() === PaymentOrder::STATUS_FAILED)
+                    throw new HttpException(400, 'Failed payment transaction');
+
+                $isPaymentOrder = true;
+                $paymentOrder = $order;
+            }else{
+                $isPaymentOrder = false;
+                $paymentOrder = null;
+                //obtain wallet and check founds for cash_out services for this group
+            }
         }
 
         $this->checkPin($data, $user_from, $order, $em, $logger, $account_from_id);
@@ -635,27 +671,19 @@ class IncomingController3 extends RestApiController{
         //check bonissim payment
         $this->checkCampaignConstraint($data, $account_from, 'out', $method_cname);
 
-        $logger->info('(' . $account_from_id . ')(T) GET PAY OUT INFO');
         $data['orig_address'] = $account_from->getRecAddress();
         $payment_info = $method->getPayOutInfoData($data);
-        $logger->info('(' . $account_from_id . ')(T) SAVE PAY OUT INFO');
         $transaction->setPayOutInfo($payment_info);
         $dataIn = array(
             'amount' => $amount,
             'concept' => $data["concept"],
             'url_notification' => $url_notification
         );
-
-        $logger->info('(' . $account_from_id . ')(T) SET DATA IN');
         $transaction->setDataIn($dataIn);
-
-
         $transaction->setTotal(-$amount);
-        $logger->info('(' . $account_from_id . ')(T) OUT');
         $logger->info('(' . $account_from_id . ') Incomig transaction...OUT Available = ' . $wallet->getAvailable() . " TOTAL: " . $amount);
 
         $destination = $em->getRepository(Group::class) ->findOneBy(['rec_address' => $payment_info['address']]);
-        $logger->info('(' . $account_from_id . ')(T) CHECK ADDRESS');
 
         if (!$destination) $destination = $this->getDestinationFromPos($isPaymentOrder, $paymentOrder, $payment_info, $order);
 
@@ -680,15 +708,11 @@ class IncomingController3 extends RestApiController{
         $payment_info['dest_key'] = $destination->getKeyChain();
 
         $logger->info('(' . $account_from_id . ') Incomig transaction...SEND');
-
-        $logger->info('(' . $account_from_id . ')(T) BLOCK MONEY');
         //Bloqueamos la pasta en el wallet
         $wallet->setAvailable($wallet->getAvailable() - $amount);
         $em->flush();
         try {
-            $logger->info('(' . $account_from_id . ')(T) INIT SEND');
             $payment_info = $method->send($payment_info);
-            $logger->info('(' . $account_from_id . ')(T) END SEND');
         } catch (Exception $e) {
 
             $notificator = $this->container->get('com.qbitartifacts.rec.commons.notificator');
@@ -718,7 +742,6 @@ class IncomingController3 extends RestApiController{
             $em->flush();
             $dm->flush();
 
-            $logger->info('(' . $account_from_id . ')(T) INIT ERROR NOTIFICATION');
             $this->container->get('messenger')->notificate($transaction);
             $logger->info('(' . $account_from_id . ')(T) END ERROR NOTIFICATION');
             $logger->info('(' . $account_from_id . ')(T) END ALL');
@@ -732,23 +755,20 @@ class IncomingController3 extends RestApiController{
 
                 $logger->info('REC_INFO_ERROR');
             }
-            $logger->info('REC_INFO Inputs:' . $payment_info['inputs']);
-            $logger->info('REC_INFO Outputs:' . $payment_info['outputs']);
-            $logger->info('REC_INFO met_len:' . $payment_info['metadata_len']);
-            $logger->info('REC_INFO in_total:' . $payment_info['input_total']);
-            if (isset($payment_info['message'])) {
-                $logger->info('REC_INFO response:' . $payment_info['message']);
-                $logger->info('REC_INFO len_message:' . $payment_info['len_message']);
-                $logger->info('REC_INFO hex_len:' . $payment_info['len']);
-            }
         }
-        $txid = $payment_info['txid'];
         $payment_info['image_receiver'] = $destination->getCompanyImage();
         $payment_info['name_receiver'] = $destination->getName();
         $payment_info['concept'] = $data['concept'];
         $logger->info('(' . $account_from_id . ')(T) STATUS => ' . $payment_info['status']);
 
         $transaction->setPayOutInfo($payment_info);
+        //add reference to original inTx if is refund
+        if($isRefund){
+            $transaction->setRefundParentTransaction($originalInTx);
+            $refundTxsOriginalIn = $originalInTx->getRefundTxs();
+            $refundTxsOriginalIn[] = $transaction->getId();
+            $originalInTx->setRefundTxs($refundTxsOriginalIn);
+        }
         $dm->flush();
 
         if ($payment_info['status'] === 'sent' || $payment_info['status'] === 'sending') {
@@ -772,13 +792,18 @@ class IncomingController3 extends RestApiController{
             $txFlowHandler = $this->get('net.app.commons.transaction_flow_handler');
             $inTx = $txFlowHandler->receiveRecsFromOutTx($destination, $transaction);
             if($isPaymentOrder){
-                $logger->info('(' . $account_from_id . ')(T) Incomig transaction... is Paymnent Order');
-                $logger->info('(' . $account_from_id . ')(T) Incomig transaction... set payment status DONE');
                 $paymentOrder->setPaymentTransaction($inTx);
                 $paymentOrder->setStatus(PaymentOrder::STATUS_DONE);
                 $em->flush();
             }
             $logger->info('(' . $account_from_id . ')(T) Incomig transaction... ');
+            if($isRefund){
+                $inTx->setRefundParentTransaction($originalOutTx);
+                $refundTxsOriginalOut = $originalOutTx->getRefundTxs();
+                $refundTxsOriginalOut[] = $inTx->getId();
+                $originalOutTx->setRefundTxs($refundTxsOriginalOut);
+                $dm->flush();
+            }
         } else {
             $transaction->setStatus($payment_info['status']);
             //desbloqueamos la pasta del wallet
@@ -890,5 +915,37 @@ class IncomingController3 extends RestApiController{
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
         return $em;
+    }
+
+    private function getOriginalTxFromTxId($txid, $type){
+        $dm = $this->getDocumentManager();
+        $field = 'pay_out_info.txid';
+        if($type === Transaction::$TYPE_IN){
+            $field = 'pay_in_info.txid';
+        }
+        return $dm->createQueryBuilder('FinancialApiBundle:Transaction')
+            ->field('service')->equals('rec')
+            ->field($field)->equals($txid)
+            ->getQuery()->getSingleResult();
+    }
+
+    private function checkRefundConstraints(Transaction $originalOutTx, Transaction $originalInTx, Group $refunder, $amount) :void{
+        $dm = $this->getDocumentManager();
+        if($originalOutTx->getStatus() !== Transaction::$STATUS_SUCCESS) throw new HttpException(403, 'Original transaction needs to be paid before refund');
+        if($originalInTx->getGroup() != $refunder->getId()) throw new HttpException(403, 'You cannot do the refund, ask the shop to initiate the process');
+
+        $refunds = $originalInTx->getRefundTxs();
+        $refundedAmount = 0;
+        if($refunds){
+            foreach ($refunds as $refundId){
+                $refundTx = $dm->getRepository(Transaction::class)->find($refundId);
+                $refundedAmount += $refundTx->getAmount();
+            }
+        }
+
+        $availableForRefund = $originalInTx->getAmount() - $refundedAmount;
+        if($amount > $availableForRefund) {
+            throw new HttpException(403, 'Amount is greater than available for refund');
+        }
     }
 }
