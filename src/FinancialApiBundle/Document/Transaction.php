@@ -479,7 +479,12 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\Field(type="hash")
+     * @MongoDB\ReferenceMany(
+     *     strategy="set",
+     *     targetDocument=Transaction::class,
+     *     cascade="all",
+     *     sort={"created": "desc"}
+     * )
      */
     private $refund_txs;
 
