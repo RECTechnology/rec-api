@@ -1,3 +1,24 @@
+######################## CREDIT CARD ########################
+
+create_credit_card:
+    path:  /company/v1/credit_card
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\CreditCardController::registerCard }
+    methods: [POST]
+
+index_credit_card:
+    path:  /company/v1/credit_card
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\CreditCardController::indexCards }
+    methods: [GET]
+
+update_credit_card:
+    path:  /company/v1/credit_card/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\CreditCardController::updateCardFromCompany }
+    methods: [PUT]
+
+delete_credit_card:
+    path:  /company/v1/credit_card/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\CreditCardController::deleteAction }
+    methods: [DELETE]
 ######################## OFFERS ########################
 
 create_offer_v4:
