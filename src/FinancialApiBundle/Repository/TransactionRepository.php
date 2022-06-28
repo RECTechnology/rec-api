@@ -487,4 +487,15 @@ class TransactionRepository extends DocumentRepository {
 
     }
 
+    public function getOriginalTxFromTxId($txid, $type){
+        $field = 'pay_out_info.txid';
+        if($type === Transaction::$TYPE_IN){
+            $field = 'pay_in_info.txid';
+        }
+        return $this->createQueryBuilder('t')
+            ->field('service')->equals('rec')
+            ->field($field)->equals($txid)
+            ->getQuery()->getSingleResult();
+    }
+
 }

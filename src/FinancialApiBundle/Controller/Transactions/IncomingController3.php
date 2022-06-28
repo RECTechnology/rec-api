@@ -635,9 +635,10 @@ class IncomingController3 extends RestApiController{
             $originalTxid = $data['txid'];
             //get original in and out
             /** @var Transaction $originalInTx */
-            $originalInTx = $this->getOriginalTxFromTxId($originalTxid, Transaction::$TYPE_IN);
+
+            $originalInTx = $dm->getRepository(Transaction::class)->getOriginalTxFromTxId($originalTxid, Transaction::$TYPE_IN);
             /** @var Transaction $originalOutTx */
-            $originalOutTx = $this->getOriginalTxFromTxId($originalTxid, Transaction::$TYPE_OUT);
+            $originalOutTx = $dm->getRepository(Transaction::class)->getOriginalTxFromTxId($originalTxid, Transaction::$TYPE_OUT);
 
             //refund checkers
             $this->checkRefundConstraints($originalOutTx, $originalInTx, $account_from, $amount);
@@ -917,22 +918,13 @@ class IncomingController3 extends RestApiController{
         return $em;
     }
 
-    private function getOriginalTxFromTxId($txid, $type){
-        $dm = $this->getDocumentManager();
-        $field = 'pay_out_info.txid';
-        if($type === Transaction::$TYPE_IN){
-            $field = 'pay_in_info.txid';
-        }
-        return $dm->createQueryBuilder('FinancialApiBundle:Transaction')
-            ->field('service')->equals('rec')
-            ->field($field)->equals($txid)
-            ->getQuery()->getSingleResult();
-    }
-
     private function checkRefundConstraints(Transaction $originalOutTx, Transaction $originalInTx, Group $refunder, $amount) :void{
         $dm = $this->getDocumentManager();
         if($originalOutTx->getStatus() !== Transaction::$STATUS_SUCCESS) throw new HttpException(403, 'Original transaction needs to be paid before refund');
         if($originalInTx->getGroup() != $refunder->getId()) throw new HttpException(403, 'You cannot do the refund, ask the shop to initiate the process');
+
+
+        if($originalInTx->getRefundParentTransaction()) throw new HttpException(403, 'A refund transaction cannot be refund');
 
         $refunds = $originalInTx->getRefundTxs();
         $refundedAmount = 0;

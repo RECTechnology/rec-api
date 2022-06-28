@@ -2,17 +2,20 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Admin;
 
+use App\FinancialApiBundle\Controller\Google2FA;
+use App\FinancialApiBundle\Controller\Transactions\IncomingController3;
+use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\PaymentOrder;
+use App\FinancialApiBundle\Entity\User;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use DateInterval;
-use DateTime;
 use App\FinancialApiBundle\Controller\SecurityTrait;
-use function Sodium\add;
 
 
 /**
@@ -320,5 +323,77 @@ class TransactionsController extends RestApiController {
 
     }
 
+    public function createRefundFromAdmin(Request $request){
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
 
+        //get data, only txid needed and amount and 2fa
+        $validParameters = array(
+            'amount',
+            'sec_code',
+            'txid',
+            'concept'
+        );
+        $requestData = $request->request->all();
+        $data = array();
+        foreach ($validParameters as $paramName){
+            if(!isset($paramName, $requestData[$paramName])){
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+            $data[$paramName] = $request->request->get($paramName);
+        }
+
+        //check 2fa
+        $adminUser = $this->getUser();
+        $Google2FA = new Google2FA();
+        $twoFactorCode = $adminUser->getTwoFactorCode();
+        if (!$Google2FA::verify_key($twoFactorCode, $data['sec_code'])) {
+            throw new HttpException(400,'The security code is incorrect.');
+        }
+
+        $dm = $this->getDocumentManager();
+        $originalTxIn = $dm->getRepository('FinancialApiBundle:Transaction')->getOriginalTxFromTxId($data['txid'], Transaction::$TYPE_IN);
+
+        if(!$originalTxIn) throw new HttpException(404, 'Transaction not found');
+        if($originalTxIn->getType() !== Transaction::$TYPE_IN) throw new HttpException(403, 'Only in transactions can be refund');
+
+        //get refunder account and user
+        $em = $this->getEntityManager();
+        $group = $em->getRepository(Group::class)->find($originalTxIn->getGroup());
+
+        $version_number = 1;
+        $type = 'refund';
+        $method_cname = 'rec';
+        $user_id = $originalTxIn->getUser();
+        $ip = $request->getClientIp();
+
+        $user = $em->getRepository(User::class)->find($user_id);
+        $data['pin'] = $user->getPin();
+        return $this->container
+            ->get('app.incoming_controller3')
+            ->createTransaction(
+                $data, $version_number, $type, $method_cname, $user_id, $group, $ip, $order = null
+            );
+    }
+
+    /**
+     * @return DocumentManager
+     */
+    private function getDocumentManager(): DocumentManager
+    {
+        /** @var DocumentManager $dm */
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        return $dm;
+    }
+
+    /**
+     * @return EntityManagerInterface
+     */
+    private function getEntityManager(): EntityManagerInterface
+    {
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+        return $em;
+    }
 }

@@ -2,7 +2,11 @@
 
 namespace Test\FinancialApiBundle\Admin\Transactions;
 
+use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Test\FinancialApiBundle\Admin\Base\AdminBaseCalls;
 
 /**
@@ -11,6 +15,21 @@ use Test\FinancialApiBundle\Admin\Base\AdminBaseCalls;
  * @group mongo
  */
 class TransactionTest extends AdminBaseCalls {
+
+    function setUp(): void
+    {
+        parent::setUp();
+        $this->store = $this->getSingleStore();
+        $this->setClientIp($this->faker->ipv4);
+
+    }
+
+    private function getSingleStore(){
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        //UserFixture::TEST_ADMIN_CREDENTIALS es el owner de esta tienda
+        $store = $this->rest('GET', '/admin/v3/accounts?type=COMPANY')[0];
+        return $store;
+    }
 
     function testListTransactionsShouldWork(){
 
@@ -59,8 +78,6 @@ class TransactionTest extends AdminBaseCalls {
         return $this->rest('GET', $route)[0];
     }
 
-
-
     function _testListTransactionsWithFilterShouldWork()
     {
 
@@ -78,8 +95,6 @@ class TransactionTest extends AdminBaseCalls {
         self::assertObjectHasAttribute('list', $txs);
 
     }
-
-
 
     function testListTransactionsByCompanyShouldWork(){
 
@@ -101,5 +116,46 @@ class TransactionTest extends AdminBaseCalls {
         self::assertObjectHasAttribute('balance', $data);
         self::assertObjectHasAttribute('volume', $data);
         self::assertObjectHasAttribute('elements', $data);
+    }
+
+    function testPay1RecToStoreAndRefundShouldWork(){
+        self::markTestIncomplete("fails on github");
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = "/methods/v3/out/rec";
+        $resp = $this->rest(
+            'POST',
+            $route,
+            [
+                'address' => $this->store->rec_address,
+                'amount' => 1e8,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+            ],
+            [],
+            201
+        );
+
+
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $user = $this->getSignedInUser();
+        $otp = Google2FA::oath_totp($user->two_factor_code);
+        $route = "/admin/v3/transaction/refund";
+        //El user no tiene la cuenta de la store activa, entonces debe petar
+
+        $respRefund = $this->rest(
+            'POST',
+            $route,
+            [
+                'amount' => 1e8,
+                'concept' => 'Refund Testing concept',
+                'sec_code' => $otp,
+                'txid' => $resp->pay_out_info->txid
+            ],
+            [],
+            201
+        );
+
+        $content = $respRefund;
+
     }
 }

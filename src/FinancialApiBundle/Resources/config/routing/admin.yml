@@ -10,6 +10,11 @@ super_admin_transactions:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\TransactionsController::listActionV3 }
     methods: [GET]
 
+super_admin_transaction_refund:
+    path:  /admin/v3/transaction/refund
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\TransactionsController::createRefundFromAdmin }
+    methods: [POST]
+
 super_admin_transaction_search:
     path:  /admin/v1/transaction/{id}
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\TransactionsController::findAction }
