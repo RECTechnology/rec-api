@@ -20,6 +20,11 @@ super_admin_transaction_search:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\TransactionsController::findAction }
     methods: [GET]
 
+super_admin_transaction_update:
+    path:  /admin/v1/transaction/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\TransactionsController::updateAction }
+    methods: [PUT]
+
 system_last50transactions_index:
     path:  /system/v1/last50
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\System\ActivityController::last50Transactions }

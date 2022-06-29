@@ -157,5 +157,18 @@ class TransactionTest extends AdminBaseCalls {
 
         $content = $respRefund;
 
+        $route = "/admin/v1/transaction/".$respRefund->id;
+
+        $respInternal = $this->rest(
+            'PUT',
+            $route,
+            [
+                'internal' => 1,
+            ],
+            [],
+            201
+        );
+
+        $content = $respInternal;
     }
 }

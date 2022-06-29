@@ -323,6 +323,36 @@ class TransactionsController extends RestApiController {
 
     }
 
+
+    /**
+     * @Rest\View
+     */
+    public function updateAction(Request $request, $id){
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $trans = $dm->getRepository('FinancialApiBundle:Transaction')->find($id);
+
+        if(!$trans) throw new HttpException(404,'Not found');
+
+        $validParams = array(
+            'internal'
+        );
+
+        $parameters = $request->request->all();
+        $data = array();
+        foreach ($parameters as $paramName => $value){
+            if(!in_array($paramName, $validParams, false)) throw new HttpException(403, 'Changing '.$paramName.' value');
+            $data[$paramName] = $value;
+        }
+
+        if(isset($data['internal'])){
+            $trans->setInternal($data['internal']);
+        }
+
+        $dm->flush();
+
+        return $this->restV2(201, 'Transaction updated successfully', '', $trans);
+    }
+
     public function createRefundFromAdmin(Request $request){
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
