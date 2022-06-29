@@ -171,4 +171,80 @@ class TransactionTest extends AdminBaseCalls {
 
         $content = $respInternal;
     }
+
+    function testAdminThirdTransaction(){
+        $route = '/admin/v3/third/rec';
+        $data = [
+            'amount' => 1e8
+        ];
+        $resp = $this->requestJson('POST', $route, $data);
+
+        $content = json_decode($resp->getContent(), true);
+
+        self::assertEquals("Missing parameter sender", $content['message']);
+
+        $data = [
+            'amount' => 1e8,
+            'sender' => 5
+        ];
+        $resp = $this->requestJson('POST', $route, $data);
+
+        $content = json_decode($resp->getContent(), true);
+
+        self::assertEquals("Missing parameter receiver", $content['message']);
+
+        $data = [
+            'amount' => 1e8,
+            'sender' => 5,
+            'receiver' => 9
+        ];
+        $resp = $this->requestJson('POST', $route, $data);
+
+        $content = json_decode($resp->getContent(), true);
+
+        self::assertEquals("Missing parameter sec_code", $content['message']);
+
+        $user = $this->getSignedInUser();
+        $otp = Google2FA::oath_totp($user->two_factor_code);
+        $data = [
+            'amount' => 1e8,
+            'sender' => 5,
+            'receiver' => 9,
+            'sec_code' => $otp
+        ];
+        $resp = $this->requestJson('POST', $route, $data);
+
+        $content = json_decode($resp->getContent(), true);
+
+        self::assertEquals("Missing parameter concept", $content['message']);
+
+        $data = [
+            'amount' => 1e8,
+            'sender' => 5,
+            'receiver' => 9,
+            'sec_code' => $otp,
+            'concept' => "Random concept"
+        ];
+        $resp = $this->requestJson('POST', $route, $data);
+
+        $content = json_decode($resp->getContent(), true);
+
+        self::assertEquals("success", $content['status']);
+
+        $data = [
+            'amount' => 1e8,
+            'sender' => 5,
+            'receiver' => 9,
+            'sec_code' => $otp,
+            'concept' => "Random concept",
+            'internal_out' => 1,
+            'internal_in' => 1
+        ];
+        $resp = $this->requestJson('POST', $route, $data);
+
+        $content = json_decode($resp->getContent(), true);
+
+        self::assertEquals("success", $content['status']);
+
+    }
 }

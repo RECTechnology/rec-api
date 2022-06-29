@@ -208,14 +208,41 @@ class IncomingController3 extends RestApiController{
             throw new HttpException(400,'Receiver not found: ' . $params['receiver']);
         }
 
-        $request = array();
-        $request['concept'] = $params['concept'];
-        $request['amount'] = $params['amount'];
-        $request['pin'] = $user->getPin();
-        $request['address'] = $group_receiver->getRecAddress();
-        return $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $group_sender, '127.0.0.2');
+        $data = array();
+        $data['concept'] = $params['concept'];
+        $data['amount'] = $params['amount'];
+        $data['pin'] = $user->getPin();
+        $data['address'] = $group_receiver->getRecAddress();
+        $response = $this->createTransaction($data, 1, 'out', $method_cname, $user->getId(), $group_sender, '127.0.0.2');
+        $content = json_decode($response->getContent(), true);
+
+        //TODO maybe we can use statusCode instead
+        if(isset($content['status']) && $content['status'] === Transaction::$STATUS_SUCCESS){
+            $this->_makeTransactionsInternal($request, $content);
+        }
+
+        return $response;
     }
 
+    private function _makeTransactionsInternal(Request $request, $content){
+        $internal_in = $request->request->get('internal_in', false);
+        $internal_out = $request->request->get('internal_out', false);
+        $dm = $this->getDocumentManager();
+        //make transactions internal if needed
+        if($internal_out){
+            /** @var Transaction $outTx */
+            $outTx = $dm->getRepository('FinancialApiBundle:Transaction')->find($content['id']);
+            $outTx->setInternal(true);
+        }
+
+        if($internal_in){
+            /** @var Transaction $inTx */
+            $inTx = $dm->getRepository('FinancialApiBundle:Transaction')->getOriginalTxFromTxId($content['pay_out_info']['txid'], Transaction::$TYPE_IN);
+            $inTx->setInternal(true);
+        }
+
+        $dm->flush();
+    }
 
     private function _checkPermissions(User $user, Group $group){
 
