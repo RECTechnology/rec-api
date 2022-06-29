@@ -9,6 +9,7 @@
 namespace App\FinancialApiBundle\Document;
 
 use App\FinancialApiBundle\Entity\Group;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\DependencyInjection\App\Interfaces\TransactionTiming;
