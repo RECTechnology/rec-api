@@ -967,4 +967,35 @@ class IncomingController3 extends RestApiController{
             throw new HttpException(403, 'Amount is greater than available for refund');
         }
     }
+
+    /**
+     * @Rest\View
+     */
+    public function check(Request $request, $version_number, $type, $method_cname, $id){
+        $method = $this->get('net.app.'.$type.'.'.$method_cname.'.v1');
+
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $group = $this->_getCurrentCompany($user);
+        $this->_checkPermissions($user, $group);
+
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+
+        $transaction = $mongo->getRepository('FinancialApiBundle:Transaction')->findOneBy(array(
+            'id'        => $id,
+            'method'   =>  $method_cname,
+            'group'      =>  $group->getId(),
+            'type'      =>  $type
+        ));
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        $this->get('net.app.commons.permissions_checker')->checkMethodPermissions($transaction);
+
+        return $this->restV2(200,
+            "ok",
+            "Request successful",
+            $transaction
+        );
+
+    }
 }

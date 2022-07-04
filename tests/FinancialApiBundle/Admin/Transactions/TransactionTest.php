@@ -135,6 +135,15 @@ class TransactionTest extends AdminBaseCalls {
             201
         );
 
+        $route = "/methods/v3/out/rec/".$resp->id;
+        $resp = $this->rest(
+            'GET',
+            $route,
+            [],
+            [],
+            200
+        );
+
 
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $user = $this->getSignedInUser();
@@ -149,7 +158,9 @@ class TransactionTest extends AdminBaseCalls {
                 'amount' => 1e8,
                 'concept' => 'Refund Testing concept',
                 'sec_code' => $otp,
-                'txid' => $resp->pay_out_info->txid
+                'txid' => $resp->pay_out_info->txid,
+                'internal_in' => 1,
+                'internal_out' => 1
             ],
             [],
             201

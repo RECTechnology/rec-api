@@ -60,8 +60,16 @@ sender_data_get:
     methods: [GET]
 
 method_call_check:
-    path:  /methods/v{version_number}/{type}/{method_cname}/{id}
+    path:  /methods/v1/{type}/{method_cname}/{id}
     defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\IncomingController2::check, _format: ~ }
+    methods: [GET]
+    requirements:
+        service_cname: "[a-z0-9_]+"
+        id: "[a-z0-9]+"
+
+method_call_check_v3:
+    path:  /methods/v{version_number}/{type}/{method_cname}/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\IncomingController3::check, _format: ~ }
     methods: [GET]
     requirements:
         service_cname: "[a-z0-9_]+"

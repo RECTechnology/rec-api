@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Controller\Management\Admin;
 
 use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\Controller\Transactions\IncomingController3;
+use App\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionUtils;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\PaymentOrder;
@@ -400,11 +401,20 @@ class TransactionsController extends RestApiController {
 
         $user = $em->getRepository(User::class)->find($user_id);
         $data['pin'] = $user->getPin();
-        return $this->container
+        $response = $this->container
             ->get('app.incoming_controller3')
             ->createTransaction(
                 $data, $version_number, $type, $method_cname, $user_id, $group, $ip, $order = null
             );
+
+        $content = json_decode($response->getContent(), true);
+
+        if(isset($content['status']) && $content['status'] === Transaction::$STATUS_SUCCESS){
+            $this->container
+                ->get('net.app.transactions.core.utils')->makeTransactionsInternal($request, $content);
+        }
+
+        return $response;
     }
 
     /**
