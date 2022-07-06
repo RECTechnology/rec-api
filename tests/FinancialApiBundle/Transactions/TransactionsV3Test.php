@@ -50,6 +50,8 @@ class TransactionsV3Test extends BaseApiTest {
             201
         );
         sleep(3);
+        $payOutInfo = $resp->pay_out_info;
+        self::assertObjectHasAttribute('receiver_id', $payOutInfo);
         $this->searchTransactions();
 
         $this->getPendingQualifications();

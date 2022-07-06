@@ -786,6 +786,7 @@ class IncomingController3 extends RestApiController{
         }
         $payment_info['image_receiver'] = $destination->getCompanyImage();
         $payment_info['name_receiver'] = $destination->getName();
+        $payment_info['receiver_id'] = $destination->getId();
         $payment_info['concept'] = $data['concept'];
         $logger->info('(' . $account_from_id . ')(T) STATUS => ' . $payment_info['status']);
 

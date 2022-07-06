@@ -111,7 +111,8 @@ class TransactionFlowHandler{
             'final' => true,
             'receiver' => $to->getId(),
             'name_receiver' => $to->getName(),
-            'image_receiver' => $to->getCompanyImage()
+            'image_receiver' => $to->getCompanyImage(),
+            'receiver_id' => $to->getId()
         ];
 
         $txOut->setPayOutInfo($payOutInfo);
@@ -153,7 +154,7 @@ class TransactionFlowHandler{
             'final' => true,
             'image_sender' => $senderInfo['image_sender'],
             'name_sender' => $senderInfo['name_sender'],
-            'sender' => $senderInfo['id_sender']
+            'sender_id' => $senderInfo['id_sender']
         ];
 
         $txIn->setPayInInfo($payInInfo);
