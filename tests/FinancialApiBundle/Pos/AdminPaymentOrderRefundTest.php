@@ -51,6 +51,9 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
         self::assertEquals(count($paymentNotifications), 2);
         $this->signOut();
 
+        $this->refundOrderIncomingController3ShouldFail($order);
+
+
         $order = $this->refundOrder($order);
         self::assertEquals(PaymentOrder::STATUS_REFUNDED, $order->status);
         self::assertObjectHasAttribute("refund_transaction", $order);
@@ -202,6 +205,27 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
                 'otp' => $otp
             ]
         );
+    }
+
+    private function refundOrderIncomingController3ShouldFail($order)
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $user = $this->getSignedInUser();
+        $route = "/methods/v3/refund/rec";
+
+        $resp = $this->rest(
+            'POST',
+            $route,
+            [
+                'amount' => 1e8,
+                'concept' => 'Refund Testing concept',
+                'pin' => UserFixture::TEST_ADMIN_CREDENTIALS['pin'],
+                'txid' => $order->payment_transaction->pay_in_info->txid
+            ],
+            [],
+            403
+        );
+        return $resp;
     }
 
 }

@@ -484,6 +484,13 @@ class Transaction implements TransactionTiming {
      */
     private $refund_txs;
 
+    /**
+     * @var
+     * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"public"})
+     */
+    private $payment_order_id;
+
 
     /**
      * @param $id
@@ -1234,4 +1241,22 @@ class Transaction implements TransactionTiming {
     {
         $this->refund_txs = $refund_txs;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPaymentOrderId()
+    {
+        return $this->payment_order_id;
+    }
+
+    /**
+     * @param mixed $payment_order_id
+     */
+    public function setPaymentOrderId($payment_order_id): void
+    {
+        $this->payment_order_id = $payment_order_id;
+    }
+
+
 }

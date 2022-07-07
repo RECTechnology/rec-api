@@ -687,6 +687,8 @@ class IncomingController3 extends RestApiController{
 
                 $isPaymentOrder = true;
                 $paymentOrder = $order;
+                $transaction->setPaymentOrderId($order->getId());
+                $dm->persist($transaction);
             }else{
                 $isPaymentOrder = false;
                 $paymentOrder = null;
@@ -948,6 +950,13 @@ class IncomingController3 extends RestApiController{
 
     private function checkRefundConstraints(Transaction $originalOutTx, Transaction $originalInTx, Group $refunder, $amount) :void{
         $dm = $this->getDocumentManager();
+
+        $em = $this->getEntityManager();
+        $orderRepo = $em->getRepository(PaymentOrder::class);
+        /** @var PaymentOrder $order */
+        $order = $orderRepo->findOneBy(['payment_address' => $originalOutTx->getPayOutInfo()['address']]);
+        if($order) throw new HttpException(403, 'A payment order transaction cannot be refund');
+
         if($originalOutTx->getStatus() !== Transaction::$STATUS_SUCCESS) throw new HttpException(403, 'Original transaction needs to be paid before refund');
         if($originalInTx->getGroup() != $refunder->getId()) throw new HttpException(403, 'You cannot do the refund, ask the shop to initiate the process');
 
