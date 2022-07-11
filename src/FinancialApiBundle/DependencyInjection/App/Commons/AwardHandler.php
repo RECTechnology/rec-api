@@ -41,9 +41,9 @@ class AwardHandler
 
     public function handleDiscourseNotification(Request $request){
         $data = $request->request->all();
-        $headers = $request->server->all();
+        $headers = $request->headers->all();
 
-        $event = $headers['x-discourse-event'];
+        $event = $headers['x-discourse-event'][0];
 
         $this->logger->info('Discourse notification event: '.$event);
 
@@ -86,7 +86,7 @@ class AwardHandler
             //if its like check for received like
             if($scope === 'like'){
                 $event = self::RECEIVED_LIKE_EVENT;
-                $request->server->set('x-discourse-event', $event);
+                $request->headers->set('x-discourse-event', $event);
                 $this->handleDiscourseNotification($request);
             }
         }
