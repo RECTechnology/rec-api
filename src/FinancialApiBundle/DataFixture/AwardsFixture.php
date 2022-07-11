@@ -23,6 +23,7 @@ class AwardsFixture extends Fixture
         // TODO: Implement load() method.
         $this->createAward($orm, 'La saviesa');
         $this->createAward($orm, 'La paraula');
+        $this->createAward($orm, 'La impuls');
     }
 
     /**
@@ -34,9 +35,7 @@ class AwardsFixture extends Fixture
         $award->setName($name);
         $award->setNameCa($name.'_cat');
         $award->setNameEs($name.'_es');
-        $award->setBronzeThreshold(10);
-        $award->setSilverThreshold(50);
-        $award->setGoldenThreshold(100);
+        $award->setThresholds(array(10,100,1000,10000));
 
         $orm->persist($award);
         $orm->flush();

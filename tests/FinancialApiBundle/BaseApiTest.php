@@ -38,7 +38,7 @@ abstract class BaseApiTest extends WebTestCase {
         'limit_counts',
         'limit_definitions',
         'mailings',
-        'mailing_deliveries',
+        'mailing_deliveries'
     ];
 
     const HEADERS_JSON = [

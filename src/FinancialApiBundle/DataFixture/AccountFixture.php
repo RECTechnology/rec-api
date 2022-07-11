@@ -36,6 +36,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     const TEST_ACCOUNT_COMMERCE_POS = ['name' => 'COMMERCEACCOUNT_POS'];
     const TEST_ACCOUNT_REZERO_1 = ['name' => 'REZERO_1'];
     const TEST_ACCOUNT_REZERO_2 = ['name' => 'REZERO_2'];
+    const TEST_ACCOUNT_REZERO_3 = ['name' => 'REZERO_3'];
     const TEST_SHOP_ACCOUNT = ['name' => 'Shop'];
 
 
@@ -316,6 +317,20 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             100000e8
         );
 
+        $rezero_org_3 = $orm->getRepository(User::class)
+            ->findOneBy(['username' => UserFixture::TEST_REZERO_USER_3_CREDENTIALS['username']]);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $rezero_org_3,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_WHOLESALE,
+            2,
+            self::TEST_ACCOUNT_REZERO_3['name'],
+            100000e8
+        );
+
         //This one has to be the last one because some tests like #testCountryNotValid are expecting this
         //because of use admin to retrieve all accounts and gets the first on and needs to be part of this account
         $this->createAccount(
@@ -378,9 +393,21 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $account->setLevel($level);
 
         if($name === self::TEST_ACCOUNT_REZERO_2['name']){
-            $account->setRezeroB2bApiKey("747f3b325834998029ee869518a00e7e4f9952aea9eac40fabae57e2a4837e50");
+            $account->setRezeroB2bApiKey("7-47f3b325834998029ee869518a00e7e4f9952aea9eac40fabae57e2a4837e50");
             $account->setRezeroB2bUserId(40);
             $account->setRezeroB2bUsername("anbton");
+            $account->setRezeroB2bAccess(Group::ACCESS_STATE_GRANTED);
+
+            $activity = $orm->getRepository(Activity::class)->findOneBy(['name' => Activity::GREEN_COMMERCE_ACTIVITY]);
+            $account->addActivity($activity);
+            $badge = $orm->getRepository(Badge::class)->findOneBy(['name' => "Test"]);
+            $account->addBadge($badge);
+        }
+
+        if($name === self::TEST_ACCOUNT_REZERO_3['name']){
+            $account->setRezeroB2bApiKey("747f3b325834998029ee869518a00e7e4f9952aea9eac40fabae57e2a4837e50");
+            $account->setRezeroB2bUserId(41);
+            $account->setRezeroB2bUsername(UserFixture::TEST_REZERO_USER_3_CREDENTIALS['name']);
             $account->setRezeroB2bAccess(Group::ACCESS_STATE_GRANTED);
 
             $activity = $orm->getRepository(Activity::class)->findOneBy(['name' => Activity::GREEN_COMMERCE_ACTIVITY]);

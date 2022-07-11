@@ -2,10 +2,7 @@
 
 namespace Test\FinancialApiBundle\Discourse;
 
-
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Test\FinancialApiBundle\BaseApiTest;
 
 class DiscourseNotificationsTest extends BaseApiTest{
@@ -14,20 +11,71 @@ class DiscourseNotificationsTest extends BaseApiTest{
         parent::setUp();
     }
 
-    function _testPostNotification(){
+    function testPostNotification(){
 
         $route = '/notifications/v1/discourse';
-        $data = array (
+        $data = $this->getAnbtonPostCreatedNotificationData();
+
+        $headers = array(
+            'x-discourse-event' => 'post_created',
+            'x-discourse-event-type' => 'post',
+            'x-discourse-event-id' => 1,
+            'x-discourse-event-instance' => 'https://community.stage.atarca.es',
+            'content-type' => 'application/json',
+            'connection' => 'close',
+            'accept' => '*/*',
+            'user-agent' => 'Discourse/2.7.13'
+        );
+        $resp = $this->requestJson('POST', $route, $data, $headers);
+        $content = json_decode($resp->getContent(),true);
+        self::assertArrayHasKey('data', $content);
+
+        $this->getAwardsFromAnbtonAccount();
+
+        $data = $this->getRezero3PostCreatedNotificationData();
+        $resp = $this->requestJson('POST', $route, $data, $headers);
+        $content = json_decode($resp->getContent(),true);
+        self::assertArrayHasKey('data', $content);
+
+        $this->getAwardsFromUser3Account();
+
+    }
+
+    function testLikeNotification(){
+
+        $route = '/notifications/v1/discourse';
+        $data = $this->getLikeNotification();
+
+        $headers = array(
+            'x-discourse-event' => 'post_liked',
+            'x-discourse-event-type' => 'like',
+            'x-discourse-event-id' => 1,
+            'x-discourse-event-instance' => 'https://community.stage.atarca.es',
+            'content-type' => 'application/json',
+            'connection' => 'close',
+            'accept' => '*/*',
+            'user-agent' => 'Discourse/2.7.13'
+        );
+        $resp = $this->requestJson('POST', $route, $data, $headers);
+        $content = json_decode($resp->getContent(),true);
+        self::assertArrayHasKey('data', $content);
+
+        $this->getAwardsFromAnbtonAccount();
+
+    }
+
+    function getAnbtonPostCreatedNotificationData(){
+        return array (
             'post' =>
                 array (
                     'id' => 582,
                     'name' => 'almohadas rana',
-                    'username' => 'rana',
+                    'username' => 'anbton',
                     'avatar_template' => '/user_avatar/community.stage.atarca.es/rana/{size}/98_2.png',
                     'created_at' => '2022-05-10T10:23:11.638Z',
                     'cooked' => '<p>Ahora mismo los webhooks estan siendo notificados en este endpoint por si quereis ir comprobando cuando realiceis acciones</p>
 <p><a href="https://webhook.site/#!/2b7aa46d-b771-4c45-bf54-a8e839ad6669" class="onebox" target="_blank" rel="noopener nofollow ugc">https://webhook.site/#!/2b7aa46d-b771-4c45-bf54-a8e839ad6669</a></p>',
-                    'post_number' => 1,
+                    'post_number' => 2,
                     'post_type' => 1,
                     'updated_at' => '2022-05-10T10:23:11.638Z',
                     'reply_count' => 0,
@@ -67,21 +115,59 @@ https://webhook.site/#!/2b7aa46d-b771-4c45-bf54-a8e839ad6669',
                     'category_slug' => 'actualitat',
                 ),
         );
+    }
 
-        $headers = array(
-            'x-discourse-event' => 'post_created',
-            'x-discourse-event-type' => 'post',
-            'x-discourse-event-id' => 1,
-            'x-discourse-event-instance' => 'https://community.stage.atarca.es',
-            'content-type' => 'application/json',
-            'connection' => 'close',
-            'accept' => '*/*',
-            'user-agent' => 'Discourse/2.7.13'
+    function getRezero3PostCreatedNotificationData(){
+        return array (
+            'post' =>
+                array (
+                    'id' => 582,
+                    'name' => 'almohadas rana',
+                    'username' => 'rezero3',
+                    'avatar_template' => '/user_avatar/community.stage.atarca.es/rana/{size}/98_2.png',
+                    'created_at' => '2022-05-10T10:23:11.638Z',
+                    'cooked' => '<p>Ahora mismo los webhooks estan siendo notificados en este endpoint por si quereis ir comprobando cuando realiceis acciones</p>
+<p><a href="https://webhook.site/#!/2b7aa46d-b771-4c45-bf54-a8e839ad6669" class="onebox" target="_blank" rel="noopener nofollow ugc">https://webhook.site/#!/2b7aa46d-b771-4c45-bf54-a8e839ad6669</a></p>',
+                    'post_number' => 7,
+                    'post_type' => 1,
+                    'updated_at' => '2022-05-10T10:23:11.638Z',
+                    'reply_count' => 0,
+                    'reply_to_post_number' => NULL,
+                    'quote_count' => 0,
+                    'incoming_link_count' => 0,
+                    'reads' => 0,
+                    'score' => 0,
+                    'topic_id' => 289,
+                    'topic_slug' => 'probando-webhooks',
+                    'topic_title' => 'Probando webhooks',
+                    'category_id' => 5,
+                    'display_username' => 'almohadas rana',
+                    'primary_group_name' => NULL,
+                    'version' => 1,
+                    'user_title' => NULL,
+                    'bookmarked' => false,
+                    'raw' => 'Ahora mismo los webhooks estan siendo notificados en este endpoint por si quereis ir comprobando cuando realiceis acciones
+
+https://webhook.site/#!/2b7aa46d-b771-4c45-bf54-a8e839ad6669',
+                    'moderator' => false,
+                    'admin' => false,
+                    'staff' => false,
+                    'user_id' => 76,
+                    'hidden' => false,
+                    'trust_level' => 0,
+                    'deleted_at' => NULL,
+                    'user_deleted' => false,
+                    'edit_reason' => NULL,
+                    'wiki' => false,
+                    'reviewable_id' => NULL,
+                    'reviewable_score_count' => 0,
+                    'reviewable_score_pending_count' => 0,
+                    'topic_posts_count' => 1,
+                    'topic_filtered_posts_count' => 1,
+                    'topic_archetype' => 'regular',
+                    'category_slug' => 'actualitat',
+                ),
         );
-        $resp = $this->requestJson('POST', $route, $data, $headers);
-        $content = json_decode($resp->getContent(),true);
-        self::assertArrayHasKey('data', $content);
-
     }
 
     function getLoggedInNotificationData(){
@@ -271,7 +357,7 @@ https://webhook.site/#!/2b7aa46d-b771-4c45-bf54-a8e839ad6669',
                         array (
                             'id' => 97,
                             'name' => 'Diego',
-                            'username' => 'diegomtz',
+                            'username' => 'anbton',
                             'avatar_template' => '/user_avatar/community.stage.atarca.es/diegomtz/{size}/25_2.png',
                             'created_at' => '2022-02-05T07:43:26.511Z',
                             'cooked' => '<p>Hola ayer estuve trabajando en la paleta de colores para la nueva plataforma. Decir que es muy difícil combinar nuestro color naranja REC con los tonos marrones hexa de Rezero o incluso el hexa verde de comerç verd, son colores que no tienen ninguna relación armónica entre ellos y quedan mal o raros combinados. Por ejemplo, habéis visto alguna vez una web naranja y marrón, o naranja y verde? Yo al menos no.</p>
@@ -528,12 +614,59 @@ Podéis ver ejemplos de distintas combinaciones de cada paleta en [esta carpeta 
                     'user' =>
                         array (
                             'id' => 76,
-                            'username' => 'rana',
+                            'username' => 'rezero3',
                             'name' => 'almohadas rana',
                             'avatar_template' => '/user_avatar/community.stage.atarca.es/rana/{size}/98_2.png',
                         ),
                 ),
         );
+    }
+
+    function getAwardsFromAnbtonAccount(){
+        //TODO get self account awards items from anbton user
+        $this->signIn(UserFixture::TEST_REZERO_USER_2_CREDENTIALS);
+        $user = $this->getSignedInUser();
+
+        $routeItems = 'user/v3/account/'.$user->group_data->id.'/award_items';
+        $respItems = $this->requestJson('GET', $routeItems);
+        $contentItems = json_decode($respItems->getContent(),true);
+        self::assertEquals('REZERO_2', $contentItems['data']['elements'][0]['account_name']);
+
+        $routeItemsFilter = 'user/v3/account/'.$user->group_data->id.'/award_items?award_id=23';
+        $respItemsFiltered = $this->requestJson('GET', $routeItemsFilter);
+        $contentItemsFiltered = json_decode($respItemsFiltered->getContent(),true);
+        self::assertEquals('Award not found', $contentItemsFiltered['message']);
+
+        $routeItemsFilter = 'user/v3/account/'.$user->group_data->id.'/award_items?award_id=1';
+        $respItemsFiltered = $this->requestJson('GET', $routeItemsFilter);
+        $contentItemsFiltered = json_decode($respItemsFiltered->getContent(),true);
+        self::assertEquals(0, $contentItemsFiltered['data']['total']);
+
+        $routeItemsFilter = 'user/v3/account/'.$user->group_data->id.'/award_items?award_id=3';
+        $respItemsFiltered = $this->requestJson('GET', $routeItemsFilter);
+        $contentItemsFiltered = json_decode($respItemsFiltered->getContent(),true);
+        self::assertEquals(1, $contentItemsFiltered['data']['total']);
+
+        $this->signOut();
+    }
+
+    function getAwardsFromUser3Account(){
+        $this->signIn(UserFixture::TEST_REZERO_USER_3_CREDENTIALS);
+        $user = $this->getSignedInUser();
+        //get item awards
+        $routeItems = 'user/v3/account/'.$user->group_data->id.'/award_items';
+        $respItems = $this->requestJson('GET', $routeItems);
+        $contentItems = json_decode($respItems->getContent(),true);
+        self::assertEquals(1, $contentItems['data']['total']);
+        self::assertEquals('REZERO_3', $contentItems['data']['elements'][0]['account_name']);
+
+        //TODO get account awards
+        $routeAwards = 'user/v3/account/'.$user->group_data->id.'/awards';
+        $respAwards = $this->requestJson('GET', $routeAwards);
+        $contentAwards = json_decode($respAwards->getContent(),true);
+
+        self::assertEquals(1, $contentAwards['data']['total']);
+        self::assertEquals(2, $contentAwards['data']['elements'][0]['score']);
     }
 
 }

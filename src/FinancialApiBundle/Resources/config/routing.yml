@@ -26,6 +26,9 @@ CRUD_qualifications_overrides:
 CRUD_configuration_settings_overrides:
     resource: routing/CRUDsOverrides/configuration_settings.yml
 
+CRUD_awards_overrides:
+    resource: routing/CRUDsOverrides/awards.yml
+
 CRUD:
     resource: routing/crud.yml
 

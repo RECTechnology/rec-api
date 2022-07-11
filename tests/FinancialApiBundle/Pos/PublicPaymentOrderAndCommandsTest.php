@@ -163,7 +163,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $this->assertStringContainsString('Listing order notifications', $output);
 
         //get all pos
-        $respPos = $this->getAsAdmin('/admin/v3/pos');
+        $respPos = $this->getAsAdmin('/admin/v3/pos?limit=30');
         //We are generating 2 tx for tpv and one of each one has 2 notifications
         $this->assertStringContainsString((count($respPos) * 3) . ' notifications found', $output);
     }

@@ -116,10 +116,17 @@ services:
         arguments:
             - "@service_container"
             - "@discourse.logger"
-            -
+
+    net.app.commons.award_handler:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\AwardHandler
+        arguments:
+            - "@doctrine"
+            - "@discourse.logger"
+
     net.app.transactions.core.utils:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionUtils
         arguments:
             - "@service_container"
             - "@doctrine"
             - "@doctrine_mongodb"
+

@@ -32,22 +32,10 @@ class Award extends AppObject
     private $name_ca;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="simple_array")
      * @Serializer\Groups({"public"})
      */
-    private $golden_threshold;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Serializer\Groups({"public"})
-     */
-    private $silver_threshold;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Serializer\Groups({"public"})
-     */
-    private $bronze_threshold;
+    private $thresholds;
 
     /**
      * @return mixed
@@ -84,54 +72,6 @@ class Award extends AppObject
     /**
      * @return mixed
      */
-    public function getGoldenThreshold()
-    {
-        return $this->golden_threshold;
-    }
-
-    /**
-     * @param mixed $golden_threshold
-     */
-    public function setGoldenThreshold($golden_threshold): void
-    {
-        $this->golden_threshold = $golden_threshold;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSilverThreshold()
-    {
-        return $this->silver_threshold;
-    }
-
-    /**
-     * @param mixed $silver_threshold
-     */
-    public function setSilverThreshold($silver_threshold): void
-    {
-        $this->silver_threshold = $silver_threshold;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBronzeThreshold()
-    {
-        return $this->bronze_threshold;
-    }
-
-    /**
-     * @param mixed $bronze_threshold
-     */
-    public function setBronzeThreshold($bronze_threshold): void
-    {
-        $this->bronze_threshold = $bronze_threshold;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getNameCa()
     {
         return $this->name_ca;
@@ -143,6 +83,22 @@ class Award extends AppObject
     public function setNameCa($name_ca): void
     {
         $this->name_ca = $name_ca;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getThresholds()
+    {
+        return $this->thresholds;
+    }
+
+    /**
+     * @param mixed $thresholds
+     */
+    public function setThresholds($thresholds): void
+    {
+        $this->thresholds = $thresholds;
     }
 
 }
