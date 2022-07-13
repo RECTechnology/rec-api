@@ -13,6 +13,7 @@ use JMS\Serializer\Annotation\MaxDepth;
  */
 class AccountAward extends AppObject
 {
+
     /**
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"public"})
@@ -34,6 +35,11 @@ class AccountAward extends AppObject
      */
     private $award;
 
+    /**
+     * @ORM\Column(type="integer")
+     * @Serializer\Groups({"public"})
+     */
+    private $level = 0;
 
     /**
      * @return mixed
@@ -81,6 +87,22 @@ class AccountAward extends AppObject
     public function setAward($award): void
     {
         $this->award = $award;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLevel(): int
+    {
+        return $this->level;
+    }
+
+    /**
+     * @param int $level
+     */
+    public function setLevel(int $level): void
+    {
+        $this->level = $level;
     }
 
 }

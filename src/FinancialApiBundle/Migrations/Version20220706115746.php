@@ -42,7 +42,7 @@ final class Version20220706115746 extends AbstractMigration
 
     public function postUp(Schema $schema): void
     {
-        $thresholds = implode(',',[100,500,1500]);
+        $thresholds = implode(',',[0,100,500,1500]);
         $this->insertAwards('Word', 'Palabra', 'Paraula', $thresholds);
         $this->insertAwards('Wisdom', 'Sabiduría', 'Saviesa', $thresholds);
         $this->insertAwards('Momentum', 'Impulso', "Impuls", $thresholds);
