@@ -43,7 +43,7 @@ class DiscourseApiManager{
             "username"=> $account->getRezeroB2bUsername(),
             "active"=> true,
             "approved"=> true,
-            "user_fields" => array($account->getName(), $account->getKycManager()->getName())
+            "user_fields" => array($account->getName(), $account->getKycManager()->getName(), $account->getId())
         );
 
         return $this->_callDiscourseAdmin('users.json', $this->getAdminCredentials(), 'POST', $data);
