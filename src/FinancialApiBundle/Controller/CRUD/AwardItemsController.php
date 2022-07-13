@@ -54,6 +54,11 @@ class AwardItemsController extends CRUDController
 
         $limit = $request->query->get('limit', 10);
         $offset = $request->query->get('offset', 0);
+        $sort = $request->query->get('sort', "id");
+        $order = strtoupper($request->query->get('order', "DESC"));
+
+        if(!in_array($order, ["ASC", "DESC"]))
+            throw new HttpException(400, "Invalid order: it must be ASC or DESC");
 
         $award_id = $request->query->get('award_id', false);
 
@@ -61,6 +66,7 @@ class AwardItemsController extends CRUDController
         if(!$account) throw new HttpException(404, 'Account not found');
 
         $select = 'i.id, ' .
+            'i.created, '.
             'i.score, '.
             'awd.id as award_id, '.
             'awd.name, '.
@@ -82,6 +88,7 @@ class AwardItemsController extends CRUDController
             ->leftJoin('aw.account', 'a') // The missing join
             ->leftJoin('aw.award', 'awd') // The missing join
             ->where('a.id = :id') // where p.name like %keyword%
+            ->orderBy('i.'.$sort, $order)
             ->setParameter('id', $id)
             ->setMaxResults($limit)
             ->setFirstResult($offset);
