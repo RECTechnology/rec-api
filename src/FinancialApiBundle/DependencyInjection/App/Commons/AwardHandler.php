@@ -39,7 +39,8 @@ class AwardHandler
         $this->logger = $logger;
     }
 
-    public function handleDiscourseNotification(Request $request){
+    public function handleDiscourseNotification(Request $request): void
+    {
         $data = $request->request->all();
         $headers = $request->headers->all();
 
@@ -63,28 +64,14 @@ class AwardHandler
             if(!$creatorAccount) return;
 
             /** @var AwardScoreRule $awardRule */
-            $awardRule = $em->getRepository(AwardScoreRule::class)->findOneBy(array(
-                'action' => self::ALL_EVENTS[$event],
-                'category' => $category_id
-            ));
+            $awardRule = $this->getMatchedRule($event, $category_id, $scope);
 
             if($awardRule){
-                $this->createAccountAwardItem($creatorAccount, $awardRule->getAward(), $awardRule);
-
-            }else{
-                /** @var AwardScoreRule $awardRule */
-                $awardRule = $em->getRepository(AwardScoreRule::class)->findOneBy(array(
-                    'action' => self::ALL_EVENTS[$event],
-                    'category' => null
-                ));
-
-                if($awardRule){
-                    $this->createAccountAwardItem($creatorAccount, $awardRule->getAward(), $awardRule);
-                }
+                $this->createAccountAwardItem($creatorAccount, $awardRule);
             }
 
             //if its like check for received like
-            if($scope === 'like'){
+            if($event === self::POST_LIKED_EVENT){
                 $event = self::RECEIVED_LIKE_EVENT;
                 $request->headers->set('x-discourse-event', $event);
                 $this->handleDiscourseNotification($request);
@@ -97,7 +84,8 @@ class AwardHandler
         return $this->doctrine->getManager();
     }
 
-    private function getAccountAward(Group $account, Award $award){
+    private function getAccountAward(Group $account, Award $award): AccountAward
+    {
         $em = $this->getEntityManager();
         $accountAward = $em->getRepository(AccountAward::class)->findOneBy(array(
             'account' => $account,
@@ -117,8 +105,10 @@ class AwardHandler
         return $accountAward;
     }
 
-    private function createAccountAwardItem(Group $account, Award $award, AwardScoreRule $awardRule){
+    private function createAccountAwardItem(Group $account, AwardScoreRule $awardRule): void
+    {
         $em = $this->getEntityManager();
+        $award = $awardRule->getAward();
         $accountAward = $this->getAccountAward($account, $award);
         $awardItem = new AccountAwardItem();
         $awardItem->setScore($awardRule->getScore());
@@ -133,7 +123,8 @@ class AwardHandler
         $em->flush();
     }
 
-    private function getInfoFromNotification($data, $event){
+    private function getInfoFromNotification($data, $event): array
+    {
 
         switch ($event){
             case self::POST_CREATE_EVENT:
@@ -148,15 +139,53 @@ class AwardHandler
                 $response = [$data['topic']['category_id'], $data['topic']['created_by']['username'], 'topic'];
                 break;
             case self::POST_LIKED_EVENT:
-                $response = [$data['like']['post']['category_id'], $data['like']['user']['username'], 'like'];
+                $scope = 'post';
+                if($data['like']['post']['post_number'] === 1){
+                    $scope = 'topic';
+                }
+                $response = [$data['like']['post']['category_id'], $data['like']['user']['username'], $scope];
                 break;
             case self::RECEIVED_LIKE_EVENT:
-                $response = [$data['like']['post']['category_id'], $data['like']['post']['username'], 'receive_like'];
+                $scope = 'post';
+                if($data['like']['post']['post_number'] === 1){
+                    $scope = 'topic';
+                }
+                $response = [$data['like']['post']['category_id'], $data['like']['post']['username'], $scope];
                 break;
             default:
                  $response = [null, null, null];
 
         }
         return $response;
+    }
+
+    private function getMatchedRule($event, $category_id, $scope){
+        $em = $this->getEntityManager();
+
+        $awardRule = $em->getRepository(AwardScoreRule::class)->findOneBy(array(
+            'action' => self::ALL_EVENTS[$event],
+            'category' => $category_id,
+            'scope' => $scope
+        ));
+
+        if($awardRule) return $awardRule;
+
+        $awardRule = $em->getRepository(AwardScoreRule::class)->findOneBy(array(
+            'action' => self::ALL_EVENTS[$event],
+            'scope' => $scope,
+            'category' => null
+        ));
+
+        if($awardRule) return $awardRule;
+
+        $awardRule = $em->getRepository(AwardScoreRule::class)->findOneBy(array(
+            'action' => self::ALL_EVENTS[$event],
+            'scope' => null,
+            'category' => $category_id
+        ));
+
+        if($awardRule) return $awardRule;
+
+        return null;
     }
 }
