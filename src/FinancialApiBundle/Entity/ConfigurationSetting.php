@@ -16,6 +16,7 @@ class ConfigurationSetting extends AppObject
     public const SHOP_BADGES_SCOPE = 'badges';
     public const QUALIFICATIONS_SCOPE = 'qualifications';
     public const APP_SCOPE = 'app';
+    public const NFT_SCOPE = 'nft';
 
     public const SETTING_QUALIFICATIONS_SYSTEM_STATUS = 'qualifications_system_status';
 

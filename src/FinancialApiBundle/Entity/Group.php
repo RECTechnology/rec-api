@@ -157,6 +157,19 @@ class Group extends BaseGroup implements Uploadable
     private $wallets;
 
     /**
+     * @ORM\Column(type="text")
+     * @Serializer\Groups({"admin"})
+     */
+    private $nft_wallet = '';
+
+    /**
+     * @ORM\Column(type="text")
+     * @Serializer\Groups({"admin"})
+     */
+    private $nft_wallet_pk = '';
+
+
+    /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\LimitCount", mappedBy="group", cascade={"remove"})
      * @Serializer\Groups({"user"})
      */
@@ -761,6 +774,38 @@ class Group extends BaseGroup implements Uploadable
     public function setWallets($wallets)
     {
         $this->wallets = $wallets;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNftWallet(): string
+    {
+        return $this->nft_wallet;
+    }
+
+    /**
+     * @param string $nft_wallet
+     */
+    public function setNftWallet(string $nft_wallet): void
+    {
+        $this->nft_wallet = $nft_wallet;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNftWalletPk(): string
+    {
+        return $this->nft_wallet_pk;
+    }
+
+    /**
+     * @param string $nft_wallet_pk
+     */
+    public function setNftWalletPk(string $nft_wallet_pk): void
+    {
+        $this->nft_wallet_pk = $nft_wallet_pk;
     }
 
     /**

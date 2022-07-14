@@ -238,3 +238,8 @@ system_get_net:
     path:  /system/v1/net
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\System\SystemController::net }
     methods: [GET]
+
+admin_nft_create_wallet:
+    path:  /admin/v4/nft_wallet/{account_id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\NFTController::createWallet }
+    methods: [POST]

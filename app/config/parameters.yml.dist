@@ -135,3 +135,6 @@ parameters:
     discourse_admin_username: "system"
     discourse_admin_api_key: "965db9ffbea71b02b2d681288f2bc20f79118aad71faac3e14819a2430d11d4b"
     discourse_news_category_id: 9
+
+# ATARCA NFT settings
+    atarca_nft_contract_address: '0xaf33ecfb3E5D07C232fC3Ec8992e7de43485a70a'
