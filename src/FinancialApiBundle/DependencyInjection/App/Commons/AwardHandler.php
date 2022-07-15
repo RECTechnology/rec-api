@@ -23,7 +23,7 @@ class AwardHandler
 
     private const ALL_EVENTS = [
         self::POST_CREATE_EVENT => 'comment',
-        self::TOPIC_CREATE_EVENT => 'start_topic',
+        self::TOPIC_CREATE_EVENT => 'create_topic',
         self::POST_LIKED_EVENT => 'like',
         self::RECEIVED_LIKE_EVENT => 'receive_like',
     ];
