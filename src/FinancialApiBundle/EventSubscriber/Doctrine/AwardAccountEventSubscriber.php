@@ -36,6 +36,8 @@ class AwardAccountEventSubscriber implements EventSubscriber {
     /** @var ContainerInterface $container */
     private $container;
 
+    protected $logger;
+
     /**
      * MailingDeliveryEventSubscriber constructor.
      * @param ContainerInterface $container
@@ -43,6 +45,7 @@ class AwardAccountEventSubscriber implements EventSubscriber {
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->logger = $this->container->get('logger');
     }
 
     /**
@@ -61,6 +64,7 @@ class AwardAccountEventSubscriber implements EventSubscriber {
         $em = $args->getEntityManager();
         if($accountAward instanceof AccountAward){
             if ($args->hasChangedField("score")){
+                $this->logger->info('AWARD_ACCOUNT_EVENT_SUBSCRIBER: Detected score changes');
                 $score = $accountAward->getScore();
 
                 /** @var Award $award */
@@ -73,6 +77,10 @@ class AwardAccountEventSubscriber implements EventSubscriber {
                     if($score >= $ranges[$currentLevel + 1]){
                         //increase level
                         $accountAward->setLevel($currentLevel +1);
+                        $this->logger->info('AWARD_ACCOUNT_EVENT_SUBSCRIBER: promote account '
+                            .$accountAward->getAccount()->getName().' to level '.($currentLevel+1).' in '
+                            .$accountAward->getAward()->getName());
+
                         //send an email
                         $this->sendEmail($accountAward);
                     }
@@ -88,12 +96,15 @@ class AwardAccountEventSubscriber implements EventSubscriber {
             ' ha subido de nivel '.($accountAward->getLevel() - 1).' a nivel '.$accountAward->getLevel().
             ' en la categoria '.$accountAward->getAward()->getNameEs();
 
+        $this->logger->info('AWARD_ACCOUNT_EVENT_SUBSCRIBER: '.$body);
+
         $message = \Swift_Message::newInstance()
             ->setSubject("New Level Raised in Conecta")
             ->setFrom($no_replay)
             ->setTo(array(
                 "julia.ponti@novact.org",
                 "sofia@novact.org",
+                "diegomtz.dev@gmail.com"
             ))
             ->setBody(
                 $this->container->get('templating')
@@ -109,6 +120,7 @@ class AwardAccountEventSubscriber implements EventSubscriber {
             )
             ->setContentType('text/html');
 
+        $this->logger->info('AWARD_ACCOUNT_EVENT_SUBSCRIBER: Sending email');
         $this->container->get('mailer')->send($message);
     }
 
