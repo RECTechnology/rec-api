@@ -136,6 +136,7 @@ class TransactionFlowHandler{
         $txIn->setTotal($previousTx->getAmount());
         $txIn->setScale(8);
         $txIn->setInternal($internal);
+        $txIn->setPaymentOrderId($previousTx->getPaymentOrderId());
 
         $senderInfo = $this->getSenderInfo($previousTx);
 
