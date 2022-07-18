@@ -89,9 +89,7 @@ class AwardItemsController extends CRUDController
             ->leftJoin('aw.award', 'awd') // The missing join
             ->where('a.id = :id') // where p.name like %keyword%
             ->orderBy('i.'.$sort, $order)
-            ->setParameter('id', $id)
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
+            ->setParameter('id', $id);
 
         if($award_id){
             $award = $em->getRepository(Award::class)->find($award_id);
@@ -100,14 +98,16 @@ class AwardItemsController extends CRUDController
                 ->setParameter('award_id', $award_id);
         }
 
-        $result = $query->getQuery()->getResult();
+        $all = $query->getQuery()->getResult();
+
+        $result = array_slice($all, $offset, $limit);
 
         return $this->restV2(
             self::HTTP_STATUS_CODE_OK,
             "ok",
             "Request successful",
             array(
-                'total' => count($result),
+                'total' => count($all),
                 'elements' => $result,
                 'limit' => $limit,
                 'offset' => $offset
