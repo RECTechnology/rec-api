@@ -138,3 +138,5 @@ parameters:
 
 # ATARCA NFT settings
     atarca_nft_contract_address: '0xaf33ecfb3E5D07C232fC3Ec8992e7de43485a70a'
+
+    atarca_web3_api_url: http://web3:5000
