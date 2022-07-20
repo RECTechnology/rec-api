@@ -118,7 +118,7 @@ class AwardHandler
         return $accountAward;
     }
 
-    private function createAccountAwardItem(Group $account, AwardScoreRule $awardRule): void
+    public function createAccountAwardItem(Group $account, AwardScoreRule $awardRule): void
     {
         $em = $this->getEntityManager();
         $award = $awardRule->getAward();
