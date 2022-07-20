@@ -26,7 +26,7 @@ class UserFixture extends Fixture {
 
     const TEST_REZERO_USER_1_CREDENTIALS = ['name' => 'rezero1', 'username' => '01233567C', 'password' => 'user_rezero', 'pin' => '2234'];
 
-    const TEST_REZERO_USER_2_CREDENTIALS = ['name' => 'rezero2', 'username' => '01233557C', 'password' => 'user_rezero2', 'pin' => '2233'];
+    const TEST_REZERO_USER_2_CREDENTIALS = ['name' => 'rezero2', 'username' => '71566019R', 'password' => 'user_rezero2', 'pin' => '2233'];
     const TEST_REZERO_USER_3_CREDENTIALS = ['name' => 'rezero3', 'username' => '01233157C', 'password' => 'user_rezero3', 'pin' => '2223'];
     const TEST_USER_IN_SHOP = ['name' => 'user_shop', 'username' => '01200557C', 'password' => 'user_shop', 'pin' => '8888'];
 

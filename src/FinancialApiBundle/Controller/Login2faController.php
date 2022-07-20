@@ -3,7 +3,11 @@
 namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\AwardHandler;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\UserChecker;
+use App\FinancialApiBundle\Entity\AwardScoreRule;
 use App\FinancialApiBundle\Entity\Config;
+use App\FinancialApiBundle\Entity\ConfigurationSetting;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\UserSecurityConfig;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
@@ -24,6 +28,7 @@ class Login2faController extends RestApiController{
         $username = $request->get('username', '');
 
         if($request->get('grant_type') == "password"){
+            /** @var UserChecker $user_checker */
             $user_checker = $this->container->get('net.app.commons.user_checker');
             $dni_val = $user_checker->validateUserIdentification($username);
             if(!$dni_val['result'])
@@ -201,6 +206,10 @@ class Login2faController extends RestApiController{
             $em->persist($user);
             $em->flush();
         }
+
+        if($request->request->get('platform') === 'rezero-b2b-web'){
+            $this->addLoginScore($user);
+        }
         return new Response(json_encode($token), 200, $headers);
     }
 
@@ -357,5 +366,21 @@ class Login2faController extends RestApiController{
         }else{
             throw new HttpException(404, 'Version param es requerido');
         }
+    }
+
+    private function addLoginScore(User $user){
+        $em = $this->getDoctrine()->getManager();
+        /** @var AwardScoreRule $awardRule */
+        $awardRule = $em->getRepository(AwardScoreRule::class)->findOneBy(array(
+            'action' => 'login',
+            'scope' => null,
+            'category' => null
+        ));
+        if($awardRule){
+            /** @var AwardHandler $awardHandler */
+            $awardHandler = $this->get('net.app.commons.award_handler');
+            $awardHandler->createAccountAwardItem($user->getActiveGroup(), $awardRule);
+        }
+
     }
 }

@@ -145,6 +145,14 @@ class AwardRulesFixture extends Fixture implements DependentFixtureInterface
         $rule7->setScope('topic');
         $orm->persist($rule7);
 
+        $rule8 = new AwardScoreRule();
+        $rule8->setAward($impuls);
+        $rule8->setScore(1);
+        $rule8->setAction('login');
+        $rule8->setScope(null);
+        $rule8->setCategory(null);
+        $orm->persist($rule8);
+
         $orm->flush();
     }
 
