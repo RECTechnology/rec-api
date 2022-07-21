@@ -237,6 +237,7 @@ class RechargeV3RecsTest extends AdminApiTest {
         $private_culture_accounts = $this->rest('GET', "/user/v3/accounts?id=".$private_culture_account_id);
 
         self::assertEquals(250, $private_culture_accounts[0]->wallets[0]->balance / 1e8);
+        self::assertEquals(100, $private_culture_accounts[0]->rewarded_amount);
 
         // limits
         $this->sendFromCultureAccountToNoCultureAccountShouldFail($private_culture_accounts[0]);
