@@ -236,7 +236,7 @@ class BonusHandler{
         }catch (HttpException $e){
             //Do something here
         }
-        $this->clientGroup->setRewardedAmount($new_rewarded);
+        $this->clientGroup->setRewardedAmount($new_rewarded + $rewarded_amount);
     }
 
     private function getExchanger($receiver_id): Group
