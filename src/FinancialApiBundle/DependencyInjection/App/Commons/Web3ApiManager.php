@@ -36,11 +36,11 @@ class Web3ApiManager{
                 ]
             ];
 
-            $resp = file_get_contents(
+            $resp = json_decode(file_get_contents(
                 $this->web3_api_url."/create_wallet",
                 false,
                 stream_context_create($ops)
-            );
+            ), true);
             $this->logger->info( 'New wallet created: '.strval($resp['wallet']['address']));
             return $resp;
         }catch (Exception $e) {
@@ -81,7 +81,7 @@ class Web3ApiManager{
                 stream_context_create($ops)
             );
             $this->logger->info( 'New NFT created: '.strval($resp));
-            return $resp;
+            return json_decode($resp);
         }catch (Exception $e) {
             $this->logger->info( 'Error during call: '.strval($e));
             return $e;
@@ -122,7 +122,7 @@ class Web3ApiManager{
             );
 
             $this->logger->info( 'NFT hared: '.strval($resp));
-            return $resp;
+            return json_decode($resp);
         }catch (Exception $e) {
             $this->logger->info( 'Error during call: '.strval($e));
             return $e;
