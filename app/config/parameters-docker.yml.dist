@@ -102,3 +102,4 @@ parameters:
     discourse_news_category_id: $DISCOURSE_NEWS_CATEGORY_ID
 
     atarca_web3_api_url: $ATARCA_WEB3_API_URL
+    resume_admin_emails_list: $RESUME_ADMIN_EMAILS_LIST

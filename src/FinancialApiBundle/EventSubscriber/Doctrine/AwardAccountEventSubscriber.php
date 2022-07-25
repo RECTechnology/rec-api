@@ -98,14 +98,12 @@ class AwardAccountEventSubscriber implements EventSubscriber {
 
         $this->logger->info('AWARD_ACCOUNT_EVENT_SUBSCRIBER: '.$body);
 
+        $resume_admin_emails = $this->container->getParameter("resume_admin_emails_list");
+
         $message = \Swift_Message::newInstance()
             ->setSubject("New Level Raised in Conecta")
             ->setFrom($no_replay)
-            ->setTo(array(
-                "julia.ponti@novact.org",
-                "sofia@novact.org",
-                "diegomtz.dev@gmail.com"
-            ))
+            ->setTo($resume_admin_emails)
             ->setBody(
                 $this->container->get('templating')
                     ->render('FinancialApiBundle:Email:empty_email.html.twig',

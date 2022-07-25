@@ -140,3 +140,4 @@ parameters:
     atarca_nft_contract_address: '0xaf33ecfb3E5D07C232fC3Ec8992e7de43485a70a'
 
     atarca_web3_api_url: http://web3:5000
+    resume_admin_emails_list: [diego@novact.org,nombrekeff@ralf.com,iulianqbit@gmail.com,diegomtz.dev@gmail.com]
