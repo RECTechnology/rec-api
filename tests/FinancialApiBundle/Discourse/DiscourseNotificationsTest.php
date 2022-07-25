@@ -61,7 +61,28 @@ class DiscourseNotificationsTest extends BaseApiTest{
         self::assertArrayHasKey('data', $content);
 
         $this->getAwardsFromAnbtonAccount();
+        $this->notifyDislike();
+        //TODO get awards again and check substracted scores
 
+    }
+
+    function notifyDislike(){
+        $route = '/notifications/v1/discourse';
+        $data = $this->getDislikeNotification();
+
+        $headers = array(
+            'x-discourse-event' => 'post_like_removed',
+            'x-discourse-event-type' => 'post_like_removed',
+            'x-discourse-event-id' => 1,
+            'x-discourse-event-instance' => 'https://community.stage.atarca.es',
+            'content-type' => 'application/json',
+            'connection' => 'close',
+            'accept' => '*/*',
+            'user-agent' => 'Discourse/2.7.13'
+        );
+        $resp = $this->requestJson('POST', $route, $data, $headers);
+        $content = json_decode($resp->getContent(),true);
+        self::assertArrayHasKey('data', $content);
     }
 
     function getAnbtonPostCreatedNotificationData(){
@@ -667,6 +688,72 @@ Podéis ver ejemplos de distintas combinaciones de cada paleta en [esta carpeta 
 
         self::assertEquals(1, $contentAwards['data']['total']);
         self::assertEquals(2, $contentAwards['data']['elements'][0]['score']);
+    }
+
+    function getDislikeNotification(){
+        return array (
+            'post_like_removed' =>
+                array (
+                    'post' =>
+                        array (
+                            'id' => 97,
+                            'user_id' => 93,
+                            'topic_id' => 321,
+                            'post_number' => 1,
+                            'raw' => 'hola hola hola hola comentario 4',
+                            'cooked' => '<p>hola hola hola hola comentario 4</p>',
+                            'created_at' => '2022-07-20T06:47:17.818Z',
+                            'updated_at' => '2022-07-20T14:38:23.967Z',
+                            'reply_to_post_number' => 624,
+                            'reply_count' => 0,
+                            'quote_count' => 0,
+                            'deleted_at' => NULL,
+                            'off_topic_count' => 0,
+                            'like_count' => 0,
+                            'incoming_link_count' => 0,
+                            'bookmark_count' => 0,
+                            'score' => 0.2,
+                            'reads' => 1,
+                            'post_type' => 1,
+                            'sort_order' => 8,
+                            'last_editor_id' => 93,
+                            'hidden' => false,
+                            'hidden_reason_id' => NULL,
+                            'notify_moderators_count' => 0,
+                            'spam_count' => 0,
+                            'illegal_count' => 0,
+                            'inappropriate_count' => 0,
+                            'last_version_at' => '2022-07-20T06:47:17.852Z',
+                            'user_deleted' => false,
+                            'reply_to_user_id' => NULL,
+                            'percent_rank' => 0.571428571428571,
+                            'notify_user_count' => 0,
+                            'like_score' => 0,
+                            'deleted_by_id' => NULL,
+                            'edit_reason' => NULL,
+                            'word_count' => 6,
+                            'version' => 1,
+                            'cook_method' => 1,
+                            'wiki' => false,
+                            'baked_at' => '2022-07-20T14:38:23.965Z',
+                            'baked_version' => 2,
+                            'hidden_at' => NULL,
+                            'self_edits' => 0,
+                            'reply_quoted' => false,
+                            'via_email' => false,
+                            'raw_email' => NULL,
+                            'public_version' => 1,
+                            'action_code' => NULL,
+                            'locked_by_id' => NULL,
+                            'image_upload_id' => NULL,
+                        ),
+                    'user' =>
+                        array (
+                            'id' => 76,
+                            'username' => 'rezero3',
+                        ),
+                ),
+        );
     }
 
 }

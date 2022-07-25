@@ -9,6 +9,7 @@ use App\FinancialApiBundle\Entity\AwardScoreRule;
 use App\FinancialApiBundle\Entity\ConfigurationSetting;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\NFTTransaction;
+use Doctrine\ORM\EntityManagerInterface;
 use Monolog\Logger;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,8 +19,11 @@ class AwardHandler
     private const POST_CREATE_EVENT = 'post_created';
     private const TOPIC_CREATE_EVENT = 'topic_created';
     private const POST_LIKED_EVENT = 'post_liked';
+    private const POST_LIKE_REMOVED_EVENT = 'like_removed';
     private const RECEIVED_LIKE_EVENT = 'received_like';
+    private const REMOVED_RECEIVED_LIKE_EVENT = 'remove_received_like';
     private const ACCEPTED_SOLUTION_EVENT = 'accepted_solution';
+    private const UNACCEPTED_SOLUTION_EVENT = 'unaccepted_solution';
 
     private const ALL_EVENTS = [
         self::POST_CREATE_EVENT => 'comment',
@@ -27,6 +31,12 @@ class AwardHandler
         self::POST_LIKED_EVENT => 'like',
         self::RECEIVED_LIKE_EVENT => 'receive_like',
         self::ACCEPTED_SOLUTION_EVENT => 'accepted_solution',
+    ];
+
+    private const ALL_UNDO_EVENTS = [
+        self::POST_LIKE_REMOVED_EVENT => 'like_removed',
+        self::REMOVED_RECEIVED_LIKE_EVENT => 'remove_received_like',
+        self::UNACCEPTED_SOLUTION_EVENT => 'unaccepted_solution',
     ];
 
     private $doctrine;
@@ -45,17 +55,27 @@ class AwardHandler
 
     public function handleDiscourseNotification(Request $request): void
     {
+        /** @var EntityManagerInterface $em */
+        $em = $this->getEntityManager();
         $data = $request->request->all();
         $headers = $request->headers->all();
 
         $event = $headers['x-discourse-event'][0];
 
         $this->logger->info('AWARD-HANDLER: Discourse notification event: '.$event);
+        //check if service is enabled in configuration settings
+        $nftSetting = $em->getRepository(ConfigurationSetting::class)->findOneBy(array(
+            'name' => 'create_nft_wallet',
+            'value' => 'enabled'
+        ));
+
+        if($nftSetting){
+            $this->handleToken($data, $event);
+        }
 
         if(isset(self::ALL_EVENTS[$event])){
-            $em = $this->getEntityManager();
 
-            [$category_id, $username, $scope] = $this->getInfoFromNotification($data, $event);
+            [$category_id, $username, $scope, $topic_id, $post_id] = $this->getInfoFromNotification($data, $event);
 
             if(!$username) return;
             if(!$category_id) return;
@@ -71,24 +91,35 @@ class AwardHandler
             $awardRule = $this->getMatchedRule($event, $category_id, $scope);
 
             if($awardRule){
-                $this->createAccountAwardItem($creatorAccount, $awardRule);
+                $this->logger->info('AWARD-HANDLER: Discourse notification event');
+                $this->createAccountAwardItem($creatorAccount, $awardRule, $topic_id, $post_id);
             }
 
 
-            //check if service is enabled in configuration settings
-            $nftSetting = $em->getRepository(ConfigurationSetting::class)->findOneBy(array(
-                'name' => 'create_nft_wallet',
-                'value' => 'enabled'
-            ));
-
-            if($nftSetting){
-                $this->handleToken($data,$event);
-            }
             //if its like check for received like event
             if($event === self::POST_LIKED_EVENT){
                 $event = self::RECEIVED_LIKE_EVENT;
                 $request->headers->set('x-discourse-event', $event);
                 $this->handleDiscourseNotification($request);
+            }
+        }
+
+        if(isset(self::ALL_UNDO_EVENTS[$event])){
+            if($event === self::POST_LIKE_REMOVED_EVENT){
+                //remove scoring
+                $this->substractPoints($data, $event, self::POST_LIKED_EVENT);
+
+                //recursive execution to remove the received like scoring
+                $event = self::REMOVED_RECEIVED_LIKE_EVENT;
+                $request->headers->set('x-discourse-event', $event);
+                $this->handleDiscourseNotification($request);
+
+            }elseif ($event === self::REMOVED_RECEIVED_LIKE_EVENT){
+                //remove scoring
+                $this->substractPoints($data, $event, self::RECEIVED_LIKE_EVENT);
+            }elseif ($event === self::UNACCEPTED_SOLUTION_EVENT){
+                //substract points if needed
+                $this->substractPoints($data, $event, self::ACCEPTED_SOLUTION_EVENT);
             }
         }
     }
@@ -118,7 +149,7 @@ class AwardHandler
         return $accountAward;
     }
 
-    public function createAccountAwardItem(Group $account, AwardScoreRule $awardRule): void
+    public function createAccountAwardItem(Group $account, AwardScoreRule $awardRule, $topic_id, $post_id): void
     {
         $em = $this->getEntityManager();
         $award = $awardRule->getAward();
@@ -129,6 +160,8 @@ class AwardHandler
         $awardItem->setAction($awardRule->getAction());
         $awardItem->setCategory($awardRule->getCategory());
         $awardItem->setScope($awardRule->getScope());
+        $awardItem->setTopicId($topic_id);
+        $awardItem->setPostId($post_id);
 
         $em->persist($awardItem);
 
@@ -145,39 +178,54 @@ class AwardHandler
             case self::POST_CREATE_EVENT:
                 if($data['post']['post_number'] === 1){
                     //is topic not post, ignore notification
-                    $response = [null, null, null];
+                    $response = [null, null, null, null, null];
                 }else{
-                    $response = [$data['post']['category_id'], $data['post']['username'], 'post'];
+                    $response = [$data['post']['category_id'], $data['post']['username'], 'post', $data['post']['topic_id'], $data['post']['id']];
                 }
                 break;
             case self::TOPIC_CREATE_EVENT:
-                $response = [$data['topic']['category_id'], $data['topic']['created_by']['username'], 'topic'];
+                $response = [$data['topic']['category_id'], $data['topic']['created_by']['username'], 'topic', $data['topic']['id'], null];
                 break;
             case self::POST_LIKED_EVENT:
                 $scope = 'post';
                 if($data['like']['post']['post_number'] === 1){
                     $scope = 'topic';
                 }
-                $response = [$data['like']['post']['category_id'], $data['like']['user']['username'], $scope];
+                $response = [$data['like']['post']['category_id'], $data['like']['user']['username'], $scope, $data['like']['post']['topic_id'], $data['like']['post']['id']];
                 break;
             case self::RECEIVED_LIKE_EVENT:
                 $scope = 'post';
                 if($data['like']['post']['post_number'] === 1){
                     $scope = 'topic';
                 }
-                $response = [$data['like']['post']['category_id'], $data['like']['post']['username'], $scope];
+                $response = [$data['like']['post']['category_id'], $data['like']['post']['username'], $scope, $data['like']['post']['topic_id'], $data['like']['post']['id']];
+                break;
+            case self::POST_LIKE_REMOVED_EVENT:
+                $scope = 'post';
+                if($data['like_removed']['post']['post_number'] === 1){
+                    $scope = 'topic';
+                }
+                //no existe category id
+                $response = [$data['like_removed']['post']['category_id'], $data['like_removed']['user']['username'], $scope, $data['like_removed']['post']['topic_id'], $data['like_removed']['post']['id']];
+                break;
+            case self::REMOVED_RECEIVED_LIKE_EVENT:
+                $scope = 'post';
+                if($data['like']['post']['post_number'] === 1){
+                    $scope = 'topic';
+                }
+                //no existe category id
+                $response = [$data['like_removed']['post']['category_id'], $data['like_removed']['post']['username'], $scope, $data['like_removed']['post']['topic_id'], $data['like_removed']['post']['id']];
                 break;
             default:
-                 $response = [null, null, null];
+                 $response = [null, null, null, null, null];
 
         }
+        $this->logger->info('AWARD-HANDLER: Extracted info from notification', $response);
         return $response;
     }
 
     private function getMatchedRule($event, $category_id, $scope){
         $em = $this->getEntityManager();
-
-
         $this->logger->info('AWARD-HANDLER: Looking for rule: event->'.$event.', category_id->'.$category_id.', scope->'.$scope);
 
         $awardRule = $em->getRepository(AwardScoreRule::class)->findOneBy(array(
@@ -215,6 +263,11 @@ class AwardHandler
                 $this->logger->info('AWARD-HANDLER: share contribution token');
                 $this->shareContributionToken($data);
                 break;
+            case self::UNACCEPTED_SOLUTION_EVENT:
+                //admin burn previous minted token
+                $this->logger->info('AWARD-HANDLER: burn shared contribution token');
+                $this->burnSharedContributionToken($data);
+                break;
             case self::TOPIC_CREATE_EVENT:
                 //mint new contribution token
                 $this->logger->info('AWARD-HANDLER: mint contribution token');
@@ -225,6 +278,13 @@ class AwardHandler
                     //es un like a topic
                     $this->logger->info('AWARD-HANDLER: like contribution token');
                     $this->mintLikeToken($data);
+                }
+                break;
+            case self::POST_LIKE_REMOVED_EVENT:
+                if($data['like_removed']['post']['post_number'] === 1){
+                    //es un like a topic que se quita
+                    $this->logger->info('AWARD-HANDLER: like contribution token burn');
+                    $this->burnLikeToken($data);
                 }
                 break;
             default:
@@ -308,6 +368,65 @@ class AwardHandler
 
     }
 
+    private function burnSharedContributionToken($data): void
+    {
+        $ownerUsername = $data['solved']['owner']['username'];
+        $ownerId = $data['solved']['owner']['id'];
+        $colaboratorUsername = $data['solved']['post']['username'];
+        $colaboratorId = $data['solved']['post']['user_id'];
+        $topic_id = $data['solved']['post']['topic_id'];
+
+        $em = $this->getEntityManager();
+        $owner = $em->getRepository(Group::class)->findOneBy(array(
+            'rezero_b2b_user_id' => $ownerId
+        ));
+
+        $colaborator = $em->getRepository(Group::class)->findOneBy(array(
+            'rezero_b2b_user_id' => $colaboratorId
+        ));
+
+        if($owner && $colaborator){
+            //find previous shared token
+            $sharedTx = $em->getRepository(NFTTransaction::class)->findOneBy(array(
+                'topic_id' => $topic_id,
+                'method' => NFTTransaction::NFT_SHARE,
+                'from' => $owner,
+                'to' => $colaborator
+            ));
+            if($sharedTx){
+                //create tx to burn token from admin
+                $adminAccountId = $this->container->getParameter('id_group_root');
+                $admin = $em->getRepository(Group::class)->find($adminAccountId);
+                //TODO si no hay sharedTokenId es que la tx no se ha confirmado todavia, que hacemos???
+                $this->createBurnNFTTransaction($admin, $sharedTx->getSharedTokenId());
+            }
+        }
+    }
+
+    private function burnLikeToken($data): void
+    {
+        $em = $this->getEntityManager();
+        $topicId = $data['like_removed']['post']['topic_id'];
+        $likerId = $data['like_removed']['user']['id'];
+
+        $liker = $em->getRepository(Group::class)->find($likerId);
+
+        //find like tx
+        $likeTx = $em->getRepository(NFTTransaction::class)->findOneBy(array(
+            'topic_id' => $topicId,
+            'method' => NFTTransaction::NFT_LIKE,
+            'from' => $liker,
+            'to' => $liker
+        ));
+
+        if($likeTx){
+            //burn like token transaction
+            //TODO si no hay sharedTokenId es que la tx no se ha confirmado todavia, que hacemos???
+            $this->createBurnNFTTransaction($liker, $likeTx->getSharedTokenId());
+        }
+
+    }
+
     private function createNFTTransaction($method, Group $from, Group $to, $topic_id, ?NFTTransaction $originalTx): void
     {
         $em = $this->getEntityManager();
@@ -323,5 +442,51 @@ class AwardHandler
 
         $em->persist($nftTransaction);
         $em->flush();
+    }
+
+    private function createBurnNFTTransaction(Group $from,$token_id): void
+    {
+        $em = $this->getEntityManager();
+        $nftTransaction = new NFTTransaction();
+        $nftTransaction->setStatus(NFTTransaction::STATUS_CREATED);
+        $nftTransaction->setMethod(NFTTransaction::NFT_BURN);
+        $nftTransaction->setFrom($from);
+        $nftTransaction->setSharedTokenId($token_id);
+
+        $em->persist($nftTransaction);
+        $em->flush();
+    }
+
+    private function substractPoints($data, $event, $previous_related_event){
+        $em = $this->getEntityManager();
+        //remove scoring
+        [$category_id, $username, $scope, $topic_id, $post_id] = $this->getInfoFromNotification($data, $event);
+        //find the rule that matched to give points
+        /** @var AwardScoreRule $awardRule */
+        $awardRule = $this->getMatchedRule($previous_related_event, $category_id, $scope);
+
+        if($awardRule){
+            /** @var Group $account */
+            $account = $em->getRepository(Group::class)->findOneBy(array(
+                'rezero_b2b_username' => $username
+            ));
+            $accountAward = $this->getAccountAward($account, $awardRule->getAward());
+            /** @var AccountAwardItem $awardItem */
+            $awardItem = $em->getRepository(AccountAwardItem::class)->findOneBy(array(
+                'account_award' => $accountAward,
+                'topic_id' => $topic_id,
+                'post_id' => $post_id,
+                'action' => $previous_related_event,
+                'category' => $category_id
+            ));
+            if($awardItem){
+                //remove item and substract points
+                $accountAward->setScore($accountAward->getScore() - $awardItem->getScore());
+                $em->remove($awardItem);
+                $em->flush();
+                $this->logger->info('AWARD-HANDLER: Removed award item :'.$awardRule->getAward()->getName().' for account '.$account->getName());
+
+            }
+        }
     }
 }

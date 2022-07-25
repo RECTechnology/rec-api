@@ -379,7 +379,7 @@ class Login2faController extends RestApiController{
         if($awardRule){
             /** @var AwardHandler $awardHandler */
             $awardHandler = $this->get('net.app.commons.award_handler');
-            $awardHandler->createAccountAwardItem($user->getActiveGroup(), $awardRule);
+            $awardHandler->createAccountAwardItem($user->getActiveGroup(), $awardRule, null, null);
         }
 
     }
