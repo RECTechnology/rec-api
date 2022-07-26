@@ -53,7 +53,7 @@ class NFTTransaction extends AppObject
     private $to;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $tx_id;
@@ -65,13 +65,13 @@ class NFTTransaction extends AppObject
     private $topic_id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $original_token_id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $shared_token_id;
