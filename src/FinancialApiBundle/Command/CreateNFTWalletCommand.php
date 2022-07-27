@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
-class CreateNFTWalletCommand extends ContainerAwareCommand
+class CreateNFTWalletCommand extends SynchronizedContainerAwareCommand
 {
     protected function configure()
     {
@@ -31,14 +31,13 @@ class CreateNFTWalletCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output){
+    protected function executeSynchronized(InputInterface $input, OutputInterface $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
         $creation_enabled = $em->getRepository(ConfigurationSetting::class)->findOneBy(['name' => 'create_nft_wallet', 'value' => 'enabled']);
         if($creation_enabled){
+            $accounts = $em->getRepository(Group::class)->findBy(['nft_wallet' => '', 'active' => 1]);
 
-
-            $accounts = $em->getRepository(Group::class)->findBy(['nft_wallet' => '', 'active' => 1], [], 5);
-
+            $output->writeln(count($accounts).' accounts found without wallet');
             /** @var Web3ApiManager $web3Manager */
             $web3Manager = $this->getContainer()->get('net.app.commons.web3.api_manager');
             foreach ( $accounts as $account ) {
@@ -57,7 +56,6 @@ class CreateNFTWalletCommand extends ContainerAwareCommand
                     }
 
                 }
-
             }
         }
     }

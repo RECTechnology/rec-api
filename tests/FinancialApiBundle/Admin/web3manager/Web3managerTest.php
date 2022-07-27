@@ -59,7 +59,7 @@ class Web3managerTest extends BaseApiTest {
                 $accounts_with_nft_wallet++;
             }
         }
-        self::assertEquals(5, $accounts_with_nft_wallet);
+        self::assertGreaterThan(0, $accounts_with_nft_wallet);
 
     }
 
