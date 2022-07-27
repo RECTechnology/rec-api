@@ -74,7 +74,9 @@ class TransactionBlocksExecutorCommand extends SynchronizedContainerAwareCommand
                                 $txData->getSender(),
                                 $txData->getExchanger(),
                                 $txData->getAccount(),
-                                $txData->getAmount() * $satoshi_decimals);
+                                $txData->getAmount() * $satoshi_decimals,
+                                $txBlock->getName()
+                            );
                             $this->updateStatus($txData, $tx, $em, $txBlock, $satoshi_decimals, $output);
                         } catch (\Exception $e) {
                             $this->updateStatus($txData, null, $em, $txBlock, $satoshi_decimals, $output);
