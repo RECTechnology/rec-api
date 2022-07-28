@@ -42,7 +42,7 @@ class CreateNFTWalletCommand extends SynchronizedContainerAwareCommand
             $web3Manager = $this->getContainer()->get('net.app.commons.web3.api_manager');
             foreach ( $accounts as $account ) {
 
-                if ($account->getKycManager()->isEnabled() && $account->getKycManager()->isAccountNonLocked()) {
+                if ($account->getKycManager() && $account->getKycManager()->isEnabled() && $account->getKycManager()->isAccountNonLocked()) {
                     try{
                         $output->writeln("Creating NFT wallet for the account " . $account->getId());
                         $response = $web3Manager->createWallet();
