@@ -19,6 +19,9 @@ class FundingNFTWalletTransaction extends AppObject
     public const STATUS_CONFIRMED = 'confirmed';
     public const STATUS_FAILED = 'failed';
 
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_SUCCESS = 'success';
+
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"admin"})

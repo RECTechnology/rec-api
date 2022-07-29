@@ -17,12 +17,14 @@ class NFTTransaction extends AppObject
     public const NFT_MINT = 'mint';
     public const NFT_SHARE = 'share';
     public const NFT_LIKE = 'like';
+    public const NFT_UNLIKE = 'unlike';
     public const NFT_BURN = 'burn';
 
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
     public const STATUS_CONFIRMED = 'confirmed';
     public const STATUS_FAILED = 'failed';
+    public const STATUS_FUNDING_PENDING = 'funding_pending';
 
     /**
      * @ORM\Column(type="string")

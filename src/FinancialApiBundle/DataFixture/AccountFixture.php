@@ -402,6 +402,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $account->addActivity($activity);
             $badge = $orm->getRepository(Badge::class)->findOneBy(['name' => "Test"]);
             $account->addBadge($badge);
+            $account->setNftWallet($faker->shuffle('abcdef0123456789'));
+            $account->setNftWalletPk($faker->shuffle('abcdefghijklmnopqrstuvwxyz0123456789'));
         }
 
         if($name === self::TEST_ACCOUNT_REZERO_3['name']){
@@ -414,6 +416,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $account->addActivity($activity);
             $badge = $orm->getRepository(Badge::class)->findOneBy(['name' => "Test"]);
             $account->addBadge($badge);
+            $account->setNftWallet($faker->shuffle('abcdef0123456789'));
+            $account->setNftWalletPk($faker->shuffle('abcdefghijklmnopqrstuvwxyz0123456789'));
         }
 
         $userAccount = new UserGroup();
