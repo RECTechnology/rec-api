@@ -87,7 +87,8 @@ class TxBlockValidator
             if (isset($sender)) {
                 $sender_balance = $sender->getWallets()[0]->getBalance();
                 if($sender_balance < $amount * 1e8){
-                    //$warn_text = 'Sender Account with id '.$sender_id.' has lower balance than amounts to send sum';
+                    $required_balance = $amount / 100;
+                    $real_balance = $sender_balance / 1e8;
                     $warn_text = 'The sender '.$tx_sender_id.' must send '.$amount.'R but only has '.$sender_balance.'R.
                      This will cause an ERROR in the sending';
                     $warnings[] = $warn_text;
