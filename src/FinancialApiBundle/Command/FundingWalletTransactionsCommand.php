@@ -32,7 +32,7 @@ class FundingWalletTransactionsCommand extends SynchronizedContainerAwareCommand
         $rootAccount = $em->getRepository(Group::class)->find($admin_id);
         $contract_address = $this->getContainer()->getParameter("atarca_sharable_nft_contract_address");
 
-        $nonce = $web3Manager->getNonce($rootAccount->getNftWallet(), $rootAccount)['nonce'];
+        $nonce = $web3Manager->getNonce($rootAccount->getNftWallet(), $rootAccount->getNftWallet())['nonce'];
 
         $output->writeln("Funding transactions found ".count($txs));
 
