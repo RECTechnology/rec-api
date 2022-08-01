@@ -50,12 +50,17 @@ class Web3ApiManager{
 
     public function getNonce($contract_address, $wallet)
     {
+        $this->logger->info("WEB3_API_MANAGER - get nonce for wallet ".$wallet);
         try{
             $resp = json_decode(file_get_contents(
                 $this->web3_api_url."/get_nonce?contract_address=".$contract_address."&wallet=".$wallet
             ), true);
 
-            if(array_key_exists('message', $resp) and $resp->message == 'success') return $resp;
+            if($resp){
+                $this->logger->info("Getting nonce", $resp);
+                if(array_key_exists('message', $resp) && $resp['message'] === 'success') return $resp;
+            }
+
 
             $this->logger->info( 'Error during nonce call: '.strval(json_encode($resp)));
         }catch (Exception $e) {
