@@ -159,7 +159,7 @@ class Web3ApiManager{
                 [
                     "contract_address" => $contract_address,
                     "function_name" => "share",
-                    "args" => [$wallet, $nft_to_share],
+                    "args" => [$wallet, (int) $nft_to_share],
                     "tx_args" => [
                         "sender_address" => $sender_address,
                         "sender_private_key" => $sender_pk
@@ -206,7 +206,7 @@ class Web3ApiManager{
                 [
                     "contract_address" => $contract_address,
                     "function_name" => "mint",
-                    "args" => $nft_to_like,
+                    "args" => (int) $nft_to_like,
                     "tx_args" => [
                         "sender_address" => $sender_address,
                         "sender_private_key" => $sender_pk
