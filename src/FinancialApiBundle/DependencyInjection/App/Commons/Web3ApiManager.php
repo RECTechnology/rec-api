@@ -134,6 +134,9 @@ class Web3ApiManager{
                 false,
                 stream_context_create($ops)
             ), true);
+
+            $this->logger->info("WEB3_API_MANAGER - getting response", $resp);
+
             if(array_key_exists('error', $resp) and $resp['error'] == ''){
                 $this->logger->info( 'New NFT created: '.strval(json_encode($resp)));
 
