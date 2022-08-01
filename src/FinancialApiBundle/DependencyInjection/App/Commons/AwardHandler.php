@@ -353,7 +353,9 @@ class AwardHandler
         $topicId = $data['like']['post']['topic_id'];
         $likerId = $data['like']['user']['id'];
 
-        $liker = $em->getRepository(Group::class)->find($likerId);
+        $liker = $em->getRepository(Group::class)->findOneBy(array(
+            'rezero_b2b_user_id' => $likerId
+        ));
 
         //find original tx
         $originalTx = $em->getRepository(NFTTransaction::class)->findOneBy(array(
@@ -361,7 +363,7 @@ class AwardHandler
             'method' => NFTTransaction::NFT_MINT
         ));
 
-        if($originalTx){
+        if($originalTx && $liker){
             //create like transaction
             $this->createNFTTransaction(NFTTransaction::NFT_LIKE, $liker, $liker, $topicId, $originalTx);
         }
