@@ -54,9 +54,11 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                     $sender_id = $sender->getId();
                     $receiver_id = $receiver->getId();
 
+                    $output->writeln($nft_transaction->getMethod()."ing transaction, from ".$sender_id." to ".$receiver_id);
                     if (!array_key_exists($sender_id, $nonces)) {
                         $nonces[$sender_id] = $web3Manager->getNonce($sharable_address, $sender->getNftWallet())['nonce'];
                     }
+                    $output->writeln("Nonce for wallet ".$sender->getNftWallet()." -> ".$nonces[$sender_id]);
                     if($nft_transaction->getMethod() === NFTTransaction::NFT_MINT){
                         $output->writeln("Mint NFT transaction to ".$receiver_id);
                         $response = $web3Manager->createNFT(

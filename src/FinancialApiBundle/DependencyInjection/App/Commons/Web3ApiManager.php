@@ -50,12 +50,17 @@ class Web3ApiManager{
 
     public function getNonce($contract_address, $wallet)
     {
+        $this->logger->info("WEB3_API_MANAGER - get nonce for wallet ".$wallet);
         try{
             $resp = json_decode(file_get_contents(
                 $this->web3_api_url."/get_nonce?contract_address=".$contract_address."&wallet=".$wallet
             ), true);
 
-            if(array_key_exists('message', $resp) and $resp->message == 'success') return $resp;
+            if($resp){
+                $this->logger->info("Getting nonce", $resp);
+                if(array_key_exists('message', $resp) && $resp['message'] === 'success') return $resp;
+            }
+
 
             $this->logger->info( 'Error during nonce call: '.strval(json_encode($resp)));
         }catch (Exception $e) {
@@ -80,10 +85,13 @@ class Web3ApiManager{
 
     public function get_transaction_status($contract_address, $transaction_id)
     {
+        $this->logger->info("WEB3_API_MANAGER - get status for transaction ".$transaction_id);
         try{
             $resp = json_decode(file_get_contents(
                 $this->web3_api_url."/get_transaction_status?contract_address=".$contract_address."&transaction_id=".$transaction_id
             ), true);
+
+            $this->logger->info("WEB3_API_MANAGER - getting response", $resp);
             if(array_key_exists('status', $resp)) return $resp;
 
             $this->logger->info( 'Error during status call: '.strval(json_encode($resp)));
@@ -126,6 +134,9 @@ class Web3ApiManager{
                 false,
                 stream_context_create($ops)
             ), true);
+
+            $this->logger->info("WEB3_API_MANAGER - getting response", $resp);
+
             if(array_key_exists('error', $resp) and $resp['error'] == ''){
                 $this->logger->info( 'New NFT created: '.strval(json_encode($resp)));
 
