@@ -102,7 +102,7 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                 }
 
                 if($response){
-                    $output->writeln("Response". $response);
+                    $output->writeln("Response error-> ". $response['error']." message -> ".$response['message']);
                     //check if it was successfull tx
                     if($response['error'] == '' and strlen($response['message']) == 66){
                         $nonces[$sender_id] += 1;
