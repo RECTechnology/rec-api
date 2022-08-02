@@ -251,7 +251,7 @@ class Web3ApiManager{
             $content = json_encode(
                 [
                     "contract_address" => $contract_address,
-                    "amount" => $amount * 1e18,
+                    "amount" => $amount / 1e18,
                     "to" => $to,
                     "sender_address" => $sender_address,
                     "sender_private_key" => $sender_pk,

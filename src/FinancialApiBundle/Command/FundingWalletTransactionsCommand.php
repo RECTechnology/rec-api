@@ -35,6 +35,7 @@ class FundingWalletTransactionsCommand extends SynchronizedContainerAwareCommand
         $nonce = $web3Manager->getNonce($contract_address, $rootAccount->getNftWallet())['nonce'];
 
         $output->writeln("Funding transactions found ".count($txs));
+        $output->writeln("Nonce ".$nonce);
 
         foreach ($txs as $tx){
             $response = null;
@@ -45,7 +46,7 @@ class FundingWalletTransactionsCommand extends SynchronizedContainerAwareCommand
             try{
                 $output->writeln("Funding transaction account ".$tx->getAccount()->getId());
                 //execute transaction against blockchain
-                $response = $web3Manager->transfer($contract_address, $tx->getAmount(), $tx->getAccount(), $rootAccount->getNftWallet(), $rootAccount->getNftWalletPk(), $nonce);
+                $response = $web3Manager->transfer($contract_address, $tx->getAmount(), $tx->getAccount()->getNftWallet(), $rootAccount->getNftWallet(), $rootAccount->getNftWalletPk(), $nonce);
             }catch (\Exception $e){
                 //set transaction status failed
                 $output->writeln("Funding transaction FAILED ");
@@ -54,12 +55,20 @@ class FundingWalletTransactionsCommand extends SynchronizedContainerAwareCommand
             }
 
             if($tx->getStatus() !== FundingNFTWalletTransaction::STATUS_FAILED){
+                $output->writeln("Funding transaction NOT FAILED ");
                 if($response){
+                    $output->writeln("Funding transaction we have response");
+                    $output->writeln("Funding transaction ".$response['error']);
+                    $output->writeln("Funding transaction we have response".$response['message']);
                     if($response['error'] === ''){
                         $output->writeln("Funding transaction SUCCESS ");
                         $nonce++;
                         $tx->setTxId($response['message']);
                         $tx->setStatus(FundingNFTWalletTransaction::STATUS_PENDING);
+                        $em->flush();
+                    }else{
+                        $output->writeln("Funding transaction FAILED on web3Api ");
+                        $tx->setStatus(FundingNFTWalletTransaction::STATUS_FAILED);
                         $em->flush();
                     }
                 }
