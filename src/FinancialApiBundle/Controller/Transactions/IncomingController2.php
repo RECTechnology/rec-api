@@ -124,7 +124,7 @@ class IncomingController2 extends RestApiController{
         $logger = $this->get('transaction.logger');
         $group_id = $group->getId();
         $logger->info('(' . $group_id . ')(T) INIT');
-        $logger->info('(' . $group_id . ') Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
+        $logger->info('(' . $group_id . ') Incoming2 transaction...Method-> '.$method_cname.' Direction -> '.$type);
         $method = $this->get('net.app.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         /** @var DocumentManager $dm */
@@ -139,11 +139,11 @@ class IncomingController2 extends RestApiController{
         $this->ckeckKYC($type, $group, $data, $dm);
 
         $user = $em->getRepository('FinancialApiBundle:User')->find($user_id);
-        $logger->info('(' . $user_id . ')(T) FIND USER');
+        $logger->info('(' . $user_id . ')(T) Incoming2 FIND USER');
 
         //obtain wallet and check founds for cash_out services for this group
 
-        $logger->info("getting account wallet for {$group->getId()}, currency {$method->getCurrency()}");
+        $logger->info("Incoming2 getting account wallet for {$group->getId()}, currency {$method->getCurrency()}");
         /** @var UserWallet $wallet */
         $wallet = $group->getWallet($method->getCurrency());
         if(!$wallet)
@@ -157,7 +157,7 @@ class IncomingController2 extends RestApiController{
         else{
             throw new HttpException(400, 'Param amount not found or incorrect');
         }
-        $logger->info('(' . $group_id . ')(T) CHECK AMOUNT');
+        $logger->info('(' . $group_id . ')(T) Incoming2 CHECK AMOUNT');
         $orderRepo = $em->getRepository(PaymentOrder::class);
         if($type == 'out'){
             if($wallet->getAvailable() < $amount) {
@@ -213,7 +213,7 @@ class IncomingController2 extends RestApiController{
         //check bonissim payment
         $extra_data = $this->checkCampaignConstraint($data, $group, $type, $method_cname);
 
-        $logger->info('(' . $group_id . ')(T) CHECK PIN');
+        $logger->info('(' . $group_id . ')(T) Incoming2 CHECK PIN');
 
         $transaction = Transaction::createFromRequestIP($ip);
         $transaction->setService($method_cname);
@@ -233,7 +233,7 @@ class IncomingController2 extends RestApiController{
         $transaction->setType($type);
         $transaction->setInternal(false);
         $dm->persist($transaction);
-        $logger->info('(' . $group_id . ')(T) CREATE TRANSACTION');
+        $logger->info('(' . $group_id . ')(T) Incoming2 CREATE TRANSACTION');
 
 
         if(array_key_exists('concept', $data) && $data['concept']!=''){
@@ -244,8 +244,8 @@ class IncomingController2 extends RestApiController{
 
         if(array_key_exists('url_notification', $data)) $url_notification = $data['url_notification'];
         else $url_notification = '';
-        $logger->info('(' . $group_id . ') Incomig transaction...getPaymentInfo for company '.$group->getId());
-        $logger->info('(' . $group_id . ')(T) URL AND CONCEPT');
+        $logger->info('(' . $group_id . ') Incoming2 transaction...getPaymentInfo for company '.$group->getId());
+        $logger->info('(' . $group_id . ')(T) Incoming2 URL AND CONCEPT');
 
         if($type == 'in'){
             $dataIn = array(
@@ -269,7 +269,7 @@ class IncomingController2 extends RestApiController{
                     throw new HttpException(400, 'Param commerce_id not found');
                 }
                 if(isset($data['card_id'])){
-                    $logger->info('(' . $group_id . ')(T) WITH CARD');
+                    $logger->info('(' . $group_id . ')(T) Incoming2 WITH CARD');
                     if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>=0){
                         $pin = $data['pin'];
                         if($user->getPIN()!=$pin){
@@ -305,24 +305,24 @@ class IncomingController2 extends RestApiController{
                 else{
                     $data['save_card']=false;
                 }
-                $logger->info('(' . $group_id . ')(T) SAVE CARD');
+                $logger->info('(' . $group_id . ')(T) Incoming2 SAVE CARD');
                 $payment_info = $method->getPayInInfoWithCommerce($data);
-                $logger->info('(' . $group_id . ')(T) GET LEMON INFO');
+                $logger->info('(' . $group_id . ')(T) Incoming2 GET LEMON INFO');
                 $transaction->setInternal(true);
                 $transaction->setStatus($payment_info['status']);
                 if($transaction->getStatus() == Transaction::$STATUS_RECEIVED){
-                    $logger->info('(' . $group_id . ')(T) LEMON RECEIVED');
+                    $logger->info('(' . $group_id . ')(T) Incoming2 LEMON RECEIVED');
                     $sentInfo = array(
                         'to' => $commerce->getCIF(),
                         'amount' => number_format($transaction->getAmount()/100, 2)
                     );
-                    $logger->info('(' . $commerce->getCIF() . ') euros balance sent');
-                    $logger->info('(' . $group_id . ')(T) LEMON SENT');
+                    $logger->info('(' . $commerce->getCIF() . ') Incoming2 euros balance sent');
+                    $logger->info('(' . $group_id . ')(T) Incoming2 LEMON SENT');
                     $method->send($sentInfo);
                 }
             }
             else{
-                $logger->info('(' . $group_id . ')(T) GET PAY IN INFO');
+                $logger->info('(' . $group_id . ')(T) Incoming2 GET PAY IN INFO');
                 if(!isset($data['txid'])){
                     $payment_info = $method->getPayInInfo($group->getId(), $amount);
                 }
@@ -330,13 +330,13 @@ class IncomingController2 extends RestApiController{
                     $payment_info = $method->getPayInInfoWithData($data);
                 }
             }
-            $logger->info('(' . $group_id . ')(T) CHECK CONCEPT AND EXPIRED');
+            $logger->info('(' . $group_id . ')(T) Incoming2 CHECK CONCEPT AND EXPIRED');
             $payment_info['concept'] = $concept;
             if(isset($data['expires_in']) && $data['expires_in'] > 99){
                 $payment_info['expires_in'] = $data['expires_in'];
             }
             if(isset($data['sender']) && $data['sender']!='') {
-                $logger->info('(' . $group_id . ')(T) SENDER INFO');
+                $logger->info('(' . $group_id . ')(T) Incoming2 SENDER INFO');
                 $sender_id = $data['sender'];
                 if($sender_id == '0'){
                     $payment_info['image_sender'] = "";
@@ -351,14 +351,14 @@ class IncomingController2 extends RestApiController{
                     $payment_info['name_sender'] = $sender->getName();
                 }
             }
-            $logger->info('(' . $group_id . ')(T) SET PAY IN INFO');
+            $logger->info('(' . $group_id . ')(T) Incoming2 SET PAY IN INFO');
             $transaction->setPayInInfo($payment_info);
         }
         else{
-            $logger->info('(' . $group_id . ')(T) GET PAY OUT INFO');
+            $logger->info('(' . $group_id . ')(T) Incoming2 GET PAY OUT INFO');
             $data['orig_address'] = $group->getRecAddress();
             $payment_info = $method->getPayOutInfoData($data);
-            $logger->info('(' . $group_id . ')(T) SAVE PAY OUT INFO');
+            $logger->info('(' . $group_id . ')(T) Incoming2 SAVE PAY OUT INFO');
             $transaction->setPayOutInfo($payment_info);
             $dataIn = array(
                 'amount'    =>  $amount,
@@ -366,9 +366,9 @@ class IncomingController2 extends RestApiController{
                 'url_notification'  =>  $url_notification
             );
         }
-        $logger->info('(' . $group_id . ')(T) SET DATA IN');
+
         $transaction->setDataIn($dataIn);
-        $logger->info('(' . $group_id . ')(T) FEES');
+
         //$fee_handler = $this->container->get('net.app.commons.fee_manipulator');
         //$group_commission = $fee_handler->getMethodFees($group, $method);
 
@@ -397,17 +397,13 @@ class IncomingController2 extends RestApiController{
             $transaction->setTotal($amount);
         }
 
-        $logger->info('(' . $group_id . ')(T) LIMITS');
-
         //check limits with 30 days success/received/created transactions
         //get limit manipulator
 
         /** @var LimitManipulator $limitManipulator */
         $limitManipulator = $this->get('net.app.commons.limit_manipulator');
 
-        $logger->info('(' . $group_id . ')(T) INIT LIMITS');
         $limitManipulator->checkLimits($group, $method, $amount);
-        $logger->info('(' . $group_id . ')(T) END LIMITS');
 
         $transaction->setCurrency($method->getCurrency());
         $transaction->setScale($wallet->getScale());
@@ -416,15 +412,15 @@ class IncomingController2 extends RestApiController{
             $transaction->setInternal(true);
         }
         if($type == 'out'){
-            $logger->info('(' . $group_id . ')(T) OUT');
+            $logger->info('(' . $group_id . ')(T) Incoming2 OUT');
             if(isset($data['internal_out']) && $data['internal_out']=='1') {
                 $transaction->setInternal(true);
             }
-            $logger->info('(' . $group_id . ') Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
+            $logger->info('(' . $group_id . ') Incoming2 transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
             $address = $payment_info['address'];
             $destination = $em->getRepository(Group::class)
                 ->findOneBy(['rec_address' => $payment_info['address']]);
-            $logger->info('(' . $group_id . ')(T) CHECK ADDRESS');
+            $logger->info('(' . $group_id . ')(T) Incoming2 CHECK ADDRESS');
 
             if(!$destination){
                 // checking if the address belongs to an order
@@ -467,7 +463,7 @@ class IncomingController2 extends RestApiController{
 
                 throw new HttpException(404, 'Destination address does not exists');
             }
-            $logger->info('(' . $group_id . ')(T) DEFINE PAYMENT DATA');
+            $logger->info('(' . $group_id . ')(T) Incoming2 DEFINE PAYMENT DATA');
             $payment_info['orig_address'] = $group->getRecAddress();
             $payment_info['orig_nif'] = $user->getDNI();
             $payment_info['orig_group_nif'] = $group->getCif();
@@ -478,22 +474,22 @@ class IncomingController2 extends RestApiController{
             $payment_info['dest_group_public'] = $destination->getIsPublicProfile();
             $payment_info['dest_key'] = $destination->getKeyChain();
 
-            $logger->info('(' . $group_id . ') Incomig transaction...SEND');
+            $logger->info('(' . $group_id . ') Incoming2 transaction...SEND');
 
-            $logger->info('(' . $group_id . ')(T) BLOCK MONEY');
+            $logger->info('(' . $group_id . ')(T) Incoming2 BLOCK MONEY');
             //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
             $em->flush();
             try {
-                $logger->info('(' . $group_id . ')(T) INIT SEND');
+                $logger->info('(' . $group_id . ')(T) Incoming2 INIT SEND');
                 $payment_info = $method->send($payment_info);
-                $logger->info('(' . $group_id . ')(T) END SEND');
+                $logger->info('(' . $group_id . ')(T) Incoming2 END SEND');
             }catch (Exception $e){
 
                 $notificator = $this->container->get('com.qbitartifacts.rec.commons.notificator');
                 $notificator->send('#ERROR IncomingController'. $method . ' ' . $group->getId());
 
-                $logger->info('(' . $group_id . ')(T) SEND ERROR');
+                $logger->info('(' . $group_id . ')(T) Incoming2 SEND ERROR');
                 if(isset($payment_info['inputs'])) {
                     $logger->info('REC_INFO_ERROR Inputs:'.$payment_info['inputs']);
                     $logger->info('REC_INFO_ERROR Outputs:'.$payment_info['outputs']);
@@ -517,10 +513,10 @@ class IncomingController2 extends RestApiController{
                 $em->flush();
                 $dm->flush();
 
-                $logger->info('(' . $group_id . ')(T) INIT ERROR NOTIFICATION');
+                $logger->info('(' . $group_id . ')(T) Incoming2 INIT ERROR NOTIFICATION');
                 $this->container->get('messenger')->notificate($transaction);
-                $logger->info('(' . $group_id . ')(T) END ERROR NOTIFICATION');
-                $logger->info('(' . $group_id . ')(T) END ALL');
+                $logger->info('(' . $group_id . ')(T) Incoming2 END ERROR NOTIFICATION');
+                $logger->info('(' . $group_id . ')(T) Incoming2 END ALL');
                 throw new HttpException($e->getCode(), $e->getMessage());
             }
             if(isset($payment_info['inputs'])) {
@@ -545,13 +541,13 @@ class IncomingController2 extends RestApiController{
             $payment_info['image_receiver'] = $destination->getCompanyImage();
             $payment_info['name_receiver'] = $destination->getName();
             $payment_info['concept'] = $data['concept'];
-            $logger->info('(' . $group_id . ')(T) STATUS => ' . $payment_info['status']);
+            $logger->info('(' . $group_id . ')(T) Incoming2 STATUS => ' . $payment_info['status']);
 
             $transaction->setPayOutInfo($payment_info);
             $dm->flush();
 
             if( $payment_info['status'] == 'sent' || $payment_info['status'] == 'sending'){
-                $logger->info('(' . $group_id . ')(T) SENT OR SENDING');
+                $logger->info('(' . $group_id . ')(T) Incoming2 SENT OR SENDING');
                 if($payment_info['status'] == 'sent') $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 else $transaction->setStatus('sending');
 
@@ -563,7 +559,7 @@ class IncomingController2 extends RestApiController{
 
                 $dm->flush();
                 $em->flush();
-                $logger->info('(' . $group_id . ')(T) SAVE ALL');
+                $logger->info('(' . $group_id . ')(T) Incoming2 SAVE ALL');
 
                 $em->getConnection()->commit();
 
@@ -578,9 +574,9 @@ class IncomingController2 extends RestApiController{
                     $params['internal_tx']='1';
                     $params['destionation_id']=$data['destionation_id'];
                 }
-                $logger->info('(' . $group_id . ')(T) Incomig transaction... Create New');
+                $logger->info('(' . $group_id . ')(T) Incomig2 transaction... Create New');
                 $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, '127.0.0.1', $order);
-                $logger->info('(' . $group_id . ')(T) Incomig transaction... New created');
+                $logger->info('(' . $group_id . ')(T) Incomig2 transaction... New created');
             }
             else{
                 $transaction->setStatus($payment_info['status']);
@@ -588,7 +584,7 @@ class IncomingController2 extends RestApiController{
                 $wallet->setAvailable($wallet->getAvailable() + $amount);
                 $em->flush();
                 $dm->flush();
-                $logger->info('(' . $group_id . ')(T) SAVE DATA');
+                $logger->info('(' . $group_id . ')(T) Incoming2 SAVE DATA');
 
                 $em->getConnection()->commit();
             }
@@ -598,12 +594,12 @@ class IncomingController2 extends RestApiController{
             //Checking if there is an out transaction for this in tx
 
 
-            $logger->info('(' . $group_id . ')(T) IS INTERNAL?');
+            $logger->info('(' . $group_id . ')(T) Incoming2 IS INTERNAL?');
             if(isset($data['internal_in']) && $data['internal_in']=='1') {
                 $transaction->setInternal(true);
             }
             //CASH - IN
-            $logger->info('(' . $group_id . ') Incomig transaction...IN');
+            $logger->info('(' . $group_id . ') Incomig2 transaction...IN');
             $em->flush();
             $transaction->setUpdated(new \DateTime());
             $dm->flush();
@@ -611,13 +607,13 @@ class IncomingController2 extends RestApiController{
             $em->getConnection()->commit();
         }
 
-        $logger->info('(' . $group_id . ')(T) INIT NOTIFICATION');
+        $logger->info('(' . $group_id . ')(T) Incoming2 INIT NOTIFICATION');
         $this->container->get('messenger')->notificate($transaction);
-        $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
+        $logger->info('(' . $group_id . ')(T) Incoming2 END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
         if($user_id == -1 || $ip == '127.0.0.1'){ // this is executed in the recursive call
-            $logger->info('(' . $group_id . ')(T) Incomig transaction... return string');
+            $logger->info('(' . $group_id . ')(T) Incomig2 transaction... return string');
             $logger->info('(' . $group_id . ')(T) FINAL');
             $logger->info('(' . $group_id . ')(T) TXID: ' . $transaction->getId());
 
@@ -632,7 +628,7 @@ class IncomingController2 extends RestApiController{
             return 'Transaction generated: ' . $transaction->getStatus() . ", ID: " . $transaction->getId();
         }
         else { // this is executed in the normal call (non recursive)
-            $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
+            $logger->info('(' . $group_id . ')(T) Incomig2 transaction... return http format');
             $logger->info('(' . $group_id . ')(T) FINAL');
 
             $response = $this->methodTransaction(201, $transaction, "Done");

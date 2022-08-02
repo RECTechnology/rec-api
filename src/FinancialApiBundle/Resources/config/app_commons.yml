@@ -46,6 +46,7 @@ services:
             - "@doctrine"
             - "@net.app.commons.transaction_flow_handler"
             - "@bonissim_service"
+            - "@bonus.logger"
 
     net.app.commons.qualification_handler:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\QualificationHandler

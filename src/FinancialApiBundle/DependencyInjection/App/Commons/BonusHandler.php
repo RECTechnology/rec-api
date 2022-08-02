@@ -19,6 +19,7 @@ use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Financial\Currency;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\OAuthServerBundle\Util\Random;
+use Monolog\Logger;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -36,10 +37,14 @@ class BonusHandler{
 
     private $bonissimService;
 
-    public function __construct($doctrine, $flowHandler, $bonissimService){
+    /** @var Logger $logger */
+    private $logger;
+
+    public function __construct($doctrine, $flowHandler, $bonissimService, Logger $logger){
         $this->doctrine = $doctrine;
         $this->flowHandler = $flowHandler;
         $this->bonissimService = $bonissimService;
+        $this->logger = $logger;
     }
 
     private function getEntityManager(){
@@ -47,6 +52,7 @@ class BonusHandler{
     }
         //todo separate code (duplicated calls)
     public function bonificateTx(Transaction $tx){
+        $this->logger->info("BONUS HANDLER -> checking bonifications for tx -> ".$tx->getId()." - ".$tx->getMethod()."-".$tx->getType());
         $extra_data = [];
         $this->setUpBonificator($tx);
         if($this->isLTABBonificable()) $extra_data = $this->generateLTABBonification();
@@ -127,6 +133,7 @@ class BonusHandler{
         if(!$this->getLtabAccount($this->originTx->getUser(), $campaign)) return false;
         //TODO check if store and account are the same
         if($this->clientGroup->getKycManager()->getId() === $shop->getKycManager()->getId()) return false;
+        $this->logger->info("BONUS HANDLER -> Tx is LTAB bonificable");
         return true;
     }
 
@@ -152,6 +159,7 @@ class BonusHandler{
         $new_rewarded = min($this->originTx->getAmount() / 100, $campaign->getMax() - $rewarded_amount);
         if($new_rewarded <= 0) return false;
 
+        $this->logger->info("BONUS HANDLER -> Tx is CULTURE bonificable");
         return true;
     }
 
@@ -174,6 +182,7 @@ class BonusHandler{
         //TODO que no sea de culñture
         $culture_campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::CULTURE_CAMPAIGN_NAME]);
         if (in_array($this->clientGroup, $culture_campaign->getAccounts()->getValues())) return false;
+        $this->logger->info("BONUS HANDLER -> Tx is Redeemable");
         return true;
     }
 
@@ -192,6 +201,7 @@ class BonusHandler{
         $campaign_balance = $campaignAccount->getWallet(Currency::$REC)->getBalance();
         $bonificationAmount =min($campaign_balance, round($bonificableAmount * $campaign->getRedeemablePercentage()/100,2)*1e8);
         if($bonificationAmount > 0){
+            $this->logger->info("BONUS HANDLER -> Bonification amount -> ".$bonificationAmount);
             try{
                 $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $ltabAccount, $bonificationAmount);
                 //QUItar redeemable y suamr al rewarded
@@ -231,6 +241,7 @@ class BonusHandler{
         $satoshi_decimals = 1e8;
         $bonificableAmount = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
 
+        $this->logger->info("BONUS HANDLER -> Bonification amount -> ".$bonificableAmount);
         try{
             $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount, 'Bonificació Cultural +' . $campaign->getRedeemablePercentage() . '%');
         }catch (HttpException $e){
@@ -292,7 +303,9 @@ class BonusHandler{
     }
 
     private function createLtabAccount(){
+
         $user_id = $this->clientGroup->getKycManager()->getId();
+        $this->logger->info("BONUS HANDLER -> Creating LTAB account for user ".$user_id);
         //We create the account always with redeemable 0.
         $account = $this->bonissimService->CreateCampaignAccountV2($user_id,
             Campaign::BONISSIM_CAMPAIGN_NAME, 0);
@@ -314,6 +327,7 @@ class BonusHandler{
             ($ltabAccount->getRewardedAmount() + $old_redeemable)) + $old_redeemable;
 
         $ltabAccount->setRedeemableAmount($allowed_redeemable);
+        $this->logger->info("BONUS HANDLER -> Write redemable -> ".$allowed_redeemable);
 
         $em->flush();
 
