@@ -60,6 +60,16 @@ services:
         class:     Monolog\Handler\StreamHandler
         arguments: ['%kernel.logs_dir%/%kernel.environment%.transaction.log', 200]
 
+    bonus.logger:
+        class: Symfony\Bridge\Monolog\Logger
+        arguments: [ bonus ]
+        calls:
+            - [ pushHandler, [ "@bonus.logger_handler" ] ]
+
+    bonus.logger_handler:
+        class: Monolog\Handler\StreamHandler
+        arguments: [ '%kernel.logs_dir%/%kernel.environment%.bonus.log', 200 ]
+
     discourse.logger:
         class: Symfony\Bridge\Monolog\Logger
         arguments: [ discourse ]
