@@ -102,7 +102,8 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                 }
 
                 if($response){
-                    //TODO check if it was successfull tx
+                    $output->writeln("Response". $response);
+                    //check if it was successfull tx
                     if($response['error'] == '' and strlen($response['message']) == 66){
                         $nonces[$sender_id] += 1;
                         $nft_transaction->setTxId($response['message']);
@@ -111,26 +112,24 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                         $em->flush();
                         $output->writeln("NFT transaction from " .$sender_id. " to ".$receiver_id." success");
                     }else{
-                        if(isset($response['error']['code'])){
-                            $code = $response['error']['code'];
-                            if($code === -32000){
-                                if($nft_transaction->getMethod() === NFTTransaction::NFT_MINT){
-                                    //TODO send email to admin because mint is from admin
-                                }else{
-                                    //not enough balance
-                                    //create funding transaction
-                                    $fundingTx = new FundingNFTWalletTransaction();
-                                    $fundingTx->setStatus(FundingNFTWalletTransaction::STATUS_CREATED);
-                                    $fundingTx->setAccount($sender);
-                                    $fundingTx->setAmount(10000);
+                        $code = $response['error'];
+                        if($code === -32000){
+                            if($nft_transaction->getMethod() === NFTTransaction::NFT_MINT){
+                                //TODO send email to admin because mint is from admin and admin needs funding
+                            }else{
+                                //not enough balance
+                                //create funding transaction
+                                $fundingTx = new FundingNFTWalletTransaction();
+                                $fundingTx->setStatus(FundingNFTWalletTransaction::STATUS_CREATED);
+                                $fundingTx->setAccount($sender);
+                                $fundingTx->setAmount(10000);
 
-                                    $nft_transaction->setStatus(NFTTransaction::STATUS_FUNDING_PENDING);
+                                $nft_transaction->setStatus(NFTTransaction::STATUS_FUNDING_PENDING);
 
-                                    $em->persist($fundingTx);
-                                    $em->flush();
-                                }
-
+                                $em->persist($fundingTx);
+                                $em->flush();
                             }
+
                         }
                     }
 
