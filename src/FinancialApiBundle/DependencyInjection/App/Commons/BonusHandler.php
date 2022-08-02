@@ -176,10 +176,15 @@ class BonusHandler{
 
         //TODO check if is ltab account? make sense? (if no ltab account require min amount)
         //TODO importe mayor que el minimo
+        /** @var Campaign $campaign */
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
+        if(!isset($campaign)) return false;
+        $now = new \DateTime('NOW');
+        if($now < $campaign->getInitDate() || $now > $campaign->getEndDate()) return false;
+        if(!$campaign->isBonusEnabled()) return false;
         $ltabAccount = $this->getLtabAccount($this->originTx->getUser(), $campaign);
         if(!isset($ltabAccount) && $this->originTx->getAmount() / 100 < $campaign->getMin()) return false;
-        //TODO que no sea de culñture
+        //que no sea de culture
         $culture_campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::CULTURE_CAMPAIGN_NAME]);
         if (in_array($this->clientGroup, $culture_campaign->getAccounts()->getValues())) return false;
         $this->logger->info("BONUS HANDLER -> Tx is Redeemable");
