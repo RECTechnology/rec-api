@@ -35,7 +35,7 @@ class CheckFundingWalletTransactionsCommand extends SynchronizedContainerAwareCo
             $response = null;
             try{
                 //check transaction
-                $response = $web3Manager->get_transaction_status($contract, $tx->getTxId());
+                $response = $web3Manager->get_transaction_status($contract, $tx->getTxId(), 'transfer');
 
             }catch (\Exception $e){
                 $tx->setStatus(FundingNFTWalletTransaction::STATUS_FAILED);

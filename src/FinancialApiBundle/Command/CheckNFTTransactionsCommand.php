@@ -42,7 +42,7 @@ class CheckNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                     //TODO check NFTTransaction against blockchain
                     $contract = $this->getContract($nft_transaction);
                     if($contract){
-                        $response = $web3Manager->get_transaction_status($contract, $nft_transaction->getTxId());
+                        $response = $web3Manager->get_transaction_status($contract, $nft_transaction->getTxId(), 'nft');
                     }else{
                         $response = null;
                         $output->writeln( 'Contract not found');

@@ -83,12 +83,12 @@ class Web3ApiManager{
         }
     }
 
-    public function get_transaction_status($contract_address, $transaction_id)
+    public function get_transaction_status($contract_address, $transaction_id, $type = 'nft')
     {
-        $this->logger->info("WEB3_API_MANAGER - get status for transaction ".$transaction_id);
+        $this->logger->info("WEB3_API_MANAGER - get status for transaction ".$transaction_id." type ".$type);
         try{
             $resp = json_decode(file_get_contents(
-                $this->web3_api_url."/get_transaction_status?contract_address=".$contract_address."&transaction_id=".$transaction_id
+                $this->web3_api_url."/get_transaction_status?contract_address=".$contract_address."&transaction_id=".$transaction_id."&type=".$type
             ), true);
 
             $this->logger->info("WEB3_API_MANAGER - getting response", $resp);
