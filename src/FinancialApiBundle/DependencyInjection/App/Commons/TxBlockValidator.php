@@ -89,7 +89,7 @@ class TxBlockValidator
                 if($sender_balance < $amount * 1e8){
                     $required_balance = $amount / 100;
                     $real_balance = $sender_balance / 1e8;
-                    $warn_text = 'The sender '.$tx_sender_id.' must send '.$amount.'R but only has '.$sender_balance.'R.
+                    $warn_text = 'The sender '.$tx_sender_id.' must send '.$required_balance.'R but only has '.$real_balance.'R.
                      This will cause an ERROR in the sending';
                     $warnings[] = $warn_text;
                     $this->persistLog(TransactionBlockLog::TYPE_WARN, $warn_text);
