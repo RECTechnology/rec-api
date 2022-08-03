@@ -43,7 +43,7 @@ class FundingNFTWalletTransaction extends AppObject
     private $tx_id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint")
      * @Serializer\Groups({"admin"})
      */
     private $amount;
