@@ -10,6 +10,7 @@ namespace App\FinancialApiBundle\Command;
 
 
 use App\FinancialApiBundle\DependencyInjection\App\Commons\Web3ApiManager;
+use App\FinancialApiBundle\Entity\ConfigurationSetting;
 use App\FinancialApiBundle\Entity\FundingNFTWalletTransaction;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\NFTTransaction;
@@ -117,12 +118,23 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                             if($nft_transaction->getMethod() === NFTTransaction::NFT_MINT){
                                 //TODO send email to admin because mint is from admin and admin needs funding
                             }else{
+                                //get amount from Configuration settings table
+                                $setting = $em->getRepository(ConfigurationSetting::class)->findOneBy(array(
+                                    'scope' => 'nft_wallet',
+                                    'name' => 'default_funding_amount'
+                                ));
+                                if($setting){
+                                    $fundingAmount = $setting->getValue();
+                                }else{
+                                    //TODO decidir  que hacer si el parametro no esta definido, por ahoira setteo uno por default
+                                    $fundingAmount = 100000000;
+                                }
                                 //not enough balance
                                 //create funding transaction
                                 $fundingTx = new FundingNFTWalletTransaction();
                                 $fundingTx->setStatus(FundingNFTWalletTransaction::STATUS_CREATED);
                                 $fundingTx->setAccount($sender);
-                                $fundingTx->setAmount(10000);
+                                $fundingTx->setAmount($fundingAmount);
 
                                 $nft_transaction->setStatus(NFTTransaction::STATUS_FUNDING_PENDING);
 
