@@ -238,6 +238,7 @@ class AccountsController extends CRUDController {
             'identity(a.activity_main) as activity, ' .
             'a AS account, ' .
             'o.active AS offer, ' .
+            'SUM(o.active) AS totalOffers, ' .
             'o.end, ' .
             'cp.name AS campaign'; // TODO Remove it when version higher than 2.1.0
 
@@ -312,7 +313,7 @@ class AccountsController extends CRUDController {
             $elements[$i]['in_ltab_campaign'] = array_key_exists("campaign", $elements[$i]) &&
                 $elements[$i]["campaign"] == Campaign::BONISSIM_CAMPAIGN_NAME;
             unset($elements[$i]['campaign']);
-            $elements[$i]['has_offers'] = (array_key_exists("offer", $elements[$i]) and $elements[$i]['offer'] and $query_resp[$i]['end'] > $now);
+            $elements[$i]['has_offers'] = (array_key_exists("totalOffers", $elements[$i]) and $elements[$i]['totalOffers'] > 0 );
             unset($elements[$i]['end']);
 
             $account_campaigns = $elements[$i]["account"]["campaigns"];

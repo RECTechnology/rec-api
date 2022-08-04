@@ -26,7 +26,8 @@ class OfferFixture extends Fixture implements DependentFixtureInterface {
 
         /** @var Group $company */
         foreach ($companies as $company){
-            $this->createOffer($orm, $company);
+            $this->createOffer($orm, $company,false, '-1 year');
+            $this->createOffer($orm, $company,true, '+1 year');
         }
 
     }
@@ -34,20 +35,20 @@ class OfferFixture extends Fixture implements DependentFixtureInterface {
     /**
      * @param ObjectManager $orm
      */
-    private function createOffer(ObjectManager $orm, Group $company){
+    private function createOffer(ObjectManager $orm, Group $company, bool $active, $end){
         $offer = new Offer();
         $offer->setType(Offer::OFFER_TYPE_PERCENTAGE);
         $offer->setDiscount(10);
         $offer->setInitialPrice(10);
         $offer->setDescription('bla bla bla');
         $offer->setCompany($company);
-        $offer->setStart(new \DateTime('-2 days'));
+        $offer->setStart(new \DateTime('-2 year'));
         if($company->getName() == AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']){
             $offer->setEnd(new \DateTime('-1 year'));
             $offer->setActive(false);
         }else{
-            $offer->setEnd(new \DateTime('+1 year'));
-            $offer->setActive(true);
+            $offer->setEnd(new \DateTime($end));
+            $offer->setActive($active);
         }
         $offer->setImage('https://image.test/flower.jpg');
 
