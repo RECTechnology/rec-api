@@ -17,3 +17,8 @@
 #*    *   * * * www-data find /api/web/static -name *.tmp.* -type f -mmin +10 -delete
 
 0    0   * * * www-data timeout 300 /usr/bin/rec rec:check:expired:documents >> /api/var/logs/cron-check-expired-documents.log 2>&1
+
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:execute:NFTTransactions >> /api/var/logs/cron-web3.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:check:NFTTransactions >> /api/var/logs/cron-web3.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:funding:execute >> /api/var/logs/cron-web3.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:funding:check >> /api/var/logs/cron-web3.log 2>&1
