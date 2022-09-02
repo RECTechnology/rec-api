@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.35.2](https://github.com/qbitartifacts/rec-api/compare/v2.35.1...v2.35.2) (2022-09-02)
+
+
+### Bug Fixes
+
+* **cron:** add web3 crons to crontab ([#1145](https://github.com/qbitartifacts/rec-api/issues/1145)) ([064ce55](https://github.com/qbitartifacts/rec-api/commit/064ce55d9db2ecf1a156a6dc85d38602e8bb61ec))
+* **pos:** checking pos payment against campaign too ([4cad808](https://github.com/qbitartifacts/rec-api/commit/4cad808c141cea8c1c5c249303f419d1737f2544))
+
 ## [2.29.0](https://github.com/qbitartifacts/rec-api/compare/v2.28.1...v2.29.0) (2022-01-11)
 
 
