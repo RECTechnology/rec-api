@@ -473,7 +473,17 @@ class IncomingController3 extends RestApiController{
         if($method_cname === "rec"){
             $id_group_root = $this->container->getParameter('id_group_root');
             if ($type === "out" and $group->getId() !== $id_group_root) {
-                $receiver = $em->getRepository(Group::class)->findOneBy(['rec_address' => $params['address']]);
+
+                $orderRepo = $em->getRepository(PaymentOrder::class);
+                $accountRepo = $em->getRepository(Group::class);
+
+                /** @var PaymentOrder $order */
+                $order = $orderRepo->findOneBy([
+                    'payment_address' => $params['address'],
+                    'status' => PaymentOrder::STATUS_IN_PROGRESS
+                ]);
+
+                $receiver = $order? $order->getPos()->getAccount(): $accountRepo->findOneBy(['rec_address' => $params['address']]);
                 $sender_in_campaign = in_array($group, $campaign->getAccounts()->toArray());
                 $receiver_in_campaign = in_array($receiver, $campaign->getAccounts()->toArray());
                 if($sender_in_campaign) {
