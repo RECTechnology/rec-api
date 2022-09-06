@@ -32,12 +32,13 @@ class TransactionFlowHandler{
         $this->balanceManipulator = $balanceManipulator;
     }
 
-    public function sendRecsWithIntermediary(Group $rootAccount, Group $intermediaryAccount, Group $userAccount, $amount, $concept = 'Internal exchange'){
+    public function sendRecsWithIntermediary(Group $rootAccount, Group $intermediaryAccount, Group $userAccount, $amount, $concept = 'Internal exchange'): Transaction
+    {
         $this->checkBalance($rootAccount, $amount);
         //TODO we need to know if it's a bonification
         //send money from root to intermediary
         //rec out root
-        $rootTxOut = $this->sendRecsToAddress($rootAccount, $intermediaryAccount, $amount);
+        $rootTxOut = $this->sendRecsToAddress($rootAccount, $intermediaryAccount, $amount, false);
 
         //rec in intermediary
         $intermediaryTxIn = $this->receiveRecs($intermediaryAccount, $rootTxOut);
@@ -61,7 +62,8 @@ class TransactionFlowHandler{
         return $userAccountTxIn;
     }
 
-    public function receiveRecsFromOutTx(Group $receiver, Transaction $outTx){
+    public function receiveRecsFromOutTx(Group $receiver, Transaction $outTx): Transaction
+    {
         $payOutInfo = $outTx->getPayOutInfo();
         $inTx = $this->receiveRecs($receiver, $outTx, false, $payOutInfo['concept']);
         $dm = $this->mongo->getManager();
@@ -72,14 +74,16 @@ class TransactionFlowHandler{
 
     }
 
-    private function addBalance(Group $group, $amount, Transaction $transaction, $log = 'null'){
+    private function addBalance(Group $group, $amount, Transaction $transaction, $log = 'null'): void
+    {
 
         $this->balanceManipulator->addBalance($group, $amount, $transaction);
         $this->addToWallet($group, $amount);
 
     }
 
-    private function addToWallet(Group $group, $amount){
+    private function addToWallet(Group $group, $amount): void
+    {
         /** @var UserWallet $wallet */
         $wallet = $group->getWallet(Currency::$REC);
         $wallet->setAvailable($wallet->getAvailable() + $amount);
@@ -87,7 +91,8 @@ class TransactionFlowHandler{
         $this->doctrine->getManager()->flush();
     }
 
-    private function sendRecsToAddress(Group $from, Group $to, $amount){
+    private function sendRecsToAddress(Group $from, Group $to, $amount, $internal = true): Transaction
+    {
 
         $txOut = Transaction::createInternalTransactionV3($from, 'rec', 'out', Currency::$REC);
 
@@ -100,7 +105,7 @@ class TransactionFlowHandler{
         $txOut->setAmount($amount);
         $txOut->setTotal($amount*-1);
         $txOut->setScale(8);
-        $txOut->setInternal(true);
+        $txOut->setInternal($internal);
 
         $rootOutTxId = substr(Random::generateToken(), 0, 48);
         $payOutInfo = [
@@ -119,7 +124,8 @@ class TransactionFlowHandler{
         return $txOut;
     }
 
-    private function receiveRecs(Group $receiver, Transaction $previousTx, $internal = true, $concept = 'Internal exchange'){
+    private function receiveRecs(Group $receiver, Transaction $previousTx, $internal = true, $concept = 'Internal exchange'): Transaction
+    {
 
         $txIn = Transaction::createInternalTransactionV3($receiver, 'rec', 'in', Currency::$REC);
 
