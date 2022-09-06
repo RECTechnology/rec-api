@@ -4,6 +4,7 @@ namespace Test\FinancialApiBundle\Transactions;
 
 use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Group;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**
@@ -89,6 +90,31 @@ class TransactionsTest extends BaseApiTest {
         $otp = Google2FA::oath_totp($user->two_factor_code);
         $route = "/admin/v3/accounts/{$this->store->id}/withdrawals";
         $this->rest(
+            'POST',
+            $route,
+            [
+                'amount' => 100,
+                'currency' => 'EUR',
+                'concept' => 'Testing withdrawal',
+                'otp' => $otp
+            ],
+            [],
+            503
+        );
+
+    }
+
+    function testWithdraw1RecFromCultureShopShouldReturn503(){
+        //it return 503 because there is no mock for lemon withdraw, but if returns 503 means that the problem receiver
+        // is not in campaign is fixed
+        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
+        /** @var Group $store */
+        $store = $em->getRepository(Group::class)->findOneBy(array('name' => 'account_org_in_cult21'));
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $user = $this->getSignedInUser();
+        $otp = Google2FA::oath_totp($user->two_factor_code);
+        $route = "/admin/v3/accounts/{$store->getId()}/withdrawals";
+        $resp = $this->rest(
             'POST',
             $route,
             [

@@ -483,11 +483,13 @@ class IncomingController3 extends RestApiController{
                     'status' => PaymentOrder::STATUS_IN_PROGRESS
                 ]);
 
+                /** @var Group $receiver */
                 $receiver = $order? $order->getPos()->getAccount(): $accountRepo->findOneBy(['rec_address' => $params['address']]);
                 $sender_in_campaign = in_array($group, $campaign->getAccounts()->toArray());
                 $receiver_in_campaign = in_array($receiver, $campaign->getAccounts()->toArray());
+                $rootGroupId = $this->container->getParameter('id_group_root');
                 if($sender_in_campaign) {
-                    if (!$receiver_in_campaign) {
+                    if (!$receiver_in_campaign && $receiver->getId() !== $rootGroupId) {
                         throw new HttpException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
                     }
                 }
