@@ -43,8 +43,9 @@ class DiscourseApiManager{
             "username"=> $account->getRezeroB2bUsername(),
             "active"=> true,
             "approved"=> true,
-            "user_fields" => array($account->getName(), $account->getKycManager()->getName(), $account->getId())
+            "user_fields" => array('field 0',$account->getName(), $account->getKycManager()->getName(), $account->getId())
         );
+        //en userfields se envia field 0 al principio porque el 0 no se guarda, no se por que. Empieza a guardar desde el 1
 
         return $this->_callDiscourseAdmin('users.json', $this->getAdminCredentials(), 'POST', $data);
 
