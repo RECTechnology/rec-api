@@ -215,7 +215,8 @@ class DashboardController extends CRUDController {
             $item = ['time' => $time->format('c')];
             $item['total'] = 0;
             foreach ($qResult as $qItem){
-                if($qItem['time'] == $item['time']){
+                //datetime comparison instead of string comparison
+                if(new \DateTime($qItem['time']) == new \DateTime($item['time'])){
                     $item['total'] = intval($qItem['total']);
                     break;
                 }
