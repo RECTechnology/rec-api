@@ -198,6 +198,53 @@ class Web3ApiManager{
         }
     }
 
+    public function burnNFT($contract_address, $nft_id, $owner_address, $owner_pk, $nonce=null)
+    {
+        $this->logger->info( 'Burn NFT');
+        try{
+            $content = json_encode(
+                [
+                    "contract_address" => $contract_address,
+                    "function_name" => "burn",
+                    "args" => [(int) $nft_id],
+                    "tx_args" => [
+                        "sender_address" => $owner_address,
+                        "sender_private_key" => $owner_pk
+                    ],
+                    "nonce" => $nonce
+                ]
+            );
+            $ops = [
+                'http' => [
+                    'method' => 'POST',
+                    'header' => [
+                        'Content-Type: application/json',
+                        'Content-Length: ' . strlen($content)
+                    ],
+                    'content' => $content
+                ]
+            ];
+
+            $resp = json_decode(file_get_contents(
+                $this->web3_api_url."/contract_function_call",
+                false,
+                stream_context_create($ops)
+            ), true);
+
+            if(array_key_exists('error', $resp) and $resp['error'] == ''){
+                $this->logger->info( 'NFT burn shared'.strval(json_encode($resp)));
+
+            }else{
+                $this->logger->info( 'Error during burn share call'.strval(json_encode($resp)));
+            }
+            return $resp;
+
+        }catch (Exception $e) {
+            $this->logger->info('Error during burn share call: '.strval($e));
+            throw new \Exception('Error during burn share call: '.strval($e));
+        }
+    }
+
     public function likeNFT($contract_address, $nft_to_like, $sender_address, $sender_pk, $nonce=null)
     {
         $this->logger->info( 'Like NFT');

@@ -96,6 +96,28 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                         );
                     }
 
+                    if($nft_transaction->getMethod() === NFTTransaction::NFT_BURN){
+                        $output->writeln('Burn NFT token id: '.$nft_transaction->getSharedTokenId());
+                        $response = $web3Manager->burnNFT(
+                            $sharable_address,
+                            $nft_transaction->getSharedTokenId(),
+                            $sender->getNftWallet(),
+                            $sender->getNftWalletPk(),
+                            $nonces[$sender_id]
+                        );
+                    }
+
+                    if($nft_transaction->getMethod() === NFTTransaction::NFT_UNLIKE){
+                        $output->writeln('Burn NFT like token id: '.$nft_transaction->getSharedTokenId());
+                        $response = $web3Manager->burnNFT(
+                            $like_address,
+                            $nft_transaction->getSharedTokenId(),
+                            $sender->getNftWallet(),
+                            $sender->getNftWalletPk(),
+                            $nonces[$sender_id]
+                        );
+                    }
+
 
 
                 }catch (Exception $e) {
