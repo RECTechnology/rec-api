@@ -111,6 +111,7 @@ class TransactionFlowHandler{
         $payOutInfo = [
             'amount' => $amount,
             'address' => $to->getRecAddress(),
+            'concept' => 'Internal exchange',
             'txid' => $rootOutTxId,
             'status' => Transaction::$STATUS_SENT,
             'final' => true,

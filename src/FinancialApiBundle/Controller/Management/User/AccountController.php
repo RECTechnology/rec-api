@@ -902,6 +902,7 @@ class AccountController extends BaseApiController {
         }
 
         if($request->request->has('date_birth') && $request->request->get('date_birth')!=''){
+            //TODO check valid date and format
             $kyc->setDateBirth($request->request->get('date_birth'));
             $em->persist($kyc);
         }
