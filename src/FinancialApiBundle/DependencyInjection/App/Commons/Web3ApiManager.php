@@ -41,7 +41,7 @@ class Web3ApiManager{
                 stream_context_create($ops)
             ), true);
             $this->logger->info( 'New wallet created: '.strval($resp['wallet']['address']));
-            return json_decode($resp);
+            return $resp;
         }catch (Exception $e) {
             $this->logger->info( 'Error during call: '.strval($e));
             return $e;
