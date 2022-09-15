@@ -110,7 +110,7 @@ class Web3ApiManager{
                 [
                     "contract_address" => $contract_address,
                     "function_name" => "mint",
-                    "args" => $wallet,
+                    "args" => [$wallet, "topic"],
                     "tx_args" => [
                         "sender_address" => $sender_address,
                         "sender_private_key" => $sender_pk
@@ -149,7 +149,6 @@ class Web3ApiManager{
             throw new \Exception('Error during create call: '.strval($e));
         }
     }
-
 
     public function shareNFT($contract_address, $wallet, $nft_to_share, $sender_address, $sender_pk, $nonce=null)
     {
