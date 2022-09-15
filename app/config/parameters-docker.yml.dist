@@ -101,8 +101,8 @@ parameters:
     discourse_admin_api_key: $DISCOURSE_ADMIN_API_KEY
     discourse_news_category_id: $DISCOURSE_NEWS_CATEGORY_ID
 
-    atarca_sharable_nft_contract_address: $SHARABLE_NFT_CONTRACT_ADDRESS
-    atarca_like_nft_contract_address: $LIKE_NFT_CONTRACT_ADDRESS
+    atarca_sharable_nft_contract_address: "$SHARABLE_NFT_CONTRACT_ADDRESS"
+    atarca_like_nft_contract_address: "$LIKE_NFT_CONTRACT_ADDRESS"
     atarca_endorse_nft_contract_address: '0xC014900C972fC25499f141102a046c304D9670F1'
 
     atarca_web3_api_url: $ATARCA_WEB3_API_URL
