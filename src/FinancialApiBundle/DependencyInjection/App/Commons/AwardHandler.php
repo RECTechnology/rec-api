@@ -396,11 +396,10 @@ class AwardHandler
                 'to' => $colaborator
             ));
             if($sharedTx){
-                //create tx to burn token from admin
-                $adminAccountId = $this->container->getParameter('id_group_root');
-                $admin = $em->getRepository(Group::class)->find($adminAccountId);
+                //create tx to burn token from owner
+                $owner = $em->getRepository(Group::class)->find($colaborator->getId());
                 //TODO si no hay sharedTokenId es que la tx no se ha confirmado todavia, que hacemos???
-                $this->createBurnNFTTransaction($admin, $sharedTx->getSharedTokenId());
+                $this->createBurnNFTTransaction($owner, $sharedTx->getSharedTokenId());
             }
         }
     }
@@ -424,7 +423,7 @@ class AwardHandler
         if($likeTx){
             //burn like token transaction
             //TODO si no hay sharedTokenId es que la tx no se ha confirmado todavia, que hacemos???
-            $this->createBurnNFTTransaction($liker, $likeTx->getSharedTokenId());
+            $this->createBurnNFTTransaction($liker, $likeTx->getSharedTokenId(), NFTTransaction::NFT_UNLIKE);
         }
 
     }
@@ -446,12 +445,12 @@ class AwardHandler
         $em->flush();
     }
 
-    private function createBurnNFTTransaction(Group $from,$token_id): void
+    private function createBurnNFTTransaction(Group $from,$token_id, $method = NFTTransaction::NFT_BURN): void
     {
         $em = $this->getEntityManager();
         $nftTransaction = new NFTTransaction();
         $nftTransaction->setStatus(NFTTransaction::STATUS_CREATED);
-        $nftTransaction->setMethod(NFTTransaction::NFT_BURN);
+        $nftTransaction->setMethod($method);
         $nftTransaction->setFrom($from);
         $nftTransaction->setSharedTokenId($token_id);
 
