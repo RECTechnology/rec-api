@@ -22,3 +22,5 @@
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:check:NFTTransactions >> /api/var/logs/cron-web3.log 2>&1
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:funding:execute >> /api/var/logs/cron-web3.log 2>&1
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:funding:check >> /api/var/logs/cron-web3.log 2>&1
+
+*    *   * * * www-data timeout 3000 /usr/bin/rec rec:exports:send >> /api/var/logs/cron-export-email.log 2>&1
