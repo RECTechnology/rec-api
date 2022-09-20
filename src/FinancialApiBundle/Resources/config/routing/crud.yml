@@ -270,6 +270,14 @@ crud_v3_export:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
 
+crud_v3_export_by_email:
+    path:  /{role}/v3/{object}/export_email
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::exportByEmailAction }
+    methods: [POST]
+    requirements:
+        role: "(admin|sadmin)"
+        object: "[a-z_]+"
+
 crud_v3_import:
     path:  /{role}/v3/{object}/import
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::importAction }
