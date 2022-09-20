@@ -22,6 +22,11 @@ services:
         calls:
             - [ setContainer, [ "@service_container" ] ]
 
+    app.crud_v3:
+        class: App\FinancialApiBundle\Controller\CRUD\CRUDController
+        calls:
+            - [ setContainer, [ "@service_container" ] ]
+
     messenger:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator
         arguments:

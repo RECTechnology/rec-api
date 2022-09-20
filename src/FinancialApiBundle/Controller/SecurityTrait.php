@@ -36,4 +36,21 @@ trait SecurityTrait
         if(count($errors) > 0)
             throw new AppException(400, "Validation error", $errors);
     }
+
+    /**
+     * @param $result
+     * @return array|null
+     */
+    protected function secureOutputFromCommand($result) {
+        if (method_exists($this, 'getSerializationContext')) {
+            $ctx = $this->getSerializationContext();
+        }
+        else {
+            $ctx = new SerializationContext();
+            $ctx->enableMaxDepthChecks();
+        }
+        /** @var Serializer $serializer */
+        $serializer = $this->container->get('jms_serializer');
+        return $serializer->toArray($result, $ctx);
+    }
 }
