@@ -100,6 +100,11 @@ class CRUDController extends BaseApiV2Controller {
         return parent::exportAction($request, $role);
     }
 
+    public function exportByEmailAction(Request $request, $role)
+    {
+        return parent::exportByEmailAction($request, $role);
+    }
+
     public function importAction(Request $request, $role)
     {
         return parent::importAction($request, $role);

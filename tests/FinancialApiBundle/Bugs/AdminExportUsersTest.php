@@ -42,6 +42,42 @@ class AdminExportUsersTest extends BaseApiTest {
 
     }
 
+    function testExportByEmailUsersWithFilter(){
+        $route = "/admin/v3/users/export_email";
 
+        //este field_map peta en prod i en el test pero funciona en pre
+        //TODO review why we cannot send roles, enabled and pin in the field_map
+        //$field_map = '{"id":"$.id","username":"$.username","email":"$.email","enabled":"$.enabled","locked":"$.locked",
+        //"expired":"$.expired","roles":"$.roles[*]","name":"$.name","created":"$.created","dni":"$.dni",
+        //"prefix":"$.prefix","phone":"$.phone","pin":"$.pin","public_phone":"$.public_phone"}';
+
+        $field_map = '{"id": "$.id","username":"$.username","email":"$.email","locked":"$.locked","expired":"$.expired"'.
+            ',"name":"$.name","created":"$.created","dni":"$.dni","prefix":"$.prefix","phone":"$.phone"'.
+            ',"public_phone":"$.public_phone"}';
+
+        $resp = $this->request('POST', $route."?field_map={$field_map}","application/json", [], ['email' => 'test@test.com']);
+        self::assertEquals(
+            201,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $routeExportEmails = "admin/v3/email_exports";
+        $resp = $this->requestJson('GET', $routeExportEmails);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+        $content = json_decode($resp->getContent(),true);
+        $data = $content['data'];
+        self::assertEquals(2, $data['total']);
+    }
+
+    function testExecuteExportByEmailCommand(){
+
+        $output = $this->runCommand('rec:exports:send');
+        self::assertNotEmpty($output);
+    }
 
 }

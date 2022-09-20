@@ -427,6 +427,26 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     /**
      * @param Request $request
+     * @param $role
+     * @return Response
+     * @throws AnnotationException
+     */
+    protected function exportByEmailAction(Request $request, $role){
+        $this->checkPermissions($role, self::CRUD_EXPORT);
+        try{
+            $this->exportForEmailAction($request);
+        }catch (HttpException $e){
+            throw new HttpException($e->getStatusCode(), $e->getMessage());
+        }
+        return $this->restV2(
+            static::HTTP_STATUS_CODE_CREATED,
+            "ok",
+            "Scheduled successfully"
+        );
+    }
+
+    /**
+     * @param Request $request
      * @return array
      * @throws AnnotationException
      */
