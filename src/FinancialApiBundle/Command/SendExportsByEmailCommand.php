@@ -9,26 +9,33 @@
 namespace App\FinancialApiBundle\Command;
 
 
-use App\FinancialApiBundle\DependencyInjection\App\Commons\Web3ApiManager;
-use App\FinancialApiBundle\Entity\ConfigurationSetting;
+use App\FinancialApiBundle\Controller\SecurityTrait;
 use App\FinancialApiBundle\Entity\EmailExport;
-use App\FinancialApiBundle\Entity\FundingNFTWalletTransaction;
-use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\NFTTransaction;
 use DateTimeZone;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\Serializer;
 use JsonPath\InvalidJsonException;
 use JsonPath\JsonObject;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
+class SendExportsByEmailCommand extends ContainerAwareCommand
 {
+
+    use SecurityTrait;
+    protected $container;
+
+    public function __construct(ContainerInterface $container) {
+        $this->container = $container;
+        parent::__construct();
+    }
+
     protected function configure()
     {
         $this
@@ -37,8 +44,8 @@ class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
         ;
     }
 
-    protected function executeSynchronized(InputInterface $input, OutputInterface $output){
-        $em = $this->getContainer()->get('doctrine')->getManager();
+    protected function execute(InputInterface $input, OutputInterface $output){
+        $em = $this->container->get('doctrine')->getManager();
 
         //get pending exports
         $pendingExports = $em->getRepository(EmailExport::class)->findBy(array("status" => EmailExport::STATUS_CREATED));
@@ -59,11 +66,13 @@ class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
                 $order = strtoupper($request->query->get('order', "DESC"));
                 $search = $request->query->get('search', "");
 
-                $items = $repo->index($request, $search, $limit, $offset, $order, $sort);
+                [$total, $result] = $repo->index($request, $search, $limit, $offset, $order, $sort);
+
+                $elems = $this->secureOutputFromCommand($result);
                 $now = new \DateTime("now", new DateTimeZone('Europe/Madrid'));
                 $dwFilename = "export-" .  $entityName . "s-" . $now->format('Y-m-d\TH-i-sO') . ".csv";
                 try{
-                    $file = $this->prepareCsv($items, $export->getFieldMap(), $dwFilename);
+                    $file = $this->prepareCsv($elems, $export->getFieldMap(), $dwFilename);
                     $this->sendEmail($export->getEmail(), "Exportacion ". $entityName, $file, $dwFilename );
                 }catch (HttpException $e){
                     $output->writeln("Error preparing csv");
@@ -80,7 +89,6 @@ class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
     }
 
     private function prepareCsv($elems, $fieldMap, $dwFilename){
-
         $fs = new Filesystem();
         $tmpFilename = "/tmp/$dwFilename";
         $fs->touch($tmpFilename);
@@ -88,6 +96,7 @@ class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
 
         $export = [array_keys($fieldMap)];
         foreach($elems as $el){
+
             try {
                 $obj = new JsonObject($el);
             } catch (InvalidJsonException $e) {
@@ -146,7 +155,14 @@ class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
                 $this->getContainer()->get('templating')
                     ->render('FinancialApiBundle:Email:empty_email.html.twig',
                         array(
-                            'body' => "Archivo exportado"
+                            'mail' => [
+                                'subject' => $subject,
+                                'body' => "Archivo exportado",
+                                'lang' => "es"
+                            ],
+                            'app' => [
+                                'landing' => 'rec.barcelona'
+                            ]
                         )
                     )
             )
@@ -156,4 +172,6 @@ class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
 
         $this->getContainer()->get('mailer')->send($message);
     }
+
+
 }
