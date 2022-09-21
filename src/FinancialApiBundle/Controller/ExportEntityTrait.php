@@ -110,7 +110,7 @@ trait ExportEntityTrait {
      */
     protected function exportForEmailAction(Request $request) {
         $request->query->set("limit", 2**31);
-        $fieldMap = json_decode($request->query->get("field_map", "{}"), true);
+        $fieldMap = json_decode($request->request->get("field_map", "{}"), true);
         if(json_last_error()) throw new HttpException(400, "Bad field_map, it must be a valid JSON");
         if(!$request->request->has('email')) throw new HttpException(400, "Email required");
 

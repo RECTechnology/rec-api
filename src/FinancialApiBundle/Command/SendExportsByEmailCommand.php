@@ -25,7 +25,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class SendExportsByEmailCommand extends ContainerAwareCommand
+class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
 {
 
     use SecurityTrait;
@@ -44,7 +44,7 @@ class SendExportsByEmailCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output){
+    protected function executeSynchronized(InputInterface $input, OutputInterface $output){
         $em = $this->container->get('doctrine')->getManager();
 
         //get pending exports
@@ -73,7 +73,9 @@ class SendExportsByEmailCommand extends ContainerAwareCommand
                 $dwFilename = "export-" .  $entityName . "s-" . $now->format('Y-m-d\TH-i-sO') . ".csv";
                 try{
                     $file = $this->prepareCsv($elems, $export->getFieldMap(), $dwFilename);
-                    $this->sendEmail($export->getEmail(), "Exportacion ". $entityName, $file, $dwFilename );
+                    $this->sendEmail($export->getEmail(), "Exportacion ". $entityName, $dwFilename );
+                    $export->setStatus(EmailExport::STATUS_SUCCESS);
+                    $em->flush();
                 }catch (HttpException $e){
                     $output->writeln("Error preparing csv");
                     $export->setLastError($e->getMessage());
@@ -143,7 +145,7 @@ class SendExportsByEmailCommand extends ContainerAwareCommand
 
     }
 
-    private function sendEmail($email, $subject, $file, $fileName){
+    private function sendEmail($email, $subject, $fileName){
 
         $no_replay = $this->getContainer()->getParameter('no_reply_email');
 
@@ -168,7 +170,7 @@ class SendExportsByEmailCommand extends ContainerAwareCommand
             )
             ->setContentType('text/html');
 
-        $message->attach(\Swift_Attachment::newInstance($file, $fileName));
+        $message->attach(\Swift_Attachment::newInstance(file_get_contents('/tmp/'.$fileName), $fileName));
 
         $this->getContainer()->get('mailer')->send($message);
     }

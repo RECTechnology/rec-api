@@ -55,7 +55,7 @@ class AdminExportUsersTest extends BaseApiTest {
             ',"name":"$.name","created":"$.created","dni":"$.dni","prefix":"$.prefix","phone":"$.phone"'.
             ',"public_phone":"$.public_phone"}';
 
-        $resp = $this->request('POST', $route."?field_map={$field_map}","application/json", [], ['email' => 'test@test.com']);
+        $resp = $this->request('POST', $route,"application/json", [], ['email' => 'test@test.com', "field_map" => $field_map]);
         self::assertEquals(
             201,
             $resp->getStatusCode(),
