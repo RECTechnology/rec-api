@@ -456,6 +456,7 @@ class AwardHandler
         $nftTransaction->setStatus(NFTTransaction::STATUS_CREATED);
         $nftTransaction->setMethod($method);
         $nftTransaction->setFrom($from);
+        $nftTransaction->setTo($from);
         $nftTransaction->setSharedTokenId($token_id);
         $nftTransaction->setTopicId($topic_id);
 
