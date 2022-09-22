@@ -410,8 +410,11 @@ class AwardHandler
         $topicId = $data['like_removed']['post']['topic_id'];
         $likerId = $data['like_removed']['user']['id'];
 
-        $liker = $em->getRepository(Group::class)->find($likerId);
+        $liker = $em->getRepository(Group::class)->find(array(
+            'rezero_b2b_user_id' => $likerId
+        ));
 
+        $this->logger->info('AWARD-HANDLER: Find previous like tx for topic '.$topicId.' from liker '.$liker->getId().' with rezero id '.$likerId);
         //find like tx
         $likeTx = $em->getRepository(NFTTransaction::class)->findOneBy(array(
             'topic_id' => $topicId,
@@ -421,6 +424,7 @@ class AwardHandler
         ));
 
         if($likeTx){
+            $this->logger->info('AWARD-HANDLER: tx found...creating new NFT transaction');
             //burn like token transaction
             //TODO si no hay sharedTokenId es que la tx no se ha confirmado todavia, que hacemos???
             $this->createBurnNFTTransaction($liker, $likeTx->getSharedTokenId(), NFTTransaction::NFT_UNLIKE);
