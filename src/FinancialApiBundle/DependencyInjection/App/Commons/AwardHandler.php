@@ -410,7 +410,7 @@ class AwardHandler
         $topicId = $data['like_removed']['post']['topic_id'];
         $likerId = $data['like_removed']['user']['id'];
 
-        $liker = $em->getRepository(Group::class)->findBy(array(
+        $liker = $em->getRepository(Group::class)->findOneBy(array(
             'rezero_b2b_user_id' => $likerId
         ));
 
