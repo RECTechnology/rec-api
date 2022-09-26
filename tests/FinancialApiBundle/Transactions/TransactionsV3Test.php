@@ -186,6 +186,10 @@ class TransactionsV3Test extends BaseApiTest {
         self::assertObjectHasAttribute('offset', $txs);
         self::assertObjectHasAttribute('list', $txs);
 
+        $firstTx = $txs->list[0];
+        self::assertObjectHasAttribute('sender_subtype', $firstTx);
+        self::assertObjectHasAttribute('receiver_subtype', $firstTx);
+
         $company_id = $txs->list[0]->group;
 
         $resp = $this->requestJson(

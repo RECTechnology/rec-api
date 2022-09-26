@@ -266,6 +266,7 @@ class TransactionsController extends RestApiController {
 
         $result = array();
         foreach ($qb as $transaction) {
+            /** @var Group $sender */
             $sender = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array(
                 'id' => $transaction->getGroup()
             ));
@@ -275,17 +276,21 @@ class TransactionsController extends RestApiController {
             if($receiver){
                 $re_id = $receiver->getId();
                 $re_type = $receiver->getType();
+                $re_subtype = $receiver->getSubtype();
             }
             else{
                 $re_id = '-';
                 $re_type = '-';
+                $re_subtype = '-';
             }
 
             $s_tx = $this->secureOutput($transaction);
             $s_tx['sender_id'] = $sender->getId();
             $s_tx['sender_type'] = $sender->getType();
+            $s_tx['sender_subtype'] = $sender->getSubtype();
             $s_tx['receiver_id'] = $re_id;
             $s_tx['receiver_type'] = $re_type;
+            $s_tx['receiver_subtype'] = $re_subtype;
             $result[]=$s_tx;
         }
 
