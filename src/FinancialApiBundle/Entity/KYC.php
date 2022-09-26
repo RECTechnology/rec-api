@@ -82,11 +82,11 @@ class KYC implements Uploadable {
     private $phone_validated = false;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="datetime", nullable=true)
      * @Expose
      * @Groups({"user"})
      */
-    private $dateBirth = "";
+    private $dateBirth;
 
     /**
      * @ORM\Column(type="boolean")
