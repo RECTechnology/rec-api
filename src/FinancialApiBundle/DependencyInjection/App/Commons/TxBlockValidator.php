@@ -85,11 +85,14 @@ class TxBlockValidator
         foreach ($senders_amount as $tx_sender_id => $amount) {
             $sender = $this->em->getRepository(Group::class)->find($tx_sender_id);
             if (isset($sender)) {
+                //sender balance is in satoshis
                 $sender_balance = $sender->getWallets()[0]->getBalance();
-                if($sender_balance < $amount * 1e8){
-                    $required_balance = $amount / 100;
+                //amount comes like euro cents
+                $required_balance = $amount * 1e6;
+                if($sender_balance < $required_balance){
+                    $real_required_balance = $required_balance / 1e8;
                     $real_balance = $sender_balance / 1e8;
-                    $warn_text = 'The sender '.$tx_sender_id.' must send '.$required_balance.'R but only has '.$real_balance.'R.
+                    $warn_text = 'The sender '.$tx_sender_id.' must send '.$real_required_balance.'R but only has '.$real_balance.'R.
                      This will cause an ERROR in the sending';
                     $warnings[] = $warn_text;
                     $this->persistLog(TransactionBlockLog::TYPE_WARN, $warn_text);
