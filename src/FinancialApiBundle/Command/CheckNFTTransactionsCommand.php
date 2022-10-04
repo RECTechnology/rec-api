@@ -90,8 +90,10 @@ class CheckNFTTransactionsCommand extends SynchronizedContainerAwareCommand
         switch ($tx->getMethod()){
             case NFTTransaction::NFT_SHARE:
             case NFTTransaction::NFT_MINT:
+            case NFTTransaction::NFT_BURN:
                 return $this->getContainer()->getParameter("atarca_sharable_nft_contract_address");
             case NFTTransaction::NFT_LIKE:
+            case NFTTransaction::NFT_UNLIKE:
                 return $this->getContainer()->getParameter("atarca_like_nft_contract_address");
             default:
                 return null;
