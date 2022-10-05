@@ -137,7 +137,7 @@ class Challenge extends AppObject
 
     /**
      * One Challenge has One TokenReward or null.
-     * @ORM\OneToOne(targetEntity="TokenReward")
+     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\TokenReward")
      * @Serializer\Groups({"admin", "user"})
      */
     private $token_reward;
