@@ -132,11 +132,6 @@ class TransactionRepository extends DocumentRepository {
                         return true;
                     }
                 }
-                if (typeof this.payOutInfo.halcashticket !== 'undefined') {
-                    if(String(this.payOutInfo.halcashticket).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
                 if (typeof this.payOutInfo.txid !== 'undefined') {
                     if(String(this.payOutInfo.txid).indexOf('$search') > -1){
                         return true;
@@ -185,8 +180,6 @@ class TransactionRepository extends DocumentRepository {
                 if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
                 if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
                 if(typeof this.method !== 'undefined' && String(this.method).indexOf('$search') > -1){ return true;}
-                if(typeof this.methodIn !== 'undefined' && String(this.methodIn).indexOf('$search') > -1){ return true;}
-                if(typeof this.methodOut !== 'undefined' && String(this.methodOut).indexOf('$search') > -1){ return true;}
                 if(String(this._id).indexOf('$search') > -1){ return true;}
                 return false;
             }

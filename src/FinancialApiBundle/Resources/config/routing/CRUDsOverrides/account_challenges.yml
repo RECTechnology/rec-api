@@ -1,0 +1,18 @@
+
+##################### ACCOUNT CHALLENGES ############################
+account_challenges_v3_index:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountChallengesController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(account_challenge|account_challenges)"
+
+account_challenges_v3_show:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountChallengesController::showAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(account_challenge|account_challenges)"
+        id: "[0-9]+"

@@ -8,11 +8,16 @@ use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\SmsTemplates;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
+use App\FinancialApiBundle\Event\PurchaseSuccessEvent;
+use App\FinancialApiBundle\Event\TransferEvent;
+use App\FinancialApiBundle\EventSubscriber\Doctrine\SuccessPurchaseSubscriber;
 use App\FinancialApiBundle\Exception\AppException;
 use DateTime;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -828,6 +833,17 @@ class IncomingController3 extends RestApiController{
             $dm->flush();
             $em->flush();
             $logger->info('(' . $account_from_id . ')(T) SAVE ALL');
+
+            //event dispatcher propagation
+            $dispatcher = $this->container->get('event_dispatcher');
+            if($destination->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
+                $purchaseEvent = new PurchaseSuccessEvent($transaction, $em);
+                $dispatcher->dispatch(PurchaseSuccessEvent::NAME, $purchaseEvent);
+            }elseif ($destination->getType() === Group::ACCOUNT_TYPE_PRIVATE && $account_from->getType() === Group::ACCOUNT_TYPE_PRIVATE){
+                //TODO dispatch event send
+                $transferEvent = new TransferEvent($transaction, $em);
+                $dispatcher->dispatch(TransferEvent::NAME, $transferEvent);
+            }
 
             $em->getConnection()->commit();
 

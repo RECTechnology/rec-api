@@ -26,6 +26,10 @@ class NFTTransaction extends AppObject
     public const STATUS_FAILED = 'failed';
     public const STATUS_FUNDING_PENDING = 'funding_pending';
 
+    public const B2B_SHARABLE_CONTRACT = 'b2b_sharable_contract';
+    public const B2B_LIKE_CONTRACT = 'b2b_like_contract';
+    public const B2C_SHARABLE_CONTRACT = 'b2c_sharable_contract';
+
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"admin"})
@@ -61,10 +65,16 @@ class NFTTransaction extends AppObject
     private $tx_id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $topic_id;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $contract_name;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -77,6 +87,13 @@ class NFTTransaction extends AppObject
      * @Serializer\Groups({"admin"})
      */
     private $shared_token_id;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\TokenReward")
+     * @Serializer\Groups({"admin"})
+     * @MaxDepth(1)
+     */
+    private $token_reward;
 
     /**
      * @return mixed
@@ -204,6 +221,38 @@ class NFTTransaction extends AppObject
     public function setSharedTokenId($shared_token_id): void
     {
         $this->shared_token_id = $shared_token_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getContractName()
+    {
+        return $this->contract_name;
+    }
+
+    /**
+     * @param mixed $contract_name
+     */
+    public function setContractName($contract_name): void
+    {
+        $this->contract_name = $contract_name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTokenReward()
+    {
+        return $this->token_reward;
+    }
+
+    /**
+     * @param mixed $token_reward
+     */
+    public function setTokenReward($token_reward): void
+    {
+        $this->token_reward = $token_reward;
     }
 
 }

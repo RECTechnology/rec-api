@@ -69,6 +69,7 @@ class Group extends BaseGroup implements Uploadable
         $this->campaigns = new ArrayCollection();
         $this->created = new \DateTime();
         $this->badges = new ArrayCollection();
+        $this->challenges = new ArrayCollection();
 
         if ($this->access_key == null) {
             $this->access_key = sha1(random_bytes(32));
@@ -503,6 +504,12 @@ class Group extends BaseGroup implements Uploadable
      */
     private $campaigns;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Challenge", mappedBy="owner")
+     * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(1)
+     */
+    private $challenges;
 
     /**
      * @ORM\Column(type="float")
@@ -1926,5 +1933,25 @@ class Group extends BaseGroup implements Uploadable
         }
         $this->badges->removeElement($badge);
         if($recursive) $badge->delAccount($this, false);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getChallenges()
+    {
+        return $this->challenges;
+    }
+
+    /**
+     * @param mixed $challenges
+     */
+    public function setChallenges($challenges): void
+    {
+        $this->challenges = $challenges;
+    }
+
+    public function addChallenge($challenge){
+        $this->challenges[] = $challenge;
     }
 }

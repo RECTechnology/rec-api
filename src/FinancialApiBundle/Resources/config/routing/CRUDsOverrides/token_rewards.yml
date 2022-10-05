@@ -1,0 +1,26 @@
+
+##################### TOKEN_REWARDS ############################
+token_rewards_v3_index:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\TokenRewardsController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(token_reward|token_rewards)"
+
+token_rewards_v3_show:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\TokenRewardsController::showAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(token_reward|token_rewards)"
+        id: "[0-9]+"
+
+token_rewards_v3_search:
+    path:  /{role}/v3/{object}/search
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\TokenRewardsController::searchAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(token_reward|token_rewards)"

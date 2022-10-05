@@ -40,9 +40,6 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
             /** @var Web3ApiManager $web3Manager */
             $web3Manager = $this->getContainer()->get('net.app.commons.web3.api_manager');
 
-            $sharable_address = $this->getContainer()->getParameter("atarca_sharable_nft_contract_address");
-            $like_address = $this->getContainer()->getParameter("atarca_like_nft_contract_address");
-            $endorse_address = $this->getContainer()->getParameter("atarca_endorse_nft_contract_address");
             $nonces = [];
             //$nonce = $web3Manager->get_nonce();
             foreach ( $nft_transactions as $nft_transaction ) {
@@ -55,15 +52,17 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                     $sender_id = $sender->getId();
                     $receiver_id = $receiver->getId();
 
-                    $output->writeln($nft_transaction->getMethod()."ing transaction, from ".$sender_id." to ".$receiver_id);
+                    $contract_address = $this->getContractAddress($nft_transaction);
+
+                    $output->writeln($nft_transaction->getMethod()."ing transaction, from ".$sender_id." to ".$receiver_id." contract => ".$contract_address);
                     if (!array_key_exists($sender_id, $nonces)) {
-                        $nonces[$sender_id] = $web3Manager->getNonce($sharable_address, $sender->getNftWallet())['nonce'];
+                        $nonces[$sender_id] = $web3Manager->getNonce($contract_address, $sender->getNftWallet())['nonce'];
                     }
                     $output->writeln("Nonce for wallet ".$sender->getNftWallet()." -> ".$nonces[$sender_id]);
                     if($nft_transaction->getMethod() === NFTTransaction::NFT_MINT){
                         $output->writeln("Mint NFT transaction to ".$receiver_id);
                         $response = $web3Manager->createNFT(
-                            $sharable_address,
+                            $contract_address,
                             $receiver->getNftWallet(),
                             $sender->getNftWallet(),
                             $sender->getNftWalletPk(),
@@ -75,7 +74,7 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                         $nft_transaction->getOriginalTokenId() != null){
                         $output->writeln("Share NFT transaction from" . $sender_id. " to ". $receiver_id);
                         $response = $web3Manager->shareNFT(
-                            $sharable_address,
+                            $contract_address,
                             $receiver->getNftWallet(),
                             $nft_transaction->getOriginalTokenId(),
                             $sender->getNftWallet(),
@@ -88,7 +87,7 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                         $nft_transaction->getOriginalTokenId() != null){
                         $output->writeln("Like NFT transaction from" . $sender_id. " to ". $receiver_id);
                         $response = $web3Manager->likeNFT(
-                            $like_address,
+                            $contract_address,
                             $nft_transaction->getOriginalTokenId(),
                             $sender->getNftWallet(),
                             $sender->getNftWalletPk(),
@@ -99,7 +98,7 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                     if($nft_transaction->getMethod() === NFTTransaction::NFT_BURN){
                         $output->writeln('Burn NFT token id: '.$nft_transaction->getSharedTokenId());
                         $response = $web3Manager->burnNFT(
-                            $sharable_address,
+                            $contract_address,
                             $nft_transaction->getSharedTokenId(),
                             $sender->getNftWallet(),
                             $sender->getNftWalletPk(),
@@ -110,7 +109,7 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                     if($nft_transaction->getMethod() === NFTTransaction::NFT_UNLIKE){
                         $output->writeln('Burn NFT like token id: '.$nft_transaction->getSharedTokenId());
                         $response = $web3Manager->burnNFT(
-                            $like_address,
+                            $contract_address,
                             $nft_transaction->getSharedTokenId(),
                             $sender->getNftWallet(),
                             $sender->getNftWalletPk(),
@@ -172,6 +171,26 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                 }
 
             }
-}
+        }
     }
+
+    private function getContractAddress(NFTTransaction $tx){
+        if($tx->getContractName() === NFTTransaction::B2C_SHARABLE_CONTRACT){
+            return $this->getContainer()->getParameter("atarca_b2c_sharable_nft_contract_address");
+        }
+
+        switch ($tx->getMethod()){
+            case NFTTransaction::NFT_SHARE:
+            case NFTTransaction::NFT_MINT:
+            case NFTTransaction::NFT_BURN:
+                return $this->getContainer()->getParameter("atarca_sharable_nft_contract_address");
+            case NFTTransaction::NFT_LIKE:
+            case NFTTransaction::NFT_UNLIKE:
+                return $this->getContainer()->getParameter("atarca_like_nft_contract_address");
+            default:
+                return null;
+        }
+
+    }
+
 }

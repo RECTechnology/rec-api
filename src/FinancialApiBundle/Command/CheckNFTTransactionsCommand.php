@@ -39,7 +39,7 @@ class CheckNFTTransactionsCommand extends SynchronizedContainerAwareCommand
             foreach ( $nft_transactions as $nft_transaction ) {
                 $response = null;
                 try{
-                    //TODO check NFTTransaction against blockchain
+                    //check NFTTransaction against blockchain
                     $contract = $this->getContract($nft_transaction);
                     if($contract){
                         $response = $web3Manager->get_transaction_status($contract, $nft_transaction->getTxId(), 'nft');
@@ -52,7 +52,7 @@ class CheckNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                     $output->writeln( 'Error during call: '. $e->getMessage());
                 }
 
-                //TODO if confirmed change status and save token id, if is mint save in original token id, if not in shared token id
+                //if confirmed change status and save token id, if is mint save in original token id, if not in shared token id
                 if($response){
 
                     if($response['error'] === '' && $response['status'] === 1){
@@ -60,14 +60,18 @@ class CheckNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                         $nft_transaction->setStatus(NFTTransaction::STATUS_CONFIRMED);
                         if($nft_transaction->getMethod() === NFTTransaction::NFT_MINT){
                             $nft_transaction->setOriginalTokenId($response['token_id']);
+                            if($nft_transaction->getContractName() === NFTTransaction::B2C_SHARABLE_CONTRACT){
+                                //update token reward with the token id
+                                $tokenReward = $nft_transaction->getTokenReward();
+                                $tokenReward->setTokenid($response['token_id']);
+                            }
                         }else{
                             $nft_transaction->setSharedTokenId($response['token_id']);
                         }
-                        $em->persist($nft_transaction);
                         $em->flush();
 
-                        //TODO if is mint find all tx in created that doesnt have original token id and method is like or share
-                        //TODO and the topic id is the same than this one and add the original token id to this transactions
+                        //if is mint find all tx in created that doesnt have original token id and method is like or share
+                        //and the topic id is the same than this one and add the original token id to this transactions
                         if($nft_transaction->getMethod() === NFTTransaction::NFT_MINT){
                             $relatedTransactions = $em->getRepository(NFTTransaction::class)->findBy(array(
                                 'status' => NFTTransaction::STATUS_CREATED,
@@ -87,6 +91,10 @@ class CheckNFTTransactionsCommand extends SynchronizedContainerAwareCommand
     }
 
     public function getContract(NFTTransaction $tx){
+        if($tx->getContractName() === NFTTransaction::B2C_SHARABLE_CONTRACT){
+            return $this->getContainer()->getParameter("atarca_b2c_sharable_nft_contract_address");
+        }
+
         switch ($tx->getMethod()){
             case NFTTransaction::NFT_SHARE:
             case NFTTransaction::NFT_MINT:

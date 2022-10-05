@@ -21,7 +21,7 @@ use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * Class B2BController
+ * Class ProductsAndActivitiesController
  * @package App\FinancialApiBundle\Controller\CRUD
  */
 class ProductsAndActivitiesController extends CRUDController {

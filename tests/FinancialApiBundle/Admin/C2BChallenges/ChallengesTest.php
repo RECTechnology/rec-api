@@ -1,0 +1,151 @@
+<?php
+
+namespace Test\FinancialApiBundle\Admin\C2BChallenges;
+
+use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Challenge;
+use Test\FinancialApiBundle\BaseApiTest;
+
+class ChallengesTest extends BaseApiTest
+{
+
+    function setUp(): void
+    {
+        parent::setUp();
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+    }
+
+    function testCreateChallengeFromSuperShouldWork(){
+        $route = '/admin/v3/challenges';
+
+        $start = new \DateTime();
+        $finish = new \DateTime('+3 days');
+        $data = array(
+            'title' => $this->faker->name,
+            'description' => $this->faker->text,
+            'action' => 'buy',
+            'status' => 'draft',
+            'threshold' => 3,
+            'amount_required' => 0,
+            'start_date' => $start->format('Y-m-d\TH:i:sO'),
+            'finish_date' => $finish->format('Y-m-d\TH:i:sO'),
+            'cover_image' => 'https://fakeimage.es/images/1.jpg',
+            'type' => Challenge::TYPE_CHALLENGE
+        );
+        $resp = $this->requestJson('POST', $route, $data);
+
+        self::assertEquals(
+            201,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+    }
+
+    function testCreateChallengeWithWrongDatesFromSuperShouldFail(){
+        $route = '/admin/v3/challenges';
+
+        $start = new \DateTime();
+        $finish = new \DateTime('+3 days');
+        $data = array(
+            'title' => $this->faker->name,
+            'description' => $this->faker->text,
+            'action' => 'buy',
+            'status' => 'draft',
+            'threshold' => 3,
+            'amount_required' => 0,
+            'start_date' => $finish->format('Y-m-d\TH:i:sO'),
+            'finish_date' => $start->format('Y-m-d\TH:i:sO'),
+            'cover_image' => 'https://fakeimage.es/images/1.jpg'
+        );
+        $resp = $this->requestJson('POST', $route, $data);
+
+        self::assertEquals(
+            400,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $content = json_decode($resp->getContent(),true);
+        self::assertEquals('Finish date must be greater than Start Date', $content['errors'][0]['message']);
+    }
+
+    function testGetChallengesFromSuperShouldWork(){
+        $route = '/admin/v3/challenges';
+
+        $resp = $this->requestJson('GET', $route);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $content = json_decode($resp->getContent(),true);
+        self::assertEquals(4, $content['data']['total']);
+    }
+
+    function testUpdateChallengeFromSuperShouldWork(){
+        $route = '/admin/v3/challenges/1';
+
+        $data = array(
+            'amount_required' => 100*1e8,
+        );
+        $resp = $this->requestJson('PUT', $route, $data);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $content = json_decode($resp->getContent());
+
+        self::assertEquals(100*1e8, $content->data->amount_required);
+    }
+
+    function testUpdateChallengeAfterStartedFromSuperShouldFail(){
+        //challenge 2 is open , check fixtures if fails
+        $route = '/admin/v3/challenges/2';
+
+        $data = array(
+            'amount_required' => 100*1e8,
+        );
+        $resp = $this->requestJson('PUT', $route, $data);
+
+        self::assertEquals(
+            403,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+    }
+
+    function testDeleteChallengeFromSuperShouldWork(){
+
+        $route = '/admin/v3/challenges/1';
+
+        $resp = $this->requestJson('DELETE', $route);
+
+        self::assertEquals(
+            204,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+    }
+
+    function testDeleteChallengeOpenFromSuperShouldFail(){
+        //challenge 2 is open , check fixtures if fails
+        $route = '/admin/v3/challenges/2';
+
+        $resp = $this->requestJson('DELETE', $route);
+
+        self::assertEquals(
+            403,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+    }
+
+}
