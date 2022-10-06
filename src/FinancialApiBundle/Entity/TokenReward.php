@@ -23,38 +23,38 @@ class TokenReward extends AppObject
 
     /**
      * @ORM\Column(type="string", length=60)
-     * @Serializer\Groups({"admin", "user"})
+     * @Serializer\Groups({"admin"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", nullable=true )
-     * @Serializer\Groups({"admin", "user"})
+     * @Serializer\Groups({"admin"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"admin", "user"})
+     * @Serializer\Groups({"admin"})
      */
     private $image;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Serializer\Groups({"admin", "user"})
+     * @Serializer\Groups({"admin"})
      */
     private $token_id;
 
     /**
      * @ORM\Column(type="string")
      * @Assert\Choice(choices=TokenReward::STATUSES)
-     * @Serializer\Groups({"admin", "user"})
+     * @Serializer\Groups({"admin"})
      */
     private $status;
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"admin", "user"})
+     * @Serializer\Groups({"admin"})
      */
     private $author_url;
 
