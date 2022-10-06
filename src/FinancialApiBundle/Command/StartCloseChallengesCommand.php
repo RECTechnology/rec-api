@@ -58,7 +58,7 @@ class StartCloseChallengesCommand extends SynchronizedContainerAwareCommand
                 if($challenge->getTokenReward()){
                     $dispatcher = $this->getContainer()->get('event_dispatcher');
                     $mintEvent = new MintNftEvent(
-                        null,
+                        $challenge,
                         NFTTransaction::B2C_SHARABLE_CONTRACT,
                         $challenge->getOwner(),
                         $challenge->getOwner(),
