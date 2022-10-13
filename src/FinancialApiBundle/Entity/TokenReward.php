@@ -35,6 +35,7 @@ class TokenReward extends AppObject
 
     /**
      * @ORM\Column(type="string")
+     * @Assert\Url(message="This is not a valid url")
      * @Serializer\Groups({"admin", "user"})
      */
     private $image;
@@ -54,6 +55,7 @@ class TokenReward extends AppObject
 
     /**
      * @ORM\Column(type="string", nullable=true)
+     * @Assert\Url(message="This is not a valid url")
      * @Serializer\Groups({"admin", "user"})
      */
     private $author_url;

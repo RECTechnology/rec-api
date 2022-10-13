@@ -34,6 +34,26 @@ class TokenRewardsTest extends BaseApiTest
 
     }
 
+    function testCreateTokenRewardInvalidUrlFromSuperShouldFail(){
+        $route = '/admin/v3/token_rewards';
+
+        $data = array(
+            'name' => $this->faker->name,
+            'description' => $this->faker->text,
+            'status' => 'created',
+            'image' => 'fakeimage.es/images/1.jpg'
+        );
+        $resp = $this->requestJson('POST', $route, $data);
+
+        self::assertEquals(
+            400,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+
+    }
+
     function testUpdateTokenRewardFromSuperShouldWork(){
         $route = '/admin/v3/token_rewards/1';
 
