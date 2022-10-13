@@ -67,14 +67,17 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
     }
 
     private function checkConstraintsAndDispatch($action, $event){
+        $logger = $this->container->get('logger');
         //search by challenges with action
         $challenges = $this->em->getRepository(Challenge::class)->findBy(array(
             'status' => Challenge::STATUS_OPEN,
             'action' => $action
         ));
 
+        $logger->info('SUCCESS_PURCHASE_SUBSCRIBER: '.count($challenges). ' open challenges found');
         /** @var Challenge $challenge */
         foreach ($challenges as $challenge){
+            $logger->info('SUCCESS_PURCHASE_SUBSCRIBER: check challenge '.$challenge->getId());
             //check constraints
             //get all transactions between 2 dates
             $transactions = $this->dm->getRepository(Transaction::class)->findTransactions(
@@ -85,6 +88,8 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
                 'created',
                 'DESC'
             );
+
+            $logger->info('SUCCESS_PURCHASE_SUBSCRIBER: '.count($transactions). ' transactions found for this account');
 
             $amount_required_constraint = false;
             $threshold_constraint = false;
@@ -106,11 +111,13 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
             if($totalAmount >= $challenge->getAmountRequired()){
                 //constraint success
                 $amount_required_constraint = true;
+                $logger->info('SUCCESS_PURCHASE_SUBSCRIBER: total amount achieved');
             }
 
             if($totalTransactions >= $challenge->getThreshold()){
                 //success constraint
                 $threshold_constraint = true;
+                $logger->info('SUCCESS_PURCHASE_SUBSCRIBER: total transactions achieved');
             }
 
             if($threshold_constraint && $amount_required_constraint){
@@ -124,6 +131,7 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
                         $event->getAccount(),
                         null
                     );
+                    $logger->info('SUCCESS_PURCHASE_SUBSCRIBER: dispatch ShareNftEvent');
                     $dispatcher->dispatch(ShareNftEvent::NAME, $nftEvent);
 
                 }
