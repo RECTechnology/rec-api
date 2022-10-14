@@ -41,6 +41,35 @@ class ChallengesTest extends BaseApiTest
         );
     }
 
+    function testCreateChallengeWithoutStatusFromSuperShouldWork(){
+        $route = '/admin/v3/challenges';
+
+        $start = new \DateTime();
+        $finish = new \DateTime('+3 days');
+        $data = array(
+            'title' => $this->faker->name,
+            'description' => $this->faker->text,
+            'action' => 'buy',
+            'threshold' => 3,
+            'amount_required' => 0,
+            'start_date' => $start->format('Y-m-d\TH:i:sO'),
+            'finish_date' => $finish->format('Y-m-d\TH:i:sO'),
+            'cover_image' => 'https://fakeimage.es/images/1.jpg',
+            'type' => Challenge::TYPE_CHALLENGE
+        );
+        $resp = $this->requestJson('POST', $route, $data);
+
+        self::assertEquals(
+            201,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $content = json_decode($resp->getContent(),true);
+        $data = $content['data'];
+        self::assertEquals(Challenge::STATUS_SCHEDULED, $data['status']);
+    }
+
     function testCreateChallengeWithWrongDatesFromSuperShouldFail(){
         $route = '/admin/v3/challenges';
 

@@ -90,7 +90,7 @@ class Challenge extends AppObject
      *     message="Choose a valid status"
      * )
      */
-    private $status;
+    private $status = self::STATUS_SCHEDULED;
 
     /**
      * How many times the action needs to be repeated
@@ -121,6 +121,7 @@ class Challenge extends AppObject
 
     /**
      * @ORM\Column(type="string")
+     * @Assert\Url(message="This values is not a valid url")
      * @Serializer\Groups({"admin", "user"})
      */
     private $cover_image;
