@@ -22,14 +22,16 @@ class StartCloseChallengesCommand extends SynchronizedContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $this->closeOpenChallenges($em);
+        $this->closeOpenChallenges($em, $output);
         $this->openScheduledChallenges($em);
     }
 
-    private  function closeOpenChallenges($em){
+    private  function closeOpenChallenges($em, OutputInterface $output){
+        $output->writeln('Closing challenges');
         $challenges = $em->getRepository(Challenge::class)->findBy(array(
             'status' => Challenge::STATUS_OPEN
         ));
+        $output->writeln('Total challenges-> '.count($challenges));
         $now = new \DateTime();
         /** @var Challenge $challenge */
         foreach ($challenges as $challenge){
@@ -40,17 +42,18 @@ class StartCloseChallengesCommand extends SynchronizedContainerAwareCommand
             }
         }
     }
-    private function openScheduledChallenges($em){
+    private function openScheduledChallenges($em, OutputInterface $output){
+        $output->writeln('Opening challenges');
         //get scheduled challenges
         $challenges = $em->getRepository(Challenge::class)->findBy(array(
             'status' => Challenge::STATUS_SCHEDULED
         ));
-
+        $output->writeln('Total challenges-> '.count($challenges));
         $now = new \DateTime();
         /** @var Challenge $challenge */
         foreach ($challenges as $challenge){
 
-            if($challenge->getStartDate() > $now){
+            if($challenge->getStartDate() < $now){
                 //change challenge to open
                 $challenge->setStatus(Challenge::STATUS_OPEN);
 

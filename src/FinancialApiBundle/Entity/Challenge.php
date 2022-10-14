@@ -315,6 +315,9 @@ class Challenge extends AppObject
     public function setTokenReward($token_reward): void
     {
         $this->token_reward = $token_reward;
+        if($token_reward && $token_reward->getChallenge() != $this){
+            $token_reward->setChallenge($this);
+        }
     }
 
     /**

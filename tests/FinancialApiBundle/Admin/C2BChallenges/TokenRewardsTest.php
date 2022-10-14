@@ -87,4 +87,34 @@ class TokenRewardsTest extends BaseApiTest
 
     }
 
+    function testGetTokenRewardFromSuperShouldWork(){
+
+        $route = '/admin/v3/token_rewards';
+
+        $resp = $this->requestJson('GET', $route);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+    }
+
+    function testGetTokenRewardWithoutChallengeFromSuperShouldReturnUnassignedRewards(){
+
+        $this->markTestIncomplete("For now is not allowed to filter for challenges null");
+        $route = '/admin/v3/token_rewards/search?challenge_id=null';
+
+        $resp = $this->requestJson('GET', $route);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $content = json_decode($resp->getContent(),true);
+        $elements = $content['elements'];
+    }
+
 }

@@ -61,6 +61,13 @@ class TokenReward extends AppObject
     private $author_url;
 
     /**
+     * One Token reward has One Challenge or null.
+     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Challenge")
+     * @Serializer\Groups({"admin", "user"})
+     */
+    private $challenge;
+
+    /**
      * @return mixed
      */
     public function getName()
@@ -154,6 +161,22 @@ class TokenReward extends AppObject
     public function setAuthorUrl($author_url): void
     {
         $this->author_url = $author_url;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getChallenge()
+    {
+        return $this->challenge;
+    }
+
+    /**
+     * @param mixed $challenge
+     */
+    public function setChallenge($challenge): void
+    {
+        $this->challenge = $challenge;
     }
 
 

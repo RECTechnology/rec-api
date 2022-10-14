@@ -132,6 +132,27 @@ class ChallengesTest extends BaseApiTest
         self::assertEquals(100*1e8, $content->data->amount_required);
     }
 
+    function testUpdateRewardChallengeFromSuperShouldAddChallengeToReward(){
+        $route = '/admin/v3/challenges/1';
+
+        $data = array(
+            'token_reward_id' => 3,
+        );
+        $resp = $this->requestJson('PUT', $route, $data);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $route = '/admin/v3/token_rewards/3';
+        $resp = $this->requestJson('GET', $route);
+        $content = json_decode($resp->getContent(), true);
+
+        self::assertEquals(1, $content['data']['challenge']['id']);
+    }
+
     function testUpdateChallengeAfterStartedFromSuperShouldFail(){
         //challenge 2 is open , check fixtures if fails
         $route = '/admin/v3/challenges/2';

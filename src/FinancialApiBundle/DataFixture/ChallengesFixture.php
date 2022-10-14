@@ -58,6 +58,10 @@ class ChallengesFixture extends Fixture implements DependentFixtureInterface
         $challenge->setOwner($adminAccount);
 
         $orm->persist($challenge);
+
+        if($token){
+            $token->setChallenge($challenge);
+        }
         $orm->flush();
     }
 
