@@ -23,6 +23,7 @@ class ConfigurationSettingFixture extends Fixture {
         $this->_createSetting($orm, ConfigurationSetting::APP_SCOPE, 'badges_filter', 'disabled');
         $this->_createSetting($orm, ConfigurationSetting::NFT_SCOPE, 'create_nft_wallet', 'enabled');
         $this->_createSetting($orm, ConfigurationSetting::QUALIFICATIONS_SCOPE, ConfigurationSetting::SETTING_QUALIFICATIONS_SYSTEM_STATUS, 'enabled');
+        $this->_createSetting($orm, ConfigurationSetting::NFT_SCOPE, ConfigurationSetting::SETTING_C2B_CHALLENGES_STATUS, 'enabled');
     }
 
     private function _createSetting(ObjectManager $orm, $scope, $name, $value){

@@ -89,7 +89,7 @@ class NFTTransaction extends AppObject
     private $shared_token_id;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\TokenReward")
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\TokenReward")
      * @Serializer\Groups({"admin"})
      * @MaxDepth(1)
      */
