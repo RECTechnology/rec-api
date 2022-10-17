@@ -23,7 +23,7 @@ class StartCloseChallengesCommand extends SynchronizedContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $this->closeOpenChallenges($em, $output);
-        $this->openScheduledChallenges($em);
+        $this->openScheduledChallenges($em, $output);
     }
 
     private  function closeOpenChallenges($em, OutputInterface $output){
