@@ -149,6 +149,8 @@ class Challenge extends AppObject
      */
     private $owner;
 
+    private $statistics;
+
     public function addActivity(Activity $activity){
         $this->activities[] = $activity;
     }
@@ -350,6 +352,14 @@ class Challenge extends AppObject
     public function setType($type): void
     {
         $this->type = $type;
+    }
+
+    /**
+     * @param mixed $statistics
+     */
+    public function setStatistics($statistics): void
+    {
+        $this->statistics = $statistics;
     }
 
 }

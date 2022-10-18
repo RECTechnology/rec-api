@@ -81,6 +81,7 @@ class ChallengesTest extends BaseApiTest
         self::assertArrayHasKey('start_date', $elements[0]);
         self::assertArrayHasKey('finish_date', $elements[0]);
         self::assertArrayHasKey('cover_image', $elements[0]);
+        self::assertArrayHasKey('statistics', $elements[0]);
     }
     function testListChallengeWithFilterFromUserShouldWork(){
         $route = '/user/v3/challenges?status=open';
