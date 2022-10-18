@@ -157,7 +157,7 @@ class TxBlockValidator
             if(count($account_warnings) > 0)
                 $$warnings = $warnings + $account_warnings;
 
-            if($sender->getWallets()[0]->getBalance() < floatval($tx_amount) * 1e8){
+            if($sender->getWallets()[0]->getBalance() < floatval($tx_amount) * 1e6){
                 $warn_text = 'Sender Account with id '.$tx_sender_id.' has lower balance than amount (row '.$row.')';
                 $warnings[] = $warn_text;
                 $this->persistLog(TransactionBlockLog::TYPE_WARN, $warn_text);
