@@ -20,6 +20,11 @@ user_index_companies:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::indexCompanies, _format: ~ }
     methods: [GET]
 
+user_account_resume:
+    path:  /user/v1/account/resume
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::resume }
+    methods: [GET]
+
 ######################## USER WALLET ########################
 
 

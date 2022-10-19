@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\EventSubscriber\Kernel;
 
 use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Entity\AccountChallenge;
 use App\FinancialApiBundle\Entity\Challenge;
 use App\FinancialApiBundle\Entity\Group;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -62,49 +63,58 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
 
             $hidrated_elements = [];
             foreach ($elements as $element){
-                //TODO find transactions between dates
-                $transactions = $this->dm->getRepository(Transaction::class)->findTransactions(
-                    $account,
-                    $element['start_date'],
-                    $element['finish_date'],
-                    '',
-                    'created',
-                    'DESC'
-                );
+                //check if challenge is achieved, if achieved ignore
+                $account_challenge = $this->em->getRepository(AccountChallenge::class)->findOneBy(array(
+                    'account' => $account,
+                    'challenge' => $element
+                ));
 
-                $total_tx = 0;
-                $total_amount = 0;
+                if(!$account_challenge){
+                    //find transactions between dates
+                    $transactions = $this->dm->getRepository(Transaction::class)->findTransactions(
+                        $account,
+                        $element['start_date'],
+                        $element['finish_date'],
+                        '',
+                        'created',
+                        'DESC'
+                    );
 
-                /** @var Transaction $tx */
-                foreach ($transactions as $tx){
-                    if($tx->getType() === Transaction::$TYPE_OUT){
-                        $pay_out_info = $tx->getPayOutInfo();
-                        /** @var Group $receiver */
-                        $receiver = $this->em->getRepository(Group::class)->findOneBy(array(
-                           'rec_address' => $pay_out_info['address']
-                        ));
-                        if($element['action'] === Challenge::ACTION_TYPE_BUY){
-                            if($receiver->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
-                                $total_amount += $tx->getAmount();
-                                ++$total_tx;
+                    $total_tx = 0;
+                    $total_amount = 0;
+
+                    /** @var Transaction $tx */
+                    foreach ($transactions as $tx){
+                        if($tx->getType() === Transaction::$TYPE_OUT){
+                            $pay_out_info = $tx->getPayOutInfo();
+                            /** @var Group $receiver */
+                            $receiver = $this->em->getRepository(Group::class)->findOneBy(array(
+                                'rec_address' => $pay_out_info['address']
+                            ));
+                            if($element['action'] === Challenge::ACTION_TYPE_BUY){
+                                if($receiver->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
+                                    $total_amount += $tx->getAmount();
+                                    ++$total_tx;
+                                }
+                            }elseif ($element['action'] === Challenge::ACTION_TYPE_SEND){
+                                if($receiver->getType() === Group::ACCOUNT_TYPE_PRIVATE){
+                                    $total_amount += $tx->getAmount();
+                                    ++$total_tx;
+                                }
                             }
-                        }elseif ($element['action'] === Challenge::ACTION_TYPE_SEND){
-                            if($receiver->getType() === Group::ACCOUNT_TYPE_PRIVATE){
-                                $total_amount += $tx->getAmount();
-                                ++$total_tx;
-                            }
+
                         }
 
                     }
+                    $statistics = array(
+                        'total_tx' => $total_tx,
+                        'total_amount' => $total_amount
+                    );
 
+                    $element['statistics'] = $statistics;
+                    $hidrated_elements[] = $element;
                 }
-                $statistics = array(
-                    'total_tx' => $total_tx,
-                    'total_amount' => $total_amount
-                );
 
-                $element['statistics'] = $statistics;
-                $hidrated_elements[] = $element;
             }
 
             $content['data']['elements'] = $hidrated_elements;

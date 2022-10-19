@@ -3,6 +3,8 @@
 namespace App\FinancialApiBundle\Controller\Management\User;
 
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
+use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Entity\AccountChallenge;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use App\FinancialApiBundle\Entity\Document;
@@ -12,6 +14,7 @@ use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
 use App\FinancialApiBundle\Exception\AppException;
 use Doctrine\Common\Annotations\AnnotationException;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use App\FinancialApiBundle\Entity\CashInTokens;
@@ -78,6 +81,58 @@ class AccountController extends BaseApiController {
 
 
         return $this->restV2(200, "ok", "Account info got successfully", $resp);
+    }
+
+    /**
+     * @Rest\View
+     * @param Request $request
+     * @return Response
+     */
+    public function resume(Request $request){
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user->setRoles($user->getRoles());
+        /** @var Group $group */
+        $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
+        if(!$group->getActive()) throw new AppException(412, "Default account is not active");
+
+        /** @var DocumentManager $dm */
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
+
+        $transactions = $dm->getRepository(Transaction::class)->findBy(array(
+            'group' => $group,
+            'type' => Transaction::$TYPE_OUT,
+            'internal' => false,
+            'method' => 'rec'
+        ));
+        //get total compras
+        $total_purchases = 0;
+        //sum total amount
+        $total_spent = 0;
+
+        foreach ($transactions as $transaction){
+            //TODO check if receiver is a shop
+            $receiver_address = $transaction->getPayOutInfo()['address'];
+            /** @var Group $receiver_account */
+            $receiver_account = $em->getRepository(Group::class)->findOneBy(array('address' => $receiver_address));
+            if($receiver_account->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
+                $total_purchases++;
+            }
+            $total_spent += $transaction->getAmount();
+        }
+        //retos completados
+        $account_challenges = $em->getRepository(AccountChallenge::class)->findBy(array(
+            'account' => $group
+        ));
+
+        $resp = array(
+            'total_purchases' => $total_purchases,
+            'total_spent' => $total_spent,
+            'completed_challenges' => count($account_challenges)
+        );
+
+        return $this->restV2(200, "ok", "Account resume got successfully", $resp);
     }
 
     /**
