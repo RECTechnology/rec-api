@@ -47,7 +47,7 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
     }
 
     public function onResponse(FilterResponseEvent $event){
-
+        $logger = $this->container->get('logger');
         if(!$event->isMasterRequest()){
             return;
         }
@@ -61,6 +61,7 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
             $content = json_decode($response->getContent(), true);
             $elements = $content['data']['elements'];
 
+            $logger->info("CHALLENGE_STATISTICS_RESPONSE -> start hidrate");
             $hidrated_elements = [];
             foreach ($elements as $element){
                 //check if challenge is achieved, if achieved ignore
@@ -82,29 +83,31 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
 
                     $total_tx = 0;
                     $total_amount = 0;
-
+                    $logger->info("CHALLENGE_STATISTICS_RESPONSE -> total transactions found ".count($transactions));
+                    $logger->info("CHALLENGE_STATISTICS_RESPONSE -> action ".$element['action']);
                     /** @var Transaction $tx */
-                    foreach ($transactions as $tx){
-                        if($tx->getType() === Transaction::$TYPE_OUT){
+                    foreach ($transactions as $tx) {
+                        if ($tx->getType() === Transaction::$TYPE_OUT) {
                             $pay_out_info = $tx->getPayOutInfo();
                             /** @var Group $receiver */
                             $receiver = $this->em->getRepository(Group::class)->findOneBy(array(
                                 'rec_address' => $pay_out_info['address']
                             ));
-                            if($element['action'] === Challenge::ACTION_TYPE_BUY){
-                                if($receiver->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
+
+                            if ($element['action'] === Challenge::ACTION_TYPE_BUY) {
+                                if ($receiver->getType() === Group::ACCOUNT_TYPE_ORGANIZATION) {
+                                    $logger->info("CHALLENGE_STATISTICS_RESPONSE -> add buy");
                                     $total_amount += $tx->getAmount();
                                     ++$total_tx;
                                 }
-                            }elseif ($element['action'] === Challenge::ACTION_TYPE_SEND){
-                                if($receiver->getType() === Group::ACCOUNT_TYPE_PRIVATE){
+                            } elseif ($element['action'] === Challenge::ACTION_TYPE_SEND) {
+                                if ($receiver->getType() === Group::ACCOUNT_TYPE_PRIVATE) {
+                                    $logger->info("CHALLENGE_STATISTICS_RESPONSE -> add send");
                                     $total_amount += $tx->getAmount();
                                     ++$total_tx;
                                 }
                             }
-
                         }
-
                     }
                     $statistics = array(
                         'total_tx' => $total_tx,
@@ -114,13 +117,10 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
                     $element['statistics'] = $statistics;
                     $hidrated_elements[] = $element;
                 }
-
             }
-
             $content['data']['elements'] = $hidrated_elements;
             $response->setContent(json_encode($content));
         }
     }
-
 
 }
