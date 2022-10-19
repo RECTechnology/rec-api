@@ -25,7 +25,7 @@ class AccountChallenge extends AppObject
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Challenge")
      * @Serializer\Groups({"user"})
-     * @MaxDepth(1)
+     * @MaxDepth(2)
      */
     private $challenge;
 

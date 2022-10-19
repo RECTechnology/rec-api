@@ -49,6 +49,7 @@ class AccountChallengesTest extends BaseApiTest
 
         foreach ($elements as $element){
             self::assertEquals($user->group_data->id, $element['account']['id']);
+            self::assertArrayHasKey('token_reward', $element['challenge']);
         }
     }
 }
