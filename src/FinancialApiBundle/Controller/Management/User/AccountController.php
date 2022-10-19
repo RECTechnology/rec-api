@@ -101,7 +101,7 @@ class AccountController extends BaseApiController {
         $em = $this->getDoctrine()->getManager();
 
         $transactions = $dm->getRepository(Transaction::class)->findBy(array(
-            'group' => $group,
+            'group' => $group->getId(),
             'type' => Transaction::$TYPE_OUT,
             'internal' => false,
             'method' => 'rec'
