@@ -74,8 +74,8 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
                     //find transactions between dates
                     $transactions = $this->dm->getRepository(Transaction::class)->findTransactions(
                         $account,
-                        $element['start_date'],
-                        $element['finish_date'],
+                        new \DateTime($element['start_date']),
+                        new \DateTime($element['finish_date']),
                         '',
                         'created',
                         'DESC'
@@ -87,7 +87,7 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
                     $logger->info("CHALLENGE_STATISTICS_RESPONSE -> action ".$element['action']);
                     /** @var Transaction $tx */
                     foreach ($transactions as $tx) {
-                        if ($tx->getType() === Transaction::$TYPE_OUT) {
+                        if ($tx->getType() === Transaction::$TYPE_OUT && $tx->getStatus() === Transaction::$STATUS_SUCCESS) {
                             $pay_out_info = $tx->getPayOutInfo();
                             /** @var Group $receiver */
                             $receiver = $this->em->getRepository(Group::class)->findOneBy(array(
