@@ -20,21 +20,21 @@ class UsersSmsLogs extends AppObject {
     /**
      * @var integer $user_id
      * @ORM\Column(type="integer")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"admin"})
      */
     private $user_id;
 
     /**
      * @var string $type
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"admin"})
      */
     private $type;
 
     /**
      * @var integer $security_code
      * @ORM\Column(type="integer")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"admin"})
      */
     private $security_code;
 

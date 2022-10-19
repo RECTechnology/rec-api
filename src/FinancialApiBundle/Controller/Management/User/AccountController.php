@@ -112,10 +112,10 @@ class AccountController extends BaseApiController {
         $total_spent = 0;
 
         foreach ($transactions as $transaction){
-            //TODO check if receiver is a shop
+            //check if receiver is a shop
             $receiver_address = $transaction->getPayOutInfo()['address'];
             /** @var Group $receiver_account */
-            $receiver_account = $em->getRepository(Group::class)->findOneBy(array('address' => $receiver_address));
+            $receiver_account = $em->getRepository(Group::class)->findOneBy(array('rec_address' => $receiver_address));
             if($receiver_account->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
                 $total_purchases++;
             }

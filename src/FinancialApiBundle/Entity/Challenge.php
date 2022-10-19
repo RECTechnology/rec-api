@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 use Symfony\Component\Validator\Constraints AS Assert;
+use JMS\Serializer\Annotation\MaxDepth;
 
 /**
  * Class Challenge
@@ -140,12 +141,14 @@ class Challenge extends AppObject
      * One Challenge has One TokenReward or null.
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\TokenReward")
      * @Serializer\Groups({"admin", "user"})
+     * @MaxDepth(1)
      */
     private $token_reward;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
      * @Serializer\Groups({"admin"})
+     * @MaxDepth(1)
      */
     private $owner;
 
