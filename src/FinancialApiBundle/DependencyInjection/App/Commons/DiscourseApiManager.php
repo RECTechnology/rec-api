@@ -147,6 +147,13 @@ class DiscourseApiManager{
 
     }
 
+    public function adminBridgeCall($credentials, $endpoint, $method, $data = [], $urlParams = [], $fileData = null){
+        $this->logger->info("Starting Bridge call for  system");
+
+        return $this->_callDiscourse($endpoint, $credentials, $method, $data, $urlParams, $fileData);
+
+    }
+
     private function generateRandomPassword() {
         $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
         $pass = array(); //remember to declare $pass as an array
