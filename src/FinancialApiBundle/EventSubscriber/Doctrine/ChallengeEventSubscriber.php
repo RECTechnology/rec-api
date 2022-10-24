@@ -48,16 +48,38 @@ class ChallengeEventSubscriber implements EventSubscriber {
         $em = $args->getEntityManager();
         if($challenge instanceof Challenge) {
             $changes = $args->getEntityChangeSet();
-            if ($challenge->getStatus() === Challenge::STATUS_OPEN){
-                $allowed_changes = ['finish_date', 'status', 'updated'];
-                foreach ($changes as $key => $value){
-                    if(!in_array($key, $allowed_changes)){
-                        throw new HttpException(403,$key.' can not be changed when challenge is open');
+            if(!isset($changes['status'])){
+                if ($challenge->getStatus() === Challenge::STATUS_OPEN){
+                    $allowed_changes = ['finish_date', 'updated'];
+                    foreach ($changes as $key => $value){
+                        if(!in_array($key, $allowed_changes)){
+                            throw new HttpException(403,$key.' can not be changed when challenge is open');
+                        }
+                    }
+                }elseif ($challenge->getStatus() === Challenge::STATUS_CLOSED){
+                    throw new HttpException(403, 'Challenge is closed, can not be editable');
+                }
+            }else{
+                if($changes['status'][0] === Challenge::STATUS_CLOSED){
+                    throw new HttpException(403, 'Challenge is closed, can not be re-opened or re-scheduled');
+                }
+                if ($changes['status'][1] === Challenge::STATUS_OPEN){
+                    $allowed_changes = ['finish_date', 'status', 'updated'];
+                    foreach ($changes as $key => $value){
+                        if(!in_array($key, $allowed_changes)){
+                            throw new HttpException(403,$key.' can not be changed when challenge is open');
+                        }
+                    }
+                }elseif ($changes['status'][1] === Challenge::STATUS_CLOSED){
+                    $allowed_changes = ['status', 'updated'];
+                    foreach ($changes as $key => $value){
+                        if(!in_array($key, $allowed_changes)){
+                            throw new HttpException(403,$key.' can not be changed when challenge is closed');
+                        }
                     }
                 }
-            }elseif ($challenge->getStatus() === Challenge::STATUS_CLOSED){
-                throw new HttpException(403, 'Challenge is finished, can not be editable');
             }
+
         }
     }
 

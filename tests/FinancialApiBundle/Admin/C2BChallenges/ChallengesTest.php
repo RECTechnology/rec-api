@@ -110,7 +110,7 @@ class ChallengesTest extends BaseApiTest
         );
 
         $content = json_decode($resp->getContent(),true);
-        self::assertEquals(4, $content['data']['total']);
+        self::assertEquals(5, $content['data']['total']);
     }
 
     function testUpdateChallengeFromSuperShouldWork(){
@@ -136,7 +136,7 @@ class ChallengesTest extends BaseApiTest
         $route = '/admin/v3/challenges/1';
 
         $data = array(
-            'token_reward_id' => 3,
+            'token_reward_id' => 5,
         );
         $resp = $this->requestJson('PUT', $route, $data);
 
@@ -150,7 +150,7 @@ class ChallengesTest extends BaseApiTest
         $resp = $this->requestJson('GET', $route);
         $content = json_decode($resp->getContent(), true);
 
-        self::assertEquals(1, $content['data']['challenge']['id']);
+        self::assertEquals(5, $content['data']['challenge']['id']);
     }
 
     function testUpdateChallengeAfterStartedFromSuperShouldFail(){
@@ -196,6 +196,11 @@ class ChallengesTest extends BaseApiTest
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
 
+    }
+
+    function testCommandStartCloseChallengesShouldWork(){
+        $this->markTestIncomplete('Falata recorrer la respuesta y comprobar que se cierra o abre bien todo');
+        $resp = $this->runCommand('rec:challenges:manage');
     }
 
 }

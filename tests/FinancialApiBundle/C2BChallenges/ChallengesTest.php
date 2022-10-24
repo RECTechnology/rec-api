@@ -71,7 +71,7 @@ class ChallengesTest extends BaseApiTest
         $content = json_decode($resp->getContent(),true);
         $elements = $content['data']['elements'];
 
-        self::assertEquals(4, $content['data']['total']);
+        self::assertEquals(5, $content['data']['total']);
         self::assertArrayHasKey('title', $elements[0]);
         self::assertArrayHasKey('description', $elements[0]);
         self::assertArrayHasKey('action', $elements[0]);
@@ -97,7 +97,7 @@ class ChallengesTest extends BaseApiTest
         $content = json_decode($resp->getContent(),true);
         $elements = $content['data']['elements'];
 
-        self::assertEquals(2, $content['data']['total']);
+        self::assertEquals(3, $content['data']['total']);
         foreach ($elements as $element){
             self::assertEquals(Challenge::STATUS_OPEN, $element['status']);
         }

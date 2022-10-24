@@ -26,12 +26,15 @@ class ChallengesFixture extends Fixture implements DependentFixtureInterface
         $three_days_after = new \DateTime('+3 days');
         $six_days_after = new \DateTime('+6 days');
         $three_days_before = new \DateTime('-3 days');
+        $one_days_before = new \DateTime('-1 days');
         $this->createChallenge($orm, null, Challenge::STATUS_SCHEDULED, $three_days_after, $six_days_after);
         $token1 = $orm->getRepository(TokenReward::class)->find(1);
         $this->createChallenge($orm, $token1, Challenge::STATUS_OPEN, $three_days_before, $three_days_after);
         $this->createChallenge($orm, null, Challenge::STATUS_CLOSED, $three_days_after, $six_days_after);
         $token2 = $orm->getRepository(TokenReward::class)->find(2);
         $this->createChallenge($orm, $token2, Challenge::STATUS_OPEN, $three_days_before, $three_days_after);
+        $token3 = $orm->getRepository(TokenReward::class)->find(3);
+        $this->createChallenge($orm, $token3, Challenge::STATUS_OPEN, $three_days_before, $one_days_before);
     }
 
     /**
