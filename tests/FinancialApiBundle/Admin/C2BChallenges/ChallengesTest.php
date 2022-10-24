@@ -41,6 +41,48 @@ class ChallengesTest extends BaseApiTest
         );
     }
 
+    function testCreateChallengeWithBadgesFromSuperShouldWork(){
+        $route = '/admin/v3/challenges';
+
+        $start = new \DateTime();
+        $finish = new \DateTime('+3 days');
+        $data = array(
+            'title' => $this->faker->name,
+            'description' => $this->faker->text,
+            'action' => 'buy',
+            'status' => 'draft',
+            'threshold' => 3,
+            'amount_required' => 0,
+            'start_date' => $start->format('Y-m-d\TH:i:sO'),
+            'finish_date' => $finish->format('Y-m-d\TH:i:sO'),
+            'cover_image' => 'https://fakeimage.es/images/1.jpg',
+            'type' => Challenge::TYPE_CHALLENGE
+        );
+        $resp = $this->requestJson('POST', $route, $data);
+
+        self::assertEquals(
+            201,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+        $response = json_decode($resp->getContent(),true);
+
+        $route = "/admin/v3/challenges/{$response['data']['id']}/badges";
+        $data = ['id' => 1];
+        $resp = $this->requestJson('POST', $route, $data);
+        self::assertEquals(
+            201,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $response = json_decode($resp->getContent(),true);
+        $data = $response['data'];
+        self::assertArrayHasKey('badges', $data);
+        self::assertEquals(1,$data['badges'][0]['id']);
+
+    }
+
     function testCreateChallengeWithoutStatusFromSuperShouldWork(){
         $route = '/admin/v3/challenges';
 
@@ -110,7 +152,7 @@ class ChallengesTest extends BaseApiTest
         );
 
         $content = json_decode($resp->getContent(),true);
-        self::assertEquals(5, $content['data']['total']);
+        self::assertEquals(6, $content['data']['total']);
     }
 
     function testUpdateChallengeFromSuperShouldWork(){
@@ -150,7 +192,7 @@ class ChallengesTest extends BaseApiTest
         $resp = $this->requestJson('GET', $route);
         $content = json_decode($resp->getContent(), true);
 
-        self::assertEquals(5, $content['data']['challenge']['id']);
+        self::assertEquals(6, $content['data']['challenge']['id']);
     }
 
     function testUpdateChallengeAfterStartedFromSuperShouldFail(){

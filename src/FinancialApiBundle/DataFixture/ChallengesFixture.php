@@ -33,14 +33,25 @@ class ChallengesFixture extends Fixture implements DependentFixtureInterface
         $this->createChallenge($orm, null, Challenge::STATUS_CLOSED, $three_days_after, $six_days_after);
         $token2 = $orm->getRepository(TokenReward::class)->find(2);
         $this->createChallenge($orm, $token2, Challenge::STATUS_OPEN, $three_days_before, $three_days_after);
+
+
+        $badge1 = $orm->getRepository(Badge::class)->find(1);
+        $badge2 = $orm->getRepository(Badge::class)->find(2);
+
+        $badges = [$badge1, $badge2];
+        $token4 = $orm->getRepository(TokenReward::class)->find(4);
+        $this->createChallenge($orm, $token4, Challenge::STATUS_OPEN, $three_days_before, $three_days_after, $badges);
+
+
         $token3 = $orm->getRepository(TokenReward::class)->find(3);
         $this->createChallenge($orm, $token3, Challenge::STATUS_OPEN, $three_days_before, $one_days_before);
+
     }
 
     /**
      * @param ObjectManager $orm
      */
-    private function createChallenge(ObjectManager $orm, ?TokenReward $token, $status, $start, $finish){
+    private function createChallenge(ObjectManager $orm, ?TokenReward $token, $status, $start, $finish, $badges = null){
         $faker = Factory::create();
 
         $challenge = new Challenge();
@@ -60,6 +71,12 @@ class ChallengesFixture extends Fixture implements DependentFixtureInterface
         $adminAccount = $orm->getRepository(Group::class)->find(7);
         $challenge->setOwner($adminAccount);
 
+        if($badges){
+            foreach ($badges as $badge){
+                $challenge->addBadge($badge);
+            }
+        }
+
         $orm->persist($challenge);
 
         if($token){
@@ -71,7 +88,8 @@ class ChallengesFixture extends Fixture implements DependentFixtureInterface
     public function getDependencies(){
         return [
             AccountFixture::class,
-            TokenRewardsFixture::class
+            TokenRewardsFixture::class,
+            BadgesFixture::class
         ];
     }
 

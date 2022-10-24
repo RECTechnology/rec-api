@@ -19,6 +19,7 @@ class Badge extends AppObject
      */
     public function __construct() {
         $this->accounts = new ArrayCollection();
+        $this->challenges = new ArrayCollection();
     }
 
 
@@ -98,6 +99,17 @@ class Badge extends AppObject
      * @Serializer\Groups({"public"})
      */
     private $group_name_ca;
+
+    /**
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Challenge",
+     *     inversedBy="badges",
+     *     fetch="EXTRA_LAZY"
+     * )
+     * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(1)
+     */
+    private $challenges;
 
     /**
      * @return mixed
@@ -308,6 +320,41 @@ class Badge extends AppObject
     public function setGroupNameCa($group_name_ca): void
     {
         $this->group_name_ca = $group_name_ca;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getChallenges()
+    {
+        return $this->challenges;
+    }
+
+    /**
+     * @param Challenge $challenge
+     * @param bool $recursive
+     * @throws PreconditionFailedException
+     */
+    public function addChallenge(Challenge $challenge, $recursive = true): void
+    {
+        if($this->challenges->contains($challenge)){
+            throw new PreconditionFailedException("Badge already related to this Challenge");
+        }
+        $this->challenges []= $challenge;
+        if($recursive) $challenge->addBadge($this, false);
+    }
+
+    /**
+     * @param Challenge $challenge
+     * @param bool $recursive
+     */
+    public function delChallenge(Challenge $challenge, $recursive = true): void
+    {
+        if(!$this->challenges->contains($challenge)){
+            throw new PreconditionFailedException("Badge not related to this Challenge");
+        }
+        $this->challenges->removeElement($challenge);
+        if($recursive) $challenge->delBadge($this, false);
     }
 
 }

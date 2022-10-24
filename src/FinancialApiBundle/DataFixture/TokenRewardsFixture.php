@@ -25,6 +25,7 @@ class TokenRewardsFixture extends Fixture
         $this->createTokenReward($orm, TokenReward::STATUS_MINTED);
         $this->createTokenReward($orm, TokenReward::STATUS_CREATED);
 
+        $this->createTokenReward($orm, TokenReward::STATUS_MINTED);
         $this->createTokenReward($orm, TokenReward::STATUS_CREATED);
         $this->createTokenReward($orm, TokenReward::STATUS_CREATED);
         $this->createTokenReward($orm, TokenReward::STATUS_CREATED);

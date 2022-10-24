@@ -1935,6 +1935,11 @@ class Group extends BaseGroup implements Uploadable
         if($recursive) $badge->delAccount($this, false);
     }
 
+    public function hasBadge(Badge $badge) : bool{
+        if($this->badges->contains($badge)) return true;
+        return false;
+    }
+
     /**
      * @return mixed
      */

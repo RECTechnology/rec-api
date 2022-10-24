@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
@@ -50,6 +51,7 @@ class Challenge extends AppObject
 
     public function __construct(){
         $this->activities = new ArrayCollection();
+        $this->badges = new ArrayCollection();
     }
     /**
      * @ORM\Column(type="string", length=60)
@@ -138,6 +140,17 @@ class Challenge extends AppObject
     private $activities;
 
     /**
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Badge",
+     *     mappedBy="challenges",
+     *     fetch="EXTRA_LAZY"
+     * )
+     * @Serializer\MaxDepth(2)
+     * @Serializer\Groups({"admin"})
+     */
+    private $badges;
+
+    /**
      * One Challenge has One TokenReward or null.
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\TokenReward")
      * @Serializer\Groups({"admin", "user"})
@@ -160,6 +173,38 @@ class Challenge extends AppObject
 
     public function getActivities(){
         return $this->activities;
+    }
+
+    public function getBadges(){
+        return $this->badges;
+    }
+
+    /**
+     * @param Badge $badge
+     * @param bool $recursive
+     * @throws PreconditionFailedException
+     */
+    public function addBadge(Badge $badge, $recursive = true): void
+    {
+        if ($this->badges->contains($badge)) {
+            throw new PreconditionFailedException("Badge already related to this Challenge");
+        }
+        $this->badges[] = $badge;
+        if ($recursive) $badge->addChallenge($this, false);
+    }
+
+    /**
+     * @param Badge $badge
+     * @param bool $recursive
+     * @throws PreconditionFailedException
+     */
+    public function delBadge(Badge $badge, $recursive = true)
+    {
+        if (!$this->badges->contains($badge)) {
+            throw new PreconditionFailedException("Badge not related to this Challenge");
+        }
+        $this->badges->removeElement($badge);
+        if($recursive) $badge->delChallenge($this, false);
     }
 
     /**
