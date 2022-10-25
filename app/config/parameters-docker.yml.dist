@@ -97,6 +97,7 @@ parameters:
     kyc_email: $KYC_EMAIL
 
     discourse_url: $DISCOURSE_URL
+    b2b_forum_url: $B2B_FORUM_URL
     discourse_admin_username: $DISCOURSE_ADMIN_USERNAME
     discourse_admin_api_key: $DISCOURSE_ADMIN_API_KEY
     discourse_news_category_id: $DISCOURSE_NEWS_CATEGORY_ID

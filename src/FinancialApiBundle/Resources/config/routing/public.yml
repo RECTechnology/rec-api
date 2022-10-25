@@ -29,3 +29,8 @@ search_activities:
     path:  /public/v4/activities/search
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ActivityController::searchActivitiesV4 }
     methods: [GET]
+
+show_metadata:
+    path:  /public/token/metadata/{contract}/{token_id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Open\TokenMetadataController::getTokenMetadata }
+    methods: [GET]
