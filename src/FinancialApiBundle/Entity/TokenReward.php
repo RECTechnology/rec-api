@@ -28,7 +28,7 @@ class TokenReward extends AppObject
     private $name;
 
     /**
-     * @ORM\Column(type="string", nullable=true )
+     * @ORM\Column(type="text", nullable=true )
      * @Serializer\Groups({"admin", "user"})
      */
     private $description;
