@@ -131,6 +131,13 @@ services:
             - "@service_container"
             - "@discourse.logger"
 
+    net.app.commons.challenge_handler:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\ChallengeHandler
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+            - "@discourse.logger"
+
     net.app.transactions.core.utils:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionUtils
         arguments:

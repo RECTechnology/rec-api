@@ -80,6 +80,16 @@ services:
         class: Monolog\Handler\StreamHandler
         arguments: [ '%kernel.logs_dir%/%kernel.environment%.discourse.log', 200 ]
 
+    challenge.logger:
+        class: Symfony\Bridge\Monolog\Logger
+        arguments: [ challenge ]
+        calls:
+            - [ pushHandler, [ "@challenge.logger_handler" ] ]
+
+    challenge.logger_handler:
+        class: Monolog\Handler\StreamHandler
+        arguments: [ '%kernel.logs_dir%/%kernel.environment%.challenge.log', 200 ]
+
     badges.logger:
         class: Symfony\Bridge\Monolog\Logger
         arguments: [ badges ]

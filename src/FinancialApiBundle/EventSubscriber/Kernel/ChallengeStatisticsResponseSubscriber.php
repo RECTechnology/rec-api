@@ -2,11 +2,9 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Kernel;
 
-use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\ChallengeHandler;
 use App\FinancialApiBundle\Entity\AccountChallenge;
 use App\FinancialApiBundle\Entity\Challenge;
-use App\FinancialApiBundle\Entity\Group;
-use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -19,9 +17,6 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
     /** @var EntityManagerInterface $em */
     private $em;
 
-    /** @var DocumentManager $dm */
-    private $dm;
-
     private $container;
 
     /** @var TokenStorageInterface $storage */
@@ -30,7 +25,6 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
     public function __construct(EntityManagerInterface $em, ContainerInterface $container, TokenStorageInterface $storage){
         $this->em = $em;
         $this->container = $container;
-        $this->dm = $container->get('doctrine_mongodb')->getManager();
         $this->storage = $storage;
     }
     /**
@@ -71,47 +65,16 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
                 ));
 
                 if(!$account_challenge){
-                    //find transactions between dates
-                    $transactions = $this->dm->getRepository(Transaction::class)->findTransactions(
-                        $account,
-                        new \DateTime($element['start_date']),
-                        new \DateTime($element['finish_date']),
-                        '',
-                        'created',
-                        'DESC'
-                    );
+                    /** @var ChallengeHandler $challenge_handler */
+                    $challenge_handler = $this->container->get('net.app.commons.challenge_handler');
+                    //we need to convert the challenge array in object to pass it to chalenge handler
+                    $challenge = $this->em->getRepository(Challenge::class)->find($element['id']);
 
-                    $total_tx = 0;
-                    $total_amount = 0;
-                    $logger->info("CHALLENGE_STATISTICS_RESPONSE -> total transactions found ".count($transactions));
-                    $logger->info("CHALLENGE_STATISTICS_RESPONSE -> action ".$element['action']);
-                    /** @var Transaction $tx */
-                    foreach ($transactions as $tx) {
-                        if ($tx->getType() === Transaction::$TYPE_OUT && $tx->getStatus() === Transaction::$STATUS_SUCCESS) {
-                            $pay_out_info = $tx->getPayOutInfo();
-                            /** @var Group $receiver */
-                            $receiver = $this->em->getRepository(Group::class)->findOneBy(array(
-                                'rec_address' => $pay_out_info['address']
-                            ));
+                    [$totalAmount, $totalTransactions] = $challenge_handler->getChallengeTotals($account, $challenge);
 
-                            if ($element['action'] === Challenge::ACTION_TYPE_BUY) {
-                                if ($receiver->getType() === Group::ACCOUNT_TYPE_ORGANIZATION) {
-                                    $logger->info("CHALLENGE_STATISTICS_RESPONSE -> add buy");
-                                    $total_amount += $tx->getAmount();
-                                    ++$total_tx;
-                                }
-                            } elseif ($element['action'] === Challenge::ACTION_TYPE_SEND) {
-                                if ($receiver->getType() === Group::ACCOUNT_TYPE_PRIVATE) {
-                                    $logger->info("CHALLENGE_STATISTICS_RESPONSE -> add send");
-                                    $total_amount += $tx->getAmount();
-                                    ++$total_tx;
-                                }
-                            }
-                        }
-                    }
                     $statistics = array(
-                        'total_tx' => $total_tx,
-                        'total_amount' => $total_amount
+                        'total_tx' => $totalTransactions,
+                        'total_amount' => $totalAmount
                     );
 
                     $element['statistics'] = $statistics;
