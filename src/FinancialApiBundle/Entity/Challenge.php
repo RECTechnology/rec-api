@@ -104,7 +104,7 @@ class Challenge extends AppObject
 
     /**
      * Minimum amount to be reached
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint")
      * @Serializer\Groups({"admin", "user"})
      */
     private $amount_required;
