@@ -42,7 +42,7 @@ class NftSubscriber implements EventSubscriberInterface
             'original_token_id' => $event->getOriginalToken(),
             'to' => $event->getReceiver(),
             'method' => $method,
-            'contract_name' => $event->getContractname(),
+            'contract_name' => $event->getContractName(),
             'token_reward' => $event->getTokenReward()
         ));
 
@@ -57,11 +57,15 @@ class NftSubscriber implements EventSubscriberInterface
             $nft_transaction->setTopicId($event->getTopicId());
             $nft_transaction->setTokenReward($event->getTokenReward());
 
-            $accountChallenge = new AccountChallenge();
-            $accountChallenge->setAccount($event->getReceiver());
-            $accountChallenge->setChallenge($event->getChallenge());
+            if($method !== NFTTransaction::NFT_MINT && $event->getContractName() === NFTTransaction::B2C_SHARABLE_CONTRACT){
+                //account challenge only has to be generated for this smart contract and if is not mint(because mint is for admin)
+                $accountChallenge = new AccountChallenge();
+                $accountChallenge->setAccount($event->getReceiver());
+                $accountChallenge->setChallenge($event->getChallenge());
 
-            $this->em->persist($accountChallenge);
+                $this->em->persist($accountChallenge);
+            }
+
 
             $this->em->persist($nft_transaction);
             $this->em->flush();
