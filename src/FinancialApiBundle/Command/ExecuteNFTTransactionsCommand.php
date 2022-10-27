@@ -137,7 +137,8 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                         $code = $response['error'];
                         if($code === -32000){
                             if($nft_transaction->getMethod() === NFTTransaction::NFT_MINT){
-                                //TODO send email to admin because mint is from admin and admin needs funding
+                                //send email to admin because mint is from admin and admin needs funding
+                                $this->sendEmail("Account needs MATIC funding", "Account ".$sender_id." needs funding to mint tokens. please send some matic to: ".$sender->getNftWallet());
                             }else{
                                 //get amount from Configuration settings table
                                 $setting = $em->getRepository(ConfigurationSetting::class)->findOneBy(array(
@@ -191,6 +192,31 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                 return null;
         }
 
+    }
+
+    private function sendEmail($subject, $body){
+
+        $no_replay = $this->getContainer()->getParameter('no_reply_email');
+        $emails_list = $this->getContainer()->getParameter("resume_admin_emails_list");
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($no_replay)
+            ->setTo($emails_list)
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('FinancialApiBundle:Email:empty_email.html.twig',
+                        [
+                            'mail' => [
+                                'subject' => $subject,
+                                'body' => $body
+                            ]
+                        ]
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->getContainer()->get('mailer')->send($message);
     }
 
 }
