@@ -28,7 +28,6 @@ services:
             - "@service_container"
             - "@logger"
             - "@doctrine.orm.entity_manager"
-            - "@App\\FinancialApiBundle\\DependencyInjection\\App\\Commons\\UPCNotificator"
 
     bonissim_service:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\BonissimAccountService

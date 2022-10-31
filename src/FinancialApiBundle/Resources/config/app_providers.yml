@@ -1,14 +1,5 @@
 services:
 
-
-    net.app.provider.rec:
-        class: App\FinancialApiBundle\DependencyInjection\App\Providers\EasyBitcoin
-        arguments:
-            - "%rec_user%"
-            - "%rec_pass%"
-            - "%rec_host%"
-            - "%rec_port%"
-
     net.app.provider.sepa_in:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaIn
         arguments:

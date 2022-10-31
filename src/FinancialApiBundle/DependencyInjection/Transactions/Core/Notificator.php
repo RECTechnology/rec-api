@@ -1,7 +1,6 @@
 <?php
 namespace App\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
-use App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator;
 use App\FinancialApiBundle\Entity\Group;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,17 +17,12 @@ class Notificator {
     private $logger;
     /** @var EntityManagerInterface */
     private $em;
-    /**
-     * @var UPCNotificator
-     */
-    private $upcNotificator;
 
-    function __construct(ContainerInterface $container, LoggerInterface $logger, EntityManagerInterface $em, UPCNotificator $upcNotificator)
+    function __construct(ContainerInterface $container, LoggerInterface $logger, EntityManagerInterface $em)
     {
         $this->container = $container;
         $this->logger = $logger;
         $this->em = $em;
-        $this->upcNotificator = $upcNotificator;
     }
 
     public function notificate(Transaction $transaction, $force = false){
@@ -47,38 +41,6 @@ class Notificator {
         /** @var Group $group */
         $group = $this->em->getRepository(Group::class)->find($transaction->getGroup());
 
-        if(!$transaction->getInternal()) {
-            if (
-                $group->getType() == 'PRIVATE'
-                &&
-                $transaction->getStatus() == Transaction::$STATUS_SUCCESS
-                &&
-                $group->getSubtype() == 'BMINCOME'
-                &&
-                in_array($transaction->getType(), ['in', 'out'])
-            ) {
-                $this->logger->debug("UPC Notification started");
-                try {
-                    $this->notificate_upc($transaction);
-                    $transaction->setNotified(true);
-                } catch (Throwable $e){
-                    $this->logger->debug("UPC Notification FAILED: " . $e->getMessage());
-                }
-            }
-            else {
-                $this->logger->debug(
-                    "NOT upc_notificate: id:
-                     {$transaction->getId()},
-                     group_type: {$group->getType()},
-                     status: {$transaction->getStatus()},
-                     group_subtype: {$group->getSubtype()}"
-                );
-            }
-        }
-        else {
-            $this->logger->debug("tx is internal");
-        }
-
         if(isset($transaction->getDataIn()['url_notification']))
             $url_notification = $transaction->getDataIn()['url_notification'];
         else
@@ -86,7 +48,7 @@ class Notificator {
 
         if($url_notification == null) return $transaction;
 
-//necesitamos el id el status el amount y el secret
+        //necesitamos el id el status el amount y el secret
         $id = $transaction->getId();
         $status = $transaction->getStatus();
         $amount = $transaction->getAmount();
@@ -153,118 +115,6 @@ class Notificator {
         }
 // close curl resource to free up system resources
         curl_close($ch);
-        $dm->persist($transaction);
-        $dm->flush();
-        return $transaction;
-    }
-
-    /**
-     * @param Transaction $transaction
-     * @return Transaction
-     */
-    public function notificate_upc(Transaction $transaction){
-        /** @var DocumentManager $dm */
-        $dm = $this->container->get('doctrine_mongodb')->getManager();
-        $group = $this->container->get('doctrine')
-            ->getRepository('FinancialApiBundle:Group')
-            ->find($transaction->getGroup());
-
-        //necesitamos el id el status el amount y el secret
-        $id = $transaction->getId();
-        $status = $transaction->getStatus();
-        $amount = round($transaction->getAmount() / 100000000, 2);
-        $key = 'HyRJn3cQ35fbpKah';
-
-        if ($transaction->getType() == 'out') {
-            $payment_info = $transaction->getPayOutInfo();;
-            $destination = $this->container->get('doctrine')
-                ->getRepository('FinancialApiBundle:Group')
-                ->findOneBy(array(
-                    'rec_address' => $payment_info['address']
-                ));
-
-            if($destination->getType() == 'PRIVATE') {
-                $data_to_sign = $id . $status . $amount;
-                $signature = hash_hmac('sha256', $data_to_sign, $key);
-                $data = array(
-                    'receiver' => 'PARTICULAR',
-                    'date' => intval($transaction->getUpdated()->format('U')),
-                    'activity_type_code' => 16
-                );
-            }
-            elseif($destination->getType() == 'COMPANY'){
-                $data_to_sign = $id . $status . $amount;
-                $signature = hash_hmac('sha256', $data_to_sign, $key);
-                $activity = $destination->getCategory() ? $destination->getCategory()->getId() : 16;
-                $data = array(
-                    'receiver' => $destination->getCif(),
-                    'date' => intval($transaction->getUpdated()->format('U')),
-                    'activity_type_code' => $activity
-                );
-            }
-        }
-        elseif($transaction->getType() == 'in'){
-            $data_to_sign = $id . $status . $amount;
-            $signature = hash_hmac('sha256', $data_to_sign, $key);
-            $data = array(
-                'receiver' => 'CAMBIO',
-                'date' => intval($transaction->getUpdated()->format('U')),
-                'activity_type_code' => 16
-            );
-        }
-
-        $params = array(
-            'account_id'=>  $group->getCif(),
-            'id'        =>  $id,
-            'status'    =>  $status,
-            'amount'    =>  $amount,
-            'signature' =>  $signature,
-            'data'      =>  json_encode($data)
-        );
-
-
-        $payload = [
-            "account_id" => $params['account_id'],
-            "id" => $params['id'],
-            "status" => $params['status'],
-            "amount" => $params['amount'],
-            "signature" => $params['signature'],
-            "data" => [
-                "receiver" => $data['receiver'],
-                "date" => $data['date'],
-                "activity_type_code" => strval($data['activity_type_code'])
-            ],
-        ];
-
-        $msg = json_encode($payload);
-
-        $notificatorAggregator = $this->container->get('com.qbitartifacts.rec.commons.notificator');
-        $notificatorAggregator->send('#NOTIFICATION_UPC_REQUEST: ' . $msg);
-
-        $response = $this->upcNotificator->send($msg);
-
-        $response_data = json_decode($response, true);
-        if(!isset($response_data['Message'])){
-            $response_data['Message'] = array();
-        }
-        if(!isset($response_data['Message']['Type'])) {
-            $response_data['Message']['Type'] = 'FAILED';
-        }
-        if($response_data['Message']['Type'] != 'SUCCESS'){
-            $this->logger->debug("TX failed to notify to UPC\n");
-            $transaction->setNotified(false);
-            $transaction->setNotificationTries($transaction->getNotificationTries()+1);
-        }
-        else {
-            $transaction->setNotified(true);
-        }
-
-        $clean_response = str_replace('"', '', $response);
-
-        $notificatorAggregator->send('#NOTIFICATION_UPC_RESPONSE: ' . $clean_response);
-
-        $this->logger->debug("TX notificated: {$transaction->getId()}, notified: {$transaction->getNotified()}, tries: {$transaction->getNotificationTries()}\n");
-        // close curl resource to free up system resources
         $dm->persist($transaction);
         $dm->flush();
         return $transaction;

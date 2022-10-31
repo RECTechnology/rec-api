@@ -35,11 +35,6 @@ parameters:
     base_panel_url: $APP_ADMIN_URL
     web_app_url: $APP_API_URL
 
-    rec_user: app
-    rec_pass: $APP_SECRET
-    rec_host: $NODE_HOST
-    rec_port: $NODE_PORT
-
     admin_key: $APP_SECRET
     saved_data_version: 1
     saved_data_subversion: 1
@@ -83,11 +78,6 @@ parameters:
     telegram_bot_token: $TELEGRAM_BOT_TOKEN
     telegram_chat_log: $TELEGRAM_CHAT_LOG
     telegram_chat_error: $TELEGRAM_CHAT_ERROR
-
-    # Bcn setup for notificacions
-    upc_notification_url: $UPC_NOTIFICATION_URL
-    upc_notification_username: $UPC_NOTIFICATION_USERNAME
-    upc_notification_password: $UPC_NOTIFICATION_PASSWORD
 
     blockchain_address_prefix: $BLOCKCHAIN_ADDRESS_PREFIX
 

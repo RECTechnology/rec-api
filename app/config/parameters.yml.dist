@@ -45,12 +45,6 @@ parameters:
 #Admin panel url
     base_panel_url: 'http://dev-cp.app.net/app_dev.php'
 
-#blockchain credentials
-    rec_user: rec
-    rec_pass: rec
-    rec_host: node
-    rec_port: 17711
-
 #minimum confirmations to accept rec transactions
     rec_min_confirmations: 1
 #fee added to every blockchain transaction
@@ -114,11 +108,6 @@ parameters:
     telegram_bot_token: ~
     telegram_chat_log: ~
     telegram_chat_error: ~
-
-# Bcn setup for notificacions
-    upc_notification_url: ~
-    upc_notification_username: ~
-    upc_notification_password: ~
 
     blockchain_address_prefix: 'R'
 
