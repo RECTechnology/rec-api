@@ -69,11 +69,15 @@ class ChallengesFixture extends Fixture implements DependentFixtureInterface
         $challenge->setTokenReward($token);
 
         $adminAccount = $orm->getRepository(Group::class)->find(7);
-        $challenge->setOwner($adminAccount);
+        if($adminAccount){
+            $challenge->setOwner($adminAccount);
+        }
 
         if($badges){
             foreach ($badges as $badge){
-                $challenge->addBadge($badge);
+                if($badge){
+                    $challenge->addBadge($badge);
+                }
             }
         }
 

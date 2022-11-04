@@ -1959,4 +1959,18 @@ class Group extends BaseGroup implements Uploadable
     public function addChallenge($challenge){
         $this->challenges[] = $challenge;
     }
+
+    /**
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("is_commerce_verd")
+     */
+    public function isGreenCommerce(): bool
+    {
+        /** @var Activity $activity */
+        foreach ($this->activities as $activity){
+            if($activity->getName() === Activity::GREEN_COMMERCE_ACTIVITY) return true;
+        }
+
+        return false;
+    }
 }

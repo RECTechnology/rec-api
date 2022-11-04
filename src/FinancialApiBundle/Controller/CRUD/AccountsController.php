@@ -204,8 +204,8 @@ class AccountsController extends CRUDController {
             'c.cat',
             'c.esp'
         ];
-        if ($only_with_offers == 1 || $only_with_offers == 'true') {
-           array_push($searchFields, 'o.description');
+        if ($only_with_offers === 1 || $only_with_offers === 'true') {
+           $searchFields[] = 'o.description';
         }
         $like = $qb->expr()->orX();
         foreach ($searchFields as $field) {
@@ -259,7 +259,7 @@ class AccountsController extends CRUDController {
 
         $now = new \DateTime('NOW');
 
-        if ($only_with_offers == 1 || $only_with_offers == 'true') {
+        if ($only_with_offers === 1 || $only_with_offers === 'true') {
             $_and = $qb->expr()->andX();
             $_and->add($qb->expr()->eq('o2.company', 'a.id'));
             $_and->add($qb->expr()->eq('o2.active', 1));
@@ -302,7 +302,7 @@ class AccountsController extends CRUDController {
 
             for ($i = 0; $i < sizeof($activities); $i++) {
                 if(isset($activities[$i])){
-                    array_push($activities_id, $activities[$i]->getId());
+                    $activities_id[] = $activities[$i]->getId();
                 }
             }
         }
@@ -318,23 +318,21 @@ class AccountsController extends CRUDController {
 
             $account_campaigns = $elements[$i]["account"]["campaigns"];
             $campaigns_id_list = [];
-            if(sizeof($account_campaigns) > 0){
-                for ($ii = 0; $ii < sizeof($account_campaigns); $ii++) {
-                    array_push($campaigns_id_list, ['id' => $account_campaigns[$ii]["id"], 'code' => $account_campaigns[$ii]['code']]);
+            if(count($account_campaigns) > 0){
+                $totalCampaigns = count($account_campaigns);
+                for ($ii = 0; $ii < $totalCampaigns; $ii++) {
+                    $campaigns_id_list[] = ['id' => $account_campaigns[$ii]["id"], 'code' => $account_campaigns[$ii]['code']];
                 }
             }
             $elements[$i]['campaigns'] = $campaigns_id_list;
             unset($elements[$i]['account']);
 
-            if(in_array('activity', array_keys($elements[$i])) and in_array($elements[$i]['activity'], $activities_id)){
-                array_push($same_activity_elements, $elements[$i]);
-            }
             $is_commerce_verd = false;
             foreach ($query_resp[$i]["account"]->getActivities() as $account_activity){
                 if(in_array($account_activity->getId(), $activities_id)){
-                    array_push($same_activity_elements, $elements[$i]);
+                    $same_activity_elements[] = $elements[$i];
                 }
-                if($account_activity->getName() == Activity::GREEN_COMMERCE_ACTIVITY){
+                if($account_activity->getName() === Activity::GREEN_COMMERCE_ACTIVITY){
                     $is_commerce_verd = true;
                 }
             }

@@ -83,6 +83,7 @@ class MapTest extends BaseApiTest {
         $accounts = $response_content['data']['elements'];
         foreach ($accounts as $account){
             self::assertTrue($account["offers"][0]["active"]);
+            self::assertArrayHasKey('is_commerce_verd', $account);
         }
     }
 

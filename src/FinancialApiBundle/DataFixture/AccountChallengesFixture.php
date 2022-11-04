@@ -24,7 +24,9 @@ class AccountChallengesFixture extends Fixture implements DependentFixtureInterf
     public function load(ObjectManager $orm)
     {
         $challenge = $orm->getRepository(Challenge::class)->find(4);
-        $this->createAccountChallengeForAllAccounts($orm, $challenge);
+        if($challenge){
+            $this->createAccountChallengeForAllAccounts($orm, $challenge);
+        }
     }
 
     /**

@@ -5,7 +5,9 @@ namespace App\FinancialApiBundle\Controller\Open;
 use App\FinancialApiBundle\Entity\Activity;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
+use DoctrineExtensions\Query\Mysql\Exp;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\BaseApiController;
@@ -38,13 +40,15 @@ class MapController extends BaseApiController{
         $campaign = $request->query->get('campaigns');
         $campaign_code = $request->query->get('campaign_code');
         $search = $request->query->get('search');
+        $badge_id = $request->query->get('badge_id', null);
         $account_subtype = strtoupper($request->query->get('subtype', ''));
         $only_with_offers = $request->query->get('only_with_offers', 0);
         $rect_box = $request->query->get('rect_box', [-90.0, -90.0, 90.0, 90.0]);
         $activity_id = $request->query->get('activity_id');
+        $is_commerce_verd = $request->query->get('is_commerce_verd', false);
         $hasActivity = isset($activity_id) and is_numeric($activity_id);
 
-        if (!in_array($account_subtype, ["RETAILER", "WHOLESALE", ""])) {
+        if (!in_array($account_subtype, [Group::ACCOUNT_SUBTYPE_RETAILER, Group::ACCOUNT_SUBTYPE_WHOLESALE, ""])) {
             throw new HttpException(400, "Invalid subtype '$account_subtype', valid options: 'retailer', 'wholesale'");
         }
 
@@ -81,7 +85,7 @@ class MapController extends BaseApiController{
         $and->add($qb->expr()->gt('a.longitude', $rect_box[1]));
         $and->add($qb->expr()->lt('a.longitude', $rect_box[3]));
 
-        $and->add($qb->expr()->eq('a.type', $qb->expr()->literal('COMPANY')));
+        $and->add($qb->expr()->eq('a.type', $qb->expr()->literal(Group::ACCOUNT_TYPE_ORGANIZATION)));
 
         if (isset($campaign)) $and->add($qb->expr()->eq('cp.id', $campaign));
         if (isset($campaign_code)) $and->add($qb->expr()->eq('cp.code', $qb->expr()->literal($campaign_code)));
@@ -100,6 +104,7 @@ class MapController extends BaseApiController{
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
         }
         if($hasActivity) {
+            //TODO no coge los parents, el de user si
             $a_qb = $em->createQueryBuilder();
             $activities = $a_qb
                 ->select('ac')
@@ -109,7 +114,7 @@ class MapController extends BaseApiController{
                 ->getResult();
             $activities_ids = [];
             foreach($activities as $activity){
-                array_push($activities_ids, $activity->getId());
+                $activities_ids[] = $activity->getId();
             }
             $and->add($qb->expr()->in('a.activity_main', $activities_ids));
         }
@@ -121,6 +126,21 @@ class MapController extends BaseApiController{
             ->leftJoin('a.category', 'c')
             ->leftJoin('a.campaigns', 'cp')
             ->where($and);
+
+        if($badge_id){
+            $qb->innerJoin('a.badges', 'bg', Join::WITH, 'bg.id = :badge_id')->setParameter('badge_id', $badge_id);
+        }
+
+        //this filter is not used anywhere, future feature
+        if($is_commerce_verd === '1' || $is_commerce_verd === 'true'){
+            $greenCommerceActivity = $em->getRepository(Activity::class)->findOneBy(array(
+                'name' => Activity::GREEN_COMMERCE_ACTIVITY
+            ));
+
+            if($greenCommerceActivity){
+                $qb->innerJoin('a.activities', 'ag', Join::WITH, 'ag.id = :commerce_id')->setParameter('commerce_id', $greenCommerceActivity->getId());
+            }
+        }
 
         $select = 'a.id, ' .
             'a.name, ' .
@@ -155,7 +175,8 @@ class MapController extends BaseApiController{
 
         $elements = $this->secureOutput($elements);
 
-        for($i = 0; $i < count($elements); $i++){
+        $iMax = count($elements);
+        for($i = 0; $i < $iMax; $i++){
             $offersInGroup = $em
                 ->createQuery('SELECT o FROM '.Offer::class.' o WHERE o.company = :companyid AND o.active = :active')
                 ->setParameters(array(
@@ -164,6 +185,10 @@ class MapController extends BaseApiController{
                 ->getResult();
 
             $elements[$i]["offers"] = $offersInGroup;
+            /** @var Group $account */
+            $account = $em->getRepository(Group::class)->find($elements[$i]["id"]);
+            $elements[$i]['is_commerce_verd'] = $account->isGreenCommerce();
+
         }
 
 
@@ -172,7 +197,7 @@ class MapController extends BaseApiController{
             "ok",
             "Request successful",
             array(
-                'total' => sizeof($elements),
+                'total' => count($elements),
                 'elements' => $elements
             )
         );

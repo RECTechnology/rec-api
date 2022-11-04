@@ -371,9 +371,12 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $account->setName($faker->name);
         }
         if ($type == self::ACCOUNT_TYPE_ORGANIZATION) {
-            $activity = $orm->getRepository(Activity::class)->find(['id' => $tier]);
-            $account->setActivityMain($activity);
-            $account->addActivity($activity);
+            $activity = $orm->getRepository(Activity::class)->find($tier);
+            if($activity){
+                $account->setActivityMain($activity);
+                $account->addActivity($activity);
+            }
+
             $badge = $orm->getRepository(Badge::class)->find(['id' => 0]);
             //$account->addBadge($badge);
         }
@@ -469,7 +472,8 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     public function getDependencies(){
         return [
             UserFixture::class,
-            TierFixture::class
+            TierFixture::class,
+            ActivityFixture::class
         ];
     }
 }

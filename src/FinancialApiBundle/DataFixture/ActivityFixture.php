@@ -8,7 +8,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 
-class ActivityFixture extends Fixture implements DependentFixtureInterface {
+class ActivityFixture extends Fixture {
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -40,11 +40,5 @@ class ActivityFixture extends Fixture implements DependentFixtureInterface {
         $orm->persist($activity);
         $orm->flush();
         return $activity;
-    }
-
-    public function getDependencies(){
-        return [
-            UserFixture::class,
-        ];
     }
 }
