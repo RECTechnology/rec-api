@@ -42,6 +42,7 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
 
             $nonces = [];
             //$nonce = $web3Manager->get_nonce();
+            /** @var NFTTransaction $nft_transaction */
             foreach ( $nft_transactions as $nft_transaction ) {
                 $response = null;
                 try{
@@ -127,9 +128,10 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                     $output->writeln("Response error-> ". $response['error']." message -> ".$response['message']);
                     //check if it was successfull tx
                     if($response['error'] == '' and strlen($response['message']) == 66){
-                        $nonces[$sender_id] += 1;
+                        ++$nonces[$sender_id];
                         $nft_transaction->setTxId($response['message']);
                         $nft_transaction->setStatus(NFTTransaction::STATUS_PENDING);
+                        $nft_transaction->setErrorLog(null);
                         $em->persist($nft_transaction);
                         $em->flush();
                         $output->writeln("NFT transaction from " .$sender_id. " to ".$receiver_id." success");
@@ -164,11 +166,16 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                                 $em->flush();
                             }
 
+                        }else{
+                            $nft_transaction->setErrorLog($code);
+                            $nft_transaction->setStatus(NFTTransaction::STATUS_FAILED);
+                            $em->flush();
+                            $output->writeln("NFT transaction from " .$sender_id. " to ".$receiver_id." error, log saved");
                         }
                     }
 
                 }else{
-                    $output->writeln("NFT transaction from " .$sender_id. " to ".$receiver_id." failed");
+                    $output->writeln("NFT transaction from " .$sender_id. " to ".$receiver_id." failed with no response");
                 }
 
             }

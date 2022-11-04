@@ -96,6 +96,12 @@ class NFTTransaction extends AppObject
     private $token_reward;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $error_log;
+
+    /**
      * @return mixed
      */
     public function getMethod()
@@ -253,6 +259,22 @@ class NFTTransaction extends AppObject
     public function setTokenReward($token_reward): void
     {
         $this->token_reward = $token_reward;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getErrorLog()
+    {
+        return $this->error_log;
+    }
+
+    /**
+     * @param mixed $error_log
+     */
+    public function setErrorLog($error_log): void
+    {
+        $this->error_log = $error_log;
     }
 
 }
