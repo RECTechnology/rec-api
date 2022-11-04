@@ -553,6 +553,8 @@ class UsersController extends BaseApiController{
     {
         $user = $container->getParameter('labsmobile_user');
         $pass = $container->getParameter('labsmobile_pass');
+        $sender = $container->getParameter('labsmobile_sender');
+
         $text = str_replace(" ", "+", $text);
 
         $url = 'http://api.labsmobile.com/get/send.php?';
@@ -560,6 +562,7 @@ class UsersController extends BaseApiController{
         $url .= 'password=' . $pass . '&';
         $url .= 'msisdn=' . $prefix . $number . '&';
         $url .= 'message=' . $text . '&';
+        $url .= 'sender=' . $sender;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

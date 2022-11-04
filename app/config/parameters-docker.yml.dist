@@ -55,6 +55,7 @@ parameters:
 
     labsmobile_user: "$LABSMOBILE_USER"
     labsmobile_pass: "$LABSMOBILE_PASS"
+    labsmobile_sender: "$LABSMOBILE_SENDER"
 
     csv_dir: /csv_dir
     uploads_dir: /api/web/static
