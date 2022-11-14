@@ -125,8 +125,9 @@ class SendWeeklyB2BReportCommand extends SynchronizedContainerAwareCommand
             $awards = $em->getRepository(AccountAward::class)->findBy(array(
                 'account' => $account
             ));
+            /** @var AccountAward $award */
             foreach ($awards as $award){
-                $report[] = array($account->getId(), $account->getName(), $award->getScore(), $award->getName(), $award->getLevel());
+                $report[] = array($account->getId(), $account->getName(), $award->getScore(), $award->getAward()->getName(), $award->getLevel());
             }
         }
 
