@@ -59,17 +59,31 @@ class RecCreateRoot extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output){
 
-        $email = $input->getArgument('email');
+        $email = $input->getOption('email');
+        $password = $input->getOption('password');
 
         /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
 
         $user = new User();
+        $user->setUsername('admin');
         $user->setEmail($email);
+        $user->setRoles(['ROLE_SUPER_ADMIN', 'ROLE_ADMIN']);
+        $user->setPlainPassword($password);
+
+        $user->setName('System Admin');
+        $user->setDNI('12345678A');
+        $user->setPrefix('34');
+        $user->setPhone('123456789');
 
         $em->persist($user);
         $account = new Group();
+        $account->setName('System Admin');
+        $account->setRecAddress('CHANGE_ME');
+        $account->setMethodsList([]);
+        $account->setCif('12345678A');
+        $account->setActive(true);
 
         $em->persist($account);
 
