@@ -41,6 +41,24 @@ class ConfigurationSetting extends AppObject
     private $value;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    private $type;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    private $platform;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Package")
+     * @Serializer\Groups({"admin"})
+     */
+    private $package;
+
+    /**
      * @return mixed
      */
     public function getScope()
@@ -86,5 +104,53 @@ class ConfigurationSetting extends AppObject
     public function setValue($value): void
     {
         $this->value = $value;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type): void
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param mixed $platform
+     */
+    public function setPlatform($platform): void
+    {
+        $this->platform = $platform;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPackage()
+    {
+        return $this->package;
+    }
+
+    /**
+     * @param mixed $package
+     */
+    public function setPackage($package): void
+    {
+        $this->package = $package;
     }
 }
