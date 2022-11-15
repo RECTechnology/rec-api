@@ -9,6 +9,7 @@ use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use App\FinancialApiBundle\Entity\Document;
 use App\FinancialApiBundle\Entity\DocumentKind;
+use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\SmsTemplates;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\UsersSmsLogs;
@@ -116,7 +117,12 @@ class AccountController extends BaseApiController {
             $receiver_address = $transaction->getPayOutInfo()['address'];
             /** @var Group $receiver_account */
             $receiver_account = $em->getRepository(Group::class)->findOneBy(array('rec_address' => $receiver_address));
-            if($receiver_account->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
+            if(!$receiver_account){
+                /** @var PaymentOrder $payment_order */
+                $payment_order = $em->getRepository(PaymentOrder::class)->findOneBy(array('payment_address' => $receiver_address));
+                $receiver_account = $payment_order->getPos()->getAccount();
+            }
+            if($receiver_account && $receiver_account->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
                 $total_purchases++;
             }
             $total_spent += $transaction->getAmount();
