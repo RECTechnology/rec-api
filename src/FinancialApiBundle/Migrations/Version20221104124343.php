@@ -33,13 +33,13 @@ final class Version20221104124343 extends AbstractMigration
 
         $now = new \DateTime();
         $packages = [
-            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'b2b_atarca', 'purchased' => false],
-            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'bulk_mailing', 'purchased' => false],
-            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'badges', 'purchased' => false],
-            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'reports', 'purchased' => false],
-            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'challenges', 'purchased' => false],
-            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'nft_wallet', 'purchased' => false],
-            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'qualifications', 'purchased' => false],
+            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'b2b_atarca', 'purchased' => 0],
+            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'bulk_mailing', 'purchased' => 0],
+            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'badges', 'purchased' => 0],
+            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'reports', 'purchased' => 0],
+            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'challenges', 'purchased' => 0],
+            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'nft_wallet', 'purchased' => 0],
+            ['created' => $now->format('Y-m-d H:i:s'), 'updated' => $now->format('Y-m-d H:i:s'), 'name' => 'qualifications', 'purchased' => 0],
         ];
         foreach ($packages as $package){
             $this->addSql('INSERT INTO Package (created, updated, name, purchased) VALUES (:created, :updated, :name, :purchased)', $package);
