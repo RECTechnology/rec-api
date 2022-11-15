@@ -102,3 +102,8 @@ parameters:
     atarca_web3_api_url: $ATARCA_WEB3_API_URL
 
     resume_admin_emails_list: $RESUME_ADMIN_EMAILS_LIST
+
+    landing_domain: $LANDING_DOMAIN
+    logo_url: $LOGO_URL
+    primary_color: $PRIMARY_COLOR
+    secondary_color: $SECONDARY_COLOR

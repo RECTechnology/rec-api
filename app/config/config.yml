@@ -37,6 +37,11 @@ twig:
     strict_variables: "%kernel.debug%"
     #exception_controller: FOS\RestBundle\Controller\ExceptionController::showAction
     #exception_controller: App\FinancialApiBundle\Exception\ExceptionController::showAction
+    globals:
+        landing_domain: '%landing_domain%'
+        logo_url: '%logo_url%'
+        primary_color: '%primary_color%'
+        secondary_color: '%secondary_color%'
 
 monolog:
     handlers:

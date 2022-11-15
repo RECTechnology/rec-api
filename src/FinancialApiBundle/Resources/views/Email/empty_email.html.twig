@@ -20,11 +20,11 @@
             margin: 0 auto;
             padding: 60px 0 20px;
             /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#218fec+48,1976cb+100 */
-            background: #218fec; /* Old browsers */
-            background: -moz-radial-gradient(center, ellipse cover,  #218fec 48%, #1976cb 100%); /* FF3.6-15 */
-            background: -webkit-radial-gradient(center, ellipse cover,  #218fec 48%,#1976cb 100%); /* Chrome10-25,Safari5.1-6 */
-            background: radial-gradient(ellipse at center,  #218fec 48%,#1976cb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#218fec', endColorstr='#1976cb',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+            background: {{ primary_color }}; /* Old browsers */
+            background: -moz-radial-gradient(center, ellipse cover,  {{ primary_color }} 48%, {{ secondary_color }} 100%); /* FF3.6-15 */
+            background: -webkit-radial-gradient(center, ellipse cover,  {{ primary_color }} 48%, {{ secondary_color }} 100%); /* Chrome10-25,Safari5.1-6 */
+            background: radial-gradient(ellipse at center,  {{ primary_color }} 48%,{{ secondary_color }} 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='{{ primary_color }}', endColorstr='{{ secondary_color }}',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
         }
         header img{
             width: 50px;
@@ -55,7 +55,7 @@
             text-align: center;
         }
         article a{
-            color: #218FEC;
+            color: {{ primary_color }};
         }
 
         footer{
@@ -77,7 +77,7 @@
 </head>
 <body>
 <header>
-    <img src="https://chip-chap.com/images/chip-chap_white.png">
+    <img src="{{ logo_url }}">
     <h1>{{ mail.subject }}</h1>
 </header>
 <article>
@@ -85,7 +85,7 @@
     {{ mail.body | raw }}
 </article>
 <footer>
-    <a href="https://rec.barcelona/">rec.barcelona</a>
+    <a href="https://{{ landing_domain }}">{{ landing_domain }}</a>
 </footer>
 </body>
 </html>

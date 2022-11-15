@@ -44,6 +44,11 @@ parameters:
     base_url: 'http://dev-api.app.net/test'
 #Admin panel url
     base_panel_url: 'http://dev-cp.app.net/app_dev.php'
+#Twig variables
+    landing_domain: "rec.barcelona"
+    logo_url: "https://rec.barcelona/wp-content/uploads/2018/04/logog_REC_Blanc-300x72.png"
+    primary_color: "#218fec"
+    secondary_color: "#1976cb"
 
 #minimum confirmations to accept rec transactions
     rec_min_confirmations: 1
