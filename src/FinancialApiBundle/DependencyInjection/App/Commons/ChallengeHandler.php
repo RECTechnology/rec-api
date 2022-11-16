@@ -85,7 +85,7 @@ class ChallengeHandler
         switch ($challenge->getAction()){
             case Challenge::ACTION_TYPE_BUY:
                 if($receiver->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
-                    if($challenge->getBadges()){
+                    if(!$challenge->getBadges()->isEmpty()){
                         $this->logger->info('CHALLENGE_HANDLER challenge has badges');
                         if($this->accountIsBadgeAware($receiver, $challenge)){
                             $this->logger->info('CHALLENGE_HANDLER challenge is badges aware');
