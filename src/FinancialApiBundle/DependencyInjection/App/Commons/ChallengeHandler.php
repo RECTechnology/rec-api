@@ -81,28 +81,34 @@ class ChallengeHandler
         $em = $this->doctrine->getManager();
         /** @var Group $receiver */
         $receiver = $em->getRepository(Group::class)->find($receiver_id);
-
+        $this->logger->info('CHALLENGE_HANDLER checking is challenge aware');
         switch ($challenge->getAction()){
             case Challenge::ACTION_TYPE_BUY:
                 if($receiver->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
                     if($challenge->getBadges()){
+                        $this->logger->info('CHALLENGE_HANDLER challenge has badges');
                         if($this->accountIsBadgeAware($receiver, $challenge)){
+                            $this->logger->info('CHALLENGE_HANDLER challenge is badges aware');
                             return true;
                         }
                     }else{
+                        $this->logger->info('CHALLENGE_HANDLER challenge without badges');
                         return true;
                     }
                 }
                 break;
             case Challenge::ACTION_TYPE_SEND:
                 if($receiver->getType() === Group::ACCOUNT_TYPE_PRIVATE){
+                    $this->logger->info('CHALLENGE_HANDLER challenge send private');
                     return true;
                 }
                 break;
             default:
+                $this->logger->info('CHALLENGE_HANDLER challenge default false');
                 return false;
         }
 
+        $this->logger->info('CHALLENGE_HANDLER challenge raised final return');
         return false;
     }
 
