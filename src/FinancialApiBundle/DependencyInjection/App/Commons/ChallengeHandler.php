@@ -25,6 +25,7 @@ class ChallengeHandler
     }
 
     public function getChallengeTotals(Group $account, $challenge){
+        $this->logger->info('CHALLENGE_HANDLER checking totals');
         $transactions = $this->dm->getRepository(Transaction::class)->findTransactions(
             $account,
             $challenge->getStartDate(),
@@ -37,11 +38,14 @@ class ChallengeHandler
         //check if this transactions sum more than amount required
         $totalAmount = 0;
         $totalTransactions = 0;
+        $this->logger->info('CHALLENGE_HANDLER total tx found: '.count($transactions));
         foreach ($transactions as $transaction){
             //only out transactions count
             if($transaction->getType() === Transaction::$TYPE_OUT && $transaction->getInternal() === false){
+                $this->logger->info('CHALLENGE_HANDLER checking tx');
                 //check challenge constraints for every tx
                 if($this->isChallengeAware($challenge, $transaction)){
+                    $this->logger->info('CHALLENGE_HANDLER is challenge aware');
                     $totalAmount+=$transaction->getAmount();
                     $totalTransactions++;
                 }
@@ -59,13 +63,13 @@ class ChallengeHandler
         if($totalAmount >= $challenge->getAmountRequired()){
             //constraint success
             $amount_required_constraint = true;
-            $this->logger->info('SUCCESS_PURCHASE_SUBSCRIBER: total amount achieved');
+            $this->logger->info('CHALLENGE_HANDLER: total amount achieved');
         }
 
         if($totalTransactions >= $challenge->getThreshold()){
             //success constraint
             $threshold_constraint = true;
-            $this->logger->info('SUCCESS_PURCHASE_SUBSCRIBER: total transactions achieved');
+            $this->logger->info('CHALLENGE_HANDLER: total transactions achieved');
         }
 
         return [$amount_required_constraint, $threshold_constraint];

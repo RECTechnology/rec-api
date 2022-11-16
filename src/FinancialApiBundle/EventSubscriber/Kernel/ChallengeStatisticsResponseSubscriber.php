@@ -41,7 +41,7 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
     }
 
     public function onResponse(FilterResponseEvent $event){
-        $logger = $this->container->get('logger');
+        $logger = $this->container->get('challenge.logger');
         if(!$event->isMasterRequest()){
             return;
         }
@@ -59,16 +59,17 @@ class ChallengeStatisticsResponseSubscriber implements EventSubscriberInterface
             $hidrated_elements = [];
             foreach ($elements as $element){
                 //check if challenge is achieved, if achieved ignore
+                $challenge = $this->em->getRepository(Challenge::class)->find($element['id']);
                 $account_challenge = $this->em->getRepository(AccountChallenge::class)->findOneBy(array(
                     'account' => $account,
-                    'challenge' => $element
+                    'challenge' => $challenge
                 ));
 
                 if(!$account_challenge){
+                    $logger->info("CHALLENGE_STATISTICS_RESPONSE -> account NO has challenge");
                     /** @var ChallengeHandler $challenge_handler */
                     $challenge_handler = $this->container->get('net.app.commons.challenge_handler');
                     //we need to convert the challenge array in object to pass it to chalenge handler
-                    $challenge = $this->em->getRepository(Challenge::class)->find($element['id']);
 
                     [$totalAmount, $totalTransactions] = $challenge_handler->getChallengeTotals($account, $challenge);
 

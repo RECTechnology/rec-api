@@ -136,7 +136,7 @@ services:
         arguments:
             - "@doctrine"
             - "@service_container"
-            - "@discourse.logger"
+            - "@challenge.logger"
 
     net.app.transactions.core.utils:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionUtils
