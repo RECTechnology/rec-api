@@ -19,19 +19,15 @@
             margin: 0 auto;
             padding: 60px 0 20px;
             /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#218fec+48,1976cb+100 */
-            background: #218fec; /* Old browsers */
-            background: -moz-radial-gradient(center, ellipse cover,  #218fec 48%, #1976cb 100%); /* FF3.6-15 */
-            background: -webkit-radial-gradient(center, ellipse cover,  #218fec 48%,#1976cb 100%); /* Chrome10-25,Safari5.1-6 */
-            background: radial-gradient(ellipse at center,  #218fec 48%,#1976cb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#218fec', endColorstr='#1976cb',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+            background: {{ primary_color }}; /* Old browsers */
         }
 
         header img{
-            width: 50px;
+            width: 150px;
             display: block;
             margin: 0 auto;
         }
-        h1{
+        h3{
             font-weight: lighter;
             text-align: center;
             color: #fff;
@@ -78,7 +74,7 @@
 <body>
 <header>
     <img src="{{ company.companyImage }}">
-    <h1>Welcome to b</h1>
+    <h3>Welcome to b</h3>
 </header>
 <article>
     <p>Bienvenido al sistema de pagos de b. Desde nuestro sistema puedes controlar todas tus transacciónes.
