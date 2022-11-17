@@ -34,6 +34,8 @@ class QualificationHandler implements QualificationHandlerInterface
         $reviewer = $this->getReviewerFromTx($tx);
         $receiver = $this->getReceiverFromTx($tx);
 
+        $this->resetOldPreviousPendingQualifications($reviewer);
+
         if($this->isTxQualificable($tx)){
             $badges = $this->getRandomBadges(9);
             foreach ($badges as $badge){
@@ -49,12 +51,25 @@ class QualificationHandler implements QualificationHandlerInterface
             $em->flush();
         }
 
-
     }
 
     private function getAllBadges(){
         $em = $this->getEntityManager();
         return $em->getRepository(Badge::class)->findAll();
+    }
+
+    private function resetOldPreviousPendingQualifications(Group $reviewer){
+        $em = $this->getEntityManager();
+        $pendingQualifications = $em->getRepository(Qualification::class)->findBy(array(
+            'reviewer' => $reviewer,
+            'status' => Qualification::STATUS_PENDING
+        ));
+
+        /** @var Qualification $qualification */
+        foreach ($pendingQualifications as $qualification){
+            $qualification->setStatus(Qualification::STATUS_IGNORED);
+        }
+        $em->flush();
     }
 
     private function getRandomBadges($limit){
