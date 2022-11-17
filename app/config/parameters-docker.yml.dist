@@ -105,5 +105,5 @@ parameters:
 
     landing_domain: $LANDING_DOMAIN
     logo_url: $LOGO_URL
-    primary_color: $PRIMARY_COLOR
-    secondary_color: $SECONDARY_COLOR
+    primary_color: "$PRIMARY_COLOR"
+    secondary_color: "$SECONDARY_COLOR"
