@@ -11,6 +11,7 @@ namespace App\FinancialApiBundle\Controller;
 use App\FinancialApiBundle\Exception\AppException;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use DateTime;
+use DateTimeInterface;
 use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -356,10 +357,14 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                             $sentValue = $value;
                             $value = DateTime::createFromFormat(DateTime::ISO8601 , $sentValue);
                             if(!$value){
-                                $value = DateTime::createFromFormat(DateTime::RFC3339_EXTENDED , $sentValue);
-                                if(!$value) throw new HttpException(
-                                    400, "Invalid datetime parameter, value must be ISO8601 or RFC3339 compliant"
-                                );
+                                $value = DateTime::createFromFormat(DateTimeInterface::RFC3339_EXTENDED , $sentValue);
+                                if(!$value){
+                                    $sentValue .= 'Z';
+                                    $value = DateTime::createFromFormat(DateTimeInterface::RFC3339_EXTENDED , $sentValue);
+                                    if(!$value) throw new HttpException(
+                                        400, "Invalid datetime parameter, value must be ISO8601 or RFC3339 compliant"
+                                    );
+                                }
                             }
                         }
                     }

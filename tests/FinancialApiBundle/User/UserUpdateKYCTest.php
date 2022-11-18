@@ -60,6 +60,37 @@ class UserUpdateKYCTest extends BaseApiTest
         self::assertEquals($kyc['street_name'], 'Barraca');
     }
 
+    function testUpdateDateBirthRetroCompatibilityV3ShouldWork()
+    {
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = '/user/v3/kycs/1';
+        //Current format
+        $params = [
+            "dateBirth" => "2002-01-01T00:00:00.000Z"
+        ];
+        $resp = $this->requestJson('PUT', $route, $params);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        //retro compatibility format
+        $params = [
+            "dateBirth" => "2002-01-01T00:00:00.000"
+        ];
+        $resp = $this->requestJson('PUT', $route, $params);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+
+    }
+
     function testUpdateKycProtectedFieldsShouldFailV3()
     {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
