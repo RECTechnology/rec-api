@@ -556,6 +556,7 @@ class UsersController extends BaseApiController{
         $sender = $container->getParameter('labsmobile_sender');
 
         $text = str_replace(" ", "+", $text);
+        $sender = str_replace(" ", "+", $sender);
 
         $url = 'http://api.labsmobile.com/get/send.php?';
         $url .= 'username=' . $user . '&';
