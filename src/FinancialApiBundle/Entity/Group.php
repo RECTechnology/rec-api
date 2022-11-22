@@ -139,15 +139,11 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
-     * @Serializer\Groups({"user"})
-     *
      */
     private $limits;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\ServiceFee", mappedBy="group", cascade={"remove"})
-     * @Serializer\Groups({"user"})
-     *
      */
     private $commissions;
 
@@ -172,7 +168,6 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\LimitCount", mappedBy="group", cascade={"remove"})
-     * @Serializer\Groups({"user"})
      */
     private $limit_counts;
 
@@ -451,7 +446,6 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
-     * @Serializer\Groups({"admin"})
      */
     private $cash_in_tokens;
 
@@ -481,7 +475,6 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Pos", mappedBy="account")
-     * @Serializer\Groups({"user"})
      */
     private $pos;
 
