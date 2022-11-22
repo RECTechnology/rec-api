@@ -11,6 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
 
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation\Exclude;
 
 /**
  * @ORM\Entity
@@ -139,11 +140,13 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
+     * @Exclude()
      */
     private $limits;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\ServiceFee", mappedBy="group", cascade={"remove"})
+     * @Exclude()
      */
     private $commissions;
 
@@ -162,18 +165,21 @@ class Group extends BaseGroup implements Uploadable
     /**
      * @ORM\Column(type="text")
      * @Serializer\Groups({"admin"})
+     * @Exclude()
      */
     private $nft_wallet_pk = '';
 
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\LimitCount", mappedBy="group", cascade={"remove"})
+     * @Exclude()
      */
     private $limit_counts;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
+     * @Exclude()
      */
     private $access_key;
 
@@ -194,6 +200,7 @@ class Group extends BaseGroup implements Uploadable
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
+     * @Exclude()
      */
     private $access_secret;
 
@@ -206,17 +213,19 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @Serializer\Groups({"user"})
+     * @Exclude()
      */
     private $allowed_methods = array();
 
     /**
      * @Serializer\Groups({"user"})
+     * @Exclude()
      */
     private $limit_configuration = array();
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Balance", mappedBy="group", cascade={"remove"})
-     * @Serializer\Exclude
+     * @Exclude()
      * @Serializer\Groups({"user"})
      */
     private $balance;
@@ -229,7 +238,7 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Client", mappedBy="group", cascade={"remove"})
-     * @Serializer\Exclude
+     * @Exclude()
      * @Serializer\Groups({"user"})
      * @Serializer\MaxDepth(1)
      */
@@ -446,6 +455,7 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
+     * @Exclude()
      */
     private $cash_in_tokens;
 
@@ -475,6 +485,7 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Pos", mappedBy="account")
+     * @Exclude()
      */
     private $pos;
 

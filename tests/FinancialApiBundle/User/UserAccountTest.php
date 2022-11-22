@@ -28,6 +28,12 @@ class UserAccountTest extends BaseApiTest
         $content = json_decode($resp->getContent(),true);
         $data = $content['data'];
         self::assertArrayHasKey('bank_cards', $data);
+        $accounts = $data['accounts'];
+        self::assertArrayNotHasKey('commissions', $accounts[0]);
+        self::assertArrayNotHasKey('cash_in_tokens', $accounts[0]);
+        self::assertArrayNotHasKey('allowed_methods', $accounts[0]);
+        self::assertArrayNotHasKey('limit_configuration', $accounts[0]);
+        self::assertArrayNotHasKey('limit_counts', $accounts[0]);
     }
 
     function testUserAccountResumeShouldWork()
