@@ -84,6 +84,7 @@ class MapTest extends BaseApiTest {
         foreach ($accounts as $account){
             self::assertTrue($account["offers"][0]["active"]);
             self::assertArrayHasKey('is_commerce_verd', $account);
+            self::assertArrayHasKey('is_cultural', $account);
         }
     }
 

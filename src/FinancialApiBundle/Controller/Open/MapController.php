@@ -188,6 +188,7 @@ class MapController extends BaseApiController{
             /** @var Group $account */
             $account = $em->getRepository(Group::class)->find($elements[$i]["id"]);
             $elements[$i]['is_commerce_verd'] = $account->isGreenCommerce();
+            $elements[$i]['is_cultural'] = $account->isCultural();
 
         }
 

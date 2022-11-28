@@ -1977,4 +1977,18 @@ class Group extends BaseGroup implements Uploadable
 
         return false;
     }
+
+    /**
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("is_cultural")
+     */
+    public function isCultural(): bool
+    {
+        /** @var Activity $activity */
+        foreach ($this->activities as $activity){
+            if($activity->getName() === Activity::CULTURE_ACTIVITY) return true;
+        }
+
+        return false;
+    }
 }
