@@ -28,3 +28,4 @@
 0    0   * * 1 www-data timeout 3000 /usr/bin/rec rec:b2b:weekly:report >> /api/var/logs/cron-report-email.log 2>&1
 
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:challenges:manage >> /api/var/logs/cron-challenges.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:check:campaign:thresholds >> /api/var/logs/cron-campaigns.log 2>&1

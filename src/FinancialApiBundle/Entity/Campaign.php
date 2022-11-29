@@ -115,6 +115,18 @@ class Campaign extends AppObject {
     protected $url_tos;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    protected $bonus_ending_threshold;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    protected $ending_alert = false;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -372,6 +384,38 @@ class Campaign extends AppObject {
     public function setBonusEnabled($bonus_enabled): void
     {
         $this->bonus_enabled = $bonus_enabled;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBonusEndingThreshold()
+    {
+        return $this->bonus_ending_threshold;
+    }
+
+    /**
+     * @param mixed $bonus_ending_threshold
+     */
+    public function setBonusEndingThreshold($bonus_ending_threshold): void
+    {
+        $this->bonus_ending_threshold = $bonus_ending_threshold;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEndingAlert()
+    {
+        return $this->ending_alert;
+    }
+
+    /**
+     * @param mixed $ending_alert
+     */
+    public function setEndingAlert($ending_alert): void
+    {
+        $this->ending_alert = $ending_alert;
     }
 
 }
