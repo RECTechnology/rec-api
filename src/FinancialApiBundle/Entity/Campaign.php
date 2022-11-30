@@ -61,7 +61,7 @@ class Campaign extends AppObject {
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="campaigns")
      * @Serializer\MaxDepth(3)
-     * @Serializer\Groups({"public"})
+     * @Serializer\Groups({"admin"})
      */
     private $accounts;
 
