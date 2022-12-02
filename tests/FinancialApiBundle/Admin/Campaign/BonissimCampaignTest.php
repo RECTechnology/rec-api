@@ -30,6 +30,7 @@ class BonissimCampaignTest extends AdminApiTest {
         self::assertTrue(isset($campaign));
         $bonissim_account = $this->rest('GET', "/admin/v3/accounts?campaigns=".$campaign->id)[0];
         self::assertTrue(isset($bonissim_account));
+        self::assertCount(1, $bonissim_account->campaigns);
 
         $route = '/admin/v3/accounts/'.$bonissim_account->id.'/campaigns/'.$campaign->id;
         $resp = $this->requestJson('DELETE', $route);
@@ -38,11 +39,12 @@ class BonissimCampaignTest extends AdminApiTest {
         $campaign = $this->rest('GET', "/admin/v3/campaign/".$campaign->id);
         self::assertTrue(isset($campaign));
         $bonissim_account = $this->rest('GET', "/admin/v3/group/".$bonissim_account->id);
+        $accounts = $this->rest('GET', "/admin/v3/accounts?campaigns=".$campaign->id);
         self::assertTrue(isset($bonissim_account));
 
         self::assertCount(0, $bonissim_account->campaigns);
 
-        foreach($campaign->accounts as $account){
+        foreach($accounts as $account){
             self::assertFalse($bonissim_account->id == $account->id);
         }
     }
@@ -61,6 +63,7 @@ class BonissimCampaignTest extends AdminApiTest {
             }
         }
         self::assertTrue(isset($not_bonissim_account));
+        self::assertCount(0, $not_bonissim_account->campaigns);
 
         $route = '/admin/v3/accounts/'.$not_bonissim_account->id.'/campaigns';
         $resp = $this->requestJson('POST', $route, ["id" => $campaign->id]);
@@ -70,12 +73,13 @@ class BonissimCampaignTest extends AdminApiTest {
         $campaign = $this->rest('GET', "/admin/v3/campaign/".$campaign->id);
         self::assertTrue(isset($campaign));
         $not_bonissim_account = $this->rest('GET', "/admin/v3/group/".$not_bonissim_account->id);
+        $accounts = $this->rest('GET', "/admin/v3/accounts?campaigns=".$campaign->id);
         self::assertTrue(isset($not_bonissim_account));
 
         self::assertCount(1, $not_bonissim_account->campaigns);
 
         $relation = false;
-        foreach($campaign->accounts as $account){
+        foreach($accounts as $account){
             if($not_bonissim_account->id == $account->id){
                 $relation = true;
             }
@@ -106,6 +110,20 @@ class BonissimCampaignTest extends AdminApiTest {
         $resp = $this->requestJson('PUT', '/user/v4/campaign/accept_tos', ["campaign_code" => $campaign->code]);
         $user = $this->getFromRoute('/admin/v3/user/1');
         self::assertTrue($user['data']['private_tos_campaign']);
+    }
+
+    function testIndex()
+    {
+        $resp = $this->requestJson('GET', '/admin/v3/campaigns');
+        self::assertEquals(
+            200,
+            $resp->getStatusCode()
+        );
+
+        $content = json_decode($resp->getContent(),true);
+        $elements = $content['data']['elements'];
+
+        self::assertArrayNotHasKey('accounts', $elements[0]);
     }
 
 }
