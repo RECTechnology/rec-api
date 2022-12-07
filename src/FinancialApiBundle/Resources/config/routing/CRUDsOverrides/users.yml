@@ -1,0 +1,9 @@
+##################### USER_ USERS ############################
+user_v3_delete:
+  path:  /{role}/v3/{object}/{id}
+  defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\UsersController::deleteAction }
+  methods: [DELETE]
+  requirements:
+    role: "(user|manager|self)"
+    object: "(user|users)"
+    id: "[0-9]+"

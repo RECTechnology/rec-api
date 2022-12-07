@@ -35,6 +35,10 @@ CRUD_token_rewards_overrides:
 CRUD_account_challenges_overrides:
     resource: routing/CRUDsOverrides/account_challenges.yml
 
+CRUD_user_overrides:
+    resource: routing/CRUDsOverrides/users.yml
+
+
 CRUD:
     resource: routing/crud.yml
 

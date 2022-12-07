@@ -167,4 +167,5 @@ class UserUpdateKYCTest extends BaseApiTest
             $resp->getContent()
         );
     }
+
 }
