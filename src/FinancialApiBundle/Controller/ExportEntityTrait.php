@@ -111,6 +111,7 @@ trait ExportEntityTrait {
     protected function exportForEmailAction(Request $request) {
         $request->query->set("limit", 2**31);
         $fieldMap = $request->request->get("field_map", []);
+        $filters = $request->request->get("filters", []);
         if(!$request->request->has('email')) throw new HttpException(400, "Email required");
 
         $fullClassNameParts = explode("\\", $this->getRepository()->getClassName());
@@ -120,7 +121,7 @@ trait ExportEntityTrait {
         $emailExport->setStatus(EmailExport::STATUS_CREATED);
         $emailExport->setEntityName($className);
         $emailExport->setFieldMap($fieldMap);
-        $emailExport->setQuery($request->query->all());
+        $emailExport->setQuery($filters);
         $emailExport->setEmail($request->request->get('email'));
 
         $em = $this->getDoctrine()->getManager();
