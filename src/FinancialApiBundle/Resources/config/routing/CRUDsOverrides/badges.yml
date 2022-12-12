@@ -6,7 +6,7 @@ badge_v3_search:
     methods: [GET]
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
-        object: "badges"
+        object: "(badge|badges)"
 
 badges_v3_index:
     path:  /{role}/v3/{object}
@@ -14,7 +14,7 @@ badges_v3_index:
     methods: [GET]
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
-        object: "badges"
+        object: "(badge|badges)"
 
 badge_v3_show:
     path:  /{role}/v3/{object}/{id}
@@ -22,7 +22,7 @@ badge_v3_show:
     methods: [GET]
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
-        object: "badges"
+        object: "(badge|badges)"
         id: "[0-9]+"
 
 badges_v3_export:
@@ -31,4 +31,4 @@ badges_v3_export:
     methods: [GET]
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
-        object: "badges"
+        object: "(badge|badges)"

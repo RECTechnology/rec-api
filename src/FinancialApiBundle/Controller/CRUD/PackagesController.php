@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Controller\CRUD;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PackagesController extends CRUDController
 {
@@ -24,22 +25,37 @@ class PackagesController extends CRUDController
 
     public function searchAction(Request $request, $role)
     {
-        return parent::searchAction($request, $role);
+        throw new HttpException(403, 'Method not implemented');
     }
 
     public function indexAction(Request $request, $role)
     {
-        return parent::indexAction($request, $role);
+        throw new HttpException(403, 'Method not implemented');
     }
 
     public function showAction($role, $id)
     {
-        return parent::showAction($role, $id);
+        throw new HttpException(403, 'Method not implemented');
     }
 
     public function exportAction(Request $request, $role)
     {
-        return parent::exportAction($request, $role);
+        throw new HttpException(403, 'Method not implemented');
+    }
+
+    public function createAction(Request $request, $role)
+    {
+        throw new HttpException(403, 'Method not implemented');
+    }
+
+    public function updateAction(Request $request, $role, $id)
+    {
+        throw new HttpException(403, 'Method not implemented');
+    }
+
+    public function deleteAction($role, $id)
+    {
+        throw new HttpException(403, 'Method not implemented');
     }
 
 }

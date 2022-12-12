@@ -6,7 +6,7 @@ qualifications_v3_index:
   methods: [GET]
   requirements:
     role: "(public|user|manager|self)"
-    object: "qualifications"
+    object: "(qualifications|qualification)"
 
 qualification_v3_update:
   path:  /{role}/v3/{object}/{id}
@@ -14,5 +14,5 @@ qualification_v3_update:
   methods: [PUT]
   requirements:
     role: "(public|user|manager|self)"
-    object: "qualifications"
+    object: "(qualifications|qualification)"
     id: "[0-9]+"

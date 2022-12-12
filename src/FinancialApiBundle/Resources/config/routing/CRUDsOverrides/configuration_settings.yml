@@ -7,4 +7,4 @@ configuration_settings_v3_index:
     methods: [GET]
     requirements:
         role: "(public|user|manager|admin|sadmin)"
-        object: "configuration_settings"
+        object: "(configuration_settings|configuration_setting)"
