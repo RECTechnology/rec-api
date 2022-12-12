@@ -45,7 +45,7 @@ class DocumentsTest extends BaseApiTest {
             self::assertEquals(1, $element['account']['id']);
         }
 
-        $route = "/admin/v3/documents?status=rec_submitted";
+        $route = "/admin/v3/documents?status=app_submitted";
         $resp = $this->requestJson('GET', $route);
         self::assertEquals(
             200,
@@ -56,7 +56,7 @@ class DocumentsTest extends BaseApiTest {
         $content = json_decode($resp->getContent(),true);
         $elements = $content['data']['elements'];
         foreach ($elements as $element){
-            self::assertEquals('rec_submitted', $element['status']);
+            self::assertEquals('app_submitted', $element['status']);
         }
 
         $route = "/admin/v3/documents?user_id=1";

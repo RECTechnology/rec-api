@@ -52,7 +52,7 @@ class CheckExpiredDocumentsCommand extends ContainerAwareCommand{
             ->from(Document::class, 'd')
             ->where('d.valid_until < :today')
             ->andWhere('d.status = :status')
-            ->setParameter('status', 'rec_approved')
+            ->setParameter('status', Document::STATUS_APP_APPROVED)
             ->setParameter('today', $today);
 
         return $queryBuilder->getQuery()->getResult();

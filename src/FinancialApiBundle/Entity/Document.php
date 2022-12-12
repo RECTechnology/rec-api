@@ -22,16 +22,21 @@ class Document extends AppObject implements Uploadable, Stateful {
 
     use StatefulTrait;
 
+    public const STATUS_APP_SUBMITTED = 'app_submitted';
+    public const STATUS_APP_DECLINED = 'app_declined';
+    public const STATUS_APP_EXPIRED = 'app_expired';
+    public const STATUS_APP_APPROVED = 'app_approved';
+
     /**
      * @var string $status
      * @ORM\Column(type="string")
      * @Expose
      * @StatusProperty(choices={
-     *     "rec_submitted"={"final"=false, "to"={"rec_declined", "rec_expired", "rec_approved"}},
-     *     "rec_declined"={"final"=false, "to"={"rec_submitted"}},
-     *     "rec_expired"={"final"=false, "to"={"rec_submitted"}},
-     *     "rec_approved"={"final"=false, "to"={"rec_expired"}},
-     * }, initial_statuses={"rec_submitted"})
+     *     "app_submitted"={"final"=false, "to"={"app_declined", "app_expired", "app_approved"}},
+     *     "app_declined"={"final"=false, "to"={"app_submitted"}},
+     *     "app_expired"={"final"=false, "to"={"app_submitted"}},
+     *     "app_approved"={"final"=false, "to"={"app_expired"}},
+     * }, initial_statuses={"app_submitted"})
      * @Serializer\Groups({"user"})
      */
     protected $status;

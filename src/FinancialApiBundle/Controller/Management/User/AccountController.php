@@ -1900,7 +1900,7 @@ class AccountController extends BaseApiController {
 
         if(!isset($document)){
             throw new HttpException(404, 'Document not found');
-        }elseif (!($document->getStatus() == 'rec_declined' or $document->getStatus() == 'rec_expired')){
+        }elseif (!($document->getStatus() === Document::STATUS_APP_DECLINED or $document->getStatus() == 'rec_expired')){
             throw new HttpException(404, 'Only declined or expired documents can be updated');
         }
 
@@ -1918,7 +1918,7 @@ class AccountController extends BaseApiController {
             'content' => $request->request->get('content')
         ];
         $document->setContent($request->request->get('content'));
-        $document->setStatus('rec_submitted');
+        $document->setStatus(Document::STATUS_APP_SUBMITTED);
         $em->persist($document);
         $em->flush();
 

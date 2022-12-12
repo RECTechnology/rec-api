@@ -28,7 +28,7 @@ class DocumentFixture extends Fixture implements DependentFixtureInterface {
             /** @var UserGroup $userGroup */
             foreach ($userGroups as $userGroup){
                 $document = new Document();
-                $document->setStatus('rec_submitted');
+                $document->setStatus(Document::STATUS_APP_SUBMITTED);
                 $document->setName($faker->name);
                 //Cant asign content because url is fake and there is no file there
                 //$document->setContent($faker->url);
