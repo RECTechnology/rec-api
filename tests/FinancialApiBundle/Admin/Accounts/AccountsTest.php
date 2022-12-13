@@ -133,4 +133,25 @@ class AccountsTest extends BaseApiTest
         self::assertCount(0, json_decode($resp->getContent())->data->activities);
         self::assertFalse(isset(json_decode($resp->getContent())->data->activity_main));
     }
+
+    function testExportAccountsWithFilter(){
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $route = "/admin/v3/accounts/export";
+
+        //este field_map peta en prod i en el test pero funciona en pre
+        //TODO review why we cannot send roles, enabled and pin in the field_map
+        //$field_map = '{"id":"$.id","username":"$.username","email":"$.email","enabled":"$.enabled","locked":"$.locked",
+        //"expired":"$.expired","roles":"$.roles[*]","name":"$.name","created":"$.created","dni":"$.dni",
+        //"prefix":"$.prefix","phone":"$.phone","pin":"$.pin","public_phone":"$.public_phone"}';
+
+        $field_map = '{"id": "$.id", "manager_id": "$.kyc_manager.id", "kyc_id": "$.kyc_manager.kyc_validations.id"}';
+
+        $resp = $this->request('GET', $route."?field_map={$field_map}");
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+    }
 }

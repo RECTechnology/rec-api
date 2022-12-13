@@ -98,7 +98,7 @@ class Group extends BaseGroup implements Uploadable
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\User")
      * @Serializer\Groups({"manager"})
-     * @Serializer\MaxDepth(1)
+     * @Serializer\MaxDepth(2)
      */
     private $kyc_manager;
 

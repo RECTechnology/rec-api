@@ -18,7 +18,7 @@ class AccountChallenge extends AppObject
      * This account is who get the award
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
      * @Serializer\Groups({"user"})
-     * @MaxDepth(1)
+     * @MaxDepth(2)
      */
     private $account;
 
