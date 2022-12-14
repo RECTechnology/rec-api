@@ -50,7 +50,8 @@ class UsersController extends CRUDController
                 $this->get('templating')
                     ->render($template,
                         array(
-                            'mail'   =>  ['subject' => 'User delete request', 'body' => "User with id {$user->getId()} username {$user->getUsername()} and email {$user->getEmail()} has requested to delete their account"]
+                            'mail'   =>  ['subject' => "Sol·licitud d'eliminació d'usuari ", 'body' => "L'usuari amb ID REC: '{$user->getId()}', DNI/NIE: '{$user->getUsername()}' i email '{$user->getEmail()}'
+                             ha realitzat una sol·liciud perquè el seu usuari sigui eliminat."]
                         )
                     )
             )
