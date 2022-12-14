@@ -114,7 +114,7 @@ class Campaign extends AppObject {
     protected $url_tos;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="bigint", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     protected $bonus_ending_threshold;
