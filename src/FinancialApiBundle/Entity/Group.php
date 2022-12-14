@@ -1979,14 +1979,21 @@ class Group extends BaseGroup implements Uploadable
     }
 
     /**
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("is_cultural")
+     * @return boolean
      */
     public function isCultural(): bool
     {
         /** @var Activity $activity */
         foreach ($this->activities as $activity){
-            if($activity->getName() === Activity::CULTURE_ACTIVITY) return true;
+            if($activity->getName() === Activity::CULTURE_ACTIVITY) {
+                return true;
+            }
+
+            //TODO check for parent
+            $parent_activity = $activity->getParent();
+            if($parent_activity && $parent_activity->getName() === Activity::CULTURE_ACTIVITY) {
+                return true;
+            }
         }
 
         return false;

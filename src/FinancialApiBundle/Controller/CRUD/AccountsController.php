@@ -328,22 +328,21 @@ class AccountsController extends CRUDController {
             unset($elements[$i]['account']);
 
             $is_commerce_verd = false;
-            $is_cultural = false;
+            //TODO I think we could do the same here with is_commerce_verd
+            //but I did not that because now is working
+            $elements[$i]["is_cultural"] = $query_resp[$i]["account"]->isCultural();
             foreach ($query_resp[$i]["account"]->getActivities() as $account_activity){
                 if($account_activity->getName() === Activity::GREEN_COMMERCE_ACTIVITY){
                     $is_commerce_verd = true;
                 }
-                if($account_activity->getName() === Activity::CULTURE_ACTIVITY){
-                    $is_cultural = true;
-                }
+
                 if(in_array($account_activity->getId(), $activities_id)){
                     $elements[$i]["is_commerce_verd"] = $is_commerce_verd;
-                    $elements[$i]["is_cultural"] = $is_cultural;
+                    //$elements[$i]["is_cultural"] = $is_cultural;
                     $same_activity_elements[] = $elements[$i];
                 }
             }
             $elements[$i]["is_commerce_verd"] = $is_commerce_verd;
-            $elements[$i]["is_cultural"] = $is_cultural;
         }
         if(($hasActivity and !$isAdmin)){
             $elements = $same_activity_elements;

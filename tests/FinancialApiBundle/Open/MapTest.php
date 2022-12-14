@@ -23,9 +23,24 @@ class MapTest extends BaseApiTest {
         self::assertFalse(str_contains($response->getContent(), '"id":6,'));
         $accounts = json_decode($response->getContent(),true);
         foreach ($accounts['data']['elements'] as $account){
+            self::assertArrayHasKey('is_cultural', $account);
             if($account['name'] == AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']){
                 self::assertFalse($account['has_offers']);
             }
+        }
+
+        $query_string = "?activity_id=1";
+        $response = $this->requestJson('GET', '/user/v4/accounts/search'.$query_string);
+        self::assertEquals(
+            200,
+            $response->getStatusCode(),
+            "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
+        );
+
+        $accounts = json_decode($response->getContent(),true);
+        foreach ($accounts['data']['elements'] as $account){
+            self::assertArrayHasKey('is_cultural', $account);
+            self::assertEquals(true, $account['is_cultural']);
         }
     }
 
@@ -98,6 +113,9 @@ class MapTest extends BaseApiTest {
         $response = $this->requestJson('GET', '/public/map/v1/search?activity_id=1');
         $response_content = json_decode($response->getContent(),true);
         self::assertEquals('1', $response_content["data"]["elements"][0]["activity"]);
+        foreach ($response_content["data"]["elements"] as $account){
+            self::assertEquals(true, $account['is_cultural']);
+        }
     }
 
     public function testMapGreenCommerceResponds200(){
