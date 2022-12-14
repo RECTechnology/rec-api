@@ -139,8 +139,10 @@ class BonusHandler{
 
     private function isCultureBonificable(){
         $em = $this->getEntityManager();
+        /** @var Campaign $campaign */
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::CULTURE_CAMPAIGN_NAME]);
 
+        if(!$campaign->isBonusEnabled()) return false;
         if($this->originTx->getType() !== 'in') return false;
         if($this->originTx->getMethod() !== 'lemonway') return false;
         if($this->originTx->getStatus() !== Transaction::$STATUS_SUCCESS) return false;
