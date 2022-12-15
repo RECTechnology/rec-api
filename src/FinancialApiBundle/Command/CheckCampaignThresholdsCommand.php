@@ -27,8 +27,9 @@ class CheckCampaignThresholdsCommand extends SynchronizedContainerAwareCommand
         foreach ($campaigns as $campaign){
             //check campaign threshold if needed
             if($campaign->getBonusEndingThreshold() !== null && $campaign->getEndingAlert() === false){
+                $campaign_account_id = $campaign->getCampaignAccount();
                 /** @var Group $campaign_account */
-                $campaign_account = $campaign->getCampaignAccount();
+                $campaign_account = $em->getRepository(Group::class)->find($campaign_account_id);
                 /** @var UserWallet $campaign_account_wallet */
                 $campaign_account_wallet = $campaign_account->getWallet(Currency::$REC);
                 if($campaign_account_wallet->getBalance() < $campaign->getBonusEndingThreshold()){
