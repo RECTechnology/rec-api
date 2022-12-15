@@ -2,18 +2,18 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
-use App\FinancialApiBundle\Entity\TokenReward;
+use App\FinancialApiBundle\Entity\ConfigurationSetting;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
- * Class TokenRewardEventSubscriber
+ * Class ConfigurationSettingEventSubscriber
  * @package App\FinancialApiBundle\EventSubscriber\Doctrine
  */
-class TokenRewardEventSubscriber implements EventSubscriber {
+class ConfigurationSettingEventSubscriber implements EventSubscriber {
 
     /** @var ContainerInterface $container */
     private $container;
@@ -37,16 +37,14 @@ class TokenRewardEventSubscriber implements EventSubscriber {
      */
     public function getSubscribedEvents() {
         return [
-            Events::preRemove
+            Events::preUpdate
         ];
     }
 
-    public function preRemove(LifecycleEventArgs $args){
-        $entity = $args->getEntity();
-        if($entity instanceof TokenReward){
-            if($entity->getStatus() === TokenReward::STATUS_MINTED){
-                throw new HttpException(403, 'Token reward is '.$entity->getStatus().' and can not be removed');
-            }
+    public function preUpdate(PreUpdateEventArgs $args){
+        $setting = $args->getEntity();
+        if($setting instanceof ConfigurationSetting) {
+            if(!$setting->getPackage()->getPurchased()) throw new HttpException(403, 'Setting not llowed to change. Package '.$setting->getPackage()->getname().' not purchased');
         }
     }
 

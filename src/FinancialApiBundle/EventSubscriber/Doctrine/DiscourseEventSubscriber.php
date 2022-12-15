@@ -4,7 +4,6 @@ namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
 use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
 use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Event\PurchaseSuccessEvent;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;

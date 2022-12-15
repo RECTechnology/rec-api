@@ -13,7 +13,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\ORMException;
-use Documents\Account;
 use Swift_Attachment;
 use Swift_Mailer;
 use Symfony\Component\DependencyInjection\ContainerInterface;

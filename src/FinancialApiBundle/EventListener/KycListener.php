@@ -8,18 +8,12 @@
 namespace App\FinancialApiBundle\EventListener;
 
 use App\FinancialApiBundle\Entity\Client;
-use App\FinancialApiBundle\Entity\UserGroup;
-use Blockchain\Exception\HttpError;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use OAuth2\OAuth2;
-use OAuth2\OAuth2ServerException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\Entity\AccessToken;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\KYC;
-use App\FinancialApiBundle\Entity\KYCCompanyValidations;
 use App\FinancialApiBundle\Entity\User;
 
 class KycListener {

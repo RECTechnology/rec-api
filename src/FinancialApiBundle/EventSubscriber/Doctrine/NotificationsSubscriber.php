@@ -8,7 +8,6 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class NotificationsSubscriber

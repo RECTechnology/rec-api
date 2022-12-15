@@ -15,12 +15,8 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use App\FinancialApiBundle\Entity\Uploadable;
-use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\KYC;
-use App\FinancialApiBundle\Entity\User;
 
 class FileSetterListener
 {

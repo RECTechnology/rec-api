@@ -2,31 +2,16 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
-use App\FinancialApiBundle\Annotations\HybridProperty;
-use App\FinancialApiBundle\Annotations\TranslatedProperty;
-use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Document;
-use App\FinancialApiBundle\Entity\HybridPersistent;
 use App\FinancialApiBundle\Entity\LemonDocument;
 use App\FinancialApiBundle\Entity\LemonDocumentKind;
-use App\FinancialApiBundle\Entity\Stateful;
-use App\FinancialApiBundle\Entity\Translatable;
 use App\FinancialApiBundle\Exception\AppException;
-use App\FinancialApiBundle\Exception\AppLogicException;
 use App\FinancialApiBundle\Exception\NoSuchTranslationException;
 use App\FinancialApiBundle\Financial\Driver\LemonWayInterface;
-use Doctrine\Common\Annotations\AnnotationException;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class LemonUploadEventSubscriber

@@ -2,27 +2,12 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
-use App\FinancialApiBundle\Controller\Transactions\IncomingController2;
-use App\FinancialApiBundle\Document\Transaction;
-use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\PaymentOrderNotification;
 use App\FinancialApiBundle\Entity\Pos;
-use App\FinancialApiBundle\Entity\User;
-use App\FinancialApiBundle\Exception\AppException;
-use App\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriver;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Class PaymentOrderNotificationsSubscriber

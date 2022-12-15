@@ -2,34 +2,13 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
-use App\FinancialApiBundle\Annotations\HybridProperty;
-use App\FinancialApiBundle\Annotations\TranslatedProperty;
-use App\FinancialApiBundle\Document\Transaction;
-use App\FinancialApiBundle\Entity\HybridPersistent;
-use App\FinancialApiBundle\Entity\Translatable;
 use App\FinancialApiBundle\Entity\TreasureWithdrawal;
-use App\FinancialApiBundle\Entity\TreasureWithdrawalAuthorizedEmail;
 use App\FinancialApiBundle\Entity\TreasureWithdrawalValidation;
-use App\FinancialApiBundle\Exception\AppLogicException;
-use App\FinancialApiBundle\Exception\NoSuchTranslationException;
-use Doctrine\Common\Annotations\AnnotationException;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Swift_Mailer;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Templating\EngineInterface;
 
 /**
  * Class TreasureWithdrawalSubscriber
