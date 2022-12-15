@@ -6,6 +6,7 @@ use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
 use App\FinancialApiBundle\Entity\AccountAward;
 use App\FinancialApiBundle\Entity\Group;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -15,127 +16,155 @@ class SendWeeklyB2BReportCommand extends SynchronizedContainerAwareCommand
     {
         $this
             ->setName('rec:b2b:weekly:report')
-            ->setDescription('Send weekly email with B2B report');
+            ->setDescription('Send weekly email with B2B report within two dates, with two options (start_date and finish_date).
+            If you dont send any option, will be assigned automatically')
+            ->addOption(
+                'start_date',
+                null,
+            )
+            ->addOption(
+                'finish_date',
+                null,
+            );
     }
 
     protected function executeSynchronized(InputInterface $input, OutputInterface $output)
     {
-        $em = $this->getContainer()->get('doctrine')->getManager();
+        $datesAreRight = true;
 
-        /** @var DiscourseApiManager $discourseManager */
-        $discourseManager = $this->getContainer()->get('net.app.commons.discourse.api_manager');
-        $admin_username = $this->getContainer()->getParameter("discourse_admin_username");
-        $admin_api_key = $this->getContainer()->getParameter("discourse_admin_api_key");
-        $emails_list = $this->getContainer()->getParameter("resume_admin_emails_list");
+        if($input->getOption('start_date') && !$input->getOption('finish_date')){
+            $datesAreRight = false;
+            $output->writeln('Error: If the start_date is sent, finish_date is a required field.');
+        }
 
-        $today = new \DateTime();
-        $oneWeekAgo = new \DateTime('-7 days');
+        if ($datesAreRight)
+        {
+            $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $credentials = array(
-            'Api-Key: '.$admin_api_key,
-            'Api-Username: '. $admin_username
-        );
-        $response = $discourseManager->adminBridgeCall($credentials,'/admin/reports/bulk.json?reports[consolidated_page_views][cache]=true&reports[consolidated_page_views][facets][]=prev_period&reports[consolidated_page_views][start_date]='.$oneWeekAgo->format('Y-m-d').'&reports[consolidated_page_views][end_date]='.$today->format('Y-m-d').'&reports[signups][cache]=true&reports[signups][facets][]=prev_period&reports[signups][start_date]='.$oneWeekAgo->format('Y-m-d').'&reports[signups][end_date]='.$today->format('Y-m-d').'&reports[topics][cache]=true&reports[topics][facets][]=prev_period&reports[topics][start_date]='.$oneWeekAgo->format('Y-m-d').'&reports[topics][end_date]='.$today->format('Y-m-d').'&reports[posts][cache]=true&reports[posts][facets][]=prev_period&reports[posts][start_date]='.$oneWeekAgo->format('Y-m-d').'&reports[posts][end_date]='.$today->format('Y-m-d').'', 'GET');
+            /** @var DiscourseApiManager $discourseManager */
+            $discourseManager = $this->getContainer()->get('net.app.commons.discourse.api_manager');
+            $admin_username = $this->getContainer()->getParameter("discourse_admin_username");
+            $admin_api_key = $this->getContainer()->getParameter("discourse_admin_api_key");
+            $emails_list = $this->getContainer()->getParameter("resume_admin_emails_list");
 
-        $consolidatedPageViews = $response['reports'][0];
-        $signUps = $response['reports'][1];
-        $topics = $response['reports'][2];
-        $posts = $response['reports'][3];
+            $today = new \DateTime();
+            $oneWeekAgo = new \DateTime('-7 days');
 
-        $fs = new Filesystem();
-        $tmpFilename = "/tmp/statistics.csv";
-        $fs->touch($tmpFilename);
-        $fp = fopen($tmpFilename, 'w');
+            if ($input->getOption('start_date')) {
+                $oneWeekAgo = new \DateTime("{$input->getOption('start_date')}");
+            }
 
-        $report = [];
+            if ($input->getOption('finish_date')) {
+                $today = new \DateTime("{$input->getOption('finish_date')}");
+            }
 
-        //Logged users/anon/crawlers by day
-        $titleViews = array($consolidatedPageViews['description']);
-        $report[] = $titleViews;
-        $header_views = array('date', 'number');
-        foreach ($consolidatedPageViews['data'] as $consolidatedPageView){
-            $title = array($consolidatedPageView['label']);
-            $report[] = $title;
+            $credentials = array(
+                'Api-Key: ' . $admin_api_key,
+                'Api-Username: ' . $admin_username
+            );
+            $response = $discourseManager->adminBridgeCall($credentials, '/admin/reports/bulk.json?reports[consolidated_page_views][cache]=true&reports[consolidated_page_views][facets][]=prev_period&reports[consolidated_page_views][start_date]=' . $oneWeekAgo->format('Y-m-d') . '&reports[consolidated_page_views][end_date]=' . $today->format('Y-m-d') . '&reports[signups][cache]=true&reports[signups][facets][]=prev_period&reports[signups][start_date]=' . $oneWeekAgo->format('Y-m-d') . '&reports[signups][end_date]=' . $today->format('Y-m-d') . '&reports[topics][cache]=true&reports[topics][facets][]=prev_period&reports[topics][start_date]=' . $oneWeekAgo->format('Y-m-d') . '&reports[topics][end_date]=' . $today->format('Y-m-d') . '&reports[posts][cache]=true&reports[posts][facets][]=prev_period&reports[posts][start_date]=' . $oneWeekAgo->format('Y-m-d') . '&reports[posts][end_date]=' . $today->format('Y-m-d') . '', 'GET');
+            $output->writeln("Exporting data from {$oneWeekAgo->format('Y-m-d')} to {$today->format('Y-m-d')}");
+
+            $consolidatedPageViews = $response['reports'][0];
+            $signUps = $response['reports'][1];
+            $topics = $response['reports'][2];
+            $posts = $response['reports'][3];
+
+            $fs = new Filesystem();
+            $tmpFilename = "/tmp/statistics.csv";
+            $fs->touch($tmpFilename);
+            $fp = fopen($tmpFilename, 'w');
+
+            $report = [];
+
+            //Logged users/anon/crawlers by day
+            $titleViews = array($consolidatedPageViews['description']);
+            $report[] = $titleViews;
+            $header_views = array('date', 'number');
+            foreach ($consolidatedPageViews['data'] as $consolidatedPageView) {
+                $title = array($consolidatedPageView['label']);
+                $report[] = $title;
+                $report[] = $header_views;
+
+                foreach ($consolidatedPageView['data'] as $data) {
+                    $row = array($data['x'], $data['y']);
+                    $report[] = $row;
+                }
+            }
+
+            //SignUps per day
+            $titleSignUps = array($signUps['description']);
+            $report[] = $titleSignUps;
             $report[] = $header_views;
 
-            foreach ($consolidatedPageView['data'] as $data){
+            foreach ($signUps['data'] as $data) {
                 $row = array($data['x'], $data['y']);
                 $report[] = $row;
             }
-        }
 
-        //SignUps per day
-        $titleSignUps = array($signUps['description']);
-        $report[] = $titleSignUps;
-        $report[] = $header_views;
-
-        foreach ($signUps['data'] as $data){
-            $row = array($data['x'], $data['y']);
-            $report[] = $row;
-        }
-
-        //Topics per day
-        $titleTopics = array($topics['description']);
-        $report[] = $titleTopics;
-        $report[] = $header_views;
-
-        foreach ($topics['data'] as $data){
-            $row = array($data['x'], $data['y']);
-            $report[] = $row;
-        }
-
-        //Posts per day
-        $titlePosts = array($posts['description']);
-        $report[] = $titlePosts;
-        $report[] = $header_views;
-
-        foreach ($posts['data'] as $data){
-            $row = array($data['x'], $data['y']);
-            $report[] = $row;
-        }
-
-        //topics per category per day
-        $categories = $discourseManager->adminBridgeCall($credentials,'/categories.json', 'GET');
-        foreach ($categories['category_list']['categories'] as $category){
-            $cat_id = $category['id'];
-            $titleCat = array('Category: '.$category['name'], 'Total topics: '.$category['topic_count'], 'Total posts: '.$category['post_count']);
-            $report[] = $titleCat;
+            //Topics per day
+            $titleTopics = array($topics['description']);
+            $report[] = $titleTopics;
             $report[] = $header_views;
-            $response = $discourseManager->adminBridgeCall($credentials,'/admin/reports/bulk.json?reports[topics][cache]=true&reports[topics][facets][]=prev_period&reports[topics][start_date]='.$oneWeekAgo->format('Y-m-d').'&reports[topics][end_date]='.$today->format('Y-m-d').'&reports[topics][filters][category]='.$cat_id, 'GET');
-            $catData = $response['reports'][0]['data'];
 
-            foreach ($catData as $data){
-                $row = [$data['x'], $data['y']];
+            foreach ($topics['data'] as $data) {
+                $row = array($data['x'], $data['y']);
                 $report[] = $row;
             }
-        }
 
-        //get all b2b accounts
-        $qb = $em->getRepository(Group::class)->createQueryBuilder('g');
-        $accounts = $qb->select("g")
-            ->where($qb->expr()->isNotNull("g.rezero_b2b_user_id"))
-            ->getQuery()->getResult();
+            //Posts per day
+            $titlePosts = array($posts['description']);
+            $report[] = $titlePosts;
+            $report[] = $header_views;
 
-        $titleAwards = array('Awards by account');
-        $headerAwards = array('account_id', 'account_name','score', 'award', 'level');
-        $report[] = $titleAwards;
-        $report[] = $headerAwards;
-        foreach ($accounts as $account){
-            //TODO find awards by account
-            $awards = $em->getRepository(AccountAward::class)->findBy(array(
-                'account' => $account
-            ));
-            /** @var AccountAward $award */
-            foreach ($awards as $award){
-                $report[] = array($account->getId(), $account->getName(), $award->getScore(), $award->getAward()->getName(), $award->getLevel());
+            foreach ($posts['data'] as $data) {
+                $row = array($data['x'], $data['y']);
+                $report[] = $row;
             }
-        }
 
-        foreach ($report as $row){
-            fputcsv($fp, $row, ';');
-        }
+            //topics per category per day
+            $categories = $discourseManager->adminBridgeCall($credentials, '/categories.json', 'GET');
+            foreach ($categories['category_list']['categories'] as $category) {
+                $cat_id = $category['id'];
+                $titleCat = array('Category: ' . $category['name'], 'Total topics: ' . $category['topic_count'], 'Total posts: ' . $category['post_count']);
+                $report[] = $titleCat;
+                $report[] = $header_views;
+                $response = $discourseManager->adminBridgeCall($credentials, '/admin/reports/bulk.json?reports[topics][cache]=true&reports[topics][facets][]=prev_period&reports[topics][start_date]=' . $oneWeekAgo->format('Y-m-d') . '&reports[topics][end_date]=' . $today->format('Y-m-d') . '&reports[topics][filters][category]=' . $cat_id, 'GET');
+                $catData = $response['reports'][0]['data'];
 
-        $this->sendEmail($emails_list, 'Statistics', 'statistics.csv');
+                foreach ($catData as $data) {
+                    $row = [$data['x'], $data['y']];
+                    $report[] = $row;
+                }
+            }
+
+            //get all b2b accounts
+            $qb = $em->getRepository(Group::class)->createQueryBuilder('g');
+            $accounts = $qb->select("g")
+                ->where($qb->expr()->isNotNull("g.rezero_b2b_user_id"))
+                ->getQuery()->getResult();
+
+            $titleAwards = array('Awards by account');
+            $headerAwards = array('account_id', 'account_name', 'score', 'award', 'level');
+            $report[] = $titleAwards;
+            $report[] = $headerAwards;
+            foreach ($accounts as $account) {
+                //TODO find awards by account
+                $awards = $em->getRepository(AccountAward::class)->findBy(array(
+                    'account' => $account
+                ));
+                /** @var AccountAward $award */
+                foreach ($awards as $award) {
+                    $report[] = array($account->getId(), $account->getName(), $award->getScore(), $award->getAward()->getName(), $award->getLevel());
+                }
+            }
+
+            foreach ($report as $row) {
+                fputcsv($fp, $row, ';');
+            }
+
+            $this->sendEmail($emails_list, 'Statistics', 'statistics.csv');
+        }
     }
 
     private function sendEmail($emails, $subject, $fileName){
