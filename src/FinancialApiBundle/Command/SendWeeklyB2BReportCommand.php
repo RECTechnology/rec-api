@@ -21,10 +21,12 @@ class SendWeeklyB2BReportCommand extends SynchronizedContainerAwareCommand
             ->addOption(
                 'start_date',
                 null,
+                InputOption::VALUE_REQUIRED
             )
             ->addOption(
                 'finish_date',
                 null,
+                InputOption::VALUE_REQUIRED
             );
     }
 
