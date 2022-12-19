@@ -240,6 +240,7 @@ class BonusHandler{
         /** @var Campaign $campaign */
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::CULTURE_CAMPAIGN_NAME]);
         $campaignAccountId = $campaign->getCampaignAccount();
+        /** @var Group $campaignAccount */
         $campaignAccount = $em->getRepository(Group::class)->find($campaignAccountId);
         $exchanger = $this->getExchanger($this->clientGroup->getId());
 
@@ -247,6 +248,12 @@ class BonusHandler{
         $new_rewarded = min($this->originTx->getAmount() / 100, $campaign->getMax() - $rewarded_amount);
         $satoshi_decimals = 1e8;
         $bonificableAmount = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
+
+        $campaignAccountWallet = $campaignAccount->getWallet(Currency::$REC);
+        if($bonificableAmount > $campaignAccountWallet->getBalance()){
+            //if we have to send more than the current balance only send remaining balance
+            $bonificableAmount = $campaignAccount->getBalance();
+        }
 
         $this->logger->info("BONUS HANDLER -> Bonification amount -> ".$bonificableAmount);
         try{
