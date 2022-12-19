@@ -2,10 +2,14 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Company;
 
+use App\FinancialApiBundle\Controller\Management\Admin\TransactionsController;
 use App\FinancialApiBundle\Entity\Campaign;
+use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\PaymentOrder;
 use DateInterval;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\RestApiController;
@@ -450,8 +454,38 @@ class WalletController extends RestApiController {
         $total = count($resArray);
         $entities = array_slice($resArray, $offset, $limit);
         $response = array();
+        /** @var Transaction $entity */
         foreach ($entities as $entity){
             $entity->setComment($entity->getComment());
+            /** @var Group $group */
+            $group = $em->getRepository(Group::class)->find($entity->getGroup());
+            $group_data = array("type" => $group->getType(), "subtype" => $group->getSubtype());
+            $entity->setGroupData($group_data);
+            if($entity->getType() === Transaction::$TYPE_OUT){
+                $pay_out_info = $entity->getPayOutInfo();
+                $receiver = $this->getReceiverFromAddress($em, $pay_out_info['address']);
+                if($receiver){
+                    $pay_out_info['receiver_type'] = $receiver->getType();
+                    $pay_out_info['receiver_subtype'] = $receiver->getSubtype();
+                }else{
+                    $pay_out_info['receiver_type'] = '-';
+                    $pay_out_info['receiver_subtype'] = '-';
+                }
+                $entity->setPayOutInfo($pay_out_info);
+            }else{
+                $pay_in_info = $entity->getPayInInfo();
+                $sender = $em->getRepository(Group::class)->find($pay_in_info['sender_id']);
+                if($sender){
+                    $pay_in_info['sender_type'] = $sender->getType();
+                    $pay_in_info['sender_subtype'] = $sender->getSubtype();
+                }else{
+                    $pay_in_info['sender_type'] = '';
+                    $pay_in_info['sender_subtype'] = '';
+                }
+
+                $entity->setPayInInfo($pay_in_info);
+            }
+
             $response[] = $entity;
         }
 
@@ -469,5 +503,25 @@ class WalletController extends RestApiController {
                 'elements' => $response
             )
         );
+    }
+
+    private function getReceiverFromAddress(ObjectManager $em, $address){
+        $receiver = $em->getRepository(Group::class)->findOneBy(array(
+            'rec_address' => $address
+        ));
+
+        if($receiver) return $receiver;
+
+        /** @var PaymentOrder $order */
+        $order = $em->getRepository(PaymentOrder::class)->findOneBy(array(
+            'payment_address' => $address
+        ));
+
+        if($order){
+            return $order->getPos()->getAccount();
+        }
+
+        return null;
+
     }
 }
