@@ -252,7 +252,7 @@ class BonusHandler{
         $campaignAccountWallet = $campaignAccount->getWallet(Currency::$REC);
         if($bonificableAmount > $campaignAccountWallet->getBalance()){
             //if we have to send more than the current balance only send remaining balance
-            $bonificableAmount = $campaignAccount->getBalance();
+            $bonificableAmount = $campaignAccountWallet->getBalance();
         }
 
         $this->logger->info("BONUS HANDLER -> Bonification amount -> ".$bonificableAmount);
