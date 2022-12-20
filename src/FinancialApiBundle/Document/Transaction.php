@@ -99,6 +99,11 @@ class Transaction implements TransactionTiming {
     /**
      * @Exclude
      */
+    public static $METHOD_LEMONWAY = "lemonway";
+
+    /**
+     * @Exclude
+     */
     public static $TYPE_REFUND = "refund";
 
     /**
