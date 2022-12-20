@@ -473,20 +473,19 @@ class WalletController extends RestApiController {
                 }
                 $entity->setPayOutInfo($pay_out_info);
             }else{
-                if($entity->getMethod() !== Transaction::$METHOD_LEMONWAY){
-                    $pay_in_info = $entity->getPayInInfo();
+                $pay_in_info = $entity->getPayInInfo();
+                if(isset($pay_in_info['sender_id'])){
                     $sender = $em->getRepository(Group::class)->find($pay_in_info['sender_id']);
                     if($sender){
                         $pay_in_info['sender_type'] = $sender->getType();
                         $pay_in_info['sender_subtype'] = $sender->getSubtype();
-                    }else{
-                        $pay_in_info['sender_type'] = '';
-                        $pay_in_info['sender_subtype'] = '';
                     }
-                    $entity->setPayInInfo($pay_in_info);
+                }else{
+                    $pay_in_info['sender_type'] = '';
+                    $pay_in_info['sender_subtype'] = '';
                 }
+                $entity->setPayInInfo($pay_in_info);
             }
-
             $response[] = $entity;
         }
 
