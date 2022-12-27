@@ -8,8 +8,8 @@
 
 namespace App\FinancialApiBundle\Financial\Methods;
 
+use App\FinancialApiBundle\Document\Transaction;
 use FOS\OAuthServerBundle\Util\Random;
-use MongoDBODMProxies\__CG__\App\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
@@ -99,10 +99,10 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
-    public function CreditCardPayment($amount, $token, $save = false){
+    public function CreditCardPayment($amount, $token, $save = false, $card_id = null){
         $admin = $this->container->getParameter('lemonway_admin_account');
         $notification_url = $this->container->getParameter('lemonway_notification_url');
-        $response = $this->driver->callService("MoneyInWebInit", array(
+        $requestData = array(
             "wallet" => $admin,
             "amountTot" => $amount,
             "wkToken" => $token,
@@ -110,8 +110,12 @@ class LemonWayMethod extends BaseMethod {
             "errorUrl" => $notification_url . "error",
             "cancelUrl" => $notification_url . "cancel",
             "registerCard" => $save?"1":"0"
-        ));
-        return $response;
+        );
+
+        if($card_id){
+            $requestData['cardId'] = $card_id;
+        }
+        return $this->driver->callService("MoneyInWebInit", $requestData);
     }
 
     public function SavedCreditCardPayment($amount, $card_id){
@@ -172,7 +176,7 @@ class LemonWayMethod extends BaseMethod {
         $data = $this->GetWalletDetails();
         $data_array = json_decode(json_encode($data), true);
         foreach ($data_array['WALLET']['CARDS'] as $card){
-            if($card['ID'] == $card_id){
+            if($card['ID'] === $card_id){
                 return $card['EXTRA']['NUM'];
             }
         }
@@ -182,70 +186,50 @@ class LemonWayMethod extends BaseMethod {
     public function getPayInInfoWithCommerce($data){
         $amount = round($data['amount']/pow(10, Currency::$SCALE[$this->getCurrency()]),2);
         $amount = number_format((float)$amount, 2, '.', '');
+        $token = substr(Random::generateToken(), 0, 8);
+
+        $card_id = null;
         if(isset($data['card_id'])){
-            $payment_info = $this->SavedCreditCardPayment($amount, $data['card_id']);
-            if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
-            $response = array(
-                'amount' => $data['amount'],
-                'commerce_id' => $data['commerce_id'],
-                'currency' => $this->getCurrency(),
-                'scale' => Currency::$SCALE[$this->getCurrency()],
-                'external_card_id' => $data['card_id'],
-                'expires_in' => intval(1200),
-                'received' =>  $data['amount'],
-                'status' => 'received',
-                'final' => false
+            $card_id = $data['card_id'];
+        }
+        $payment_info = $this->CreditCardPayment($amount, $token, $data['save_card'], $card_id);
+        $url = $this->container->getParameter('lemonway_payment_url');
+        $error = false;
+        if(!property_exists($payment_info, 'MONEYINWEB') && isset($payment_info['MONEYINWEBINIT']) && isset($payment_info['MONEYINWEBINIT']['STATUS']) && $payment_info['MONEYINWEBINIT']['STATUS']=='-1'){
+            $error = true;
+        }
+        $response = array(
+            'amount' => $data['amount'],
+            'commerce_id' => $data['commerce_id'],
+            'currency' => $this->getCurrency(),
+            'scale' => Currency::$SCALE[$this->getCurrency()],
+            'token_id' => $payment_info->MONEYINWEB->TOKEN,
+            'payment_url' => $url . $payment_info->MONEYINWEB->TOKEN,
+            'payment_info' => json_encode($payment_info),
+            'external_card_id' => $payment_info->MONEYINWEB->CARD->ID,
+            'save_card' => $data['save_card'],
+            'wl_token' => $token,
+            'transaction_id' => $payment_info->MONEYINWEB->ID,
+            'expires_in' => intval(1200),
+            'received' => 0.0,
+            'status' => 'created',
+            'final' => false
+        );
+        if ($error){
+            unset(
+                $response['token_id'],
+                $response['payment_url'],
+                $response['card_id'],
+                $response['save_card'],
+                $response['transaction_id']
             );
-            if(is_object($payment_info) && property_exists($payment_info, 'TRANS') && ($payment_info->TRANS->HPAY->STATUS=='3' || $payment_info->TRANS->HPAY->STATUS=='16')){
-                $response['payment_external_status'] = $payment_info->TRANS->HPAY->STATUS;
-                $response['transaction_id'] = $payment_info->TRANS->HPAY->ID;
-            }
-            else {
-                $response['payment_info'] = json_encode($payment_info);
-                $response['card_id'] = $data['card_id'];
-                $response['received'] = 0;
-                $response['status'] = 'failed';
-                $response['final'] = true;
-            }
+            $response['status'] = 'failed';
+            $response['final'] = true;
         }
         else {
-            $token = substr(Random::generateToken(), 0, 8);
-            $payment_info = $this->CreditCardPayment($amount, $token, $data['save_card']);
-            $url = $this->container->getParameter('lemonway_payment_url');
-            $error = false;
-            if(!property_exists($payment_info, 'MONEYINWEB') && isset($payment_info['MONEYINWEBINIT']) && isset($payment_info['MONEYINWEBINIT']['STATUS']) && $payment_info['MONEYINWEBINIT']['STATUS']=='-1'){
-                $error = true;
-            }
-            $response = array(
-                'amount' => $data['amount'],
-                'commerce_id' => $data['commerce_id'],
-                'currency' => $this->getCurrency(),
-                'scale' => Currency::$SCALE[$this->getCurrency()],
-                'token_id' => $payment_info->MONEYINWEB->TOKEN,
-                'payment_url' => $url . $payment_info->MONEYINWEB->TOKEN,
-                'payment_info' => json_encode($payment_info),
-                'external_card_id' => $payment_info->MONEYINWEB->CARD->ID,
-                'save_card' => $data['save_card'],
-                'wl_token' => $token,
-                'transaction_id' => $payment_info->MONEYINWEB->ID,
-                'expires_in' => intval(1200),
-                'received' => 0.0,
-                'status' => 'created',
-                'final' => false
-            );
-            if ($error){
-                unset($response['token_id']);
-                unset($response['payment_url']);
-                unset($response['card_id']);
-                unset($response['save_card']);
-                unset($response['transaction_id']);
-                $response['status'] = 'failed';
-                $response['final'] = true;
-            }
-            else {
-                unset($response['payment_info']);
-            }
+            unset($response['payment_info']);
         }
+
         return $response;
     }
 
@@ -275,13 +259,13 @@ class LemonWayMethod extends BaseMethod {
             "amount" => $amount
         ));
         $data = json_decode(json_encode($data), true);
-        $paymentInfo['status']=isset($data['TRANS_SENDPAYMENT']['HPAY']['STATUS'])?$data['TRANS_SENDPAYMENT']['HPAY']['STATUS']:$data['SENDPAYMENT']['STATUS'];
-        if($paymentInfo['status'] == '0') {
+        $paymentInfo['status']= $data['TRANS_SENDPAYMENT']['HPAY']['STATUS'] ?? $data['SENDPAYMENT']['STATUS'];
+        if($paymentInfo['status'] === '0') {
             $paymentInfo['id'] = $data['TRANS_SENDPAYMENT']['HPAY']['ID'];
             $paymentInfo['status'] = Transaction::$STATUS_SENDING;
             $paymentInfo['final'] = false;
         }
-        elseif($paymentInfo['status'] == '3'){
+        elseif($paymentInfo['status'] === '3'){
             $paymentInfo['id'] = $data['TRANS_SENDPAYMENT']['HPAY']['ID'];
             $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
             $paymentInfo['final'] = true;

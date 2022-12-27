@@ -89,6 +89,11 @@ class Transaction implements TransactionTiming {
     /**
      * @Exclude
      */
+    public static $STATUS_SENDING = "sending";
+
+    /**
+     * @Exclude
+     */
     public static $TYPE_IN = "in";
 
     /**
