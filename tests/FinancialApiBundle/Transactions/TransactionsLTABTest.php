@@ -61,7 +61,7 @@ class TransactionsLTABTest extends BaseApiTest {
         self::assertEquals(100000000000, $accounts[0]->wallets[0]->balance);
         self::assertEquals(100000000000, $accounts[1]->wallets[0]->balance);
 
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v1/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -157,7 +157,7 @@ class TransactionsLTABTest extends BaseApiTest {
 
         $this->signIn(UserFixture::TEST_USER_LTAB_CREDENTIALS);
 
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v1/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -240,7 +240,7 @@ class TransactionsLTABTest extends BaseApiTest {
 
 
 
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v1/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,

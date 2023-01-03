@@ -18,9 +18,12 @@ class BonissimAccountService {
     /** @var ContainerInterface $container */
     private $container;
 
+    private $crypto_currency;
+
     function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->crypto_currency = $container->getParameter('crypto_currency');
     }
 
 
@@ -50,7 +53,7 @@ class BonissimAccountService {
             $recDriver = $this->container->get('net.app.driver.easybitcoin.rec');
             $address = $recDriver->getnewaddress();
             $account->setRecAddress($address);
-            $account->setMethodsList(['rec']);
+            $account->setMethodsList([strtolower($this->crypto_currency)]);
             $account->setCif($user->getDNI());
             $account->setActive(true);
             $account->setEmail($user->getEmail());
@@ -82,7 +85,7 @@ class BonissimAccountService {
             $wallets = new ArrayCollection();
 
             $wallet = new UserWallet();
-            $wallet->setCurrency('REC');
+            $wallet->setCurrency($this->crypto_currency);
             $wallet->setAvailable(0);
             $wallet->setBalance(0);
             $wallet->setGroup($account);

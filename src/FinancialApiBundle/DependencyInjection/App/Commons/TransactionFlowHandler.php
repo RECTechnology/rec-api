@@ -26,10 +26,13 @@ class TransactionFlowHandler{
 
     private $balanceManipulator;
 
-    public function __construct($mongo, $doctrine, $balanceManipulator){
+    private $container;
+
+    public function __construct($mongo, $doctrine, $balanceManipulator, ContainerInterface $container){
         $this->mongo = $mongo;
         $this->doctrine = $doctrine;
         $this->balanceManipulator = $balanceManipulator;
+        $this->container = $container;
     }
 
     public function sendRecsWithIntermediary(Group $rootAccount, Group $intermediaryAccount, Group $userAccount, $amount, $concept = 'Internal exchange'): Transaction
@@ -85,7 +88,7 @@ class TransactionFlowHandler{
     private function addToWallet(Group $group, $amount): void
     {
         /** @var UserWallet $wallet */
-        $wallet = $group->getWallet(Currency::$REC);
+        $wallet = $group->getWallet($this->getCryptoCurrency());
         $wallet->setAvailable($wallet->getAvailable() + $amount);
         $wallet->setBalance($wallet->getBalance() + $amount);
         $this->doctrine->getManager()->flush();
@@ -94,7 +97,7 @@ class TransactionFlowHandler{
     private function sendRecsToAddress(Group $from, Group $to, $amount, $internal = true): Transaction
     {
 
-        $txOut = Transaction::createInternalTransactionV3($from, 'rec', 'out', Currency::$REC);
+        $txOut = Transaction::createInternalTransactionV3($from, strtolower($this->getCryptoCurrency()), 'out', $this->getCryptoCurrency());
 
         $dataIn = [
             'amount' => $amount,
@@ -128,7 +131,7 @@ class TransactionFlowHandler{
     private function receiveRecs(Group $receiver, Transaction $previousTx, $internal = true, $concept = 'Internal exchange'): Transaction
     {
 
-        $txIn = Transaction::createInternalTransactionV3($receiver, 'rec', 'in', Currency::$REC);
+        $txIn = Transaction::createInternalTransactionV3($receiver, strtolower($this->getCryptoCurrency()), 'in', $this->getCryptoCurrency());
 
         //TODO fix concept dependding if it's internal or not
         $txDataIn = $previousTx->getDataIn();
@@ -197,10 +200,14 @@ class TransactionFlowHandler{
 
     private function checkBalance(Group $account, $amount){
         /** @var UserWallet $recWallet */
-        $recWallet = $account->getWallet(Currency::$REC);
+        $recWallet = $account->getWallet($this->getCryptoCurrency());
         if($recWallet->getAvailable() < $amount){
             throw new HttpException(403, 'Not funds enough');
         }
+    }
+
+    private function getCryptoCurrency(){
+        return $this->container->getParameter("crypto_currency");
     }
 
 }

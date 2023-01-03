@@ -121,7 +121,7 @@ class TransactionTest extends AdminBaseCalls {
     function testPay1RecToStoreAndRefundShouldWork(){
         self::markTestIncomplete("fails on github");
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -135,7 +135,7 @@ class TransactionTest extends AdminBaseCalls {
             201
         );
 
-        $route = "/methods/v3/out/rec/".$resp->id;
+        $route = "/methods/v3/out/".$this->getCryptoMethod()."/".$resp->id;
         $resp = $this->rest(
             'GET',
             $route,
@@ -184,7 +184,7 @@ class TransactionTest extends AdminBaseCalls {
     }
 
     function testAdminThirdTransaction(){
-        $route = '/admin/v3/third/rec';
+        $route = '/admin/v3/third/'.$this->getCryptoMethod();
         $data = [
             'amount' => 1e8
         ];

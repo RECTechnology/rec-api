@@ -34,7 +34,7 @@ class TransactionsTest extends BaseApiTest {
 
     function testPay1RecToStoreShouldWork(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v1/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -51,7 +51,7 @@ class TransactionsTest extends BaseApiTest {
 
     function testPay1RecToStoreWithPinTrueShouldFail(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v1/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -69,7 +69,7 @@ class TransactionsTest extends BaseApiTest {
 
     function testPay10000RecToStoreShouldReturn400(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v1/out/".$this->getCryptoMethod();
         $this->rest(
             'POST',
             $route,
@@ -130,7 +130,7 @@ class TransactionsTest extends BaseApiTest {
     }
     function testPay1RecWrongPinToStoreShouldReturn400(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v1/out/".$this->getCryptoMethod();
         $response = $this->rest(
             'POST',
             $route,

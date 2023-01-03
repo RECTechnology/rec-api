@@ -5,12 +5,19 @@ namespace App\FinancialApiBundle\DataFixture;
 use App\FinancialApiBundle\Entity\StatusMethod;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class StatusMethodFixture
  * @package App\FinancialApiBundle\DataFixture
  */
 class StatusMethodFixture extends Fixture {
+
+    private $currency;
+
+    public function __construct(ContainerInterface $container){
+        $this->currency = $container->getParameter('crypto_currency');
+    }
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -21,8 +28,8 @@ class StatusMethodFixture extends Fixture {
     public function load(ObjectManager $manager)
     {
         $methods_to_create = [
-            ['rec', 'in', 'REC'],
-            ['rec', 'out', 'REC'],
+            [strtolower($this->currency), 'in', $this->currency],
+            [strtolower($this->currency), 'out', $this->currency],
             ['lemonway', 'in', 'EUR'],
         ];
 

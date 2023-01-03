@@ -9,6 +9,7 @@
 namespace App\FinancialApiBundle\Command;
 
 
+use App\FinancialApiBundle\Entity\Group;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -32,13 +33,16 @@ class CreateWalletCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $groupRepo = $em->getRepository('FinancialApiBundle:Group')->findAll();
-        $walletsRepo = $em->getRepository('FinancialApiBundle:UserWallet');
-        $currencies=Currency::$ALL_COMPLETED;
+        $groupRepo = $em->getRepository(Group::class)->findAll();
+        $walletsRepo = $em->getRepository(UserWallet::class);
+        $container = $this->getContainer();
+        $crypto_currency = $container->getParameter('crypto_currency');
+        $fiat_currency = $container->getParameter('fiat_currency');
+        $currencies = [$fiat_currency, $crypto_currency];
         $contador=0;
         foreach ( $groupRepo as $group ){
             foreach ( $currencies as $currency ){
-                $wallet=$walletsRepo->findOneBy(array('group' => $group,'currency' => $currency));
+                $wallet = $walletsRepo->findOneBy(array('group' => $group,'currency' => $currency));
                 if(!$wallet){
                     //creamos el wallet de esta currency si no existe
                     $user_wallet = new UserWallet();
@@ -54,7 +58,7 @@ class CreateWalletCommand extends ContainerAwareCommand
             }
         }
         $em->flush();
-        $text=$contador.' wallets creados';
+        $text = $contador.' wallets creados';
         $output->writeln($text);
     }
 }

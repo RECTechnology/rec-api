@@ -120,8 +120,9 @@ class ReportsController extends AccountsController
             $to = new \MongoDate($campaign->getEndDate()->getTimestamp());
         }
 
+        $crypto_currency = $this->getParameter('crypto_currency');
         $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
-            ->field('method')->equals('rec')
+            ->field('method')->equals(strtolower($crypto_currency))
             ->field('type')->equals('out')
             ->field('status')->equals('success')
             ->field('created')->gte($since)

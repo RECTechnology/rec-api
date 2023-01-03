@@ -177,7 +177,7 @@ class IncomingController3 extends RestApiController{
         if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
         if (!$user->getTwoFactorAuthentication()) throw new HttpException(403, '2FA must be active');
 
-        if($method_cname != 'rec'){
+        if($method_cname !== strtolower($this->getCryptoCurrency())){
             throw new HttpException(400, 'Bad method');
         }
         $paramNames = array(
@@ -404,7 +404,7 @@ class IncomingController3 extends RestApiController{
         $now = new DateTime('NOW');
         $is_campaign_active = isset($campaign) && $campaign->getInitDate() < $now && $now < $campaign->getEndDate();
         if($is_campaign_active && $campaign->getCampaignAccount() !== $group->getId() && $type == "out" &&
-            $method_cname === "rec" && $group->getType() === Group::ACCOUNT_TYPE_PRIVATE){
+            $method_cname === strtolower($this->getCryptoCurrency()) && $group->getType() === Group::ACCOUNT_TYPE_PRIVATE){
 
             $orderRepo = $em->getRepository(PaymentOrder::class);
             $accountRepo = $em->getRepository(Group::class);
@@ -475,7 +475,7 @@ class IncomingController3 extends RestApiController{
 
         //out trx -> group is sender
         //in trx -> group is receiver
-        if($method_cname === "rec"){
+        if($method_cname === strtolower($this->getCryptoCurrency())){
             $id_group_root = $this->container->getParameter('id_group_root');
             if ($type === "out" and $group->getId() !== $id_group_root) {
 

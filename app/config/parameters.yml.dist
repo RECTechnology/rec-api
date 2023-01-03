@@ -143,4 +143,8 @@ parameters:
     atarca_web3_api_url: http://web3:5000
 
     resume_admin_emails_list: [diego@novact.org,nombrekeff@ralf.com,iulianqbit@gmail.com,diegomtz.dev@gmail.com]
+
+    crypto_currency: "ROSA"
+    fiat_currency: "EUR"
+
     b2b_forum_url: https://business.rec.barcelona

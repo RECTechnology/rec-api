@@ -20,10 +20,13 @@ class CampaignChecker
 
     private $container;
 
+    private $crypto_currency;
+
     public function __construct($doctrine, ContainerInterface $container)
     {
         $this->doctrine = $doctrine;
         $this->container = $container;
+        $this->crypto_currency = $container->getParameter('crypto_currency');
     }
 
     public function isCampaignTx(Transaction $tx, $campaignName){
@@ -32,7 +35,7 @@ class CampaignChecker
 
         if(!$campaign) throw new HttpException(404, "Campaign not found");
 
-        if($tx->getMethod() === "rec"){
+        if($tx->getMethod() === strtolower($this->crypto_currency)){
             $id_group_root = $this->container->getParameter('id_group_root');
             if ($tx->getType() == Transaction::$TYPE_OUT and $tx->getGroup() != $id_group_root) {
                 $sender = $this->getSenderFromTx($tx);
@@ -63,7 +66,7 @@ class CampaignChecker
 
         if(!$campaign) throw new HttpException(404, "Campaign not found");
 
-        if($tx->getMethod() === "rec"){
+        if($tx->getMethod() === strtolower($this->crypto_currency)){
             $id_group_root = $this->container->getParameter('id_group_root');
             if ($tx->getType() == Transaction::$TYPE_OUT and $tx->getGroup() != $id_group_root) {
 

@@ -32,6 +32,8 @@ class PaymentOrderSubscriber implements EventSubscriber {
     /** @var ContainerInterface $container */
     private $container;
 
+    private $crypto_currency;
+
     /**
      * MailingDeliveryEventSubscriber constructor.
      * @param RequestStack $requestStack
@@ -41,6 +43,7 @@ class PaymentOrderSubscriber implements EventSubscriber {
     {
         $this->requestStack = $requestStack;
         $this->container = $container;
+        $this->crypto_currency = $container->getParameter('crypto_currency');
     }
 
     /**
@@ -108,7 +111,7 @@ class PaymentOrderSubscriber implements EventSubscriber {
                         $refundData,
                         1,
                         "out",
-                        "rec",
+                        strtolower($this->crypto_currency),
                         $refunder->getId(),
                         $order->getPos()->getAccount(),
                         $currentRequest->getClientIp()

@@ -19,6 +19,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use App\FinancialApiBundle\Entity\Group as Account;
 use Faker\Factory;
 use Faker\Generator;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AccountFixture extends Fixture implements DependentFixtureInterface {
 
@@ -39,6 +40,11 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     const TEST_ACCOUNT_REZERO_3 = ['name' => 'REZERO_3'];
     const TEST_SHOP_ACCOUNT = ['name' => 'Shop'];
 
+    private $currency;
+
+    public function __construct(ContainerInterface $container){
+        $this->currency = $container->getParameter('crypto_currency');
+    }
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -381,7 +387,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             //$account->addBadge($badge);
         }
         $account->setRecAddress($faker->shuffle('abcdefghijklmnopqrstuvwxyz0123456789'));
-        $account->setMethodsList(['rec']);
+        $account->setMethodsList([strtolower($this->currency)]);
         $account->setCif('B' . $faker->shuffle('01234567'));
         $account->setActive(true);
         $account->setEmail($user->getEmail());
@@ -451,7 +457,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $orm->persist($kyc);
         }
         $recWallet = new UserWallet();
-        $recWallet->setCurrency('REC');
+        $recWallet->setCurrency($this->currency);
         $recWallet->setAvailable($balance);
         $recWallet->setBalance($balance);
         $recWallet->setGroup($account);

@@ -1330,8 +1330,8 @@ class IncomingController2 extends RestApiController{
         $em = $this->getDoctrine()->getManager();
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
 
-        if(isset($campaign) && $campaign->getCampaignAccount() != $group->getId() && $type == "out" &&
-            $method_cname == "rec" && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE){
+        if(isset($campaign) && $type === Transaction::$TYPE_OUT && $group->getType() === Group::ACCOUNT_TYPE_PRIVATE &&
+            $campaign->getCampaignAccount() !== $group->getId() && $method_cname === strtolower($this->getCryptoCurrency())){
 
             $orderRepo = $em->getRepository(PaymentOrder::class);
             $accountRepo = $em->getRepository(Group::class);
@@ -1351,7 +1351,7 @@ class IncomingController2 extends RestApiController{
             $user_id = $group->getKycManager()->getId();
 
             // sender and reciver accounts not in campaign
-            if (!$sender_campaigns->contains($campaign) && $group->getType() == Group::ACCOUNT_TYPE_PRIVATE
+            if (!$sender_campaigns->contains($campaign) && $group->getType() === Group::ACCOUNT_TYPE_PRIVATE
                 && !$reciver_campaigns->contains($campaign)) {
 
                 $user_private_accounts = $accountRepo->findBy(['kyc_manager' => $user_id, 'type' => Group::ACCOUNT_TYPE_PRIVATE]);
@@ -1384,24 +1384,22 @@ class IncomingController2 extends RestApiController{
                     throw new AppException(Response::HTTP_BAD_REQUEST, "This account cannot receive payments");
                 }
 
-            }elseif ($reciver_campaigns->contains($campaign) && $destination->getType() == Group::ACCOUNT_TYPE_ORGANIZATION){ // sender is not bonissim and reciver is bonissim
+            }elseif ($reciver_campaigns->contains($campaign) && $destination->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){ // sender is not bonissim and reciver is bonissim
                  $campaign_accounts = $campaign->getAccounts();
 
                  foreach($campaign_accounts as $account) {
-                     if($account->getKycManager()->getId() == $user_id  && $account->getType() == Group::ACCOUNT_TYPE_PRIVATE){ // account is bonissim and private
-
-
+                     if($account->getType() === Group::ACCOUNT_TYPE_PRIVATE && $account->getKycManager()->getId() === $user_id){ // account is bonissim and private
                          //user id is the user who makes the tx
                          //destination is the store account
                          //TODO chek if this user is kyc manager in the store
-                         if($destination->getKycManager()->getId() != $user_id){
+                         if($destination->getKycManager()->getId() !== $user_id){
                              $campaign_account = $accountRepo->findOneBy(['id' => $campaign->getCampaignAccount()]);
                              $token = $this->get('security.token_storage')->getToken();
                              $user = isset($token) ? $token->getUser() : null;
 
                              $redeemable_amount = $account->getRedeemableAmount();
                              $new_rewarded = min($redeemable_amount, $params['amount'] / $satoshi_decimals);
-                             $campaign_balance = $campaign_account->getWallet('REC')->getBalance();
+                             $campaign_balance = $campaign_account->getWallet($this->getCryptoCurrency())->getBalance();
                              $tx_amount = min($campaign_balance, round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6));
 
                              if($tx_amount > 0 and isset($user)){
@@ -1413,7 +1411,7 @@ class IncomingController2 extends RestApiController{
                                  $request['address'] = $destination->getRecAddress();
                                  $request['internal_tx'] = '1';
                                  $request['destionation_id'] = $account->getId();
-                                 $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
+                                 $this->createTransaction($request, 1, Transaction::$TYPE_OUT, $method_cname, $user->getId(), $campaign_account, '127.0.0.2');
                                  $account->setRedeemableAmount($redeemable_amount - $new_rewarded);
                                  $rewarded_amount = $account->getRewardedAmount();
                                  $account->setRewardedAmount($rewarded_amount + $new_rewarded);
@@ -1581,7 +1579,8 @@ class IncomingController2 extends RestApiController{
                         $store_account->getId(). ' to '.
                         $group->getId());
 
-                    $this->createTransaction($request, 1, 'out', 'rec', $user->getId(), $campaign_account, '127.0.0.1');
+                    $currency = $this->container->getParameter("crypto_currency");
+                    $this->createTransaction($request, 1, 'out', strtolower($currency), $user->getId(), $campaign_account, '127.0.0.1');
 
                     $group->setRewardedAmount($rewarded_amount + $new_rewarded);
                     $em->persist($group);

@@ -46,12 +46,15 @@ class RecCreateRoot extends ContainerAwareCommand
     }
     private function getEmptyWallets(Group $account){
         $wallets = [];
-        foreach(Currency::$ALL_COMPLETED as $currency){
+        $crypto_currency = $this->getContainer()->getParameter('crypto_currency');
+        $fiat_currency = $this->getContainer()->getParameter('fiat_currency');
+        $currencies = [$fiat_currency, $crypto_currency];
+        foreach($currencies as $currency){
             $wallet = new UserWallet();
             $wallet->setGroup($account);
             $wallet->setBalance(0);
             $wallet->setAvailable(0);
-            $wallet->setCurrency(strtoupper($currency));
+            $wallet->setCurrency($currency);
             $wallets []= $wallet;
         }
         return $wallets;
@@ -86,8 +89,6 @@ class RecCreateRoot extends ContainerAwareCommand
         $account->setActive(true);
 
         $em->persist($account);
-
-
 
         $user_group = new UserGroup();
         $user_group->setUser($user);

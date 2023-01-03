@@ -39,6 +39,7 @@ services:
             - "@doctrine_mongodb"
             - "@doctrine"
             - "@net.app.commons.balance_manipulator"
+            - "@service_container"
 
     net.app.commons.bonus_handler:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\BonusHandler
@@ -47,6 +48,7 @@ services:
             - "@net.app.commons.transaction_flow_handler"
             - "@bonissim_service"
             - "@bonus.logger"
+            - "@service_container"
 
     net.app.commons.qualification_handler:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\QualificationHandler

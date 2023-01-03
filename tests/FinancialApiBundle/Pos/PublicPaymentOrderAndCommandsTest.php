@@ -272,7 +272,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
         $route = "/transaction/v1/vendor?address={$order->payment_address}";
         $commerce = $this->rest('GET', $route);
         self::assertCount(4, (array)$commerce);
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -290,7 +290,7 @@ class PublicPaymentOrderAndCommandsTest extends BaseApiTest {
     private function payOrderWrongPin($order)
     {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,

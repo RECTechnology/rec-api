@@ -88,11 +88,12 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
 
                         $output->writeln('createTransaction');
                         sleep(1);
-                        $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
+                        $crypto_currency = $this->getContainer()->getParameter('crypto_currency');
+                        $transactionManager->createTransaction($request, 1, 'out', strtolower($crypto_currency), $id_user_root, $group, '127.0.0.1');
                         $tx_group = $repoGroup->findOneBy(array("id" =>$transaction->getGroup()));
                         $output->writeln('post createTransaction');
                         sleep(1);
-                        $transaction->setStatus('success');
+                        $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                         $dm->persist($transaction);
                         $dm->flush();
                         $output->writeln('CHECK FIAT saved in success status');
@@ -118,7 +119,7 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
 
     public function check(Transaction $transaction){
         $paymentInfo = $transaction->getPayInInfo();
-        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired'){
+        if($transaction->getStatus() === Transaction::$STATUS_SUCCESS || $transaction->getStatus() === Transaction::$STATUS_EXPIRED){
             return $transaction;
         }
         $providerName = 'net.app.'.$transaction->getType().'.'.$transaction->getMethod().'.v1';
@@ -126,8 +127,8 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
         $paymentInfo = $cryptoProvider->getPayInStatus($paymentInfo);
         $transaction->setStatus($paymentInfo['status']);
         $transaction->setPayInInfo($paymentInfo);
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
-            $transaction->setStatus('expired');
+        if($transaction->getStatus() === Transaction::$STATUS_CREATED && $this->hasExpired($transaction)){
+            $transaction->setStatus(Transaction::$STATUS_EXPIRED);
         }
         return $transaction;
     }

@@ -17,6 +17,7 @@ class CheckCampaignThresholdsCommand extends SynchronizedContainerAwareCommand
     }
 
     protected function executeSynchronized(InputInterface $input, OutputInterface $output) {
+        $crypto_currency = $this->getContainer()->getParameter('crypto_currency');
         $output->writeln('Init ' . $this->getName());
         /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
@@ -32,6 +33,11 @@ class CheckCampaignThresholdsCommand extends SynchronizedContainerAwareCommand
             /** @var UserWallet $campaign_account_wallet */
             $campaign_account_wallet = $campaign_account->getWallet(Currency::$REC);
             if($campaign->getBonusEndingThreshold() !== null && $campaign->getEndingAlert() === false){
+
+                /** @var Group $campaign_account */
+                $campaign_account = $campaign->getCampaignAccount();
+                /** @var UserWallet $campaign_account_wallet */
+                $campaign_account_wallet = $campaign_account->getWallet($crypto_currency);
 
                 if($campaign_account_wallet->getBalance() < $campaign->getBonusEndingThreshold()){
                     $campaign->setEndingAlert(true);

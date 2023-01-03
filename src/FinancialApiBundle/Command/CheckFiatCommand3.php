@@ -92,7 +92,7 @@ class CheckFiatCommand3 extends SynchronizedContainerAwareCommand{
                             //$transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
                             $output->writeln('post createTransaction');
                             sleep(1);
-                            $transaction->setStatus('success');
+                            $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                             $dm->persist($transaction);
                             $dm->flush();
                             $output->writeln('CHECK FIAT saved in success status');
@@ -122,7 +122,7 @@ class CheckFiatCommand3 extends SynchronizedContainerAwareCommand{
 
     public function check(Transaction $transaction){
         $paymentInfo = $transaction->getPayInInfo();
-        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired'){
+        if($transaction->getStatus() === Transaction::$STATUS_SUCCESS || $transaction->getStatus() === Transaction::$STATUS_EXPIRED){
             return $transaction;
         }
         $providerName = 'net.app.'.$transaction->getType().'.'.$transaction->getMethod().'.v1';
@@ -130,8 +130,8 @@ class CheckFiatCommand3 extends SynchronizedContainerAwareCommand{
         $paymentInfo = $cryptoProvider->getPayInStatus($paymentInfo);
         $transaction->setStatus($paymentInfo['status']);
         $transaction->setPayInInfo($paymentInfo);
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
-            $transaction->setStatus('expired');
+        if($transaction->getStatus() === Transaction::$STATUS_CREATED && $this->hasExpired($transaction)){
+            $transaction->setStatus(Transaction::$STATUS_EXPIRED);
         }
         return $transaction;
     }

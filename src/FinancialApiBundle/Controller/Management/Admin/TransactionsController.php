@@ -87,7 +87,7 @@ class TransactionsController extends RestApiController {
                 $txid = $payment_info['txid'];
                 if($trans->getType()=='in'){
                     $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
-                        ->field('service')->equals('rec')
+                        ->field('service')->equals(strtolower($this->getCryptoCurrency()))
                         ->field('pay_out_info.txid')->equals($txid)
                         ->getQuery();
                 }
@@ -114,7 +114,7 @@ class TransactionsController extends RestApiController {
             }
 
             $total = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
-                ->field('service')->equals('rec')
+                ->field('service')->equals(strtolower($this->getCryptoCurrency()))
                 ->field('updated')->gte($start_date)
                 ->field('updated')->lte($finish_date)
                 ->field('type')->equals('out')
@@ -123,7 +123,7 @@ class TransactionsController extends RestApiController {
             $total = count($total);
 
             $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
-                ->field('service')->equals('rec')
+                ->field('service')->equals(strtolower($this->getCryptoCurrency()))
                 ->field('updated')->gte($start_date)
                 ->field('updated')->lte($finish_date)
                 ->field('type')->equals('out')
@@ -218,7 +218,7 @@ class TransactionsController extends RestApiController {
                 $txid = $payment_info['txid'];
                 if($trans->getType()=='in'){
                     $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
-                        ->field('service')->equals('rec')
+                        ->field('service')->equals(strtolower($this->getCryptoCurrency()))
                         ->field('pay_out_info.txid')->equals($txid)
                         ->getQuery();
                 }
@@ -245,7 +245,7 @@ class TransactionsController extends RestApiController {
             }
 
             $total = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
-                ->field('service')->equals('rec')
+                ->field('service')->equals(strtolower($this->getCryptoCurrency()))
                 ->field('updated')->gte($start_date)
                 ->field('updated')->lte($finish_date)
                 ->field('type')->equals('out')
@@ -254,7 +254,7 @@ class TransactionsController extends RestApiController {
             $total = count($total);
 
             $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
-                ->field('service')->equals('rec')
+                ->field('service')->equals(strtolower($this->getCryptoCurrency()))
                 ->field('updated')->gte($start_date)
                 ->field('updated')->lte($finish_date)
                 ->field('type')->equals('out')
@@ -400,7 +400,7 @@ class TransactionsController extends RestApiController {
 
         $version_number = 1;
         $type = 'refund';
-        $method_cname = 'rec';
+        $method_cname = strtolower($this->getCryptoCurrency());
         $user_id = $originalTxIn->getUser();
         $ip = $request->getClientIp();
 

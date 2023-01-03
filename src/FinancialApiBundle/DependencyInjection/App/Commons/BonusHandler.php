@@ -40,11 +40,14 @@ class BonusHandler{
     /** @var Logger $logger */
     private $logger;
 
-    public function __construct($doctrine, $flowHandler, $bonissimService, Logger $logger){
+    private $cryptoCurrency;
+
+    public function __construct($doctrine, $flowHandler, $bonissimService, Logger $logger, ContainerInterface $container){
         $this->doctrine = $doctrine;
         $this->flowHandler = $flowHandler;
         $this->bonissimService = $bonissimService;
         $this->logger = $logger;
+        $this->cryptoCurrency = $container->getParameter("crypto_currency");
     }
 
     private function getEntityManager(){
@@ -106,9 +109,9 @@ class BonusHandler{
 
         if($this->originTx->getStatus() !== Transaction::$STATUS_SUCCESS) return false;
 
-        if($this->originTx->getMethod() !== 'rec') return false;
+        if($this->originTx->getMethod() !== strtolower($this->cryptoCurrency)) return false;
 
-        if($this->originTx->getType() !== 'out') return false;
+        if($this->originTx->getType() !== Transaction::$TYPE_OUT) return false;
 
         //TODO check if campaign is active
         if(!isset($campaign)) return false;
@@ -205,7 +208,7 @@ class BonusHandler{
         //TODO calcular el bonificable amount
         $bonificableAmount = $this->getBonificable($ltabAccount);
 
-        $campaign_balance = $campaignAccount->getWallet(Currency::$REC)->getBalance();
+        $campaign_balance = $campaignAccount->getWallet($this->cryptoCurrency)->getBalance();
         $bonificationAmount =min($campaign_balance, round($bonificableAmount * $campaign->getRedeemablePercentage()/100,2)*1e8);
         if($bonificationAmount > 0){
             $this->logger->info("BONUS HANDLER -> Bonification amount -> ".$bonificationAmount);
@@ -249,7 +252,7 @@ class BonusHandler{
         $satoshi_decimals = 1e8;
         $bonificableAmount = round(($new_rewarded * $satoshi_decimals) / 100 * $campaign->getRedeemablePercentage(), -6);
 
-        $campaignAccountWallet = $campaignAccount->getWallet(Currency::$REC);
+        $campaignAccountWallet = $campaignAccount->getWallet($this->cryptoCurrency);
         if($bonificableAmount > $campaignAccountWallet->getBalance()){
             //if we have to send more than the current balance only send remaining balance
             $bonificableAmount = $campaignAccountWallet->getBalance();

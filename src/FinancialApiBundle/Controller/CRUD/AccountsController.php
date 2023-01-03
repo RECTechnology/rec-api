@@ -538,8 +538,9 @@ class AccountsController extends CRUDController {
         $request->request->set('receiver', $receiver->getId());
         $request->request->set('sec_code', $otp);
 
+        $crypto_currency = $this->getParameter('crypto_currency');
         /** @var Response $resp */
-        $resp =  $tc->adminThirdTransaction($request, 'rec');
+        $resp =  $tc->adminThirdTransaction($request, strtolower($crypto_currency));
 
         $result = json_decode($resp->getContent());
         if($result->status == 'success'){
@@ -562,8 +563,9 @@ class AccountsController extends CRUDController {
                 $request->request->set('sender', $receiver);
                 $request->request->set('receiver', $sender);
 
+                $crypto_currency = $this->getParameter('crypto_currency');
                 /** @var Response $resp */
-                $resp =  $tc->adminThirdTransaction($request, 'rec');
+                $resp =  $tc->adminThirdTransaction($request, strtolower($crypto_currency));
 
                 $result = json_decode($resp->getContent());
                 if($result->status != 'success'){

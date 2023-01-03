@@ -172,7 +172,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
         $route = "/transaction/v1/vendor?address={$order->payment_address}";
         $commerce = $this->rest('GET', $route);
         self::assertCount(4, (array)$commerce);
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -211,7 +211,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
     {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $user = $this->getSignedInUser();
-        $route = "/methods/v3/refund/rec";
+        $route = "/methods/v3/refund/".$this->getCryptoMethod();
 
         $resp = $this->rest(
             'POST',

@@ -19,7 +19,7 @@ class PaymentAuthorizationShouldNotBe403Test extends BaseApiTest {
 
     function test()
     {
-        $route = '/methods/v1/out/rec';
+        $route = '/methods/v1/out/'.$this->getCryptoMethod();
         $resp = $this->requestJson('POST', $route, []);
 
         self::assertNotEquals(

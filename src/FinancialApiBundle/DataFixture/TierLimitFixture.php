@@ -6,12 +6,19 @@ use App\FinancialApiBundle\Entity\StatusMethod;
 use App\FinancialApiBundle\Entity\TierLimit;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class TierLimitFixture
  * @package App\FinancialApiBundle\DataFixture
  */
 class TierLimitFixture extends Fixture {
+
+    private $currency;
+
+    public function __construct(ContainerInterface $container){
+        $this->currency = $container->getParameter('crypto_currency');
+    }
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -21,7 +28,7 @@ class TierLimitFixture extends Fixture {
      */
     public function load(ObjectManager $manager)
     {
-        $methods = ['rec' => 'REC', 'lemonway' => 'EUR'];
+        $methods = [strtolower($this->currency) => $this->currency, 'lemonway' => 'EUR'];
         $directions = ['in', 'out'];
         $tiers = range(0, 3);
 

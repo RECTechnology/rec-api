@@ -20,7 +20,8 @@ class CheckCryptoCommand extends SynchronizedContainerAwareCommand
     }
 
     protected function executeSynchronized(InputInterface $input, OutputInterface $output){
-        $method_cname = ['rec'];
+        $crypto_currency = $this->getContainer()->getParameter('crypto_currency');
+        $method_cname = [strtolower($crypto_currency)];
         $type = 'in';
 
         /** @var DocumentManager $dm */
@@ -70,7 +71,7 @@ class CheckCryptoCommand extends SynchronizedContainerAwareCommand
                 $amount = $data['amount'];
                 $total = $amount - $total_fee;
 
-                if ($transaction->getStatus() == Transaction::$STATUS_SUCCESS) {
+                if ($transaction->getStatus() === Transaction::$STATUS_SUCCESS) {
                     $output->writeln('CHECK CRYPTO success');
                     $service_currency = $transaction->getCurrency();
                     $wallet = $group->getWallet($service_currency);
@@ -100,19 +101,19 @@ class CheckCryptoCommand extends SynchronizedContainerAwareCommand
                         $output->writeln('get app');
                         $transactionManager = $this->getContainer()->get('app.incoming_controller');
                         $output->writeln('createTransaction');
-                        $response = $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_intermediary, $group, '127.0.0.1');
+                        $response = $transactionManager->createTransaction($request, 1, 'out', strtolower($crypto_currency), $id_user_intermediary, $group, '127.0.0.1');
                         $output->writeln('post createTransaction');
                         $output->writeln($response);
                     }
                 }
-                elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
+                elseif ($transaction->getStatus() === Transaction::$STATUS_EXPIRED) {
                     $output->writeln('TRANSACTION EXPIRED');
                     $output->writeln('NOTIFYING EXPIRED');
                     $transaction = $this->getContainer()->get('messenger')->notificate($transaction);
                     $output->writeln('Notificate end');
                     //if delete_on_expire==true delete transaction
                     $paymentInfo = $transaction->getPayInInfo();
-                    if ($transaction->getDeleteOnExpire() == true && $paymentInfo['received'] == 0) {
+                    if ($paymentInfo['received'] === 0 && $transaction->getDeleteOnExpire() === true) {
                         $transaction->setStatus('deleted');
                         $em->flush();
                         $output->writeln('NOTIFYING DELETE ON EXPIRE');
@@ -134,7 +135,7 @@ class CheckCryptoCommand extends SynchronizedContainerAwareCommand
 
         $paymentInfo = $transaction->getPayInInfo();
 
-        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired'){
+        if($transaction->getStatus() === Transaction::$STATUS_SUCCESS || $transaction->getStatus() === Transaction::$STATUS_EXPIRED){
             return $transaction;
         }
 
@@ -146,8 +147,8 @@ class CheckCryptoCommand extends SynchronizedContainerAwareCommand
         $transaction->setStatus($paymentInfo['status']);
         $transaction->setPayInInfo($paymentInfo);
 
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
-            $transaction->setStatus('expired');
+        if($transaction->getStatus() === Transaction::$STATUS_CREATED && $this->hasExpired($transaction)){
+            $transaction->setStatus(Transaction::$STATUS_EXPIRED);
         }
 
         return $transaction;

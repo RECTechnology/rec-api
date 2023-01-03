@@ -105,7 +105,7 @@ class AccountController extends BaseApiController {
             'group' => $group->getId(),
             'type' => Transaction::$TYPE_OUT,
             'internal' => false,
-            'method' => 'rec'
+            'method' => strtolower($this->getCryptoCurrency())
         ));
         //get total compras
         $total_purchases = 0;
@@ -513,7 +513,7 @@ class AccountController extends BaseApiController {
             throw new HttpException(400, 'Security answer is too large or too simple');
         $params['security_answer'] = $this->cleanString($params['security_answer']);
 
-        $methodsList = array('rec-out', 'rec-in');
+        $methodsList = array(strtolower($this->getCryptoCurrency()).'-out', strtolower($this->getCryptoCurrency()).'-in');
 
         $allowed_types = array('PRIVATE', 'COMPANY');
         if($request->request->has('type') && $request->request->get('type')!='') {
@@ -735,10 +735,10 @@ class AccountController extends BaseApiController {
 
         //create new fixed address for rec and return
         $recAddress = new CashInTokens();
-        $recAddress->setCurrency(Currency::$REC);
+        $recAddress->setCurrency($this->getCryptoCurrency());
         $recAddress->setCompany($company);
         $recAddress->setLabel('REC account');
-        $recAddress->setMethod('rec-in');
+        $recAddress->setMethod(strtolower($this->getCryptoCurrency()).'-in');
         $recAddress->setExpiresIn(-1);
         $recAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
 
@@ -1253,7 +1253,7 @@ class AccountController extends BaseApiController {
             throw new HttpException(400, "Username already registered");
         }
 
-        $methodsList = array('rec-out', 'rec-in');
+        $methodsList = array(strtolower($this->getCryptoCurrency()).'-out', strtolower($this->getCryptoCurrency()).'-in');
 
         $allowed_types = array('PRIVATE', 'COMPANY');
 

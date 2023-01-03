@@ -96,7 +96,7 @@ class SystemTest extends BaseApiTest {
 
     private function generateTransaction(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v1/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,

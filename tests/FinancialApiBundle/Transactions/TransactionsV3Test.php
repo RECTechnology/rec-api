@@ -36,7 +36,7 @@ class TransactionsV3Test extends BaseApiTest {
     function testPay1RecToStoreShouldWork(){
         self::markTestIncomplete("fails on github");
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -82,7 +82,7 @@ class TransactionsV3Test extends BaseApiTest {
         self::assertEquals(100000000000, $accounts[0]->wallets[0]->balance);
         self::assertEquals(10000000000, $accounts[1]->wallets[0]->balance);
 
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $amount = 1e8;
         $resp = $this->rest(
             'POST',
@@ -118,7 +118,7 @@ class TransactionsV3Test extends BaseApiTest {
 
     function testPay1RecToStoreWithPinTrueShouldFail(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -135,7 +135,7 @@ class TransactionsV3Test extends BaseApiTest {
 
     function testPay10000RecToStoreShouldReturn400(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $this->rest(
             'POST',
             $route,
@@ -152,7 +152,7 @@ class TransactionsV3Test extends BaseApiTest {
 
     function testPay1RecWrongPinToStoreShouldReturn400(){
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $response = $this->rest(
             'POST',
             $route,
@@ -259,7 +259,7 @@ class TransactionsV3Test extends BaseApiTest {
     function testPay1RecToStoreAndRefundShouldWork(){
         self::markTestIncomplete("fails on github");
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -275,7 +275,7 @@ class TransactionsV3Test extends BaseApiTest {
 
         $content = $resp;
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
-        $route = "/methods/v3/refund/rec";
+        $route = "/methods/v3/refund/".$this->getCryptoMethod();
         //El user no tiene la cuenta de la store activa, entonces debe petar
         $respBad = $this->rest(
             'POST',

@@ -43,7 +43,7 @@ class CheckFundingWalletTransactionsCommand extends SynchronizedContainerAwareCo
             }
 
             if($tx->getStatus() !== FundingNFTWalletTransaction::STATUS_FAILED){
-                if($response['error'] == '' && $response['status'] === 1){
+                if($response['error'] === '' && $response['status'] === 1){
                     $tx->setStatus(FundingNFTWalletTransaction::STATUS_SUCCESS);
                     $em->flush();
                     //find all NFT transactions from this account and set in created again

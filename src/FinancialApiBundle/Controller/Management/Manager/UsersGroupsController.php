@@ -6,6 +6,7 @@ use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Controller\SecurityTrait;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -223,7 +224,8 @@ class UsersGroupsController extends RestApiController{
             $company_cif = $admin->getDNI();
         }
 
-        $methodsList = array('rec-out', 'rec-in');
+
+        $methodsList = array(strtolower($this->getCryptoCurrency()).'-out', strtolower($this->getCryptoCurrency()).'-in');
 
         //create company
         $company = new Group();
@@ -304,10 +306,10 @@ class UsersGroupsController extends RestApiController{
 
         //create new fixed address for rec and return
         $recAddress = new CashInTokens();
-        $recAddress->setCurrency(Currency::$REC);
+        $recAddress->setCurrency($this->getCryptoCurrency());
         $recAddress->setCompany($company);
         $recAddress->setLabel('REC account');
-        $recAddress->setMethod('rec-in');
+        $recAddress->setMethod(strtolower($this->getCryptoCurrency()).'-in');
         $recAddress->setExpiresIn(-1);
         $recAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
         $methodDriver = $this->get('net.app.in.rec.v1');

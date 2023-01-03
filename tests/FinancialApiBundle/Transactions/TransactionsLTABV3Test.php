@@ -60,7 +60,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
         self::assertEquals(100000000000, $accounts[0]->wallets[0]->balance);
         self::assertEquals(100000000000, $accounts[1]->wallets[0]->balance);
 
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -118,7 +118,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
 
         $this->signIn(UserFixture::TEST_USER_LTAB_CREDENTIALS);
 
-        $route = "/methods/v3/out/rec";
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,
@@ -180,7 +180,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
                 //pay to commerce
                 $this->rest(
                     'POST',
-                    '/methods/v3/out/rec',
+                    '/methods/v3/out/'.$this->getCryptoMethod(),
                     [
                         'address' => $commerce->rec_address,
                         'amount' => 10e8,
@@ -226,7 +226,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
                 //pay to commerce
                 $this->rest(
                     'POST',
-                    '/methods/v3/out/rec',
+                    '/methods/v3/out/'.$this->getCryptoMethod(),
                     [
                         'address' => $not_bonissim_account->rec_address,
                         'amount' => 10e8,
@@ -276,7 +276,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
         //pay to commerce
         $this->rest(
             'POST',
-            '/methods/v3/out/rec',
+            '/methods/v3/out/'.$this->getCryptoMethod(),
             [
                 'address' => $bonissim_company_account->rec_address,
                 'amount' => $tx_amount * 1e8,
@@ -374,7 +374,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
         //pay to commerce
         $this->rest(
             'POST',
-            '/methods/v3/out/rec',
+            '/methods/v3/out/'.$this->getCryptoMethod(),
             [
                 'address' => $company_account->rec_address,
                 'amount' => $tx_amount * 1e8,
@@ -409,7 +409,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
         echo'';
         $resp = $this->rest(
             'POST',
-            '/methods/v3/out/rec',
+            '/methods/v3/out/'.$this->getCryptoMethod(),
             [
                 'address' => $reciver->rec_address,
                 'amount' => 10e8,
@@ -434,7 +434,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
 
         $resp = $this->rest(
             'POST',
-            '/methods/v3/out/rec',
+            '/methods/v3/out/'.$this->getCryptoMethod(),
             [
                 'address' => $reciver->rec_address,
                 'amount' => 300e8,

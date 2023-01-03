@@ -37,7 +37,7 @@ class AdminBaseCalls extends AdminApiTest
         $route = "/transaction/v1/vendor?address={$order->payment_address}";
         $commerce = $this->rest('GET', $route);
         self::assertCount(4, (array)$commerce);
-        $route = "/methods/v1/out/rec";
+        $route = "/methods/v1/out/".$this->getCryptoMethod();
         $resp = $this->rest(
             'POST',
             $route,

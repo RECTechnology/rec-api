@@ -104,4 +104,8 @@ class RestApiController extends FosRestController{
         );
     }
 
+    protected function getCryptoCurrency(){
+        return $this->container->getParameter('crypto_currency');
+    }
+
 }

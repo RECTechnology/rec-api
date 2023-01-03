@@ -114,13 +114,15 @@ class TreasureWithdrawalValidationSubscriber implements EventSubscriber {
                     'address' => $destination->getRecAddress(),
                     'sender' => '0'
                 ];
+                $currency = $this->container->getParameter("crypto_currency");
+                $method_cname = strtolower($currency);
                 $this->container
                     ->get('app.incoming_controller')
                     ->createTransaction(
                         $params,
                         1,
                         'in',
-                        'rec',
+                        $method_cname,
                         $id_user_root,
                         $destination,
                         '127.0.0.1'

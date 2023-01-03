@@ -8,13 +8,12 @@
 
 namespace App\FinancialApiBundle\Financial\Methods;
 
+use App\FinancialApiBundle\Document\Transaction;
 use FOS\OAuthServerBundle\Util\Random;
-use MongoDBODMProxies\__CG__\App\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
-use App\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
-use App\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 use App\FinancialApiBundle\Financial\Currency;
 use App\FinancialApiBundle\Financial\Buffer;
 use App\FinancialApiBundle\Financial\Encoder;
@@ -22,6 +21,7 @@ use App\FinancialApiBundle\Financial\Encoder;
 class RecMethod extends BaseMethod {
 
     private $driver;
+    /** @var ContainerInterface $container */
     private $container;
 
     private $min_confirmations;
@@ -94,7 +94,7 @@ class RecMethod extends BaseMethod {
 
 
     public function getCurrency(){
-        return Currency::$REC;
+        return $this->container->getParameter("crypto_currency");
     }
 
     public function getConfirmations($txid){

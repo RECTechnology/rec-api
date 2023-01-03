@@ -292,4 +292,12 @@ abstract class BaseApiTest extends WebTestCase {
         return file_get_contents("$debugDir/$filename");
     }
 
+    protected function getCryptoCurrency(){
+        return self::createClient()->getContainer()->getParameter('crypto_currency');
+    }
+
+    protected function getCryptoMethod(){
+        return strtolower($this->getCryptoCurrency());
+    }
+
 }

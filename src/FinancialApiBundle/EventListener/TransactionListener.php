@@ -20,12 +20,14 @@ class TransactionListener
     protected $container;
     protected $logger;
     protected $permissionsHandler;
+    private $crypto_currency;
 
     public function __construct(ContainerInterface $container, $permissionsHandler)
     {
         $this->container = $container;
         $this->logger = $this->container->get('transaction.logger');
         $this->permissionsHandler = $permissionsHandler;
+        $this->crypto_currency = $container->getParameter('crypto_currency');
 
     }
 
@@ -60,7 +62,7 @@ class TransactionListener
             $changeset = $uow->getDocumentChangeSet($entity);
             /** @var GardenHandler $gardenHandler */
             $gardenHandler = $this->container->get('net.app.commons.garden_handler');
-            if($entity->getType() === Transaction::$TYPE_OUT && $entity->getCurrency() === Currency::$REC){
+            if($entity->getType() === Transaction::$TYPE_OUT && $entity->getCurrency() === $this->crypto_currency){
 
                 if(isset($changeset['status'])){
                     if($changeset['status'][1] === Transaction::$STATUS_SUCCESS){

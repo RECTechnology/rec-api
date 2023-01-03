@@ -269,7 +269,7 @@ class RechargeV3RecsTest extends AdminApiTest {
         //pay to commerce
         $resp = $this->rest(
             'POST',
-            '/methods/v3/out/rec',
+            '/methods/v3/out/'.$this->getCryptoMethod(),
             [
                 'address' => $not_culture_account->rec_address,
                 'amount' => 1e8,
@@ -314,7 +314,7 @@ class RechargeV3RecsTest extends AdminApiTest {
         //pay to commerce
         $resp = $this->rest(
             'POST',
-            '/methods/v3/out/rec',
+            '/methods/v3/out/'.$this->getCryptoMethod(),
             [
                 'address' => $private_culture_account->rec_address,
                 'amount' => 1e8,

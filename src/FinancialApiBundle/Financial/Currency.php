@@ -11,6 +11,7 @@ class Currency {
 
     public static $SCALE = array(
         "REC" => 8,
+        "ROSA" => 8,
         "EUR" => 2
     );
 }

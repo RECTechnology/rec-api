@@ -107,3 +107,6 @@ parameters:
     logo_url: $LOGO_URL
     primary_color: "$PRIMARY_COLOR"
     secondary_color: "$SECONDARY_COLOR"
+
+    crypto_currency: $CRYPTO_CURRENCY
+    fiat_currency: $FIAT_CURRENCY

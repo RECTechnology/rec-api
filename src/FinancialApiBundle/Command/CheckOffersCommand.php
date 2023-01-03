@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Command;
 
 
+use App\FinancialApiBundle\Entity\Offer;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,7 +30,7 @@ class CheckOffersCommand extends ContainerAwareCommand{
         $now = strtotime("now");
         $output->writeln("INIT");
         $total_offers_actives = 0;
-        $list_offers = $em->getRepository('FinancialApiBundle:Offer')->findAll();
+        $list_offers = $em->getRepository(Offer::class)->findAll();
         foreach($list_offers as $offer){
             $output->writeln("OFFER: " . $offer->getId());
             $start = date_timestamp_get($offer->getStart());
