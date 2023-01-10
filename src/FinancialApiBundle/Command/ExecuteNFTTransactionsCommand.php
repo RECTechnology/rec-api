@@ -136,7 +136,7 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                         $em->flush();
                         $output->writeln("NFT transaction from " .$sender_id. " to ".$receiver_id." success");
                     }else{
-                        $code = $response['error'];
+                        $code = $response['message']['error'];
                         if($code === -32000){
                             if($nft_transaction->getMethod() === NFTTransaction::NFT_MINT){
                                 //send email to admin because mint is from admin and admin needs funding
