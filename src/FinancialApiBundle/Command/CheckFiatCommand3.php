@@ -1,6 +1,8 @@
 <?php
 namespace App\FinancialApiBundle\Command;
 
+use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,8 +31,8 @@ class CheckFiatCommand3 extends SynchronizedContainerAwareCommand{
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $repoGroup = $em->getRepository('FinancialApiBundle:Group');
-        $repoUser = $em->getRepository('FinancialApiBundle:User');
+        $repoGroup = $em->getRepository(Group::class);
+        $repoUser = $em->getRepository(User::class);
 
 
         $output->writeln('CHECK FIAT V3');
@@ -62,7 +64,7 @@ class CheckFiatCommand3 extends SynchronizedContainerAwareCommand{
                 $dm->persist($transaction);
                 $dm->flush();
 
-                if ($transaction->getStatus() == Transaction::$STATUS_RECEIVED) {
+                if ($transaction->getStatus() === Transaction::$STATUS_RECEIVED) {
                     $output->writeln('CHECK FIAT received');
                     $amount = $data['amount'];
                     if(isset($data['commerce_id'])) {
@@ -72,16 +74,8 @@ class CheckFiatCommand3 extends SynchronizedContainerAwareCommand{
                         $id_group_root = $this->getContainer()->getParameter('id_group_root');
                         $group = $repoGroup->findOneBy(array("id" =>$id_group_root));
                         $id_user_root = $group->getKycManager()->getId();
-                        $user = $repoUser->findOneBy(array("id"=>$id_user_root));
-                        $userAccount = $repoGroup->findOneBy(array("id"=>$transaction->getGroup()));
 
-/*                        $request = array();
-                        $request['concept'] = 'Internal exchange';
-                        $request['amount'] = $amount * 1000000;
-                        $request['address'] = $group_commerce->getRecAddress();
-                        $request['pin'] = $user->getPIN();
-                        $request['internal_tx'] = '1';
-                        $request['destionation_id'] = $transaction->getGroup();*/
+                        $userAccount = $repoGroup->findOneBy(array("id"=>$transaction->getGroup()));
 
                         $output->writeln('createTransaction');
                         sleep(1);
@@ -107,7 +101,7 @@ class CheckFiatCommand3 extends SynchronizedContainerAwareCommand{
                         $output->writeln('ERROR: not commerce_id data');
                     }
                 }
-                elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
+                elseif ($transaction->getStatus() === Transaction::$STATUS_EXPIRED) {
                     $output->writeln('TRANSACTION EXPIRED');
                     $transaction = $this->getContainer()->get('messenger')->notificate($transaction);
                 }
