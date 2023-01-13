@@ -104,6 +104,9 @@ parameters:
 #list ot three admins emails who must confirm the treasure withdrawal
     list_emails: '["uno@example.com","dos@example.com","res@example.com"]'
 
+#mail to delete user request
+    email_legal: 'legal@rec.barcelona'
+
 #list of authorized admins who can log in support panel
     authorized_admins:
         - 1

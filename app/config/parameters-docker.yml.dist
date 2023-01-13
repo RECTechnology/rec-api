@@ -86,6 +86,7 @@ parameters:
     pos_url: $POS_URL
 
     kyc_email: $KYC_EMAIL
+    email_legal: $EMAIL_LEGAL
 
     discourse_url: $DISCOURSE_URL
     b2b_forum_url: $B2B_FORUM_URL

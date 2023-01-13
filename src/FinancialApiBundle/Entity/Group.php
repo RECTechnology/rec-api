@@ -485,7 +485,6 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Pos", mappedBy="account")
-     * @Exclude()
      */
     private $pos;
 
