@@ -60,5 +60,17 @@ class CreateWalletCommand extends ContainerAwareCommand
         $em->flush();
         $text = $contador.' wallets creados';
         $output->writeln($text);
+
+        $output->writeln('Create addresses if not exists');
+        $incomplete_accounts = $em->getRespository(Group::class)->findBy(array('rec_address' => null));
+
+        $methodDriver = $this->getContainer()->get('net.app.in.'.strtolower($crypto_currency).'.v1');
+        $output->writeln('Found '.count($incomplete_accounts). ' without address');
+        foreach ($incomplete_accounts as $incomplete_account){
+            $paymentInfo = $methodDriver->getPayInInfo($incomplete_account->getId(), 0);
+            $incomplete_account->setRecAddress($paymentInfo['address']);
+
+        }
+        $em->flush();
     }
 }
