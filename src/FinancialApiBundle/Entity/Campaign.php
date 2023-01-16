@@ -7,7 +7,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity()
  * @ORM\Table(name="campaign")
  */
 class Campaign extends AppObject {
@@ -63,7 +63,6 @@ class Campaign extends AppObject {
      * @Serializer\MaxDepth(3)
      */
     private $accounts;
-
 
     /**
      * @ORM\Column(type="float")
@@ -124,6 +123,12 @@ class Campaign extends AppObject {
      * @Serializer\Groups({"public"})
      */
     protected $ending_alert = false;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Serializer\Groups({"public"})
+     */
+    protected $version =2;
 
     /**
      * @return mixed
@@ -415,6 +420,22 @@ class Campaign extends AppObject {
     public function setEndingAlert($ending_alert): void
     {
         $this->ending_alert = $ending_alert;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param int $version
+     */
+    public function setVersion(int $version): void
+    {
+        $this->version = $version;
     }
 
 }

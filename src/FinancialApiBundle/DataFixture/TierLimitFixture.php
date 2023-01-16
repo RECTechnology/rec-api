@@ -28,7 +28,9 @@ class TierLimitFixture extends Fixture {
      */
     public function load(ObjectManager $manager)
     {
+
         $methods = [strtolower($this->currency) => $this->currency, 'lemonway' => 'EUR'];
+
         $directions = ['in', 'out'];
         $tiers = range(0, 3);
 

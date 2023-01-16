@@ -4,6 +4,7 @@
 namespace App\FinancialApiBundle\DataFixture;
 
 use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\AccountCampaign;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\Campaign;
 use DateTime;
@@ -31,15 +32,16 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
     {
         $faker = Factory::create();
 
-        $user = $orm->getRepository(User::class)
-            ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
-
         $ltab_campaign = $this->createCampaign($orm, Campaign::BONISSIM_CAMPAIGN_NAME);
         $culture_campaign = $this->createCampaign($orm, Campaign::CULTURE_CAMPAIGN_NAME);
 
         $this->createRelations($orm, $ltab_campaign, $culture_campaign);
 
-        $orm->flush();
+        /** @var Group $account */
+        $account = $orm->getRepository(Group::class)
+            ->findOneBy(['name' => AccountFixture::TEST_ACCOUNT_REZERO_3]);
+
+        $this->createCustomCampaign($orm,'ROSES',1000, 'ROSA_CODE', $account, 'roses_tos');
     }
 
 
@@ -49,6 +51,7 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
     private function createCampaign(ObjectManager $orm, $campaign_name){
         $campaign = new Campaign();
         $campaign->setName($campaign_name);
+        $campaign->setVersion(1);
         if($campaign_name == Campaign::BONISSIM_CAMPAIGN_NAME){
             $campaign->setTos("private_tos_campaign");
             $campaign->setCode('LTAB20');
@@ -72,6 +75,29 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $orm->persist($campaign);
         $orm->flush();
         return $campaign;
+    }
+
+    private function createCustomCampaign(ObjectManager $orm,$name, $balance, $code,Group $account, $tos){
+        $campaign = new Campaign();
+        $campaign->setBonusEnabled(true);
+        $campaign->setEndingAlert(false);
+        $campaign->setName($name);
+        $campaign->setBalance($balance);
+        $campaign->setCode($code);
+        $campaign->setBonusEndingThreshold(1000);
+        $campaign->setCampaignAccount($account->getId());
+        $format = 'Y-m-d H:i:s';
+        $campaign->setInitDate(DateTime::createFromFormat($format, '2020-10-15 00:00:00'));
+        $campaign->setEndDate(DateTime::createFromFormat($format, '2030-11-15 00:00:00'));
+        $campaign->setMax(100);
+        $campaign->setMin(5);
+        $campaign->setRedeemablePercentage(10);
+        $campaign->setTos($tos);
+        $campaign->setUrlTos('https://tos.url');
+        $campaign->setVersion(2);
+
+        $orm->persist($campaign);
+        $orm->flush();
     }
 
     public function getDependencies(){

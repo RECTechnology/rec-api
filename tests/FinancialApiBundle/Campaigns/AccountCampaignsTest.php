@@ -7,10 +7,10 @@ use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 
 /**
- * Class CampaignsTest
+ * Class AccountCampaignsTest
  * @package Test\FinancialApiBundle\Campaign
  */
-class CampaignsTest extends BaseApiTest {
+class AccountCampaignsTest extends BaseApiTest {
 
     function setUp(): void
     {
@@ -20,16 +20,12 @@ class CampaignsTest extends BaseApiTest {
 
     function testIndex()
     {
-        $resp = $this->requestJson('GET', '/user/v3/campaigns');
+        $resp = $this->requestJson('GET', '/user/v3/account_campaign');
         self::assertEquals(
-            200,
+            403,
             $resp->getStatusCode()
         );
 
-        $content = json_decode($resp->getContent(),true);
-        $elements = $content['data']['elements'];
-
-        self::assertArrayNotHasKey('accounts', $elements[0]);
     }
 
 }

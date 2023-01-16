@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Repository;
 
 
 use App\FinancialApiBundle\Annotations\TranslatedProperty;
+use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -223,6 +224,33 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
         //->getResult();
 
         return [intval($qTotal->getSingleScalarResult()), $qResult->getResult()];
+    }
+
+    /*
+     * return campaigns with bonus enabled
+     */
+    public function getActiveCampaignsV2(){
+
+        $today = new \DateTime();
+        $qb = $this->_em->createQueryBuilder();
+
+        return $qb->select('c')
+            ->from(Campaign::class, 'c')
+            ->where('c.end_date > :today')
+            ->andWhere('c.init_date < :today')
+            ->andWhere('c.version = :version')
+            ->setParameter('today', $today)
+            ->setParameter('version', 2)
+            ->getQuery()
+            ->getResult();
+
+    }
+
+    /*
+     * return campaigns that are running (not checking if bonus is enabled)
+     */
+    public function getCampaignsWithBonusEnabledV2(){
+        return $this->_em->getRepository(Campaign::class)->findBy(array('version' => 2, 'bonus_enabled' => true));
     }
 
 }

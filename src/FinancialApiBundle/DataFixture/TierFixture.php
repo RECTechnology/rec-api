@@ -19,7 +19,7 @@ class TierFixture extends Fixture implements DependentFixtureInterface {
     public function load(ObjectManager $orm)
     {
         $level1 = $this->createTier($orm, Tier::KYC_LEVELS[0], 'First level', 0);
-        $level2 = $this->createTier($orm, Tier::KYC_LEVELS[1], 'Second level', 250, $level1);
+        $level2 = $this->createTier($orm, Tier::KYC_LEVELS[1], 'Second level', 2500*1e8, $level1);
         $this->createTier($orm, Tier::KYC_LEVELS[2], 'Third level', null, $level2);
     }
 

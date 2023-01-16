@@ -38,6 +38,9 @@ CRUD_account_challenges_overrides:
 CRUD_user_overrides:
     resource: routing/CRUDsOverrides/users.yml
 
+CRUD_account_campaigns_overrides:
+    resource: routing/CRUDsOverrides/account_campaigns.yml
+
 
 CRUD:
     resource: routing/crud.yml

@@ -5,6 +5,7 @@ namespace Test\FinancialApiBundle\Admin\LemonWay;
 use App\FinancialApiBundle\DataFixture\AccountFixture;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Entity\AccountCampaign;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\User;
@@ -46,6 +47,13 @@ class RechargeV3RecsTest extends AdminApiTest {
         $acc->setCompanyImage('');
         $em->persist($acc);
         $em->flush();
+
+        //remove this account from roses campaign
+        $account_campaigns = $em->getRepository(AccountCampaign::class)->findBy(array('account' => $acc));
+        foreach ($account_campaigns as $accountCampaign){
+            $em->remove($accountCampaign);
+            $em->flush();
+        }
 
         $company_accounts = $this->rest('GET', "/user/v3/accounts?type=COMPANY&kyc_manager=".$user_id);
         self::assertGreaterThanOrEqual(1, count($company_accounts));
@@ -99,6 +107,112 @@ class RechargeV3RecsTest extends AdminApiTest {
 
     }
 
+    function testRechargeAndBonificationV2(){
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $user = $this->getSignedInUser();
+
+        $accounts = $user->accounts;
+        self::assertEquals(100000000000, $accounts[0]->wallets[0]->balance);
+        self::assertEquals(10000000000, $accounts[1]->wallets[0]->balance);
+        self::assertEquals(100000000000, $accounts[2]->wallets[0]->balance);
+
+        $this->createLemonTxV3(6000);
+
+        //check wallet to have 6 more recs
+        $user = $this->getSignedInUser();
+
+        $accounts = $user->accounts;
+
+        self::assertEquals(100600000000, $accounts[0]->wallets[0]->balance);
+        self::assertEquals(10000000000, $accounts[1]->wallets[0]->balance);
+        self::assertEquals(100000000000, $accounts[2]->wallets[0]->balance);
+
+        //new transaction to exceed max
+        $this->createLemonTxV3(100000);
+
+        //check wallet to receive max (it should receive 100 but only will receive 94 because of previous tx)
+        $user = $this->getSignedInUser();
+
+        $accounts = $user->accounts;
+
+        self::assertEquals(110000000000, $accounts[0]->wallets[0]->balance);
+        self::assertEquals(10000000000, $accounts[1]->wallets[0]->balance);
+        self::assertEquals(100000000000, $accounts[2]->wallets[0]->balance);
+
+        //new transaction with max bonificatino exceeded,shouldnt bnificate anything
+        $this->createLemonTxV3(10000);
+
+        //check wallet to not receive anything, bonification max exceeded for this account
+        $user = $this->getSignedInUser();
+
+        $accounts = $user->accounts;
+
+        self::assertEquals(110000000000, $accounts[0]->wallets[0]->balance);
+        self::assertEquals(10000000000, $accounts[1]->wallets[0]->balance);
+        self::assertEquals(100000000000, $accounts[2]->wallets[0]->balance);
+
+        //at this point we have 100 recs acumulated
+
+        //TODO pay to user to not allowed to spend bonifications
+        $account = $this->getSinglePrivateAccount();
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
+        $amount = 110000000000;
+        $resp = $this->rest(
+            'POST',
+            $route,
+            [
+                'address' => $account->rec_address,
+                'amount' => $amount,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+            ],
+            [],
+            400
+        );
+
+        self::assertEquals('error', $resp->status);
+        self::assertEquals('Not funds enough. You can not use bonused balance in a private transaction', $resp->message);
+
+        //TODO pay to store to spend acumulated bonifications
+        $store = $this->getSingleStore();
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+
+        $route = "/methods/v3/out/".$this->getCryptoMethod();
+        $amount = 110000000000;
+        $resp = $this->rest(
+            'POST',
+            $route,
+            [
+                'address' => $store->rec_address,
+                'amount' => $amount,
+                'concept' => 'Testing concept',
+                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+            ],
+            [],
+            201
+        );
+
+        self::assertEquals('success', $resp->status);
+        self::assertEquals('Done', $resp->message);
+    }
+
+    private function getSingleStore(){
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        //UserFixture::TEST_ADMIN_CREDENTIALS es el owner de esta tienda
+        $store = $this->rest('GET', '/admin/v3/accounts?type=COMPANY')[0];
+        $this->signOut();
+        return $store;
+    }
+
+    private function getSinglePrivateAccount(){
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $account = $this->rest('GET', '/admin/v3/accounts?type=PRIVATE')[0];
+        $this->signOut();
+        return $account;
+    }
+
     /**
      * @param array $data
      */
@@ -127,6 +241,21 @@ class RechargeV3RecsTest extends AdminApiTest {
         $this->runCommand('rec:fiatV3:check');
         $this->runCommand('rec:crypto:check');
         $this->runCommand('rec:crypto:check');
+    }
+
+    /**
+     * @param array $data
+     * @throws \Exception
+     */
+    private function executeRechargeV3(array $data): void
+    {
+        $route = '/methods/v3/in/lemonway';
+        $resp = $this->requestJson('POST', $route, $data);
+        $content_post = json_decode($resp->getContent(), true);
+
+        $this->runCommand('rec:fiatV3:check');
+        //$this->runCommand('rec:crypto:check');
+        //$this->runCommand('rec:crypto:check');
     }
 
     function testRechargeCultureAccountShuldSend50(){
@@ -336,5 +465,20 @@ class RechargeV3RecsTest extends AdminApiTest {
             }
         }
         self::assertEquals($init_balance, $fin_balance);
+    }
+
+    private function createLemonTxV3($amount){
+        $user = $this->getSignedInUser();
+        $data = ['status' => Transaction::$STATUS_RECEIVED,
+            'company_id' => $user->group_data->id,
+            'amount' => $amount,
+            'commerce_id' => 6,
+            'concept' => 'test recharge v2 bonification',
+            'pin' => UserFixture::TEST_USER_CREDENTIALS['pin'],
+            'save_card' => 0];
+
+        $this->useLemonWayMock($data);
+
+        $this->executeRechargeV3($data);
     }
 }

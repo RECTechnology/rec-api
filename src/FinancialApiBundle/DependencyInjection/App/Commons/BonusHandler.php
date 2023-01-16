@@ -9,6 +9,7 @@
 namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
 use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Entity\AccountCampaign;
 use App\FinancialApiBundle\Entity\Balance;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Group;
@@ -63,6 +64,8 @@ class BonusHandler{
         if($this->isCultureBonificable()) $this->generateCultureBonification();
 
         if($this->isRedeemableLTAB()) $this->redeemTxLTAB();
+
+        $this->manageV2Bonifications();
         return $extra_data;
     }
 
@@ -73,7 +76,8 @@ class BonusHandler{
         $this->originTx = $tx;
     }
 
-    private function getTxDestination(){
+    private function getTxDestination(): ?Group
+    {
         $paymentInfo = $this->originTx->getPayOutInfo();
         $address = $paymentInfo['address'];
 
@@ -234,7 +238,42 @@ class BonusHandler{
         $redeemable_amount = $ltabAccount->getRedeemableAmount();
         $decimals = ($this->originTx->getMethod() === 'lemonway')?100:1e8;
         return min($redeemable_amount, $this->originTx->getAmount() / $decimals);
+    }
 
+    private function getBonificableV2(Campaign $campaign){
+        $percentage = $campaign->getRedeemablePercentage();
+
+        //bonificable_amount esta en cents de euro
+        $bonificable_amount = $this->originTx->getAmount();
+
+        //bonification amount esta en euros
+        $bonificationAmount = $bonificable_amount/100 * $percentage/100;
+
+        //check bonifications in all accounts
+        $owned_accounts = $this->getEntityManager()->getRepository(Group::class)->findBy(array(
+            'kyc_manager' => $this->clientGroup->getkycManager()
+        ));
+
+        //total bonificated esta en satoshis
+        $totalBonificated = 0;
+        foreach ($owned_accounts as $account){
+            $campaign_account = $this->getEntityManager()->getRepository(AccountCampaign::class)->findOneBy(array(
+                'account' => $account,
+                'campaign' => $campaign
+            ));
+
+            if($campaign_account){
+                $totalBonificated += $campaign_account->getAcumulatedBonus();
+            }
+        }
+
+        //available_bonification esta en euros
+        $available_bonification = $campaign->getMax() - $totalBonificated/1e8;
+        if($available_bonification < $bonificationAmount){
+            $bonificationAmount = $available_bonification;
+        }
+        //se devuelve bonificationAmount en satoshis
+        return $bonificationAmount*1e8;
 
     }
 
@@ -302,6 +341,24 @@ class BonusHandler{
         return  $exchangerAccount;
     }
 
+    private function getExchangerV2()
+    {
+        /** @var EntityManagerInterface $em */
+        $em = $this->getEntityManager();
+        $kyc2_id = $em->getRepository(Tier::class)->findOneBy(array('code' => 'KYC2'));
+
+        $exchangers = $em->getRepository(Group::class)->findBy([
+            'type' => 'COMPANY',
+            'level' => $kyc2_id->getId(),
+            'active' => 1]);
+
+        if (count($exchangers) == 0) {
+            throw new HttpException(403, '"No qualified exchanger found.');
+        }
+
+        return $exchangers[random_int(0, count($exchangers) - 1)];
+    }
+
     private function getLtabAccount($user_id, Campaign $campaign, $force_creation = false){
         /** @var EntityManagerInterface $em */
         $em = $this->getEntityManager();
@@ -347,6 +404,90 @@ class BonusHandler{
         $this->logger->info("BONUS HANDLER -> Write redemable -> ".$allowed_redeemable);
 
         $em->flush();
+
+    }
+
+    /**
+     * Manage bonifications v2, only recharges for now
+     */
+    private function manageV2Bonifications(){
+        //only success can access for recharge, if we allow other kind of campaigns we should update this part
+        if($this->originTx->getStatus() === Transaction::$STATUS_SUCCESS && $this->originTx->getMethod() === 'lemonway'){
+            $active_campaigns = $this->getEntityManager()->getRepository(Campaign::class)->getCampaignsWithBonusEnabledV2();
+
+            foreach ($active_campaigns as $active_campaign){
+                if($this->isCampaignV2Bonificable($active_campaign)){
+                    $this->createV2Bonification($active_campaign);
+                }
+            }
+        }
+
+    }
+
+    private function createV2Bonification(Campaign $campaign){
+        $campaignAccountId = $campaign->getCampaignAccount();
+        $campaignAccount = $this->getEntityManager()->getRepository(Group::class)->find($campaignAccountId);
+        $exchanger = $this->getExchangerV2();
+
+        $bonificableAmount = $this->getBonificableV2($campaign);
+
+        if($bonificableAmount > 0){
+            try{
+                $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount, 'Bonificació +' . $campaign->getRedeemablePercentage() . '%');
+                $accountCampaign = $this->getAccountCampaign($this->clientGroup, $campaign);
+                if($accountCampaign){
+                    $accountCampaign->setAcumulatedBonus($accountCampaign->getAcumulatedBonus() + $bonificableAmount);
+
+                    $this->getEntityManager()->flush();
+                }
+
+            }catch (HttpException $e){
+
+            }
+        }
+
+    }
+
+    private function isCampaignV2Bonificable(Campaign $campaign){
+        if(!$this->isAccountInCampaign($this->clientGroup, $campaign)) return false;
+        if($this->originTx->getAmount() < $campaign->getMin()) return false;
+        if(!$campaign->isBonusEnabled()) return false;
+        //only private accounts
+        if($this->clientGroup->getType() === Group::ACCOUNT_TYPE_ORGANIZATION) return false;
+        return true;
+    }
+
+    private function isAccountInCampaign(Group $account, Campaign $campaign){
+        $account_campaign = $this->getAccountCampaign($account, $campaign);
+
+        if($account_campaign) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+    /**
+     * returns AccountCampaign Object
+     */
+    private function getAccountCampaign(Group $account, Campaign $campaign) :?AccountCampaign
+    {
+        return $this->getEntityManager()->getRepository(AccountCampaign::class)->findOneBy(array(
+            'account' => $account,
+            'campaign' => $campaign
+        ));
+    }
+
+    private function isReceiverStore(){
+        /** @var Group $destination */
+        $destination = $this->getTxDestination();
+
+        if($destination->getType() === Group::ACCOUNT_TYPE_ORGANIZATION) {
+            return true;
+        }
+
+        return false;
 
     }
 

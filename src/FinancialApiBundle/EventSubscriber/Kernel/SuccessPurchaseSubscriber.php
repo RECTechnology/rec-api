@@ -3,8 +3,12 @@
 namespace App\FinancialApiBundle\EventSubscriber\Kernel;
 
 use App\FinancialApiBundle\DependencyInjection\App\Commons\ChallengeHandler;
+use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Entity\AccountCampaign;
+use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Challenge;
 use App\FinancialApiBundle\Entity\ConfigurationSetting;
+use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\NFTTransaction;
 use App\FinancialApiBundle\Event\PurchaseSuccessEvent;
 use App\FinancialApiBundle\Event\ShareNftEvent;
@@ -49,6 +53,7 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
             $this->checkConstraintsAndDispatch(Challenge::ACTION_TYPE_BUY, $event);
         }
 
+        $this->addSpentToAccountCampaign($event->getAccount(), $event->getTransaction());
     }
 
     public function onSuccessTransfer(TransferEvent $event){
@@ -106,5 +111,38 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
         );
         $this->logger->info('SUCCESS_PURCHASE_SUBSCRIBER: dispatch ShareNftEvent');
         $dispatcher->dispatch(ShareNftEvent::NAME, $nftEvent);
+    }
+
+    private function addSpentToAccountCampaign(Group $account, Transaction $transaction): void
+    {
+        $active_campaigns = $this->getActiveV2Campaigns();
+        $amount = $transaction->getAmount();
+        foreach ($active_campaigns as $active_campaign){
+            /** @var AccountCampaign $account_campaign */
+            $account_campaign = $this->em->getRepository(AccountCampaign::class)->findOneBy(array('account' => $account, 'campaign' => $active_campaign));
+            if($account_campaign){
+                $available_bonus = $account_campaign->getAcumulatedBonus() - $account_campaign->getSpentBonus();
+                if($available_bonus > 0){
+                    if($available_bonus > $amount){
+                        //total spent
+                        $account_campaign->setSpentBonus($account_campaign->getSpentBonus() + $amount);
+                        $this->em->flush();
+                        break;
+                    }
+
+                    //partial spent
+                    $account_campaign->setSpentBonus($account_campaign->getSpentBonus() + $available_bonus);
+                    $this->em->flush();
+                    $amount -= $available_bonus;
+                }
+            }
+
+
+        }
+
+    }
+
+    private function getActiveV2Campaigns(){
+        return $this->em->getRepository(Campaign::class)->getActiveCampaignsV2();
     }
 }

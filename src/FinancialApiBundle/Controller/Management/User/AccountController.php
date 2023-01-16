@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Controller\Management\User;
 
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Entity\AccountCampaign;
 use App\FinancialApiBundle\Entity\AccountChallenge;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
@@ -1993,7 +1994,7 @@ class AccountController extends BaseApiController {
         $em = $this->getDoctrine()->getManager();
 
         foreach($request->request->keys() as $param){
-            if($param != 'campaign_code'){
+            if($param !== 'campaign_code'){
                 throw new HttpException(404,'Parameter '.$param. ' not allowed.');
             }
         }
@@ -2014,15 +2015,34 @@ class AccountController extends BaseApiController {
         }
         $request->request->remove('campaign_code');
 
-        $response = parent::updateAction($request, $id);
+        if($campaign->getVersion() === 1){
+            $response = parent::updateAction($request, $id);
 
-        if($response->getStatusCode() == 200) {
-            if ($campaign->getName() === Campaign::CULTURE_CAMPAIGN_NAME) {
-                $this->createCultureAccountIfUserDoesNotHaveOne($id, $em, $campaign);
+            if($response->getStatusCode() == 200) {
+                if ($campaign->getName() === Campaign::CULTURE_CAMPAIGN_NAME) {
+                    $this->createCultureAccountIfUserDoesNotHaveOne($id, $em, $campaign);
+                }
+                return $this->restV2(204,"ok", "TOS updated");
             }
-            return $this->restV2(204,"ok", "TOS updated");
+            return $response;
         }
-        return $response;
+
+        //add all private accounts from this user to campaign
+        $private_accounts = $em->getRepository(Group::class)->findBy(array(
+            'kyc_manager' => $user,
+            'type' => Group::ACCOUNT_TYPE_PRIVATE
+        ));
+        foreach ($private_accounts as $private_account){
+            $account_campaign = new AccountCampaign();
+            $account_campaign->setCampaign($campaign);
+            $account_campaign->setAccount($private_account);
+            $em->persist($account_campaign);
+
+        }
+
+        $em->flush();
+
+        return $this->restV2(204,"ok", "TOS updated");
     }
 
     /**

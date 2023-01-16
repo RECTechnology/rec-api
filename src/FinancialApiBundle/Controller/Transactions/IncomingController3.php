@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Controller\Transactions;
 
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
+use App\FinancialApiBundle\Entity\AccountCampaign;
 use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\SmsTemplates;
@@ -738,6 +739,8 @@ class IncomingController3 extends RestApiController{
             throw new HttpException(400, 'Error, cannot send money to the same origin address');
         }
 
+        $this->checkBalanceForPrivateTransfer($account_from, $destination, $wallet, $amount);
+
         if ($destination->getRecAddress() === "temp" || $account_from->getRecAddress() === "temp") {
             $notificator = $this->container->get('com.qbitartifacts.rec.commons.notificator');
             $notificator->send('#EERROR TEMP ADDRESS' . $destination->getId() . " or " . $account_from->getId());
@@ -1035,5 +1038,30 @@ class IncomingController3 extends RestApiController{
             $transaction
         );
 
+    }
+
+    private function checkBalanceForPrivateTransfer(Group $account_from, Group $destination, UserWallet $wallet, $amount): void
+    {
+        if($destination->getType() === Group::ACCOUNT_TYPE_PRIVATE){
+            $em = $this->getEntityManager();
+            //check balances discounting acumulated in campaigns if receiver is particular
+            $active_campaigns = $em->getRepository(Campaign::class)->getCampaignsWithBonusEnabledV2();
+            $total_bonus_accumulated = 0;
+            $total_bonus_spent = 0;
+            foreach ($active_campaigns as $active_campaign){
+                /** @var AccountCampaign $account_campaign */
+                $account_campaign = $em->getRepository(AccountCampaign::class)->findOneBy(array('account' => $account_from, 'campaign' => $active_campaign));
+                if($account_campaign){
+                    $total_bonus_accumulated += $account_campaign->getAcumulatedBonus();
+                    $total_bonus_spent += $account_campaign->getSpentBonus();
+                }
+
+            }
+            $available_bonus = $total_bonus_accumulated - $total_bonus_spent;
+            $available_balance = $wallet->getBalance() - $available_bonus;
+            if($available_balance < $amount) {
+                throw new HttpException(400, 'Not funds enough. You can not use bonused balance in a private transaction');
+            }
+        }
     }
 }

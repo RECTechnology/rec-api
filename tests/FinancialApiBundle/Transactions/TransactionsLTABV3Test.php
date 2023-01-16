@@ -437,7 +437,7 @@ class TransactionsLTABV3Test extends BaseApiTest {
             '/methods/v3/out/'.$this->getCryptoMethod(),
             [
                 'address' => $reciver->rec_address,
-                'amount' => 300e8,
+                'amount' => 2800e8,
                 'concept' => 'Testing concept',
                 'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
             ],

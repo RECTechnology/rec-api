@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Controller\Management\Manager;
 
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Controller\SecurityTrait;
+use App\FinancialApiBundle\Entity\AccountCampaign;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
 use phpDocumentor\Reflection\Types\This;
@@ -236,7 +237,7 @@ class UsersGroupsController extends RestApiController{
             $company->setEmail($admin->getEmail());
         }
 
-        if($type == 'COMPANY'){
+        if($type === Group::ACCOUNT_TYPE_ORGANIZATION){
             if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {
                 $phone_com = preg_replace("/[^0-9]/", "", $request->request->get('company_phone'));
                 $company->setPhone($phone_com);
@@ -320,6 +321,8 @@ class UsersGroupsController extends RestApiController{
 
         $company->setRecAddress($token);
         $em->persist($company);
+
+        $this->addAccountToAcceptedCampaigns($admin, $company);
 
         $company = $this->secureOutput($company);
         $response['company'] = $company;
@@ -421,6 +424,36 @@ class UsersGroupsController extends RestApiController{
             ->setContentType('text/html');
 
         $this->container->get('mailer')->send($message);
+    }
+
+    private function addAccountToAcceptedCampaigns(User $user, Group $company){
+        $em = $this->getDoctrine()->getManager();
+        //if user in campaign add this company to campaign
+        $owned_companies = $em->getRepository(Group::class)->findBy(array('kyc_manager' => $user, 'type' => Group::ACCOUNT_TYPE_PRIVATE));
+        foreach ($owned_companies as $owned_company){
+            $account_campaigns = $em->getRepository(AccountCampaign::class)->findBy(array('account' => $owned_company));
+            if(count($account_campaigns) > 0){
+                //user is in campaigns
+                /** @var AccountCampaign $accountCampaign */
+                foreach ($account_campaigns as $accountCampaign){
+                    if($accountCampaign->getCampaign()->isBonusEnabled()){
+                        //check if is already created
+                        $existAccountCampaign = $em->getRepository(AccountCampaign::class)->findOneBy(array(
+                                'account' => $company,
+                                'campaign' => $accountCampaign->getCampaign())
+                        );
+                        if(!$existAccountCampaign){
+                            //create account campaign
+                            $newAccountCampaign = new AccountCampaign();
+                            $newAccountCampaign->setAccount($company);
+                            $newAccountCampaign->setCampaign($accountCampaign->getCampaign());
+                            $em->persist($newAccountCampaign);
+                            $em->flush();
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

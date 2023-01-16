@@ -87,9 +87,6 @@ class LimitManipulator {
             ));
         }
 
-
-        $scale = pow(10, Currency::$SCALE[$method->getCurrency()]);
-
         if($group_limit->getSingle() < $amount && $group_limit->getSingle() >= 0)
             //throw new HttpException(403, 'Single Limit Exceeded '.$amount/$scale.' - '.$group_limit->getSingle()/$scale);
             throw new HttpException(403, 'Single Limit Exceeded.');
