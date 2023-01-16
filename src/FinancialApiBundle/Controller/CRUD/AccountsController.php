@@ -117,9 +117,9 @@ class AccountsController extends CRUDController {
             $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
 
-        $only_with_offers = isset($query->only_with_offers)? $query->only_with_offers: 0;
+        $only_with_offers = $query->only_with_offers ?? 0;
 
-        if($only_with_offers == 1) {
+        if($only_with_offers === '1') {
 
             $qbAux = $em->createQueryBuilder()
                 ->select('count(o2)')
@@ -204,7 +204,7 @@ class AccountsController extends CRUDController {
             'c.cat',
             'c.esp'
         ];
-        if ($only_with_offers === 1 || $only_with_offers === 'true') {
+        if ($only_with_offers === '1' || $only_with_offers === 'true') {
            $searchFields[] = 'o.description';
         }
         $like = $qb->expr()->orX();
@@ -259,7 +259,7 @@ class AccountsController extends CRUDController {
 
         $now = new \DateTime('NOW');
 
-        if ($only_with_offers === 1 || $only_with_offers === 'true') {
+        if ($only_with_offers === '1' || $only_with_offers === 'true') {
             $_and = $qb->expr()->andX();
             $_and->add($qb->expr()->eq('o2.company', 'a.id'));
             $_and->add($qb->expr()->eq('o2.active', 1));

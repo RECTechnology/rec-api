@@ -48,21 +48,35 @@ class MapTest extends BaseApiTest {
 
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
 
-        $response = $this->requestJson('GET', '/user/v4/accounts/search?only_with_offers=true');
+        $responseSendingTrue = $this->requestJson('GET', '/user/v4/accounts/search?only_with_offers=true');
+        $responseSendingOne = $this->requestJson('GET', '/user/v4/accounts/search?only_with_offers=1');
 
         self::assertEquals(
             200,
-            $response->getStatusCode(),
-            "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
+            $responseSendingTrue->getStatusCode(),
+            "status_code: {$responseSendingTrue->getStatusCode()} content: {$responseSendingTrue->getContent()}"
         );
 
-        $accounts = json_decode($response->getContent(),true);
-        self::assertEquals(3, count($accounts));
+        self::assertEquals(
+            200,
+            $responseSendingOne->getStatusCode(),
+            "status_code: {$responseSendingOne->getStatusCode()} content: {$responseSendingOne->getContent()}"
+        );
 
-        foreach ($accounts['data']['elements'] as $account){
+
+        $accountsSendingTrue = json_decode($responseSendingTrue->getContent(),true);
+        self::assertEquals(3, count($accountsSendingTrue));
+
+        foreach ($accountsSendingTrue['data']['elements'] as $account){
             self::assertEquals(1, $account['has_offers']);
         }
 
+        $accountsSendingOne = json_decode($responseSendingOne->getContent(),true);
+        self::assertEquals(3, count($accountsSendingOne));
+
+        foreach ($accountsSendingOne['data']['elements'] as $account){
+            self::assertEquals(1, $account['has_offers']);
+        }
     }
 
     public function testMapSearchByCampaignCodeResponds200(){
