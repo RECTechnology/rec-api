@@ -49,9 +49,15 @@ class AccountsController extends CRUDController {
     function getCRUDGrants()
     {
         $grants = parent::getCRUDGrants();
+        $grants[self::CRUD_SHOW] = self::ROLE_PUBLIC;
         $grants[self::CRUD_SEARCH] = self::ROLE_PUBLIC;
         $grants[self::CRUD_UPDATE] = self::ROLE_USER;
         return $grants;
+    }
+
+    public function showAction($role, $id)
+    {
+        return parent::showAction($role, $id);
     }
 
     /**

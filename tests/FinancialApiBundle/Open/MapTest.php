@@ -9,6 +9,7 @@ use Test\FinancialApiBundle\BaseApiTest;
 
 class MapTest extends BaseApiTest {
 
+    private const ENDPOINT_ROLES = ['user', 'public'];
     public function testMapSearchResponds200(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
 
@@ -24,7 +25,7 @@ class MapTest extends BaseApiTest {
         $accounts = json_decode($response->getContent(),true);
         foreach ($accounts['data']['elements'] as $account){
             self::assertArrayHasKey('is_cultural', $account);
-            if($account['name'] == AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']){
+            if($account['name'] === AccountFixture::TEST_ACCOUNT_CULT21_COMMERCE['name']){
                 self::assertFalse($account['has_offers']);
             }
         }
@@ -46,64 +47,82 @@ class MapTest extends BaseApiTest {
 
     public function testMapSearchOnlyWithOffersResponds200(){
 
-        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        foreach (self::ENDPOINT_ROLES as $role) {
+            if ($role !== 'public') {
+                $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+            }
 
-        $responseSendingTrue = $this->requestJson('GET', '/user/v4/accounts/search?only_with_offers=true');
-        $responseSendingOne = $this->requestJson('GET', '/user/v4/accounts/search?only_with_offers=1');
+            $responseSendingTrue = $this->requestJson('GET', '/'.$role.'/v4/accounts/search?only_with_offers=true');
+            $responseSendingOne = $this->requestJson('GET', '/'.$role.'/v4/accounts/search?only_with_offers=1');
 
-        self::assertEquals(
-            200,
-            $responseSendingTrue->getStatusCode(),
-            "status_code: {$responseSendingTrue->getStatusCode()} content: {$responseSendingTrue->getContent()}"
-        );
+            self::assertEquals(
+                200,
+                $responseSendingTrue->getStatusCode(),
+                "status_code: {$responseSendingTrue->getStatusCode()} content: {$responseSendingTrue->getContent()}"
+            );
 
-        self::assertEquals(
-            200,
-            $responseSendingOne->getStatusCode(),
-            "status_code: {$responseSendingOne->getStatusCode()} content: {$responseSendingOne->getContent()}"
-        );
+            self::assertEquals(
+                200,
+                $responseSendingOne->getStatusCode(),
+                "status_code: {$responseSendingOne->getStatusCode()} content: {$responseSendingOne->getContent()}"
+            );
 
 
-        $accountsSendingTrue = json_decode($responseSendingTrue->getContent(),true);
-        self::assertEquals(3, count($accountsSendingTrue));
+            $accountsSendingTrue = json_decode($responseSendingTrue->getContent(),true);
+            self::assertCount(3, $accountsSendingTrue);
 
-        foreach ($accountsSendingTrue['data']['elements'] as $account){
-            self::assertEquals(1, $account['has_offers']);
+            foreach ($accountsSendingTrue['data']['elements'] as $account){
+                self::assertEquals(1, $account['has_offers']);
+
+            }
+
+            $accountsSendingOne = json_decode($responseSendingOne->getContent(),true);
+            self::assertCount(3, $accountsSendingOne);
+
+            foreach ($accountsSendingOne['data']['elements'] as $account){
+                self::assertEquals(1, $account['has_offers']);
+            }
+
+            if ($role !== 'public') {
+                $this->signOut();
+            }
         }
 
-        $accountsSendingOne = json_decode($responseSendingOne->getContent(),true);
-        self::assertEquals(3, count($accountsSendingOne));
-
-        foreach ($accountsSendingOne['data']['elements'] as $account){
-            self::assertEquals(1, $account['has_offers']);
-        }
     }
 
     public function testMapSearchByCampaignCodeResponds200(){
 
-        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
-
-        $response = $this->requestJson('GET', '/user/v4/accounts/search?campaign_code=LTAB20');
-
-        self::assertEquals(
-            200,
-            $response->getStatusCode(),
-            "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
-        );
-
-        $accounts = json_decode($response->getContent(),true);
-        self::assertEquals(3, count($accounts));
-
-        foreach ($accounts['data']['elements'] as $account){
-            self::assertArrayHasKey('campaigns', $account);
-            $exists_LTAB_campaign = false;
-            foreach ($account['campaigns'] as $campaign){
-                if($campaign['code'] == 'LTAB20'){
-                    $exists_LTAB_campaign = true;
-                }
+        foreach (self::ENDPOINT_ROLES as $role){
+            if($role !== 'public'){
+                $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
             }
-            self::assertEquals(true, $exists_LTAB_campaign);
+
+            $response = $this->requestJson('GET', '/'.$role.'/v4/accounts/search?campaign_code=LTAB20');
+
+            self::assertEquals(
+                200,
+                $response->getStatusCode(),
+                "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
+            );
+
+            $accounts = json_decode($response->getContent(),true);
+            self::assertCount(3, $accounts);
+
+            foreach ($accounts['data']['elements'] as $account){
+                self::assertArrayHasKey('campaigns', $account);
+                $exists_LTAB_campaign = false;
+                foreach ($account['campaigns'] as $campaign){
+                    if($campaign['code'] === 'LTAB20'){
+                        $exists_LTAB_campaign = true;
+                    }
+                }
+                self::assertEquals(true, $exists_LTAB_campaign);
+            }
+            if($role !== 'public'){
+                $this->signOut();
+            }
         }
+
     }
 
     public function testPublicMapSearchOffers(){
@@ -144,7 +163,7 @@ class MapTest extends BaseApiTest {
         );
         $accounts = json_decode($response->getContent(),true);
         foreach ($accounts["data"]["elements"] as $account){
-            if($account['name'] == AccountFixture::TEST_ACCOUNT_REZERO_2['name']){
+            if($account['name'] === AccountFixture::TEST_ACCOUNT_REZERO_2['name']){
                 self::assertTrue($account["is_commerce_verd"]);
             }
         }
@@ -162,6 +181,6 @@ class MapTest extends BaseApiTest {
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );
         $accounts = json_decode($response->getContent(),true);
-        self::assertEquals($accounts["data"]["elements"][0]["badge"], 'Test');
+        self::assertEquals('Test', $accounts["data"]["elements"][0]["badge"]);
     }
 }
