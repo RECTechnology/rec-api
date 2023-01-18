@@ -17,6 +17,20 @@ class PosTest extends AdminApiTest implements CrudV3WriteTestInterface {
     {
         $account = $this->getOneAccount();
         $pos = $this->createPos($account);
+        $route = '/admin/v3/accounts/'.$account->id;
+        $resp = $this->requestJson('GET', $route);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $content = json_decode($resp->getContent(), true);
+        self::assertArrayHasKey('data', $content);
+
+        $data = $content['data'];
+        self::assertArrayHasKey('pos', $data);
 
         self::assertObjectHasAttribute('active', $pos);
         self::assertObjectHasAttribute('account', $pos);
