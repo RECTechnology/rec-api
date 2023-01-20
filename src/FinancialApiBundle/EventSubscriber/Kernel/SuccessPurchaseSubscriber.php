@@ -13,6 +13,7 @@ use App\FinancialApiBundle\Entity\NFTTransaction;
 use App\FinancialApiBundle\Event\PurchaseSuccessEvent;
 use App\FinancialApiBundle\Event\ShareNftEvent;
 use App\FinancialApiBundle\Event\TransferEvent;
+use App\FinancialApiBundle\Financial\Currency;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -49,17 +50,23 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
     }
 
     public function onSuccessPurchase(PurchaseSuccessEvent $event){
-        if($this->getSetting()){
-            $this->checkConstraintsAndDispatch(Challenge::ACTION_TYPE_BUY, $event);
+        if($event->getTransaction()->getCurrency() !== Currency::$EUR){
+            if($this->getSetting()){
+                $this->checkConstraintsAndDispatch(Challenge::ACTION_TYPE_BUY, $event);
+            }
+
+            $this->addSpentToAccountCampaign($event->getAccount(), $event->getTransaction());
         }
 
-        $this->addSpentToAccountCampaign($event->getAccount(), $event->getTransaction());
     }
 
     public function onSuccessTransfer(TransferEvent $event){
-        if($this->getSetting()){
-            $this->checkConstraintsAndDispatch(Challenge::ACTION_TYPE_SEND, $event);
+        if($event->getTransaction()->getCurrency() !== Currency::$EUR){
+            if($this->getSetting()){
+                $this->checkConstraintsAndDispatch(Challenge::ACTION_TYPE_SEND, $event);
+            }
         }
+
     }
 
     private function getSetting(){

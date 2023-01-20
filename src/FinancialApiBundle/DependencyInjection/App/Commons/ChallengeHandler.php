@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Challenge;
 use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Financial\Currency;
 use Monolog\Logger;
 use Psr\Container\ContainerInterface;
 
@@ -41,7 +42,7 @@ class ChallengeHandler
         $this->logger->info('CHALLENGE_HANDLER total tx found: '.count($transactions));
         foreach ($transactions as $transaction){
             //only out transactions count
-            if($transaction->getType() === Transaction::$TYPE_OUT && $transaction->getInternal() === false){
+            if($transaction->getType() === Transaction::$TYPE_OUT && $transaction->getInternal() === false && $transaction->getCurrency() !== Currency::$EUR){
                 $this->logger->info('CHALLENGE_HANDLER checking tx');
                 //check challenge constraints for every tx
                 if($this->isChallengeAware($challenge, $transaction)){
