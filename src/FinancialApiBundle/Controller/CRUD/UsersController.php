@@ -34,13 +34,12 @@ class UsersController extends CRUDController
         if($find_user->getId() !== $current_user->getId()) throw new HttpException(403, 'You do not have the necessary permissions ');
 
         $this->sendEmail($current_user);
-
         return $this->restV2(204, 'OK', 'User delete request has been sent');
     }
 
     private function sendEmail(User $user){
         $from = $this->getParameter('no_reply_email');
-        $to = $this->getParameter('resume_admin_emails_list');
+        $to = $this->getParameter('email_legal');
         $template = 'FinancialApiBundle:Email:empty_email.html.twig';
         $message = \Swift_Message::newInstance()
             ->setSubject('User delete request')
