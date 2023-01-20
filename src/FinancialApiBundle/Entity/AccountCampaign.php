@@ -4,6 +4,8 @@ namespace App\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use JMS\Serializer\Annotation as Serializer;
+
 /**
  * @ORM\Entity
  */
@@ -11,21 +13,25 @@ class AccountCampaign extends AppObject
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Campaign")
+     * @Serializer\Groups("user")
      */
     protected $campaign;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
+     * @Serializer\Groups("user")
      */
     protected $account;
 
     /**
      * @ORM\Column(type="bigint", nullable=true)
+     * @Serializer\Groups("user")
      */
     protected $acumulated_bonus;
 
     /**
      * @ORM\Column(type="bigint", nullable=true)
+     * @Serializer\Groups("user")
      */
     protected $spent_bonus;
 

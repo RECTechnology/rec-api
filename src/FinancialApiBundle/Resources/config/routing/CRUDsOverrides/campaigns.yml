@@ -1,0 +1,12 @@
+
+##################### CAMPAIGNS ############################
+
+campaigns_v3_list:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CampaignsController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(campaign|campaigns)"
+        id: "[0-9]+"
+

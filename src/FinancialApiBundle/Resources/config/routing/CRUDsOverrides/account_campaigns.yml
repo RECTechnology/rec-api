@@ -1,11 +1,11 @@
 
-##################### ACCOUNT CHALLENGES ############################
+##################### ACCOUNT CAMPAIGNS ############################
 account_campaigns_v3_index:
     path:  /{role}/v3/{object}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountCampaignsController::indexAction }
     methods: [GET]
     requirements:
-        role: "(public|user|manager|self|admin|sadmin)"
+        role: "(user)"
         object: "(account_campaign|account_campaigns)"
 
 account_campaigns_v3_show:
@@ -13,7 +13,7 @@ account_campaigns_v3_show:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountCampaignsController::showAction }
     methods: [GET]
     requirements:
-        role: "(public|user|manager|self|admin|sadmin)"
+        role: "(user)"
         object: "(account_campaign|account_campaigns)"
         id: "[0-9]+"
 
@@ -22,5 +22,5 @@ account_campaigns_v3_search:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountCampaignsController::searchAction }
     methods: [GET]
     requirements:
-        role: "(public|user|manager|self|admin|sadmin)"
+        role: "(user)"
         object: "(account_campaign|account_campaigns)"

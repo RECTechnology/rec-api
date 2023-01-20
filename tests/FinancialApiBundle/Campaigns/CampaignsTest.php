@@ -20,16 +20,23 @@ class CampaignsTest extends BaseApiTest {
 
     function testIndex()
     {
-        $resp = $this->requestJson('GET', '/user/v3/campaigns');
-        self::assertEquals(
-            200,
-            $resp->getStatusCode()
-        );
+        $roles = ['user', 'public'];
+        foreach ($roles as $role){
+            if($role === 'public'){
+                $this->signOut();
+            }
+            $resp = $this->requestJson('GET', '/'.$role.'/v3/campaigns');
+            self::assertEquals(
+                200,
+                $resp->getStatusCode()
+            );
 
-        $content = json_decode($resp->getContent(),true);
-        $elements = $content['data']['elements'];
+            $content = json_decode($resp->getContent(),true);
+            $elements = $content['data']['elements'];
 
-        self::assertArrayNotHasKey('accounts', $elements[0]);
+            self::assertArrayNotHasKey('accounts', $elements[0]);
+        }
+
     }
 
 }
