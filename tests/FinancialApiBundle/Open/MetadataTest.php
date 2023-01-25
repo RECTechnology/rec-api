@@ -10,7 +10,7 @@ class MetadataTest extends BaseApiTest {
         $route = "/public/token/metadata/smart_id/3";
         $response = $this->requestJson('GET', $route);
         self::assertEquals(
-            200,
+            404,
             $response->getStatusCode(),
             "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );

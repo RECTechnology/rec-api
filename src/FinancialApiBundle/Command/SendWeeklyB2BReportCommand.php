@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Command;
 
 use App\FinancialApiBundle\DependencyInjection\App\Commons\DiscourseApiManager;
 use App\FinancialApiBundle\Entity\AccountAward;
+use App\FinancialApiBundle\Entity\AccountAwardItem;
 use App\FinancialApiBundle\Entity\Group;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -147,17 +148,36 @@ class SendWeeklyB2BReportCommand extends SynchronizedContainerAwareCommand
                 ->getQuery()->getResult();
 
             $titleAwards = array('Awards by account');
-            $headerAwards = array('account_id', 'account_name', 'score', 'award', 'level');
+            $headerAwards = array('account_id', 'account_name', 'acumulated_score', 'period_score', 'award', 'level');
             $report[] = $titleAwards;
             $report[] = $headerAwards;
+            $today->modify('+1 day');
             foreach ($accounts as $account) {
-                //TODO find awards by account
+                //find awards by account
                 $awards = $em->getRepository(AccountAward::class)->findBy(array(
                     'account' => $account
                 ));
                 /** @var AccountAward $award */
                 foreach ($awards as $award) {
-                    $report[] = array($account->getId(), $account->getName(), $award->getScore(), $award->getAward()->getName(), $award->getLevel());
+                    //get award_items from date to date
+                    $qb_award_items = $em->createQueryBuilder();
+                    $award_items = $qb_award_items->select('aai')
+                        ->from(AccountAwardItem::class, 'aai')
+                        ->where('aai.created < :today')
+                        ->andWhere('aai.created > :oneWeekAgo')
+                        ->andWhere('aai.account_award = :account_award_id')
+                        ->setParameter('today', $today)
+                        ->setParameter('oneWeekAgo', $oneWeekAgo)
+                        ->setParameter('account_award_id', $award->getId())
+                        ->getQuery()
+                        ->getResult();
+
+                    $period_score = 0;
+                    foreach ($award_items as $award_item){
+                        $period_score+= $award_item->getScore();
+                    }
+
+                    $report[] = array($account->getId(), $account->getName(), $award->getScore(), $period_score, $award->getAward()->getName(), $award->getLevel());
                 }
             }
 

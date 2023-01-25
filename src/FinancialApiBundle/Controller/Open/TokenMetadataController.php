@@ -38,8 +38,10 @@ class TokenMetadataController extends RestApiController {
                     $topicId = $nftTx->getTopicId();
 
                     $metadata = $this->getB2BMetadata($description, $name, $image, $category_value, $receiver, $topicId);
+                    $status_code = 200;
                 }else{
                     $metadata = "No info for this token";
+                    $status_code = 404;
                 }
 
             }elseif ($current_contract_name === NFTTransaction::B2B_LIKE_CONTRACT){
@@ -55,8 +57,10 @@ class TokenMetadataController extends RestApiController {
                     $receiver = $nftTx->getTo();
                     $topicId = $nftTx->getTopicId();
                     $metadata = $this->getB2BMetadata($description, $name, $image, $category_value, $receiver, $topicId);
+                    $status_code = 200;
                 }else{
                     $metadata = "No info for this token";
+                    $status_code = 404;
                 }
 
             }elseif ($current_contract_name === NFTTransaction::B2C_SHARABLE_CONTRACT){
@@ -72,17 +76,21 @@ class TokenMetadataController extends RestApiController {
                     $challenge = $token_reward->getChallenge();
 
                     $metadata = $this->getB2CMetadata($challenge, $token_reward, $receiver);
+                    $status_code = 200;
                 }else{
                     $metadata = "No info for this token";
+                    $status_code = 404;
                 }
             }else{
                 $metadata = "No info for this token";
+                $status_code = 404;
             }
         }else{
             $metadata = "No info for this token";
+            $status_code = 404;
         }
 
-        return new JsonResponse($metadata);
+        return new JsonResponse($metadata, $status_code);
     }
 
     private function getContracts(){
