@@ -486,7 +486,7 @@ class TransactionRepository extends DocumentRepository {
             $field = 'pay_in_info.txid';
         }
         return $this->createQueryBuilder('t')
-            ->field('service')->in(['rec', 'rosa'])
+            ->field('service')->in(['rec', 'rosa', 'qbit'])
             ->field($field)->equals($txid)
             ->getQuery()->getSingleResult();
     }
