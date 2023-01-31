@@ -104,6 +104,12 @@ class Campaign extends AppObject {
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"public"})
      */
+    protected $promo_url;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
     protected $code;
 
     /**
@@ -436,6 +442,21 @@ class Campaign extends AppObject {
     public function setVersion(int $version): void
     {
         $this->version = $version;
+    }
+    /**
+     * @return string
+     */
+    public function getPromoUrl(): string
+    {
+        return $this->promo_url;
+    }
+
+    /**
+     * @param string $promo_url
+     */
+    public function setPromoUrl(string $promo_url): void
+    {
+        $this->promo_url = $promo_url;
     }
 
 }
