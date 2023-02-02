@@ -118,6 +118,18 @@ class RechargeV3RecsTest extends AdminApiTest {
 
         $this->createLemonTxV3(6000);
 
+        $lastTxsResp = $this->requestJson('GET', '/user/v1/last');
+        $lastTxsContent = json_decode($lastTxsResp->getContent(), true);
+        $lastTxs = $lastTxsContent['data'];
+        $isBonification = false;
+        foreach ($lastTxs as $lastTx){
+            if($lastTx['is_bonification'] === true){
+                $isBonification = true;
+            }
+        }
+
+        self::assertTrue($isBonification);
+
         //check wallet to have 6 more recs
         $user = $this->getSignedInUser();
 
@@ -175,7 +187,7 @@ class RechargeV3RecsTest extends AdminApiTest {
         self::assertEquals('error', $resp->status);
         self::assertEquals('Not funds enough. You can not use bonused balance in a private transaction', $resp->message);
 
-        //TODO pay to store to spend acumulated bonifications
+        //pay to store to spend acumulated bonifications
         $store = $this->getSingleStore();
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
 

@@ -501,7 +501,17 @@ class Transaction implements TransactionTiming {
      */
     private $payment_order_id;
 
+    /**
+     * @var
+     * @MongoDB\Field(type="boolean")
+     */
+    private $isBonification = false;
 
+    /**
+     * @var
+     * @MongoDB\Field(type="integer")
+     */
+    private $bonification_campaign_id = null;
     /**
      * @param $id
      * @return void
@@ -1266,6 +1276,38 @@ class Transaction implements TransactionTiming {
     public function setPaymentOrderId($payment_order_id): void
     {
         $this->payment_order_id = $payment_order_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsBonification(): bool
+    {
+        return $this->isBonification;
+    }
+
+    /**
+     * @param mixed $isBonification
+     */
+    public function setIsBonification(bool $isBonification): void
+    {
+        $this->isBonification = $isBonification;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBonificationCampaignId()
+    {
+        return $this->bonification_campaign_id;
+    }
+
+    /**
+     * @param mixed $bonification_campaign_id
+     */
+    public function setBonificationCampaignId($bonification_campaign_id): void
+    {
+        $this->bonification_campaign_id = $bonification_campaign_id;
     }
 
 

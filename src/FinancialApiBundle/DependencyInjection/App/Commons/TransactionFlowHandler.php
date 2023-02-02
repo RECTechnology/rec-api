@@ -35,7 +35,7 @@ class TransactionFlowHandler{
         $this->container = $container;
     }
 
-    public function sendRecsWithIntermediary(Group $rootAccount, Group $intermediaryAccount, Group $userAccount, $amount, $concept = 'Internal exchange'): Transaction
+    public function sendRecsWithIntermediary(Group $rootAccount, Group $intermediaryAccount, Group $userAccount, $amount, $concept = 'Internal exchange', $isBonification = false, $bonification_campaign_id = null): Transaction
     {
         $this->checkBalance($rootAccount, $amount);
         //TODO we need to know if it's a bonification
@@ -44,11 +44,11 @@ class TransactionFlowHandler{
         $rootTxOut = $this->sendRecsToAddress($rootAccount, $intermediaryAccount, $amount, false);
 
         //rec in intermediary
-        $intermediaryTxIn = $this->receiveRecs($intermediaryAccount, $rootTxOut);
+        $intermediaryTxIn = $this->receiveRecs($intermediaryAccount, $rootTxOut, true, 'Internal exchange', false, null);
         //rec out intermediary
         $intermediaryTxOut = $this->sendRecsToAddress($intermediaryAccount, $userAccount, $amount);
         //rec in final user
-        $userAccountTxIn = $this->receiveRecs($userAccount, $intermediaryTxOut, false, $concept);
+        $userAccountTxIn = $this->receiveRecs($userAccount, $intermediaryTxOut, false, $concept, $isBonification, $bonification_campaign_id);
 
         $dm = $this->mongo->getManager();
         $dm->persist($rootTxOut);
@@ -68,7 +68,7 @@ class TransactionFlowHandler{
     public function receiveRecsFromOutTx(Group $receiver, Transaction $outTx): Transaction
     {
         $payOutInfo = $outTx->getPayOutInfo();
-        $inTx = $this->receiveRecs($receiver, $outTx, false, $payOutInfo['concept']);
+        $inTx = $this->receiveRecs($receiver, $outTx, false, $payOutInfo['concept'], false, null);
         $dm = $this->mongo->getManager();
         $dm->persist($inTx);
         $dm->flush();
@@ -128,7 +128,7 @@ class TransactionFlowHandler{
         return $txOut;
     }
 
-    private function receiveRecs(Group $receiver, Transaction $previousTx, $internal = true, $concept = 'Internal exchange'): Transaction
+    private function receiveRecs(Group $receiver, Transaction $previousTx, $internal = true, $concept = 'Internal exchange', $isBonification = false, $bonification_campaign_id): Transaction
     {
 
         $txIn = Transaction::createInternalTransactionV3($receiver, strtolower($this->getCryptoCurrency()), 'in', $this->getCryptoCurrency());
@@ -147,6 +147,8 @@ class TransactionFlowHandler{
         $txIn->setScale(8);
         $txIn->setInternal($internal);
         $txIn->setPaymentOrderId($previousTx->getPaymentOrderId());
+        $txIn->setIsBonification($isBonification);
+        $txIn->setBonificationCampaignId($bonification_campaign_id);
 
         $senderInfo = $this->getSenderInfo($previousTx);
 

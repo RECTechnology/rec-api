@@ -433,7 +433,7 @@ class BonusHandler{
 
         if($bonificableAmount > 0){
             try{
-                $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount, 'Bonificació +' . $campaign->getRedeemablePercentage() . '%');
+                $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount, 'Bonificació +' . $campaign->getRedeemablePercentage() . '%', true, $campaign->getId());
                 $accountCampaign = $this->getAccountCampaign($this->clientGroup, $campaign);
                 if($accountCampaign){
                     $accountCampaign->setAcumulatedBonus($accountCampaign->getAcumulatedBonus() + $bonificableAmount);
