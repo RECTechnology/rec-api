@@ -42,6 +42,7 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
             ->findOneBy(['name' => AccountFixture::TEST_ACCOUNT_REZERO_3]);
 
         $this->createCustomCampaign($orm,'ROSES',1000, 'ROSA_CODE', $account, 'roses_tos');
+        $this->createCustomCampaign($orm,'IGYIO',1000, 'KFGJ', $account, 'klgh');
     }
 
 

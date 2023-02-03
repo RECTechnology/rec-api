@@ -20,6 +20,7 @@ class Campaign extends AppObject {
 
     public function __construct() {
         $this->accounts = new ArrayCollection();
+        $this->code = $this->generateRandomCode(5);
     }
 
     /**
@@ -457,6 +458,10 @@ class Campaign extends AppObject {
     public function setPromoUrl(string $promo_url): void
     {
         $this->promo_url = $promo_url;
+    }
+
+    private function generateRandomCode($length = 10) {
+        return substr(str_shuffle(str_repeat($x='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1,$length);
     }
 
 }
