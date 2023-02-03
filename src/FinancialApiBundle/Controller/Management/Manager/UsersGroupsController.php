@@ -264,8 +264,12 @@ class UsersGroupsController extends RestApiController{
         $level = $em->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[0]]);
         foreach ($admin->getGroups() as $group) {
             $group_level = $group->getLevel();
-            if(isset($group_level) && $group_level->getCode() == Tier::KYC_LEVELS[2]){
-                $level = $em->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[2]]);
+            if(isset($group_level) && $group_level->getCode() === Tier::KYC_LEVELS[2]){
+                if($company->getType() === Group::ACCOUNT_TYPE_ORGANIZATION){
+                    $level = $em->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[1]]);
+                }else{
+                    $level = $em->getRepository(Tier::class)->findOneBy(['code' => Tier::KYC_LEVELS[2]]);
+                }
             }
         }
         $company->setLevel($level);

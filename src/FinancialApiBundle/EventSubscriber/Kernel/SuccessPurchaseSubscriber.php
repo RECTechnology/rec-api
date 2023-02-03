@@ -65,6 +65,7 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
             if($this->getSetting()){
                 $this->checkConstraintsAndDispatch(Challenge::ACTION_TYPE_SEND, $event);
             }
+            $this->transferAcumulatedBonus($event->getAccount(), $event->getTransaction());
         }
 
     }
@@ -145,6 +146,37 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
             }
 
 
+        }
+
+    }
+
+    private function transferAcumulatedBonus(Group $account, Transaction $transaction){
+        $pay_out_info  = $transaction->getPayOutInfo();
+        $destination_address = $pay_out_info['address'];
+        //get receiver
+        $destination = $this->em->getRepository(Group::class)->findOneBy(array('rec_address' =>$destination_address));
+
+        //check if is making transfer between accounts with same kyc_manager
+        if($destination && $destination->getKycManager() === $account->getKycManager()){
+            $destination_campaigns = $this->em->getRepository(AccountCampaign::class)->findBy(array('account' => $destination));
+            $account_campaigns = $this->em->getRepository(AccountCampaign::class)->findBy(array('account' => $account));
+            $amount = $transaction->getAmount();
+            //remove acumulated
+            /** @var AccountCampaign $account_campaign */
+            foreach ($account_campaigns as $account_campaign){
+                $diff_acumulated_spent = $account_campaign->getAcumulatedBonus() - $account_campaign->getSpentBonus();
+                if($diff_acumulated_spent > $amount){
+                    $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $amount);
+                    $this->em->flush();
+                    break;
+                }
+
+                $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $diff_acumulated_spent);
+                $this->em->flush();
+                $amount -= $diff_acumulated_spent;
+            }
+
+            $destination_campaigns[0]->setAcumulatedBonus($account_campaign->getAcumulatedBonus() + $transaction->getAmount());
         }
 
     }
