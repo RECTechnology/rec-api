@@ -54,7 +54,7 @@ class BonusHandler{
     private function getEntityManager(){
         return $this->doctrine->getManager();
     }
-        //todo separate code (duplicated calls)
+
     public function bonificateTx(Transaction $tx){
         $this->logger->info("BONUS HANDLER -> checking bonifications for tx -> ".$tx->getId()." - ".$tx->getMethod()."-".$tx->getType());
         $extra_data = [];
@@ -117,7 +117,7 @@ class BonusHandler{
 
         if($this->originTx->getType() !== Transaction::$TYPE_OUT) return false;
 
-        //TODO check if campaign is active
+        //check if campaign is active
         if(!isset($campaign)) return false;
         $now = new \DateTime('NOW');
         if($now < $campaign->getInitDate() || $now > $campaign->getEndDate()) return false;
@@ -138,7 +138,7 @@ class BonusHandler{
 
         //check if has at least one account in campaign
         if(!$this->getLtabAccount($this->originTx->getUser(), $campaign)) return false;
-        //TODO check if store and account are the same
+        //check if store and account are the same
         if($this->clientGroup->getKycManager()->getId() === $shop->getKycManager()->getId()) return false;
         $this->logger->info("BONUS HANDLER -> Tx is LTAB bonificable");
         return true;
@@ -183,8 +183,8 @@ class BonusHandler{
         if(!$user->getPrivateTosCampaign()) return false;
         if($this->clientGroup->getType() !== Group::ACCOUNT_TYPE_PRIVATE) return false;
 
-        //TODO check if is ltab account? make sense? (if no ltab account require min amount)
-        //TODO importe mayor que el minimo
+        //check if is ltab account? make sense? (if no ltab account require min amount)
+        //importe mayor que el minimo
         /** @var Campaign $campaign */
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::BONISSIM_CAMPAIGN_NAME]);
         if(!isset($campaign)) return false;
@@ -209,7 +209,7 @@ class BonusHandler{
         $campaignAccount = $em->getRepository(Group::class)->find($campaignAccountId);
         $ltabAccount = $this->getLtabAccount($this->originTx->getUser(), $campaign);
         $exchanger = $this->getExchanger($this->clientGroup->getId());
-        //TODO calcular el bonificable amount
+        //calcular el bonificable amount
         $bonificableAmount = $this->getBonificable($ltabAccount);
 
         $campaign_balance = $campaignAccount->getWallet($this->cryptoCurrency)->getBalance();
@@ -411,12 +411,14 @@ class BonusHandler{
      * Manage bonifications v2, only recharges for now
      */
     private function manageV2Bonifications(){
+        $this->logger->info("BONUS HANDLER -> manage bonifications v2");
         //only success can access for recharge, if we allow other kind of campaigns we should update this part
         if($this->originTx->getStatus() === Transaction::$STATUS_SUCCESS && $this->originTx->getMethod() === 'lemonway'){
-            $active_campaigns = $this->getEntityManager()->getRepository(Campaign::class)->getCampaignsWithBonusEnabledV2();
+            $active_campaigns = $this->getEntityManager()->getRepository(Campaign::class)->findBy(array('status' => Campaign::STATUS_ACTIVE, 'version' => 2));
 
             foreach ($active_campaigns as $active_campaign){
                 if($this->isCampaignV2Bonificable($active_campaign)){
+                    $this->logger->info("BONUS HANDLER -> create bonification v2 for campaign -> ".$active_campaign->getName());
                     $this->createV2Bonification($active_campaign);
                 }
             }
@@ -433,6 +435,7 @@ class BonusHandler{
 
         if($bonificableAmount > 0){
             try{
+                $this->logger->info("BONUS HANDLER -> send recs with intermediary");
                 $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount, 'Bonificació +' . $campaign->getRedeemablePercentage() . '%', true, $campaign->getId());
                 $accountCampaign = $this->getAccountCampaign($this->clientGroup, $campaign);
                 if($accountCampaign){
@@ -445,6 +448,7 @@ class BonusHandler{
 
             }
         }
+        $this->logger->info("BONUS HANDLER -> bonificable amount < 0 -> No-Bonification");
 
     }
 
@@ -454,6 +458,7 @@ class BonusHandler{
         if(!$campaign->isBonusEnabled()) return false;
         //only private accounts
         if($this->clientGroup->getType() === Group::ACCOUNT_TYPE_ORGANIZATION) return false;
+        $this->logger->info("BONUS HANDLER -> tx is bonificable");
         return true;
     }
 
@@ -461,8 +466,10 @@ class BonusHandler{
         $account_campaign = $this->getAccountCampaign($account, $campaign);
 
         if($account_campaign) {
+            $this->logger->info("BONUS HANDLER -> account in campaign");
             return true;
         }
+        $this->logger->info("BONUS HANDLER -> account NOT in campaign");
 
         return false;
 

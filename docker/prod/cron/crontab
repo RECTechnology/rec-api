@@ -29,3 +29,5 @@
 
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:challenges:manage >> /api/var/logs/cron-challenges.log 2>&1
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:check:campaign:thresholds >> /api/var/logs/cron-campaigns.log 2>&1
+
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:manage:campaigns >> /api/var/logs/cron-campaigns.log 2>&1

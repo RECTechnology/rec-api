@@ -17,6 +17,9 @@ class Campaign extends AppObject {
     const DEFAULT_MIN = 50;
     const DEFAULT_MAX = 1000;
     const PERCENTAGE = 15;
+    const STATUS_CREATED = 'created';
+    const STATUS_ACTIVE = 'active';
+    const STATUS_FINISHED = 'finished';
 
     public function __construct() {
         $this->accounts = new ArrayCollection();
@@ -136,6 +139,12 @@ class Campaign extends AppObject {
      * @Serializer\Groups({"public"})
      */
     protected $version =2;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    protected $status = self::STATUS_CREATED;
 
     /**
      * @return mixed
@@ -460,8 +469,24 @@ class Campaign extends AppObject {
         $this->promo_url = $promo_url;
     }
 
-    private function generateRandomCode($length = 10) {
-        return substr(str_shuffle(str_repeat($x='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1,$length);
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status): void
+    {
+        $this->status = $status;
+    }
+
+    private function generateRandomCode($length = 10)
+    {
+        return substr(str_shuffle(str_repeat($x = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length / strlen($x)))), 1, $length);
+    }
 }

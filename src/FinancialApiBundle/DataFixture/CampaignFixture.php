@@ -96,6 +96,7 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $campaign->setTos($tos);
         $campaign->setUrlTos('https://tos.url');
         $campaign->setVersion(2);
+        $campaign->setStatus(Campaign::STATUS_ACTIVE);
 
         $orm->persist($campaign);
         $orm->flush();
