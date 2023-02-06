@@ -101,21 +101,23 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
             if($threshold_constraint && $amount_required_constraint){
                 if($challenge->getTokenReward()){
                     //dispatch NFT event
-                    $this->dispatchEvent($challenge, $event);
+                    $this->dispatchEvent($challenge, $event, $totalTransactions, $totalAmount);
 
                 }
             }
         }
     }
 
-    public function dispatchEvent(Challenge $challenge, $event){
+    public function dispatchEvent(Challenge $challenge, $event, $totalTransactions, $totalAmount){
         $dispatcher = $this->container->get('event_dispatcher');
         $nftEvent = new ShareNftEvent(
             $challenge,
             NFTTransaction::B2C_SHARABLE_CONTRACT,
             $challenge->getOwner(),
             $event->getAccount(),
-            null
+            null,
+            $totalTransactions,
+            $totalAmount
         );
         $this->logger->info('SUCCESS_PURCHASE_SUBSCRIBER: dispatch ShareNftEvent');
         $dispatcher->dispatch(ShareNftEvent::NAME, $nftEvent);

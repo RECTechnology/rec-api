@@ -30,6 +30,18 @@ class AccountChallenge extends AppObject
     private $challenge;
 
     /**
+     * @ORM\Column(type="bigint", nullable=true)
+     * @Serializer\Groups({"user"})
+     */
+    private $total_amount;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @Serializer\Groups({"user"})
+     */
+    private $total_transactions;
+
+    /**
      * @return mixed
      */
     public function getAccount()
@@ -59,6 +71,38 @@ class AccountChallenge extends AppObject
     public function setChallenge($challenge): void
     {
         $this->challenge = $challenge;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTotalAmount()
+    {
+        return $this->total_amount;
+    }
+
+    /**
+     * @param mixed $total_amount
+     */
+    public function setTotalAmount($total_amount): void
+    {
+        $this->total_amount = $total_amount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTotalTransactions()
+    {
+        return $this->total_transactions;
+    }
+
+    /**
+     * @param mixed $total_transactions
+     */
+    public function setTotalTransactions($total_transactions): void
+    {
+        $this->total_transactions = $total_transactions;
     }
 
 }

@@ -62,6 +62,8 @@ class NftSubscriber implements EventSubscriberInterface
                 $accountChallenge = new AccountChallenge();
                 $accountChallenge->setAccount($event->getReceiver());
                 $accountChallenge->setChallenge($event->getChallenge());
+                $accountChallenge->setTotalAmount($event->getTotalAmount());
+                $accountChallenge->setTotalTransactions($event->getTotalTransactions());
 
                 $this->em->persist($accountChallenge);
             }
