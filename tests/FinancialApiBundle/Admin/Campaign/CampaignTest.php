@@ -10,7 +10,8 @@ use Test\FinancialApiBundle\Admin\AdminApiTest;
  * Class CampaignTest
  * @package Test\FinancialApiBundle\Admin\Campaign
  */
-class CampaignTest extends AdminApiTest {
+class CampaignTest extends AdminApiTest
+{
 
 
     function setUp(): void
@@ -27,13 +28,14 @@ class CampaignTest extends AdminApiTest {
             $resp->getStatusCode()
         );
 
-        $content = json_decode($resp->getContent(),true);
+        $content = json_decode($resp->getContent(), true);
         $elements = $content['data']['elements'];
 
         self::assertArrayNotHasKey('accounts', $elements[0]);
     }
 
-    function testCreateCampaignV2(){
+    function testCreateCampaignV2()
+    {
         $start = new \DateTime();
         $finish = new \DateTime('+3 days');
         $data = array(
@@ -50,14 +52,15 @@ class CampaignTest extends AdminApiTest {
             201,
             $resp->getStatusCode()
         );
-        $response = json_decode($resp->getContent(),true);
+        $response = json_decode($resp->getContent(), true);
 
         $created_data = $response['data'];
         self::assertArrayHasKey('code', $created_data);
         self::assertNotNull($created_data['code']);
     }
 
-    function testDeleteCampaignWithOutAccountsJoinedInShouldWork(){
+    function testDeleteCampaignWithOutAccountsJoinedInShouldWork()
+    {
         $resp = $this->requestJson('DELETE', '/admin/v3/campaigns/4');
         self::assertEquals(
             204,
@@ -65,7 +68,8 @@ class CampaignTest extends AdminApiTest {
         );
     }
 
-    function testDeleteCampaignWithAccountsJoinedInShouldFail(){
+    function testDeleteCampaignWithAccountsJoinedInShouldFail()
+    {
         $resp = $this->requestJson('DELETE', '/admin/v3/campaigns/3');
         self::assertEquals(
             403,
@@ -73,4 +77,31 @@ class CampaignTest extends AdminApiTest {
         );
     }
 
+    function testListUsersByCampaignShouldWork()
+    {
+        $resp = $this->requestJson('GET', '/admin/v1/campaign/3/users');
+        self::assertEquals(
+            200,
+            $resp->getStatusCode()
+        );
+
+        $content = json_decode($resp->getContent(), true);
+
+        $elements = $content['data']['elements'];
+        self::assertArrayHasKey('total_accumulated_bonus', $content['data']);
+        self::assertArrayHasKey('total_spent_bonus', $content['data']);
+        foreach ($elements as $element) {
+            self::assertArrayHasKey('accumulated_bonus', $element);
+            self::assertArrayHasKey('spent_bonus', $element);
+        }
+    }
+
+    function testExportUsersByCampaignShouldWork()
+    {
+        $resp = $this->request('GET', '/admin/v1/campaign/3/users/export');
+        self::assertEquals(
+            200,
+            $resp->getStatusCode()
+        );
+    }
 }

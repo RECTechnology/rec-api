@@ -308,6 +308,9 @@ class User extends BaseUser implements Uploadable {
      */
     private $documents;
 
+    private $accumulatedBonus;
+
+    private $spentBonus;
 
 
     public function getAccessKey(){
@@ -986,6 +989,38 @@ class User extends BaseUser implements Uploadable {
     public function setPrivateTosCampaignCulture(bool $private_tos_campaign_culture): void
     {
         $this->private_tos_campaign_culture = $private_tos_campaign_culture;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSpentBonus()
+    {
+        return $this->spentBonus;
+    }
+
+    /**
+     * @param mixed $spentBonus
+     */
+    public function setSpentBonus($spentBonus): void
+    {
+        $this->spentBonus = $spentBonus;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAccumulatedBonus()
+    {
+        return $this->accumulatedBonus;
+    }
+
+    /**
+     * @param mixed $accumulatedBonus
+     */
+    public function setAccumulatedBonus($accumulatedBonus): void
+    {
+        $this->accumulatedBonus = $accumulatedBonus;
     }
 
 

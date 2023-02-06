@@ -46,6 +46,17 @@ admin_company_read:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\CompaniesController::showAction }
     methods: [GET]
 
+####################  USERS CAMPAIGNS  ########################
+admin_users_by_campaign:
+        path: /admin/v1/campaign/{id}/users
+        defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\CampaignsController::listUsersByCampaign }
+        methods: [ GET ]
+
+admin_export_users_by_campaign:
+    path: /admin/v1/campaign/{id}/users/export
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Admin\CampaignsController::exportUsersByCampaign }
+    methods: [ GET ]
+
 ####################  USER  ########################
 admin_user_read:
     path:  /admin/v1/user/{id}
