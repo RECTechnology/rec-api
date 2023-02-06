@@ -358,6 +358,7 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\Column(type="string")
+     * @Assert\Url(protocols = {"http", "https"}, message = "The url is not a valid url")
      * @Serializer\Groups({"public"})
      */
     private $web = '';
