@@ -166,19 +166,25 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
             //remove acumulated
             /** @var AccountCampaign $account_campaign */
             foreach ($account_campaigns as $account_campaign){
-                $diff_acumulated_spent = $account_campaign->getAcumulatedBonus() - $account_campaign->getSpentBonus();
-                if($diff_acumulated_spent > $amount){
-                    $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $amount);
+                //check if campaigns is active
+                if($account_campaign->getCampaign()->getStatus() === Campaign::STATUS_ACTIVE){
+                    $diff_acumulated_spent = $account_campaign->getAcumulatedBonus() - $account_campaign->getSpentBonus();
+                    if($diff_acumulated_spent > $amount){
+                        $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $amount);
+                        $this->em->flush();
+                        break;
+                    }
+
+                    $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $diff_acumulated_spent);
                     $this->em->flush();
-                    break;
+                    $amount -= $diff_acumulated_spent;
                 }
 
-                $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $diff_acumulated_spent);
-                $this->em->flush();
-                $amount -= $diff_acumulated_spent;
             }
 
-            $destination_campaigns[0]->setAcumulatedBonus($account_campaign->getAcumulatedBonus() + $transaction->getAmount());
+            if($account_campaign->getCampaign()->getStatus() === Campaign::STATUS_ACTIVE){
+                $destination_campaigns[0]->setAcumulatedBonus($account_campaign->getAcumulatedBonus() + $transaction->getAmount());
+            }
         }
 
     }
