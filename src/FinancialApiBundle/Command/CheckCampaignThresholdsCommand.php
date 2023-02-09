@@ -31,7 +31,7 @@ class CheckCampaignThresholdsCommand extends SynchronizedContainerAwareCommand
             /** @var Group $campaign_account */
             $campaign_account = $em->getRepository(Group::class)->find($campaign_account_id);
             /** @var UserWallet $campaign_account_wallet */
-            $campaign_account_wallet = $campaign_account->getWallet(Currency::$REC);
+            $campaign_account_wallet = $campaign_account->getWallet($crypto_currency);
             if($campaign->getBonusEndingThreshold() !== null && $campaign->getEndingAlert() === false){
                 if($campaign_account_wallet->getBalance() < $campaign->getBonusEndingThreshold()){
                     $campaign->setEndingAlert(true);
