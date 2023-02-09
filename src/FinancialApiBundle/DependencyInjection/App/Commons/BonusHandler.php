@@ -447,8 +447,9 @@ class BonusHandler{
             }catch (HttpException $e){
 
             }
+        }else{
+            $this->logger->info("BONUS HANDLER -> bonificable amount < 0 -> No-Bonification");
         }
-        $this->logger->info("BONUS HANDLER -> bonificable amount < 0 -> No-Bonification");
 
     }
 
