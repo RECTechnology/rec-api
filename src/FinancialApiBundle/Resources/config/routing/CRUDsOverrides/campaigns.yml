@@ -9,6 +9,14 @@ campaigns_v3_list:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "(campaign|campaigns)"
 
+campaigns_v3_search:
+    path:  /{role}/v3/{object}/search
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CampaignsController::searchAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(campaign|campaigns)"
+
 campaigns_v3_delete:
     path:  /{role}/v3/{object}/{id}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CampaignsController::deleteAction }

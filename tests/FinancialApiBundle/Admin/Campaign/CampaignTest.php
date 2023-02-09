@@ -3,6 +3,7 @@
 namespace Test\FinancialApiBundle\Admin\Campaign;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Campaign;
 use Test\FinancialApiBundle\Admin\AdminApiTest;
 
 
@@ -103,5 +104,22 @@ class CampaignTest extends AdminApiTest
             200,
             $resp->getStatusCode()
         );
+    }
+
+    function testSearchByStatusesShouldWork(){
+        $status_array = [
+            Campaign::STATUS_ACTIVE,
+            Campaign::STATUS_FINISHED
+        ];
+        $resp = $this->requestJson('GET', "/admin/v3/campaigns/search?statuses[]=finished&statuses[]=active");
+        self::assertEquals(
+            200,
+            $resp->getStatusCode()
+        );
+        $content = $resp->getContent();
+        $data = json_decode($content,true);
+        foreach ($data['data']['elements'] as $element){
+            self::assertContains($element['status'],$status_array);
+        }
     }
 }
