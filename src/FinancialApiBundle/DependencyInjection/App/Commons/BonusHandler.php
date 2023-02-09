@@ -267,8 +267,8 @@ class BonusHandler{
             }
         }
 
-        //available_bonification esta en euros
-        $available_bonification = $campaign->getMax() - $totalBonificated/1e8;
+        //available_bonification esta en recs(scale=0)
+        $available_bonification = $campaign->getMax()/1e8 - $totalBonificated/1e8;
         if($available_bonification < $bonificationAmount){
             $bonificationAmount = $available_bonification;
         }
@@ -455,7 +455,7 @@ class BonusHandler{
 
     private function isCampaignV2Bonificable(Campaign $campaign){
         if(!$this->isAccountInCampaign($this->clientGroup, $campaign)) return false;
-        if($this->originTx->getAmount() < $campaign->getMin()) return false;
+        if($this->originTx->getAmount() < $campaign->getMin()/1e6) return false;
         if(!$campaign->isBonusEnabled()) return false;
         //only private accounts
         if($this->clientGroup->getType() === Group::ACCOUNT_TYPE_ORGANIZATION) return false;

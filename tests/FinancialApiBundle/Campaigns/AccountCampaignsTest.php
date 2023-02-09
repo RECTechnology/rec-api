@@ -61,4 +61,11 @@ class AccountCampaignsTest extends BaseApiTest {
 
     }
 
+    function testAcceptTos2TimesAtSameCampaignShouldNotCreateNewRelation(){
+
+        $resp = $this->requestJson('PUT', '/user/v4/campaign/accept_tos', ["campaign_code" => 'ROSA_CODE']);
+        self::assertEquals(204, $resp->getStatusCode());
+
+    }
+
 }

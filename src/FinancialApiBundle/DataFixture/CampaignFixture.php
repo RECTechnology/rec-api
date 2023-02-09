@@ -90,8 +90,8 @@ class CampaignFixture extends Fixture implements DependentFixtureInterface {
         $format = 'Y-m-d H:i:s';
         $campaign->setInitDate(DateTime::createFromFormat($format, '2020-10-15 00:00:00'));
         $campaign->setEndDate(DateTime::createFromFormat($format, '2030-11-15 00:00:00'));
-        $campaign->setMax(100);
-        $campaign->setMin(5);
+        $campaign->setMax(100*1e8);
+        $campaign->setMin(5*1e8);
         $campaign->setRedeemablePercentage(10);
         $campaign->setTos($tos);
         $campaign->setUrlTos('https://tos.url');

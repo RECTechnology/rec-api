@@ -2034,10 +2034,17 @@ class AccountController extends BaseApiController {
             'type' => Group::ACCOUNT_TYPE_PRIVATE
         ));
         foreach ($private_accounts as $private_account){
-            $account_campaign = new AccountCampaign();
-            $account_campaign->setCampaign($campaign);
-            $account_campaign->setAccount($private_account);
-            $em->persist($account_campaign);
+            //TODO check that this account is not in campaign already
+            $account_campaign = $em->getRepository(AccountCampaign::class)->findOneBy(array(
+                'account' => $private_account,
+                'campaign' => $campaign
+            ));
+            if(!$account_campaign){
+                $account_campaign = new AccountCampaign();
+                $account_campaign->setCampaign($campaign);
+                $account_campaign->setAccount($private_account);
+                $em->persist($account_campaign);
+            }
 
         }
 

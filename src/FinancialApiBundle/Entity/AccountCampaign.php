@@ -8,6 +8,12 @@ use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity
+ * @ORM\Table(
+ *    name="AccountCampaign",
+ *    uniqueConstraints={
+ *        @ORM\UniqueConstraint(name="account_campaign_unique", columns={"campaign_id", "account_id"})
+ *    }
+ * )
  */
 class AccountCampaign extends AppObject
 {
