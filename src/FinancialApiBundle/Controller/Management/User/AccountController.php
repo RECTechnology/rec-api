@@ -63,14 +63,14 @@ class AccountController extends BaseApiController {
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $user->setRoles($user->getRoles());
         /** @var Group $group */
-        $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
-        if(!$group->getActive()) throw new AppException(412, "Default account is not active");
-        $group_data = $group->getUserView();
+        $active_group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
+        if(!$active_group->getActive()) throw new AppException(412, "Default account is not active");
+        $group_data = $active_group->getUserView();
         $user->setGroupData($group_data);
         $activeAccounts = [];
         foreach($user->getGroups() as $group){
             if($group->getActive()){
-                array_push($activeAccounts, $group);
+                $activeAccounts[] = $group;
             }
         }
         $resp = $this->secureOutput($user);
@@ -80,6 +80,13 @@ class AccountController extends BaseApiController {
         }else{
             $resp["has_pin"] = false;
         }
+
+        if($active_group->getKycManager()->getId() === $user->getId()){
+            $resp['is_kyc_manager'] = true;
+        }else{
+            $resp['is_kyc_manager'] = false;
+        }
+
 
 
         return $this->restV2(200, "ok", "Account info got successfully", $resp);

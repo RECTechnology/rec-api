@@ -17,9 +17,12 @@ class UserAccountTest extends BaseApiTest
         parent::setUp();
     }
 
-    function testUserReturnsBankCards()
+    function testUserReturnsRelevantInformation()
     {
-        $this->signIn(UserFixture::TEST_THIRD_USER_CREDENTIALS);
+        //I've used this user because is the only one that has setted the active group field
+        //I've tried to add thjis field to the rest of the users but xDebug fails with an infinite loop, you can try
+        // with third user for example and setActiveGroup in AccountFixtures
+        $this->signIn(UserFixture::TEST_SECOND_USER_CREDENTIALS);
         $resp = $this->requestJson(
             'GET',
             '/user/v1/account'
@@ -28,6 +31,9 @@ class UserAccountTest extends BaseApiTest
         $content = json_decode($resp->getContent(),true);
         $data = $content['data'];
         self::assertArrayHasKey('bank_cards', $data);
+        self::assertArrayHasKey('active_group', $data);
+        self::assertArrayHasKey('is_kyc_manager', $data);
+        self::assertEquals(false, $data['is_kyc_manager']);
         $accounts = $data['accounts'];
         self::assertArrayNotHasKey('commissions', $accounts[0]);
         self::assertArrayNotHasKey('cash_in_tokens', $accounts[0]);
