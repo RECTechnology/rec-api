@@ -643,7 +643,7 @@ class AccountController extends BaseApiController {
         $em->flush();
 
         //create wallets for this company
-        $currencies = Currency::$ALL_COMPLETED;
+        $currencies = [Currency::$EUR, $this->getCryptoCurrency()];
         foreach($currencies as $currency){
             $userWallet = new UserWallet();
             $userWallet->setBalance(0);

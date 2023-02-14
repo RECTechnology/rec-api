@@ -216,6 +216,7 @@ class UserWallet {
                 $scale=2;
                 break;
             case "ROSA":
+            case "QBIT":
             case "REC":
                 $scale=8;
                 break;
