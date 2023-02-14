@@ -8,6 +8,14 @@ account_campaigns_v3_index:
         role: "(user)"
         object: "(account_campaign|account_campaigns)"
 
+account_campaigns_v3_search:
+    path:  /{role}/v3/{object}/search
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountCampaignsController::searchAction }
+    methods: [GET]
+    requirements:
+        role: "(user|admin)"
+        object: "(account_campaign|account_campaigns)"
+
 account_campaigns_v3_show:
     path:  /{role}/v3/{object}/{id}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountCampaignsController::showAction }
@@ -17,10 +25,3 @@ account_campaigns_v3_show:
         object: "(account_campaign|account_campaigns)"
         id: "[0-9]+"
 
-account_campaigns_v3_search:
-    path:  /{role}/v3/{object}
-    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountCampaignsController::searchAction }
-    methods: [GET]
-    requirements:
-        role: "(user)"
-        object: "(account_campaign|account_campaigns)"

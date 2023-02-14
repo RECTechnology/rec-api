@@ -52,6 +52,8 @@ class AccountCampaignsTest extends BaseApiTest {
         $user = $this->getSignedInUser();
         $current_account_id = $user->group_data->id;
         self::assertCount(1, $data['elements']);
+        self::assertArrayHasKey('total_accumulated_bonus', $data);
+        self::assertArrayHasKey('total_spent_bonus', $data);
         foreach ($data['elements'] as $element){
             self::assertEquals($current_account_id, $element['account']['id']);
             $finish_date = new \DateTime($element['campaign']['end_date']);

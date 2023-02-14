@@ -122,4 +122,21 @@ class CampaignTest extends AdminApiTest
             self::assertContains($element['status'],$status_array);
         }
     }
+
+    function testSearchUsernameOnAccountCampaignsShouldWork(){
+        $username = UserFixture::TEST_USER_CREDENTIALS['username'];
+
+        $resp = $this->requestJson('GET', '/admin/v3/account_campaigns/search?search='.$username);
+
+        self::assertEquals(
+            200,
+            $resp->getStatusCode()
+        );
+
+        $content = json_decode($resp->getContent(),true);
+        $elements = $content['data']['elements'];
+        foreach ($elements as $element){
+            self::assertEquals($username, $element['account']['kyc_manager']['username']);
+        }
+    }
 }
