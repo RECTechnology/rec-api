@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Controller\Management\Manager;
 use App\FinancialApiBundle\Controller\Management\Admin\UsersController;
 use App\FinancialApiBundle\Controller\SecurityTrait;
 use App\FinancialApiBundle\Entity\AccountCampaign;
+use App\FinancialApiBundle\Entity\Campaign;
 use App\FinancialApiBundle\Entity\Tier;
 use App\FinancialApiBundle\Entity\User;
 use phpDocumentor\Reflection\Types\This;
@@ -440,7 +441,7 @@ class UsersGroupsController extends RestApiController{
                 //user is in campaigns
                 /** @var AccountCampaign $accountCampaign */
                 foreach ($account_campaigns as $accountCampaign){
-                    if($accountCampaign->getCampaign()->isBonusEnabled()){
+                    if($accountCampaign->getCampaign()->getStatus() === Campaign::STATUS_ACTIVE){
                         //check if is already created
                         $existAccountCampaign = $em->getRepository(AccountCampaign::class)->findOneBy(array(
                                 'account' => $company,
