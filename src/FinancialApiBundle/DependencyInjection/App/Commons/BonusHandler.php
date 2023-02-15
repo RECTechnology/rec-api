@@ -272,8 +272,16 @@ class BonusHandler{
         if($available_bonification < $bonificationAmount){
             $bonificationAmount = $available_bonification;
         }
-        //se devuelve bonificationAmount en satoshis
-        return $bonificationAmount*1e8;
+        //check balance on admin account
+        /** @var Group $campaignAccount */
+        $campaignAccount = $this->getAdminAccountCampaign($campaign);
+        $adminWallet = $campaignAccount->getWallet($this->cryptoCurrency);
+        if($adminWallet->getBalance() >= $bonificationAmount*1e8){
+            //se devuelve bonificationAmount en satoshis
+            return $bonificationAmount*1e8;
+        }
+
+        return $adminWallet->getBalance();
 
     }
 
@@ -427,15 +435,14 @@ class BonusHandler{
     }
 
     private function createV2Bonification(Campaign $campaign){
-        $campaignAccountId = $campaign->getCampaignAccount();
-        $campaignAccount = $this->getEntityManager()->getRepository(Group::class)->find($campaignAccountId);
+        $campaignAccount = $this->getAdminAccountCampaign($campaign);
         $exchanger = $this->getExchangerV2();
 
         $bonificableAmount = $this->getBonificableV2($campaign);
 
         if($bonificableAmount > 0){
             try{
-                $this->logger->info("BONUS HANDLER -> send recs with intermediary");
+                $this->logger->info("BONUS HANDLER -> send recs with intermediary. BonificableAmount=".$bonificableAmount);
                 $this->flowHandler->sendRecsWithIntermediary($campaignAccount, $exchanger, $this->clientGroup, $bonificableAmount, 'Bonificació +' . $campaign->getRedeemablePercentage() . '%', true, $campaign->getId());
                 $accountCampaign = $this->getAccountCampaign($this->clientGroup, $campaign);
                 if($accountCampaign){
@@ -445,7 +452,7 @@ class BonusHandler{
                 }
 
             }catch (HttpException $e){
-
+                $this->logger->info("BONUS HANDLER -> error sending ".$bonificableAmount." ".$this->cryptoCurrency."s with intermediary");
             }
         }else{
             $this->logger->info("BONUS HANDLER -> bonificable amount < 0 -> No-Bonification");
@@ -497,6 +504,11 @@ class BonusHandler{
 
         return false;
 
+    }
+
+    private function getAdminAccountCampaign(Campaign $campaign){
+        $campaignAccountId = $campaign->getCampaignAccount();
+        return $this->getEntityManager()->getRepository(Group::class)->find($campaignAccountId);
     }
 
 }
