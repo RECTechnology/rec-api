@@ -156,40 +156,61 @@ class SuccessPurchaseSubscriber implements EventSubscriberInterface
         $pay_out_info  = $transaction->getPayOutInfo();
         $destination_address = $pay_out_info['address'];
         //get receiver
+        /** @var Group $destination */
         $destination = $this->em->getRepository(Group::class)->findOneBy(array('rec_address' =>$destination_address));
 
         //check if is making transfer between accounts with same kyc_manager
         if($destination && $destination->getKycManager() === $account->getKycManager()){
-            $destination_campaigns = $this->em->getRepository(AccountCampaign::class)->findBy(array('account' => $destination));
-            $account_campaigns = $this->em->getRepository(AccountCampaign::class)->findBy(array('account' => $account));
-            $amount = $transaction->getAmount();
-            //remove acumulated
-            /** @var AccountCampaign $account_campaign */
-            foreach ($account_campaigns as $account_campaign){
-                //check if campaigns is active
-                if($account_campaign->getCampaign()->getStatus() === Campaign::STATUS_ACTIVE){
-                    $diff_acumulated_spent = $account_campaign->getAcumulatedBonus() - $account_campaign->getSpentBonus();
-                    if($diff_acumulated_spent > $amount){
-                        $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $amount);
+            $this->logger->info('SUCCESS_PURCHASE_SUBSCRIBER: transfer accumulated bonus between accounts with same manager , '.$account->getId().' to '.$destination->getId());
+            $destination_active_account_campaign = $this->getDestinationActiveAccountCampaign($destination);
+
+            if($destination_active_account_campaign){
+                $this->logger->info('SUCCESS_PURCHASE_SUBSCRIBER: transfer accumulated bonus-> destination has account in campaign');
+                $account_campaigns = $this->em->getRepository(AccountCampaign::class)->findBy(array('account' => $account));
+                $amount = $transaction->getAmount();
+                /** @var AccountCampaign $account_campaign */
+                foreach ($account_campaigns as $account_campaign){
+                    //check if campaigns is active
+                    if($account_campaign->getCampaign()->getStatus() === Campaign::STATUS_ACTIVE){
+                        $diff_acumulated_spent = $account_campaign->getAcumulatedBonus() - $account_campaign->getSpentBonus();
+                        if($diff_acumulated_spent > $amount){
+                            $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $amount);
+                            $destination_active_account_campaign->setAcumulatedBonus($destination_active_account_campaign->getAcumulatedBonus() + $amount);
+                            $this->em->flush();
+                            break;
+                        }
+
+                        $this->logger->info('SUCCESS_PURCHASE_SUBSCRIBER: transfer accumulated bonus-> sending more amount than bonification accumulated imn this account');
+                        $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $diff_acumulated_spent);
+                        $destination_active_account_campaign->setAcumulatedBonus($destination_active_account_campaign->getAcumulatedBonus() + $diff_acumulated_spent);
                         $this->em->flush();
-                        break;
+                        $amount -= $diff_acumulated_spent;
                     }
 
-                    $account_campaign->setAcumulatedBonus($account_campaign->getAcumulatedBonus() - $diff_acumulated_spent);
-                    $this->em->flush();
-                    $amount -= $diff_acumulated_spent;
                 }
-
+            }else{
+                $this->logger->info('SUCCESS_PURCHASE_SUBSCRIBER: transfer accumulated bonus-> destination not in campaign');
             }
 
-            if($account_campaign->getCampaign()->getStatus() === Campaign::STATUS_ACTIVE){
-                $destination_campaigns[0]->setAcumulatedBonus($account_campaign->getAcumulatedBonus() + $transaction->getAmount());
-            }
         }
 
     }
 
     private function getActiveV2Campaigns(){
         return $this->em->getRepository(Campaign::class)->getActiveCampaignsV2();
+    }
+
+    private function getDestinationActiveAccountCampaign(Group $destination){
+        $destination_campaigns = $this->em->getRepository(AccountCampaign::class)->findBy(array('account' => $destination));
+
+        if(count($destination_campaigns) > 0){
+            foreach ($destination_campaigns as $destination_campaign){
+                if($destination_campaign->getCampaign()->getStatus() === Campaign::STATUS_ACTIVE){
+                    return $destination_campaign;
+                }
+            }
+        }
+
+        return null;
     }
 }
