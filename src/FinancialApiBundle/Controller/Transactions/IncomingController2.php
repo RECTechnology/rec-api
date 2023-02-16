@@ -646,7 +646,7 @@ class IncomingController2 extends RestApiController{
         if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
         if (!$user->getTwoFactorAuthentication()) throw new HttpException(403, '2FA must be active');
 
-        if($method_cname != 'rec'){
+        if($method_cname !== $this->getCryptoCurrency()){
             throw new HttpException(400, 'Bad method');
         }
         $paramNames = array(
