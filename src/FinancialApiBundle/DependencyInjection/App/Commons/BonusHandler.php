@@ -247,7 +247,7 @@ class BonusHandler{
         $bonificable_amount = $this->originTx->getAmount();
 
         //bonification amount esta en euros
-        $bonificationAmount = $bonificable_amount/100 * $percentage/100;
+        $bonificationAmount = round($bonificable_amount/100 * $percentage/100,2);
 
         //check bonifications in all accounts
         $owned_accounts = $this->getEntityManager()->getRepository(Group::class)->findBy(array(
