@@ -89,6 +89,7 @@ services:
             - "@service_container"
 
     net.app.commons.tx_block_validator:
+        public: true
         class: App\DependencyInjection\Commons\TxBlockValidator
         arguments:
             - "@service_container"
