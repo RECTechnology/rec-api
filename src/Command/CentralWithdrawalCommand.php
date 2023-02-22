@@ -65,7 +65,7 @@ class CentralWithdrawalCommand extends ContainerAwareCommand
         $message = (new Email())
             ->subject($subject)
             ->from($no_replay)
-            ->to($email)
+            ->to(...$email)
             ->html(
                 $this->getContainer()->get('templating')
                     ->render('Email/central_withdrawal.html.twig',

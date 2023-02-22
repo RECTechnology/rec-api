@@ -1090,7 +1090,7 @@ class AccountController extends BaseApiController {
         $message = new Email();
         $message->subject($subject)
             ->from($from)
-            ->to($to)
+            ->to(...$to)
             ->html(
                 $this->container->get('templating')
                     ->render($template, $params)

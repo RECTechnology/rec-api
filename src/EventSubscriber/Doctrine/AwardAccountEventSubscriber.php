@@ -90,7 +90,7 @@ class AwardAccountEventSubscriber implements EventSubscriber {
         $message = new Email();
             $message->subject("New Level Raised in Conecta")
             ->from($no_replay)
-            ->to($resume_admin_emails)
+            ->to(...$resume_admin_emails)
             ->html(
                 $this->container->get('templating')
                     ->render('Email/empty_email.html.twig',

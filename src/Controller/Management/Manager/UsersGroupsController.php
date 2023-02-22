@@ -415,7 +415,7 @@ class UsersGroupsController extends RestApiController{
         $message = (new Email())
             ->subject($subject)
             ->from($from)
-            ->to($to)
+            ->to(...$to)
             ->html(
                 $this->container->get('templating')
                     ->render($template,
