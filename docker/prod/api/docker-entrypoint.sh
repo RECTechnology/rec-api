@@ -6,7 +6,7 @@ export APP_ENV=prod
 APP_VERSION=$(git describe --tags)
 export APP_VERSION
 
-envsubst < app/config/parameters-docker.yml.dist > app/config/parameters.yml
+envsubst < config/parameters-docker.yml.dist > config/parameters.yml
 
 composer run-script post-update-cmd
 
