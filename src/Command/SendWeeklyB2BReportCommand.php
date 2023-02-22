@@ -5,6 +5,7 @@ namespace App\Command;
 use App\DependencyInjection\Commons\DiscourseApiManager;
 use App\DependencyInjection\Commons\MailerAwareTrait;
 use App\Entity\AccountAward;
+use App\Entity\AccountAwardItem;
 use App\Entity\Group;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
