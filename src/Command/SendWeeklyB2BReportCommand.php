@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Mime\Email;
 
 class SendWeeklyB2BReportCommand extends SynchronizedContainerAwareCommand
 {
@@ -196,11 +197,11 @@ class SendWeeklyB2BReportCommand extends SynchronizedContainerAwareCommand
 
         $no_replay = $this->container->getParameter('no_reply_email');
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($no_replay)
-            ->setTo($emails)
-            ->setBody(
+        $message = (new Email())
+            ->subject($subject)
+            ->from($no_replay)
+            ->to($emails)
+            ->html(
                 $this->container->get('templating')
                     ->render('Email/empty_email.html.twig',
                         array(
@@ -214,10 +215,9 @@ class SendWeeklyB2BReportCommand extends SynchronizedContainerAwareCommand
                             ]
                         )
                     )
-            )
-            ->setContentType('text/html');
+            );
 
-        $message->attach(\Swift_Attachment::newInstance(file_get_contents('/tmp/'.$fileName), $fileName));
+        $message->attach(file_get_contents('/tmp/'.$fileName), $fileName);
 
         $this->mailer->send($message);
     }
