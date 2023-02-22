@@ -18,6 +18,7 @@ use App\Entity\NFTTransaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Mime\Email;
 
 class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
 {
@@ -209,11 +210,11 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
         $no_replay = $this->container->getParameter('no_reply_email');
         $emails_list = $this->container->getParameter("resume_admin_emails_list");
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($no_replay)
-            ->setTo($emails_list)
-            ->setBody(
+        $message = (new Email())
+            ->subject($subject)
+            ->from($no_replay)
+            ->to($emails_list)
+            ->html(
                 $this->container->get('templating')
                     ->render('Email/empty_email.html.twig',
                         [
@@ -223,8 +224,7 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
                             ]
                         ]
                     )
-            )
-            ->setContentType('text/html');
+            );
 
         $this->mailer->send($message);
     }

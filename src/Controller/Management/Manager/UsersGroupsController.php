@@ -19,6 +19,7 @@ use App\Financial\Currency;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Mime\Email;
 
 class UsersGroupsController extends RestApiController{
 
@@ -411,13 +412,11 @@ class UsersGroupsController extends RestApiController{
     private function _sendEmail($subject, $to, $url, $company){
         $from = 'no-reply@chip-chap.com';
         $template = 'Email/changedgroup.html.twig';
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($from)
-            ->setTo(array(
-                $to
-            ))
-            ->setBody(
+        $message = (new Email())
+            ->subject($subject)
+            ->from($from)
+            ->to($to)
+            ->html(
                 $this->container->get('templating')
                     ->render($template,
                         array(
@@ -426,8 +425,7 @@ class UsersGroupsController extends RestApiController{
                             'subject'   =>  $subject
                         )
                     )
-            )
-            ->setContentType('text/html');
+            );
 
         $this->mailer->send($message);
     }

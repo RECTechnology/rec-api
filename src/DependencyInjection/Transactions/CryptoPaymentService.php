@@ -14,6 +14,7 @@ use App\DependencyInjection\Transactions\Core\BaseService;
 use App\Document\Transaction;
 use Symfony\Component\BrowserKit\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Mime\Email;
 
 class CryptoPaymentService extends BaseService {
 
@@ -148,14 +149,11 @@ class CryptoPaymentService extends BaseService {
 
     public function sendEmail($subject, $body){
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom('no-reply@chip-chap.com')
-            ->setTo(array(
-                'pere@chip-chap.com',
-                'cto@chip-chap.com'
-            ))
-            ->setBody(
+        $message = (new Email())
+            ->subject($subject)
+            ->from('no-reply@chip-chap.com')
+            ->to('pere@chip-chap.com', 'cto@chip-chap.com')
+            ->html(
                 $this->getContainer()->get('templating')
                     ->render('Email/support.html.twig',
                         array(

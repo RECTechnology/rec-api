@@ -15,6 +15,7 @@ use Exception;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\SecurityContext;
 
@@ -615,21 +616,18 @@ class UsersController extends BaseApiController
         }else{
             $template = 'Email/registerconfirm.html.twig';
         }
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($from)
-            ->setTo(array(
-                $to
-            ))
-            ->setBody(
+        $message = (new Email())
+            ->subject($subject)
+            ->from($from)
+            ->to($to)
+            ->html(
                 $this->container->get('templating')
                     ->render($template,
                         array(
                             'message'        =>  $body
                         )
                     )
-            )
-            ->setContentType('text/html');
+            );
 
         $this->mailer->send($message);
     }

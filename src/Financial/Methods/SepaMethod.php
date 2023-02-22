@@ -16,6 +16,7 @@ use FOS\OAuthServerBundle\Util\Random;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Mime\Email;
 
 class SepaMethod extends BaseMethod {
 
@@ -161,15 +162,11 @@ class SepaMethod extends BaseMethod {
 
         $no_reply = $this->container->getParameter('no_reply_email');
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject('Sepa_out ALERT')
-            ->setFrom($no_reply)
-            ->setTo(array(
-                'administration@chip-chap.com',
-                'pere@chip-chap.com',
-                'ceo@chip-chap.com'
-            ))
-            ->setBody(
+        $message = (new Email())
+            ->subject('Sepa_out ALERT')
+            ->from($no_reply)
+            ->to('administration@chip-chap.com', 'pere@chip-chap.com', 'ceo@chip-chap.com')
+            ->html(
                 $this->getContainer()->get('templating')
                     ->render('Email/sepa_out_alert.html.twig',array(
                         'id'    =>  $transaction->getId(),
@@ -178,8 +175,7 @@ class SepaMethod extends BaseMethod {
                         'transaction'   =>  $transaction,
                         'options'   =>  $options
                     ))
-            )
-            ->setContentType('text/html');
+            );
 
         $this->mailer->send($message);
     }

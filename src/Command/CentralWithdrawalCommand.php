@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Exception\ShellCommandFailureException;
+use Symfony\Component\Mime\Email;
 
 class CentralWithdrawalCommand extends ContainerAwareCommand
 {
@@ -61,19 +62,18 @@ class CentralWithdrawalCommand extends ContainerAwareCommand
 
         $no_replay = $this->getContainer()->getParameter('no_reply_email');
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($no_replay)
-            ->setTo(array($email))
-            ->setBody(
+        $message = (new Email())
+            ->subject($subject)
+            ->from($no_replay)
+            ->to($email)
+            ->html(
                 $this->getContainer()->get('templating')
                     ->render('Email/central_withdrawal.html.twig',
                         array(
                             'link' => $body
                         )
                     )
-            )
-            ->setContentType('text/html');
+            );
 
         $this->mailer->send($message);
     }
