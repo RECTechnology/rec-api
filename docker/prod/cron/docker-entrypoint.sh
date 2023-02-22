@@ -7,6 +7,7 @@ APP_VERSION=$(git describe --tags)
 export APP_VERSION
 
 envsubst < config/parameters-docker.yml.dist > config/parameters.yml
+env | grep -v "^_" > .env.local
 
 composer run-script post-update-cmd
 
