@@ -26,7 +26,7 @@ class TransactionBlocksExecutorCommand extends SynchronizedContainerAwareCommand
         ;
     }
 
-    private function log(OutputInterface $output, $message, $severity = DelegatedChangeV2Command::SEVERITY_DEBUG){
+    private function log(OutputInterface $output, $message, $severity = self::SEVERITY_DEBUG){
         $output->writeln(implode(" - ", [(new DateTime())->format('Y-m-d H:i:s Z'), $severity, $message]));
     }
 
@@ -117,7 +117,7 @@ class TransactionBlocksExecutorCommand extends SynchronizedContainerAwareCommand
             $this->log(
                 $output,
                 "Transaction creation failed",
-                DelegatedChangeV2Command::SEVERITY_CRITICAL
+                self::SEVERITY_CRITICAL
             );
             $log_text = sprintf('From %s to %s. An unexpected error occurred while executing the transaction %s 
              error: %s .Please try to resolve the issue manually and click "Retry Send" to retry sending transactions 
