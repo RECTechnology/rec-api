@@ -1,0 +1,56 @@
+######################## CREDIT CARD ########################
+
+create_credit_card:
+    path:  /company/v1/credit_card
+    defaults: { _controller: App\Controller\Management\Company\CreditCardController::registerCard }
+    methods: [POST]
+
+index_credit_card:
+    path:  /company/v1/credit_card
+    defaults: { _controller: App\Controller\Management\Company\CreditCardController::indexCards }
+    methods: [GET]
+
+update_credit_card:
+    path:  /company/v1/credit_card/{id}
+    defaults: { _controller: App\Controller\Management\Company\CreditCardController::updateCardFromCompany }
+    methods: [PUT]
+
+delete_credit_card:
+    path:  /company/v1/credit_card/{id}
+    defaults: { _controller: App\Controller\Management\Company\CreditCardController::deleteAction }
+    methods: [DELETE]
+######################## OFFERS ########################
+
+create_offer_v4:
+    path:  /company/v4/offers
+    defaults: { _controller: App\Controller\Management\Company\OfferController::registerOfferV4 }
+    methods: [POST]
+
+index_offer_v4:
+    path:  /company/v4/offers
+    defaults: { _controller: App\Controller\Management\Company\OfferController::indexOffersV4 }
+    methods: [GET]
+
+update_offer_v4:
+    path:  /company/v4/offers/{offer_id}
+    defaults: { _controller: App\Controller\Management\Company\OfferController::updateOfferFromCompanyV4 }
+    methods: [PUT]
+
+delete_offer_v4:
+    path:  /company/v4/offers/{offer_id}
+    defaults: { _controller: App\Controller\Management\Company\OfferController::deleteActionV4 }
+    methods: [DELETE]
+
+##################### MAP ############################
+map_search:
+    path: /map/v1/search
+    defaults: {_controller: App\Controller\Open\MapController::SearchAction }
+    methods: [GET]
+
+
+###################   COMPANY WALLET #################
+
+company_wallet_transactions:
+    path:  /company/{company_id}/v1/wallet/transactions
+    defaults: { _controller: App\Controller\Management\Company\WalletController::walletTransactions }
+    methods: [GET]

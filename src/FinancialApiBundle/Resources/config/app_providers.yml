@@ -1,9 +1,0 @@
-services:
-
-    net.app.provider.sepa_in:
-        class: App\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaIn
-        arguments:
-
-    net.app.provider.sepa_out:
-        class: App\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaOut
-        arguments:

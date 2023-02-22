@@ -7,7 +7,7 @@ Simply push the new code to the `master branch` to see it in the **staging**
 installation and to `stable branch` to see it in **production**
 
 ## Database updates
-Database updates (schema updates) are a little bit more complicated than simply
+Database updates (schema updates) are a bit more complicated than simply
 updating the code, so we have to deal with the existing production data.
 
 In order to resolve this, there is a list of things to take into account

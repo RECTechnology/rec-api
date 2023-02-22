@@ -1,0 +1,170 @@
+services:
+    App\DependencyInjection\Commons\Notifier:
+        class: App\DependencyInjection\Commons\HTTPNotifier
+        public: true
+
+    signature.security.authentication.provider:
+        class: App\Security\Authentication\Provider\SignatureAuthenticationProvider
+        arguments: ["", "%kernel.cache_dir%/security/nonces"]
+
+    signature.security.authentication.listener:
+        class: App\Security\Firewall\SignatureListener
+        arguments: ["@security.token_storage", "@security.authentication.manager","@service_container", "@logger"]
+
+    access_key.security.user_provider:
+        public: true
+        class: App\Security\AccessKeyUserProvider
+        arguments: ["@fos_user.user_manager"]
+
+    app.incoming_controller:
+        public: true
+        class: App\Controller\Transactions\IncomingController2
+        calls:
+            - [setContainer, ["@service_container"] ]
+
+    app.incoming_controller3:
+        public: true
+        class: App\Controller\Transactions\IncomingController3
+        calls:
+            - [ setContainer, [ "@service_container" ] ]
+
+    messenger:
+        public: true
+        class: App\DependencyInjection\Transactions\Core\Notificator
+        arguments:
+            - "@service_container"
+            - "@logger"
+            - "@doctrine.orm.entity_manager"
+
+    bonissim_service:
+        public: true
+        class: App\DependencyInjection\Transactions\BonissimAccountService
+        arguments:
+            - "@service_container"
+
+    command.delegate.payment:
+        class: App\Command\DelegatedExchangeCommand
+        calls:
+            - [setContainer, ["@service_container"] ]
+
+    auth.logger:
+        class:     Symfony\Bridge\Monolog\Logger
+        arguments: [auth]
+        calls:
+            - [pushHandler, ["@auth.logger_handler"]]
+
+    auth.logger_handler:
+        class:     Monolog\Handler\StreamHandler
+        arguments: ['%kernel.logs_dir%/%kernel.environment%.auth.log', 200]
+
+    transaction.logger:
+        public: true
+        class:     Symfony\Bridge\Monolog\Logger
+        arguments: [transaction]
+        calls:
+            - [pushHandler, ["@transaction.logger_handler"]]
+
+    transaction.logger_handler:
+        class:     Monolog\Handler\StreamHandler
+        arguments: ['%kernel.logs_dir%/%kernel.environment%.transaction.log', 200]
+
+    bonus.logger:
+        public: true
+        class: Symfony\Bridge\Monolog\Logger
+        arguments: [ bonus ]
+        calls:
+            - [ pushHandler, [ "@bonus.logger_handler" ] ]
+
+    bonus.logger_handler:
+        class: Monolog\Handler\StreamHandler
+        arguments: [ '%kernel.logs_dir%/%kernel.environment%.bonus.log', 200 ]
+
+    discourse.logger:
+        public: true
+        class: Symfony\Bridge\Monolog\Logger
+        arguments: [ discourse ]
+        calls:
+            - [ pushHandler, [ "@discourse.logger_handler" ] ]
+
+    discourse.logger_handler:
+        class: Monolog\Handler\StreamHandler
+        arguments: [ '%kernel.logs_dir%/%kernel.environment%.discourse.log', 200 ]
+
+    challenge.logger:
+        public: true
+        class: Symfony\Bridge\Monolog\Logger
+        arguments: [ challenge ]
+        calls:
+            - [ pushHandler, [ "@challenge.logger_handler" ] ]
+
+    challenge.logger_handler:
+        class: Monolog\Handler\StreamHandler
+        arguments: [ '%kernel.logs_dir%/%kernel.environment%.challenge.log', 200 ]
+
+    badges.logger:
+        class: Symfony\Bridge\Monolog\Logger
+        arguments: [ badges ]
+        calls:
+            - [ pushHandler, [ "@badges.logger_handler" ] ]
+
+    badges.logger_handler:
+        class: Monolog\Handler\StreamHandler
+        arguments: [ '%kernel.logs_dir%/%kernel.environment%.badges.log', 200 ]
+
+    manager.logger:
+        public: true
+        class:     Symfony\Bridge\Monolog\Logger
+        arguments: [manager]
+        calls:
+            - [pushHandler, ["@manager.logger_handler"]]
+
+    manager.logger_handler:
+        class:     Monolog\Handler\StreamHandler
+        arguments: ['%kernel.logs_dir%/%kernel.environment%.manager.log', 200]
+
+    file_manager:
+        public: true
+        class: App\DependencyInjection\Commons\UploadManager
+        arguments: ['@service_container']
+
+    file_setter.listener:
+        class: App\EventListener\FileSetterListener
+        arguments: ["@service_container", "@file_manager", "@logger"]
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
+    delegated_change.statistics_updater:
+        class: App\EventListener\DelegatedChangeStatisticsUpdater
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
+    kyc.listener:
+        class: App\EventListener\KycListener
+        arguments: ["@service_container", "@logger"]
+        tags:
+            - { name: doctrine.event_listener, event: preUpdate }
+            - { name: doctrine.event_listener, event: postUpdate }
+            - { name: doctrine.event_listener, event: postPersist }
+            - { name: doctrine.event_listener, event: prePersist }
+
+    transaction.listener:
+        class: App\EventListener\TransactionListener
+        arguments: ["@service_container", "@net.app.commons.permissions_checker"]
+        tags:
+            - { name: doctrine_mongodb.odm.event_listener, event: preUpdate }
+            - { name: doctrine_mongodb.odm.event_listener, event: postUpdate }
+            - { name: doctrine_mongodb.odm.event_listener, event: prePersist }
+
+    oauth_event_listener:
+          class:  App\EventListener\OAuthEventListener
+          arguments: ["@service_container", '@logger']
+          tags:
+              - { name: kernel.event_listener, event: fos_oauth_server.pre_authorization_process, method: onPreAuthorizationProcess }
+              - { name: kernel.event_listener, event: fos_oauth_server.post_authorization_process, method: onPostAuthorizationProcess }
+
+    upload_controller:
+        class:  App\Controller\Management\User\UploadController
+        calls:
+            - [setContainer, ["@service_container"]]
+
+

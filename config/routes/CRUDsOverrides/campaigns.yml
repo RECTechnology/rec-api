@@ -1,0 +1,28 @@
+
+##################### CAMPAIGNS ############################
+
+campaigns_v3_list:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\CampaignsController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(campaign|campaigns)"
+
+campaigns_v3_search:
+    path:  /{role}/v3/{object}/search
+    defaults: { _controller: App\Controller\CRUD\CampaignsController::searchAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(campaign|campaigns)"
+
+campaigns_v3_delete:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\Controller\CRUD\CampaignsController::deleteAction }
+    methods: [DELETE]
+    requirements:
+        role: "(admin|sadmin)"
+        object: "(campaign|campaigns)"
+        id: "[0-9]+"
+

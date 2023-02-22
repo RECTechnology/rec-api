@@ -1,0 +1,20 @@
+# Read the documentation: https://symfony.com/doc/master/bundles/FOSRestBundle/index.html
+
+fos_rest:
+  access_denied_listener:
+    json: true
+    xml: true
+
+  format_listener:
+    rules:
+      - { priorities: [json, xml], fallback_format: json }
+
+  exception:
+    enabled: true
+    #exception_controller: App\FinancialApiBundle\Exception\ExceptionController::showAction
+    codes:
+      App\Exception\PreconditionFailedException: 412
+      App\Exception\AppLogicException: 400
+    messages:
+      Symfony\Component\HttpKernel\Exception\HttpException: true
+      App\Exception\AppLogicException: true

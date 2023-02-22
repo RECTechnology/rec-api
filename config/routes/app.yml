@@ -1,0 +1,30 @@
+forget_password_request:
+    path:  /app/v4/sms-code/recover-password
+    defaults: { _controller: App\Controller\Management\User\AccountController::forgetPasswordRequest }
+    methods: [POST]
+
+validate_phone_request:
+    path:  /app/v4/sms-code/validate-phone
+    defaults: { _controller: App\Controller\Management\User\AccountController::validatePhoneRequest }
+    methods: [POST]
+
+recover_password_v4:
+    path:  /app/v4/recover-password
+    defaults: { _controller: App\Controller\Management\User\AccountController::passwordRecoveryV4 }
+    methods: [POST]
+
+register_v4:
+    path:  /app/v4/register
+    defaults: { _controller: App\Controller\Management\User\AccountController::registerAccountAction }
+    methods: [POST]
+
+validate_phone_v4:
+    path:  /app/v4/validate-phone
+    defaults: { _controller: App\Controller\Management\User\AccountController::validatePhoneCodeV4 }
+    methods: [POST]
+
+recover_unlock_user:
+    path:  /app/v4/unlock-user
+    defaults: { _controller: App\Controller\Management\User\AccountController::unlockUser }
+    methods: [POST]
+

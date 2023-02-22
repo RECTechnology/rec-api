@@ -1,0 +1,13 @@
+services:
+
+    net.app.ticker.RECxEUR:
+        class: App\Financial\Ticker\RecTicker
+        arguments:
+            - "REC"
+            - "EUR"
+
+    net.app.ticker.EURxREC:
+        class: App\Financial\Ticker\RecTicker
+        arguments:
+            - "EUR"
+            - "REC"

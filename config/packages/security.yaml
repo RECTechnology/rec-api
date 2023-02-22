@@ -1,0 +1,145 @@
+security:
+    encoders:
+        FOS\UserBundle\Model\UserInterface: sha512
+
+
+    providers:
+        by_access_key:
+            id: access_key.security.user_provider
+
+    firewalls:
+
+        oauth_token:
+            pattern:        ^/oauth/v[0-9]+/token
+            security:       false
+
+        oauth_public:
+            pattern:        ^/oauth/v[0-9]+/public
+            security:       false
+
+        oauth_authorize:
+            pattern:        ^/oauth/v2/auth
+            form_login:
+                check_path: fos_user_security_check
+                login_path: fos_user_security_login
+            anonymous: true
+
+        public:
+            pattern:    ^/public/*
+            stateless:  true
+            security:   false
+
+        notifications:
+            pattern:    ^/notifications
+            stateless:  true
+            security:   false
+
+        #borrar cuando se elimine la tabla kyc
+        kyc:
+            pattern:    ^/kyc/*
+            stateless:  true
+            security:   false
+
+        services:
+            pattern: ^/services
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            switch_user:  { role: ROLE_ADMIN, parameter: su }
+
+        methods:
+            pattern: ^/methods
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            switch_user:  { role: ROLE_WORKER, parameter: su }
+
+        user:
+            pattern: ^/user
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            switch_user:  { role: ROLE_ADMIN, parameter: su }
+
+        commerce_register: #borrar cuando este flutter en produccion
+            pattern:  ^/register/v[0-9]/*
+            stateless: true
+            fos_oauth:  true
+            anonymous: true
+
+        app:
+            pattern:    ^/app/v[0-9]/*
+            fos_oauth:  true
+            stateless:  true
+            anonymous:  false
+            signature_auth: true
+
+        oauth:
+            pattern:    ^/
+            fos_oauth:  true
+            stateless:  true
+            anonymous:  false
+            signature_auth: true
+            switch_user:  { role: ROLE_SUPER_ADMIN, parameter: su }
+
+        default:
+            anonymous: ~
+
+    # ROLES EXPLAINATION:
+    #  DEFAULT USER ROLES:
+    #    - ROLE_USER
+    #  USER-ACCOUNT ROLES:
+    #    - ROLE_ADMIN
+    #    - ROLE_WORKER
+    #    - ROLE_READONLY
+    #  GLOBAL ROLES (ACCOUNT):
+    #    - ROLE_ROOT (OVERALL PERMISSIONS)
+    #    - ROLE_SUPER_ADMIN (ACCESS ALL ADMIN STUFF AND MANAGES MONEY AND MAKES DECISIONS)
+    #    - ROLE_SUPER_MANAGER (ACCESS ALL ADMIN STUFF BUT NOT MANAGING MONEY NOR MAKES DECISIONS)
+    #    - ROLE_SUPER_USER (DEFAULT for admins, access admin but readonly)
+
+
+    role_hierarchy:
+        #  DEFAULT USER ROLES:
+        ROLE_USER:            ROLE_PUBLIC
+
+        #  USER-ACCOUNT ROLES:
+        ROLE_WORKER:          ROLE_READONLY
+        ROLE_ADMIN:           ROLE_WORKER
+
+        #  GLOBAL ROLES (ACCOUNT):
+        ROLE_SUPER_MANAGER:   ROLE_SUPER_USER
+        ROLE_SUPER_ADMIN:     ROLE_SUPER_MANAGER
+        ROLE_ROOT:            ROLE_SUPER_ADMIN
+
+    access_control:
+        - { path: ^/system/v[0-2]+/*, role: ROLE_SUPER_ADMIN }
+        - { path: ^/admin/v[0-2]+/*, role: ROLE_SUPER_ADMIN }
+        - { path: ^/manager/v[0-2]+/*, role: ROLE_ADMIN, methods: [POST,PUT,DELETE] }
+        - { path: ^/company/v[0-2]+/*, role: ROLE_READONLY, methods: [GET] }
+        - { path: ^/company/v[0-2]+/*, role: ROLE_WORKER, methods: [POST,PUT,DELETE] }
+        - { path: ^/methods/v[0-2]+/*, role: ROLE_WORKER }
+
+        - { path: ^/user/v[0-2]+/*, role: ROLE_USER }
+        - { path: ^/register/v[0-2]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/password_recovery/v[0-2]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/app/v4/sms-code/forget-password, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/app/v4/sms-code/validate-phone, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/app/v4/recover-password, role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        # V3+ User profile management
+        - { path: ^/user/v[3-9]+/profile, role: ROLE_USER }
+
+        # V3+ Account management
+        - { path: ^/user/v[3-9]+/accounts/[0-9]+/permissions, role: ROLE_ADMIN }
+        - { path: ^/user/v[3-9]+/accounts, role: ROLE_WORKER, methods: [POST, PUT, DELETE] }
+        - { path: ^/user/v[3-9]+/accounts, role: ROLE_READONLY, methods: [GET] }
+
+        # TODO: remove this entry when app becomes updated!!
+        - { path: ^/admin/v3/accounts/search, role: ROLE_USER }
+
+        # V3+ Admin Panel routes
+        - { path: ^/manager/v[3-9]+/*, role: ROLE_SUPER_MANAGER }
+        - { path: ^/admin/v[3-9]+/*, role: ROLE_SUPER_ADMIN }
+        - { path: ^/sadmin/v[3-9]+/*, role: ROLE_ROOT }
+

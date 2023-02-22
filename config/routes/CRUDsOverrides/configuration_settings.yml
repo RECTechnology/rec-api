@@ -1,0 +1,10 @@
+
+##################### CONFIGURATION SETTINGS / V3 / OVERRIDES ############################
+
+configuration_settings_v3_index:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\ConfigurationSettingsController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|admin|sadmin)"
+        object: "(configuration_settings|configuration_setting)"

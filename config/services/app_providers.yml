@@ -1,0 +1,9 @@
+services:
+
+    net.app.provider.sepa_in:
+        class: App\DependencyInjection\Transactions\Libs\SepaIn
+        arguments:
+
+    net.app.provider.sepa_out:
+        class: App\DependencyInjection\Transactions\Libs\SepaOut
+        arguments:

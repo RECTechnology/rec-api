@@ -1,0 +1,94 @@
+Admin:
+  resource: admin.yml
+
+Manager:
+  resource: manager.yml
+
+Company:
+  resource: company.yml
+
+User:
+  resource: user.yml
+
+Transactions:
+  resource: transactions.yml
+
+Public:
+  resource: public.yml
+
+CRUD_badges_overrides:
+  resource: CRUDsOverrides/badges.yml
+
+CRUD_qualifications_overrides:
+  resource: CRUDsOverrides/qualifications.yml
+
+CRUD_configuration_settings_overrides:
+  resource: CRUDsOverrides/configuration_settings.yml
+
+CRUD_awards_overrides:
+  resource: CRUDsOverrides/awards.yml
+
+CRUD_token_rewards_overrides:
+  resource: CRUDsOverrides/token_rewards.yml
+
+CRUD_account_challenges_overrides:
+  resource: CRUDsOverrides/account_challenges.yml
+
+CRUD_user_overrides:
+  resource: CRUDsOverrides/users.yml
+
+CRUD_account_overrides:
+  resource: CRUDsOverrides/accounts.yml
+
+CRUD_account_campaigns_overrides:
+  resource: CRUDsOverrides/account_campaigns.yml
+
+CRUD_campaigns_overrides:
+  resource: CRUDsOverrides/campaigns.yml
+
+CRUD:
+  resource: crud.yml
+
+App:
+  resource: app.yml
+
+B2B:
+  resource: b2b.yml
+
+validate_email:
+  path:  /register/v1/validate_email
+  defaults: { _controller: App\Controller\Management\User\AccountController::validateEmail }
+  methods: [POST]
+
+register_from_shop:
+  path:  /register/v1/commerce/{type}
+  defaults: { _controller: App\Controller\Management\User\AccountController::registerCommerceAction }
+  methods: [POST]
+
+recover_password_request:
+  path:  /password_recovery/v1/request
+  defaults: { _controller: App\Controller\Management\User\AccountController::passwordRecoveryRequest }
+  methods: [POST]
+
+recover_password:
+  path:  /password_recovery/v1
+  defaults: { _controller: App\Controller\Management\User\AccountController::passwordRecovery }
+  methods: [POST]
+
+change_pin_request:
+  path:  /user/v4/users/security/sms-code/change-pin
+  defaults: { _controller: App\Controller\Management\User\AccountController::changePinRequest }
+  methods: [POST]
+
+change_password_request:
+  path:  /user/v4/users/security/sms-code/change-password
+  defaults: { _controller: App\Controller\Management\User\AccountController::changePasswordRequest }
+  methods: [POST]
+
+discourse_notificate:
+  path:  /notifications/v{version_number}/discourse
+  defaults: { _controller: App\Controller\Open\DiscourseNotificationsController::notificate, _format: ~ }
+  methods: [POST]
+  requirements:
+    service_cname: "[a-z0-9_]+"
+    id: "[a-z0-9]+"

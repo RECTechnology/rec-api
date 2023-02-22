@@ -1,0 +1,12 @@
+
+##################### ACCOUNTS ############################
+
+accounts_v3_show:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\Controller\CRUD\AccountsController::showAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(account|accounts)"
+        id: "[0-9]+"
+

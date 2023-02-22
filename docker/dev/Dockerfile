@@ -34,6 +34,10 @@ RUN apt update && apt install -y \
     libxrender1 \
     libfontconfig
 
+# Install and configure symfony binary
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash
+RUN apt install -y symfony-cli
+
 # Install mongodb server 4.2 for running the tests
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
 RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" > /etc/apt/sources.list.d/mongodb-org-4.2.list
@@ -47,8 +51,8 @@ RUN npm i -g standard-version
 RUN apt clean
 
 # To have composer and npm cache
-RUN mkdir /.composer /.npm /.cache && chmod -R 777 /.composer /.npm /.cache
-RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console \"\$@\"\n cd -" > /usr/bin/rec && chmod +x /usr/bin/rec
+RUN mkdir /.composer /.npm /.cache /.symfony5 && chmod -R 777 /.composer /.npm /.cache /.symfony5
+RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console \"\$@\"\n cd -" > /usr/bin/app && chmod +x /usr/bin/app
 
 WORKDIR /api
 ENTRYPOINT ["docker/dev/docker-entrypoint.sh"]

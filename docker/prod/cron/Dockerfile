@@ -24,13 +24,6 @@ RUN apt update && apt install -y \
     procps \
     ifstat
 
-# INSTALL GECKODRIVER
-RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz -O geckodriver.tgz
-RUN tar xzf geckodriver.tgz && mv geckodriver /usr/local/bin/geckodriver && rm geckodriver.tgz
-
-# INSTALL SELENIUM
-RUN pip3 install selenium
-
 COPY docker/prod/cron/crontab /etc/cron.d/app
 RUN chmod 644 /etc/cron.d/app
 
@@ -39,6 +32,6 @@ COPY . /api
 
 RUN composer install --no-dev --no-interaction --no-scripts
 
-RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console --env=prod \"\$@\"\n cd - > /dev/null" > /usr/bin/rec && chmod +x /usr/bin/rec
+RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console --env=prod \"\$@\"\n cd - > /dev/null" > /usr/bin/app && chmod +x /usr/bin/app
 
 CMD docker/prod/cron/docker-entrypoint.sh

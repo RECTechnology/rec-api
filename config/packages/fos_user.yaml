@@ -1,0 +1,10 @@
+
+fos_user:
+    db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
+    firewall_name: main
+    user_class: App\Entity\User
+    group:
+        group_class: App\Entity\Group
+    from_email:
+        address: '%env(MAILER_FROM)%'
+        sender_name: 'No Reply'

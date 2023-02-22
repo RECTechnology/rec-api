@@ -1,0 +1,165 @@
+services:
+    com.qbitartifacts.rec.commons.notificator:
+        class: App\DependencyInjection\Commons\NotificatorAggregator
+        arguments:
+            - '@com.qbitartifacts.rec.commons.telegram_notificator_error'
+            - '@com.qbitartifacts.rec.commons.telegram_notificator_log'
+
+    com.qbitartifacts.rec.commons.telegram_notificator_error:
+        class: App\DependencyInjection\Commons\TelegramNotificator
+        arguments:
+            - "%telegram_chat_error%"
+            - "%telegram_bot_token%"
+
+    com.qbitartifacts.rec.commons.telegram_notificator_log:
+        class: App\DependencyInjection\Commons\TelegramNotificator
+        arguments:
+            - "%telegram_chat_log%"
+            - "%telegram_bot_token%"
+
+    net.app.commons.method_manipulator:
+        class: App\DependencyInjection\Commons\MethodManipulator
+
+    net.app.commons.fee_deal:
+        public: true
+        class: App\DependencyInjection\Commons\FeeDeal
+        arguments:
+            - "@doctrine"
+            - "@doctrine_mongodb"
+            - "@net.app.commons.balance_manipulator"
+            - "@service_container"
+            - "@logger"
+
+    net.app.commons.balance_manipulator:
+        public: true
+        class: App\DependencyInjection\Commons\BalanceManipulator
+        arguments:
+            - "@doctrine"
+
+    net.app.commons.transaction_flow_handler:
+        public: true
+        class: App\DependencyInjection\Commons\TransactionFlowHandler
+        arguments:
+            - "@doctrine_mongodb"
+            - "@doctrine"
+            - "@net.app.commons.balance_manipulator"
+            - "@service_container"
+
+    net.app.commons.bonus_handler:
+        public: true
+        class: App\DependencyInjection\Commons\BonusHandler
+        arguments:
+            - "@doctrine"
+            - "@net.app.commons.transaction_flow_handler"
+            - "@bonissim_service"
+            - "@bonus.logger"
+            - "@service_container"
+
+    net.app.commons.qualification_handler:
+        public: true
+        class: App\DependencyInjection\Commons\QualificationHandler
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+
+    net.app.commons.shop_badge_handler:
+        public: true
+        class: App\DependencyInjection\Commons\ShopBadgeHandler
+        arguments:
+            - "@doctrine"
+            - "@badges.logger"
+
+    net.app.commons.garden_handler:
+        public: true
+        class: App\DependencyInjection\Commons\GardenHandler
+        arguments:
+            - "@doctrine"
+
+    net.app.commons.campaign_checker:
+        public: true
+        class: App\DependencyInjection\Commons\CampaignChecker
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+
+    net.app.commons.user_checker:
+        public: true
+        class: App\DependencyInjection\Commons\UserChecker
+        arguments:
+            - "@service_container"
+
+    net.app.commons.tx_block_validator:
+        class: App\DependencyInjection\Commons\TxBlockValidator
+        arguments:
+            - "@service_container"
+            - "@transaction.logger"
+
+    net.app.commons.tx_block_log_handler:
+        public: true
+        class: App\DependencyInjection\Commons\TxBlockLogHandler
+        arguments:
+            - "@service_container"
+
+    net.app.commons.fee_manipulator:
+        class: App\DependencyInjection\Commons\FeeManipulator
+        arguments:
+            - "@doctrine"
+
+    net.app.commons.limit_manipulator:
+        public: true
+        class: App\DependencyInjection\Commons\LimitManipulator
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+            - "@doctrine_mongodb"
+
+    net.app.commons.exchange_manipulator:
+        class: App\DependencyInjection\Commons\ExchangeManipulator
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+
+    net.app.commons.permissions_checker:
+        class: App\DependencyInjection\Commons\PermissionsHandler
+        arguments:
+            - "@service_container"
+            - "@doctrine"
+            - "@doctrine_mongodb"
+            - "@logger"
+
+    net.app.commons.discourse.api_manager:
+        public: true
+        class: App\DependencyInjection\Commons\DiscourseApiManager
+        arguments:
+            - "@service_container"
+            - "@discourse.logger"
+
+    net.app.commons.web3.api_manager:
+        public: true
+        class: App\DependencyInjection\Commons\Web3ApiManager
+        arguments:
+            - "@service_container"
+            - "@discourse.logger"
+
+    net.app.commons.award_handler:
+        public: true
+        class: App\DependencyInjection\Commons\AwardHandler
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+            - "@discourse.logger"
+
+    net.app.commons.challenge_handler:
+        public: true
+        class: App\DependencyInjection\Commons\ChallengeHandler
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+            - "@challenge.logger"
+
+    net.app.transactions.core.utils:
+        class: App\DependencyInjection\Transactions\Core\TransactionUtils
+        arguments:
+            - "@service_container"
+            - "@doctrine"
+            - "@doctrine_mongodb"

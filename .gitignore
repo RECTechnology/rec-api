@@ -1,25 +1,12 @@
-# Cache and logs (Symfony2)
-/app/cache/*
-/app/logs/*
-!app/cache/.gitkeep
-!app/logs/.gitkeep
-
-# Email spool folder
-/app/spool/*
-
-# Cache, session files and logs (Symfony3)
+# Cache, session files and logs (Symfony4)
 /var/cache/*
-/var/logs/*
-/var/sessions/*
-/var/db/*
-!var/cache/.gitkeep
-!var/logs/.gitkeep
-!var/sessions/.gitkeep
-!var/db/.gitkeep
-
-# Logs (Symfony4)
 /var/log/*
+!var/cache/.gitkeep
 !var/log/.gitkeep
+
+# Custom test environment
+!var/cache/test/rdb/.gitkeep
+!var/cache/test/mongo/.gitkeep
 
 # Parameters
 /app/config/parameters.yml
@@ -64,3 +51,27 @@
 
 # Generated core dumps
 **/core
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###

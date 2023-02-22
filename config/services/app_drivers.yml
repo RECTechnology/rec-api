@@ -1,0 +1,23 @@
+services:
+
+    net.app.driver.provider:
+        public: true
+        class: App\Financial\ObjectRegister
+        arguments:
+            - "@net.app.driver.easybitcoin.rec"
+            - "@net.app.driver.lemonway.eur"
+
+    net.app.driver.easybitcoin.rec:
+        public: true
+        class: App\Financial\Driver\FakeEasyBitcoinDriver
+        autowire: true
+
+    net.app.driver.lemonway.eur:
+        public: true
+        class: App\Financial\Driver\LemonWayDriver
+        arguments:
+            $url: "%lemonway_url%"
+            $login: "%lemonway_user%"
+            $pass: "%lemonway_pass%"
+            $version: "%lemonway_version%"
+            $admin_account: "%lemonway_admin_account%"

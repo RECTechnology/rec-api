@@ -1,0 +1,36 @@
+############################################### PUBLIC ENDPOINTS #######################################################
+
+public_v1_status:
+    path: /public/v1/status
+    defaults: {_controller: App\Controller\Open\StatusController::status }
+    methods: [GET]
+
+public_v1_info:
+    path: /public/v1/info
+    defaults: {_controller: App\Controller\Open\StatusController::info }
+    methods: [GET]
+
+public_v1_webhook_mailgun:
+    path: /public/v3/webhooks/mailgun
+    defaults: {_controller: App\Controller\Open\MailgunController::webhookAction }
+    methods: [POST]
+
+public_map_search:
+    path: /public/map/v1/search
+    defaults: {_controller: App\Controller\Open\MapController::SearchAction }
+    methods: [GET]
+
+get_activities:
+    path:  /public/v4/activities
+    defaults: { _controller: App\Controller\Management\Company\ActivityController::getActivitiesV4 }
+    methods: [GET]
+
+search_activities:
+    path:  /public/v4/activities/search
+    defaults: { _controller: App\Controller\Management\Company\ActivityController::searchActivitiesV4 }
+    methods: [GET]
+
+show_metadata:
+    path:  /public/token/metadata/{contract}/{token_id}
+    defaults: { _controller: App\Controller\Open\TokenMetadataController::getTokenMetadata }
+    methods: [GET]

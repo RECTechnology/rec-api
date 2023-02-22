@@ -1,0 +1,10 @@
+
+jms_serializer:
+    metadata:
+        directories:
+            FOSUB:
+                namespace_prefix: "FOS\\UserBundle"
+                path: "%kernel.project_dir%/config/serializer/FOSUserBundle"
+    visitors:
+        json:
+            options: JSON_UNESCAPED_SLASHES

@@ -1,0 +1,14 @@
+services:
+
+    net.app.wallets:
+        class: App\Financial\ObjectRegister
+        arguments:
+            - "@net.app.wallet.fullnode.rec"
+
+    net.app.wallet.fullnode.rec:
+        class: App\Financial\Wallet\FullNodeWallet
+        arguments:
+            - "@net.app.driver.easybitcoin.rec"
+            - "REC"
+            - '[]'
+            - '[]'

@@ -1,0 +1,14 @@
+
+app:
+  resource: "routes/root.yml"
+  prefix:   /
+
+app_login_2FA:
+  path:  /oauth/v3/token
+  defaults: { _controller: App\Controller\Login2faController::loginAction }
+  methods: [POST]
+
+app_login_public: # todo borrar
+  path:  /oauth/v1/public
+  defaults: { _controller: App\Controller\Login2faController::publicAction }
+  methods: [POST]

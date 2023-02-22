@@ -1,0 +1,15 @@
+services:
+    app.is_commerce_validator:
+        class: App\Validator\Constraint\IsCommerceValidator
+        tags:
+            - { name: validator.constraint_validator}
+
+    app.is_user_validator:
+        class: App\Validator\Constraint\IsUserValidator
+        tags:
+            - { name: validator.constraint_validator}
+
+    app.is_not_expired_validator:
+        class: App\Validator\Constraint\IsNotExpiredValidator
+        tags:
+            - { name: validator.constraint_validator}

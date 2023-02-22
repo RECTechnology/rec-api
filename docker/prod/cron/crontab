@@ -1,33 +1,34 @@
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:crypto:check >> /api/var/logs/cron-crypto-check.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:fiat:check >> /api/var/logs/cron-fiat-check.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:fiatV3:check >> /api/var/logs/cron-fiat-check.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:check:offers >> /api/var/logs/cron-check-offers.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:mailing:send >> /api/var/logs/cron-mailing-send.log 2>&1
-*/5  *   * * * www-data timeout 300 /usr/bin/rec rec:lemon:check:balance >> /api/var/logs/cron-lemon-check-balance.log 2>&1
-*/5  *   * * * www-data timeout 300 /usr/bin/rec rec:sync:lemonway >> /api/var/logs/cron-sync-lemonway.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:expire >> /api/var/logs/cron-pos-expire.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:notifications:retry >> /api/var/logs/cron-pos-notifications-retry.log 2>&1
-*    *   * * * www-data /usr/bin/rec rec:transaction_block:validate >> /api/var/logs/cron-tx_block-validate.log 2>&1
-*    *   * * * www-data /usr/bin/rec rec:transaction_block:execute >> /api/var/logs/cron-tx_block-execute.log 2>&1
-*    *   * * * www-data /usr/bin/rec rec:create:NFTwallet >> /api/var/logs/cron-nft.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:crypto:check >> /api/var/log/cron-crypto-check.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:fiat:check >> /api/var/log/cron-fiat-check.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:fiatV3:check >> /api/var/log/cron-fiat-check.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:check:offers >> /api/var/log/cron-check-offers.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:mailing:send >> /api/var/log/cron-mailing-send.log 2>&1
+*/5  *   * * * www-data timeout 300 /usr/bin/app rec:lemon:check:balance >> /api/var/log/cron-lemon-check-balance.log 2>&1
+*/5  *   * * * www-data timeout 300 /usr/bin/app rec:sync:lemonway >> /api/var/log/cron-sync-lemonway.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:pos:expire >> /api/var/log/cron-pos-expire.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:pos:notifications:retry >> /api/var/log/cron-pos-notifications-retry.log 2>&1
+*    *   * * * www-data /usr/bin/app rec:transaction_block:validate >> /api/var/log/cron-tx_block-validate.log 2>&1
+*    *   * * * www-data /usr/bin/app rec:transaction_block:execute >> /api/var/log/cron-tx_block-execute.log 2>&1
+*    *   * * * www-data /usr/bin/app rec:create:NFTwallet >> /api/var/log/cron-nft.log 2>&1
 
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:delete:expired_nonces >> /api/var/logs/cron-delete-expired-nonces.log 2>&1
-*/2    *   * * * www-data timeout 300 /usr/bin/rec rec:qualifications:expire >> /api/var/logs/cron-qualifications-expire.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:pos:delete:expired_nonces >> /api/var/log/cron-delete-expired-nonces.log 2>&1
+*/2    *   * * * www-data timeout 300 /usr/bin/app rec:qualifications:expire >> /api/var/log/cron-qualifications-expire.log 2>&1
 
-#*    *   * * * www-data find /api/web/static -name *.tmp.* -type f -mmin +10 -delete
+#*    *   * * * www-data find /api/public/static -name *.tmp.* -type f -mmin +10 -delete
 
-0    0   * * * www-data timeout 300 /usr/bin/rec rec:check:expired:documents >> /api/var/logs/cron-check-expired-documents.log 2>&1
+0    0   * * * www-data timeout 300 /usr/bin/app rec:check:expired:documents >> /api/var/log/cron-check-expired-documents.log 2>&1
 
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:execute:NFTTransactions >> /api/var/logs/cron-web3.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:check:NFTTransactions >> /api/var/logs/cron-web3.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:funding:execute >> /api/var/logs/cron-web3.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:funding:check >> /api/var/logs/cron-web3.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:execute:NFTTransactions >> /api/var/log/cron-web3.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:check:NFTTransactions >> /api/var/log/cron-web3.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:funding:execute >> /api/var/log/cron-web3.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:funding:check >> /api/var/log/cron-web3.log 2>&1
 
-*    *   * * * www-data timeout 3000 /usr/bin/rec rec:exports:send >> /api/var/logs/cron-export-email.log 2>&1
+*    *   * * * www-data timeout 3000 /usr/bin/app rec:exports:send >> /api/var/log/cron-export-email.log 2>&1
 
-0    0   * * 1 www-data timeout 3000 /usr/bin/rec rec:b2b:weekly:report >> /api/var/logs/cron-report-email.log 2>&1
+0    0   * * 1 www-data timeout 3000 /usr/bin/app rec:b2b:weekly:report >> /api/var/log/cron-report-email.log 2>&1
 
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:challenges:manage >> /api/var/logs/cron-challenges.log 2>&1
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:check:campaign:thresholds >> /api/var/logs/cron-campaigns.log 2>&1
 
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:manage:campaigns >> /api/var/logs/cron-campaigns.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:challenges:manage >> /api/var/log/cron-challenges.log 2>&1
+*    *   * * * www-data timeout 300 /usr/bin/app rec:check:campaign:thresholds >> /api/var/log/cron-campaigns.log 2>&1
+
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:manage:campaigns >> /api/var/log/cron-campaigns.log 2>&1

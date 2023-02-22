@@ -1,0 +1,20 @@
+doctrine:
+  dbal:
+    default_connection: default
+    connections:
+      default:
+        driver: pdo_sqlite
+        path: '%kernel.cache_dir%/rdb/db.sqlite'
+        memory: true
+
+  orm:
+    entity_managers:
+      default:
+        dql:
+          datetime_functions:
+            DAY: DoctrineExtensions\Query\Sqlite\Day
+            MONTH: DoctrineExtensions\Query\Sqlite\Month
+            YEAR: DoctrineExtensions\Query\Sqlite\Year
+            DATE: DoctrineExtensions\Query\Sqlite\Date
+            MINUTE: DoctrineExtensions\Query\Sqlite\Minute
+            HOUR: DoctrineExtensions\Query\Sqlite\Hour

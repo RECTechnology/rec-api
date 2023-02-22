@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-export SYMFONY_ENV=prod
 export APP_ENV=prod
 
 APP_VERSION=$(git describe --tags)
@@ -11,11 +10,11 @@ envsubst < app/config/parameters-docker.yml.dist > app/config/parameters.yml
 
 composer run-script post-update-cmd
 
-if ! test -d web/static;then
-    mkdir -p web/static
+if ! test -d public/static;then
+    mkdir -p public/static
 fi
 
-chown -R www-data:www-data web/static var/cache var/logs
+chown -R www-data:www-data public/static var/cache var/logs
 
 cron -f
 

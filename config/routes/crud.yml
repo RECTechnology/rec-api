@@ -1,0 +1,361 @@
+
+##################### DASHBOARD / V3 / (OVERRIDES CRUD) ############################
+
+
+dashboard_v3_total_odm:
+    path:  /{role}/v3/dashboard/total/transaction
+    defaults: { _controller: App\Controller\CRUD\DashboardController::totalODMAction }
+    methods: [GET]
+    requirements:
+        role: "(admin|manager)"
+
+dashboard_v3_total_orm:
+    path:  /{role}/v3/dashboard/total/{subject}
+    defaults: { _controller: App\Controller\CRUD\DashboardController::totalORMAction }
+    methods: [GET]
+    requirements:
+        role: "(admin|manager)"
+        subject: "(private|company|balance)"
+
+dashboard_v3_neighbourhoods:
+    path:  /{role}/v3/dashboard/neighbourhoods
+    defaults: { _controller: App\Controller\CRUD\DashboardController::neighbourhoodTotalsAction }
+    methods: [GET]
+    requirements:
+        role: "(admin|manager)"
+
+
+dashboard_v3_timeseries_registers:
+    path:  /{role}/v3/dashboard/timeseries/registers/{interval}
+    defaults: { _controller: App\Controller\CRUD\DashboardController::timeSeriesRegisters }
+    methods: [GET]
+    requirements:
+        role: "(admin|manager)"
+        interval: "(year|month|day)"
+
+dashboard_v3_timeseries_transactions:
+    path:  /{role}/v3/dashboard/timeseries/transactions/{intervalName}
+    defaults: { _controller: App\Controller\CRUD\DashboardController::timeSeriesTransactions }
+    methods: [GET]
+    requirements:
+        role: "(admin|manager)"
+        intervalName: "(year|month|day)"
+
+
+##################### KYC / V3 /  ############################
+
+kycs_v3_update:
+    path:  /{role}/v3/kycs/{id}
+    defaults: { _controller: App\Controller\CRUD\KYCsController::updateAction }
+    methods: [PUT]
+    requirements:
+        role: "(user)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+
+
+##################### ACCOUNTS/WITHDRAWALS / V3 / (OVERRIDES ACCOUNTS) ############################
+
+accounts_v3_withdrawals:
+    path:  /{role}/v3/accounts/{id}/withdrawals
+    defaults: { _controller: App\Controller\CRUD\AccountsController::createWithdrawalAction }
+    methods: [POST]
+    requirements:
+        role: "(manager|admin|sadmin)"
+        id: "[0-9]+"
+
+accounts_v3_search:
+    path:  /{role}/v3/accounts/search
+    defaults: { _controller: App\Controller\CRUD\AccountsController::searchAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+
+accounts_v4_search:
+    path:  /{role}/v4/accounts/search
+    defaults: { _controller: App\Controller\CRUD\AccountsController::search4Action }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+
+accounts_v3_report_clients_providers:
+    path:  /{role}/v3/accounts/{id}/report_clients_providers
+    defaults: { _controller: App\Controller\CRUD\AccountsController::reportClientsAndProvidersAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        id: "[0-9]+"
+
+accounts_v3_report_ltab:
+    path:  /{role}/v3/accounts/reports/ltab_general
+    defaults: { _controller: App\Controller\CRUD\ReportsController::reportLTABAction }
+    methods: [POST]
+    requirements:
+        role: "(admin)"
+
+massive_transactions_report:
+    path:  /{role}/v4/reports/massive-transactions/{id}
+    defaults: { _controller: App\Controller\CRUD\ReportsController::reportMassiveTransactionsAction }
+    methods: [POST]
+    requirements:
+        role: "(admin)"
+
+accounts_v3_lemonway_gateway:
+    path:  /{role}/v3/gateway/{provider}/{function}
+    defaults: { _controller: App\Controller\CRUD\GatewayController::gatewayAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        provider: "(lemonway)"
+        function: "[a-zA-Z0-9_-]+"
+
+accounts_v3_lemonway_read:
+    path:  /{role}/v3/accounts/{id}/integrations/lemonway
+    defaults: { _controller: App\Controller\CRUD\LemonWayAccountsController::lemonwayReadAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        id: "[0-9]+"
+
+accounts_v3_lemonway_send_to_account:
+    path:  /{role}/v3/accounts/{id}/integrations/lemonway/send-to
+    defaults: { _controller: App\Controller\CRUD\LemonWayAccountsController::lemonwaySendToAccountAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        id: "[0-9]+"
+
+accounts_v3_lemonway_send_from_account:
+    path:  /{role}/v3/accounts/{id}/integrations/lemonway/send-from
+    defaults: { _controller: App\Controller\CRUD\LemonWayAccountsController::lemonwaySendFromAccountAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        id: "[0-9]+"
+
+
+accounts_v3_index_relationship:
+    path:  /{role}/v3/accounts/{id}/{relationship}
+    defaults: { _controller: App\Controller\CRUD\AccountsController::indexRelationshipAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+        relationship: "[a-z_]+"
+
+accounts_v3_add_relationship:
+    path:  /{role}/v3/accounts/{id}/{relationship}
+    defaults: { _controller: App\Controller\CRUD\AccountsController::addRelationshipAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+        relationship: "[a-z_]+"
+
+accounts_v3_delete_relationship:
+    path:  /{role}/v3/accounts/{id1}/{relationship}/{id2}
+    defaults: { _controller: App\Controller\CRUD\AccountsController::deleteRelationshipAction }
+    methods: [DELETE]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id1: "[0-9]+"
+        relationship: "[a-z_]+"
+        id2: "[0-9]+"
+
+accounts_v3_update:
+    path:  /{role}/v3/accounts/{id}
+    defaults: { _controller: App\Controller\CRUD\AccountsController::updateAction }
+    methods: [PUT]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+
+##################### PRODUCTS & ACTIVITIES / V3 / (OVERRIDES CRUD) ############################
+
+products_and_activities_v3_create:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\ProductsAndActivitiesController::createAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(product_kinds|activities)"
+
+##################### DELEGATED_CHANGE / V3 / (OVERRIDES CRUD) ############################
+
+delegated_changes_v3_create:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\TxBlockController::createAction }
+    methods: [POST]
+    requirements:
+        role: "(admin|sadmin)"
+        object: "(delegated_change|delegated_changes)"
+
+delegated_changes_v3_update:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\Controller\CRUD\TxBlockController::UpdateAction }
+    methods: [PUT]
+    requirements:
+        role: "(admin|sadmin)"
+        object: "(delegated_change|delegated_changes)"
+        id: "[0-9A-Fa-f_-]+"
+
+##################### PAYMENT_ORDERS / V3 / (OVERRIDES CRUD) ############################
+
+treasure_withdrawal_validations_v3_update:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\Controller\CRUD\TreasureWithdrawalValidationsController::updateAction }
+    methods: [PUT]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "treasure_withdrawal_validations"
+        id: "[0-9A-Fa-f_-]+"
+
+##################### PAYMENT_ORDERS / V3 / (OVERRIDES CRUD) ############################
+
+payment_orders_v3_show:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\Controller\CRUD\PaymentOrdersController::showAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "payment_orders"
+        id: "[0-9A-Fa-f_-]+"
+
+payment_orders_v3_update:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\Controller\CRUD\PaymentOrdersController::updateAction }
+    methods: [PUT]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "payment_orders"
+        id: "[0-9A-Fa-f_-]+"
+
+payment_orders_v3_create:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\PaymentOrdersController::createAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "payment_orders"
+
+##################### POS / V3 / (OVERRIDES CRUD) ############################
+
+pos_v3_index:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\PosController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self)"
+        object: "pos"
+
+##################### CRUD / V3 ############################
+
+crud_v3_search:
+    path:  /{role}/v3/{object}/search
+    defaults: { _controller: App\Controller\CRUD\CRUDController::searchAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+
+crud_v3_export:
+    path:  /{role}/v3/{object}/export
+    defaults: { _controller: App\Controller\CRUD\CRUDController::exportAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+
+crud_v3_export_by_email:
+    path:  /{role}/v3/{object}/export_email
+    defaults: { _controller: App\Controller\CRUD\CRUDController::exportByEmailAction }
+    methods: [POST]
+    requirements:
+        role: "(admin|sadmin)"
+        object: "[a-z_]+"
+
+crud_v3_import:
+    path:  /{role}/v3/{object}/import
+    defaults: { _controller: App\Controller\CRUD\CRUDController::importAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+
+crud_v3_index:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\CRUDController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+
+crud_v3_show:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\Controller\CRUD\CRUDController::showAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+
+crud_v3_create:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\CRUDController::createAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+
+crud_v3_index_relationship:
+    path:  /{role}/v3/{object}/{id}/{relationship}
+    defaults: { _controller: App\Controller\CRUD\CRUDController::indexRelationshipAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+        relationship: "[a-z_]+"
+
+crud_v3_add_relationship:
+    path:  /{role}/v3/{object}/{id}/{relationship}
+    defaults: { _controller: App\Controller\CRUD\CRUDController::addRelationshipAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+        relationship: "[a-z_]+"
+
+crud_v3_delete_relationship:
+    path:  /{role}/v3/{object}/{id1}/{relationship}/{id2}
+    defaults: { _controller: App\Controller\CRUD\CRUDController::deleteRelationshipAction }
+    methods: [DELETE]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id1: "[0-9]+"
+        relationship: "[a-z_]+"
+        id2: "[0-9]+"
+
+crud_v3_update:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\Controller\CRUD\CRUDController::updateAction }
+    methods: [PUT]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+
+crud_v3_delete:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\Controller\CRUD\CRUDController::deleteAction }
+    methods: [DELETE]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
