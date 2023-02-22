@@ -14,6 +14,6 @@ if ! test -d public/static;then
     mkdir -p public/static
 fi
 
-chown -R www-data:www-data public/static var/cache var/logs
+chown -R www-data:www-data public/static var/cache var/log
 
 apache2ctl -DFOREGROUND
