@@ -47,7 +47,7 @@ class UsersController extends CRUDController
         $message = (new Email())
             ->subject('User delete request')
             ->from($from)
-            ->to($to)
+            ->to(...$to)
             ->html(
                 $this->get('templating')
                     ->render($template,

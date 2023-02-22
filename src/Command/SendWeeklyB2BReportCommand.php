@@ -200,7 +200,7 @@ class SendWeeklyB2BReportCommand extends SynchronizedContainerAwareCommand
         $message = (new Email())
             ->subject($subject)
             ->from($no_replay)
-            ->to($emails)
+            ->to(...$emails)
             ->html(
                 $this->container->get('templating')
                     ->render('Email/empty_email.html.twig',

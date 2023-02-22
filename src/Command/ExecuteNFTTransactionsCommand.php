@@ -213,7 +213,7 @@ class ExecuteNFTTransactionsCommand extends SynchronizedContainerAwareCommand
         $message = (new Email())
             ->subject($subject)
             ->from($no_replay)
-            ->to($emails_list)
+            ->to(...$emails_list)
             ->html(
                 $this->container->get('templating')
                     ->render('Email/empty_email.html.twig',
