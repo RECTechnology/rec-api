@@ -28,7 +28,7 @@ class TransactionBlocksValidatorCommand extends SynchronizedContainerAwareComman
         ;
     }
 
-    private function log(OutputInterface $output, $message, $severity = DelegatedChangeV2Command::SEVERITY_DEBUG){
+    private function log(OutputInterface $output, $message, $severity = self::SEVERITY_DEBUG){
         $output->writeln(implode(" - ", [(new DateTime())->format('Y-m-d H:i:s Z'), $severity, $message]));
     }
 
