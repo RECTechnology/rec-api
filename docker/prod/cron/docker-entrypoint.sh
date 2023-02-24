@@ -14,7 +14,7 @@ env | grep -v "^_" | while read envvar; do
   echo "$name='$value'" >> .env.local
 done
 
-composer run-script post-update-cmd
+#composer run-script post-update-cmd
 
 if ! test -d public/static;then
     mkdir -p public/static
