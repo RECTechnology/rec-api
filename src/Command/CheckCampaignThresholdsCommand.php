@@ -22,7 +22,7 @@ class CheckCampaignThresholdsCommand extends SynchronizedContainerAwareCommand
         /** @var EntityManagerInterface $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
         $repo = $em->getRepository(Campaign::class);
-        $campaigns = $repo->findAll();
+        $campaigns = $repo->findBy(array('status' => Campaign::STATUS_ACTIVE));
 
         /** @var Campaign $campaign */
         foreach ($campaigns as $campaign){
@@ -32,18 +32,22 @@ class CheckCampaignThresholdsCommand extends SynchronizedContainerAwareCommand
             $campaign_account = $em->getRepository(Group::class)->find($campaign_account_id);
             /** @var UserWallet $campaign_account_wallet */
             $campaign_account_wallet = $campaign_account->getWallet($crypto_currency);
-            if($campaign->getBonusEndingThreshold() !== null && $campaign->getEndingAlert() === false){
+
+            if($campaign->getBonusEndingThreshold() !== null){
                 if($campaign_account_wallet->getBalance() < $campaign->getBonusEndingThreshold()){
                     $campaign->setEndingAlert(true);
-                    $em->flush();
+                }else{
+                    $campaign->setEndingAlert(false);
                 }
-
             }
 
-            if($campaign->isBonusEnabled() && $campaign_account_wallet->getBalance() == 0) {
+            if($campaign_account_wallet->getBalance() == 0) {
                 $campaign->setBonusEnabled(false);
-                $em->flush();
+            }else{
+                $campaign->setBonusEnabled(true);
             }
+
+            $em->flush();
         }
 
         $output->writeln('Finish ' . $this->getName());

@@ -1071,13 +1071,13 @@ class AccountController extends BaseApiController {
 
     private function _sendEmail($subject, $body, $to, $action, $params=null){
         $from = $this->container->getParameter('no_reply_email');
-        if($action == 'register'){
+        if($action === 'register'){
             $template = 'Email/registerconfirm.html.twig';
-        }elseif($action == 'recover'){
+        }elseif($action === 'recover'){
             $template = 'Email/recoverpassword.html.twig';
-        }elseif($action == 'kyc'){
+        }elseif($action ==='kyc'){
             $template = 'Email/document_uploaded.html.twig';
-        }elseif($action == 'document'){
+        }elseif($action === 'document'){
             $template = 'Email/document_uploaded_v4.html.twig';
         }else{
             $template = 'Email/registerconfirm.html.twig';
@@ -1090,7 +1090,7 @@ class AccountController extends BaseApiController {
         $message = new Email();
         $message->subject($subject)
             ->from($from)
-            ->to(...$to)
+            ->to($to)
             ->html(
                 $this->container->get('templating')
                     ->render($template, $params)
