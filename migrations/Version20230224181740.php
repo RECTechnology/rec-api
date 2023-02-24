@@ -14,7 +14,7 @@ final class Version20230224181740 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Change transaction_block_log from varchar to text';
     }
 
     public function up(Schema $schema): void
