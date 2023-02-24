@@ -1068,7 +1068,7 @@ class IncomingController3 extends RestApiController{
     }
 
     private function checkIfAccountIsVerified(Group $destination){
-        if($destination->getType() === Group::ACCOUNT_TYPE_ORGANIZATION && $destination->getLevel()->getCode() !== Tier::KYC_LEVELS[2] ){
+        if(!$destination->getLevel() || ($destination->getType() === Group::ACCOUNT_TYPE_ORGANIZATION && $destination->getLevel()->getCode() !== Tier::KYC_LEVELS[2])){
             throw new HttpException(403, 'Este comercio no está verificado');
         }
     }
