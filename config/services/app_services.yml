@@ -190,6 +190,7 @@ services:
             - "1000000"
 
     net.app.in.qbit.v1:
+        public: true
         class: App\Financial\Methods\RecMethod
         arguments:
             - "Qbit"
