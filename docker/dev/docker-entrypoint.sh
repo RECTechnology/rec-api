@@ -9,7 +9,7 @@ case $1 in
     SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit
     ;;
   coverage)
-    XDEBUG_MODE=coverage vendor/bin/phpunit -d memory_limit=1G --coverage-clover coverage.xml --do-not-cache-result --process-isolation
+    XDEBUG_MODE=coverage SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit -d memory_limit=1G --coverage-clover coverage.xml --do-not-cache-result --process-isolation
     ;;
   *)
     exec "$@"
