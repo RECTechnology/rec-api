@@ -45,7 +45,7 @@ class TransactionBlockLog extends AppObject {
     private $type;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="text")
      * @Serializer\Groups({"admin"})
      */
     private $log;

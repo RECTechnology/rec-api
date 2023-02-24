@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Migrations;
+namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
@@ -10,11 +10,11 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20221128082916 extends AbstractMigration
+final class Version20230203081920 extends AbstractMigration
 {
     public function getDescription() : string
     {
-        return 'Add fields to campaigns for POPUP management';
+        return 'Add status to campaigns';
     }
 
     public function up(Schema $schema) : void
@@ -22,7 +22,7 @@ final class Version20221128082916 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE campaign ADD bonus_ending_threshold INT DEFAULT NULL, ADD ending_alert TINYINT(1) DEFAULT NULL');
+        $this->addSql('ALTER TABLE campaign ADD status VARCHAR(255) DEFAULT NULL');
     }
 
     public function down(Schema $schema) : void
@@ -30,6 +30,6 @@ final class Version20221128082916 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE campaign DROP bonus_ending_threshold, DROP ending_alert');
+        $this->addSql('ALTER TABLE campaign DROP status');
     }
 }
