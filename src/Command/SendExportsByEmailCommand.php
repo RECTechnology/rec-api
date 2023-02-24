@@ -150,7 +150,7 @@ class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
         $message = (new Email())
             ->subject($subject)
             ->from($no_replay)
-            ->to(...$email)
+            ->to($email)
             ->html(
                 $this->container->get('templating')
                     ->render('Email/empty_email.html.twig',
