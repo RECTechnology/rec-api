@@ -6,6 +6,7 @@ use App\Command\LemonwaySynchronizer\IbanSynchronizer;
 use App\Command\LemonwaySynchronizer\KycSynchronizer;
 use App\Command\LemonwaySynchronizer\Synchronizer;
 use App\Entity\Group;
+use App\Entity\StatusMethod;
 use App\Financial\Driver\LemonWayInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,13 +32,20 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
 
         /** @var EntityManagerInterface $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
-        $synchronizers = [
-            new BalancesSynchronizer($em, $lw, $output),
-            new KycSynchronizer($em, $lw, $output),
-            new IbanSynchronizer($em, $lw, $output),
-        ];
-        /** @var Synchronizer $sync */
-        foreach($synchronizers as $sync) $sync->sync();
+        /** @var StatusMethod $lemon_status */
+        $lemon_status = $em->getRepository(StatusMethod::class)->findOneBy(array('method' => 'lemonway'));
+        if($lemon_status->getStatus() === 'available'){
+            $synchronizers = [
+                new BalancesSynchronizer($em, $lw, $output),
+                new KycSynchronizer($em, $lw, $output),
+                new IbanSynchronizer($em, $lw, $output),
+            ];
+            /** @var Synchronizer $sync */
+            foreach($synchronizers as $sync) $sync->sync();
+        }else{
+            $output->writeln('Not synced, status method lemonway disabled');
+        }
+
         $output->writeln('Finish command');
     }
 }
