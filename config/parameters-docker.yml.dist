@@ -44,6 +44,7 @@ parameters:
 
     id_group_root: $APP_ROOT_GROUP
     admin_user_id: $APP_ROOT_USER
+    admin_client_id: $ADMIN_CLIENT_ID
 
     treasure_address: $APP_TREASURE_ADDRESS
     root_group_address: $APP_ROOT_ADDRESS
