@@ -474,32 +474,34 @@ class IncomingController3 extends RestApiController{
 
         //out trx -> group is sender
         //in trx -> group is receiver
-        if($method_cname === strtolower($this->getCryptoCurrency())){
-            $id_group_root = $this->container->getParameter('id_group_root');
-            if ($type === "out" and $group->getId() !== $id_group_root) {
+        if($campaign && $campaign->getStatus() === Campaign::STATUS_ACTIVE){
+            if($method_cname === strtolower($this->getCryptoCurrency())){
+                $id_group_root = $this->container->getParameter('id_group_root');
+                if ($type === "out" and $group->getId() !== $id_group_root) {
 
-                $orderRepo = $em->getRepository(PaymentOrder::class);
-                $accountRepo = $em->getRepository(Group::class);
+                    $orderRepo = $em->getRepository(PaymentOrder::class);
+                    $accountRepo = $em->getRepository(Group::class);
 
-                /** @var PaymentOrder $order */
-                $order = $orderRepo->findOneBy([
-                    'payment_address' => $params['address'],
-                    'status' => PaymentOrder::STATUS_IN_PROGRESS
-                ]);
+                    /** @var PaymentOrder $order */
+                    $order = $orderRepo->findOneBy([
+                        'payment_address' => $params['address'],
+                        'status' => PaymentOrder::STATUS_IN_PROGRESS
+                    ]);
 
-                /** @var Group $receiver */
-                $receiver = $order? $order->getPos()->getAccount(): $accountRepo->findOneBy(['rec_address' => $params['address']]);
-                $sender_in_campaign = in_array($group, $campaign->getAccounts()->toArray());
-                $receiver_in_campaign = in_array($receiver, $campaign->getAccounts()->toArray());
-                $rootGroupId = $this->container->getParameter('id_group_root');
-                if($sender_in_campaign) {
-                    if (!$receiver_in_campaign && $receiver->getId() !== $rootGroupId) {
-                        throw new HttpException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+                    /** @var Group $receiver */
+                    $receiver = $order? $order->getPos()->getAccount(): $accountRepo->findOneBy(['rec_address' => $params['address']]);
+                    $sender_in_campaign = in_array($group, $campaign->getAccounts()->toArray());
+                    $receiver_in_campaign = in_array($receiver, $campaign->getAccounts()->toArray());
+                    $rootGroupId = $this->container->getParameter('id_group_root');
+                    if($sender_in_campaign) {
+                        if (!$receiver_in_campaign && $receiver->getId() !== $rootGroupId) {
+                            throw new HttpException(Response::HTTP_BAD_REQUEST, "Receiver account not in Campaign");
+                        }
                     }
-                }
-                if($receiver_in_campaign) {
-                    if(!$sender_in_campaign) {
-                        throw new HttpException(Response::HTTP_BAD_REQUEST, "Sender account not in Campaign");
+                    if($receiver_in_campaign) {
+                        if(!$sender_in_campaign) {
+                            throw new HttpException(Response::HTTP_BAD_REQUEST, "Sender account not in Campaign");
+                        }
                     }
                 }
             }
