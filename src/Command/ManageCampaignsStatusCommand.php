@@ -16,7 +16,7 @@ class ManageCampaignsStatusCommand extends SynchronizedContainerAwareCommand
     protected function executeSynchronized(InputInterface $input, OutputInterface $output)
     {
         $em = $this->container->get('doctrine.orm.entity_manager');
-        $campaigns_v2 = $em->getRepository(Campaign::class)->findBy(array('version' => 2));
+        $campaigns_v2 = $em->getRepository(Campaign::class)->findAll();
         $now = new \DateTime();
         $output->writeln(count($campaigns_v2).' campaigns found to manage');
         /** @var Campaign $campaign */
