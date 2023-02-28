@@ -106,9 +106,10 @@ class TransactionBlocksTest extends BaseApiTest {
             ["file" => $fp]
         );
 
-        $file_route = simplexml_load_string($resp->getContent(), "SimpleXMLElement", LIBXML_NOCDATA)->data->entry[0]->__tostring();
-        $file_route = str_replace(self::createClient()->getKernel()->getContainer()->getParameter("files_path"),"", $file_route);
-        $file_route = "/opt/project/web/static".$file_route;
+        //$file_route = simplexml_load_string($resp->getContent(), "SimpleXMLElement", LIBXML_NOCDATA)->data->src->__tostring();
+        //$file_route = str_replace(self::createClient()->getKernel()->getContainer()->getParameter("files_path"),"", $file_route);
+        //$file_route = "/opt/project/public/static".$file_route;
+        $file_route = "https://api.rec.qbitartifacts.com/static/63fcb1131a101.tmp.txt";
         $resp = $this->rest(
             'POST',
             '/admin/v1/txs_block/csv',

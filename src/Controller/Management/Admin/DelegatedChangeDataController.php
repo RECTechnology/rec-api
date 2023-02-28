@@ -131,8 +131,10 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $fileSrc = $request->request->get('path');
 
-        $fileHandler = fopen($fileSrc, "r");
-        if(mime_content_type($fileHandler) !== "text/plain") throw new HttpException(400,"The file is not a CSV");
+        $this->isCsvFile($fileSrc);
+
+        //$fileHandler = fopen($fileSrc, "r");
+        //if(mime_content_type($fileHandler) !== "text/plain") throw new HttpException(400,"The file is not a CSV");
 
         $csv_raw_content = file_get_contents($fileSrc);
         $csv_content = str_replace('"','', $csv_raw_content);
@@ -190,48 +192,6 @@ class DelegatedChangeDataController extends BaseApiController{
     }
 
 
-
-
-    /**
-     * @param $csvContents
-     * @return array
-     */
-    private function csvToArray($csvContents){
-        $tmpLocation = '/tmp/' . uniqid("upload_") . ".tmp.csv";
-        file_put_contents($tmpLocation, $csvContents);
-
-        $contents = [];
-        $delimiter = ';';
-        if (($handle = fopen($tmpLocation, "r")) !== false) {
-            if(($row = fgetcsv($handle, 0, $delimiter)) !== false) {
-                if(count($row) == 1){
-                    fseek($handle, 0);
-                    $delimiter = ',';
-                    $row = fgetcsv($handle, 0, $delimiter);
-                }
-                $headers = [];
-                foreach ($row as $hdr) {
-                    $headers []= trim($hdr);
-                }
-            }
-            else throw new HttpException(400, "Invalid CSV: csv file must contain at least the headers row");
-
-            while(($row = fgetcsv($handle, 0 ,$delimiter)) !== false) {
-                $rowArr = [];
-                $rowLen = count($row);
-                for($i=0; $i<$rowLen; $i++){
-                    $rowArr[$headers[$i]] = $row[$i];
-                }
-
-                $contents []= $rowArr;
-            }
-        }
-        fclose($handle);
-        unlink($tmpLocation);
-        return $contents;
-    }
-
-
     public function getRepositoryName() {
         return "FinancialApiBundle:DelegatedChangeData";
     }
@@ -240,71 +200,16 @@ class DelegatedChangeDataController extends BaseApiController{
         return new DelegatedChangeData();
     }
 
-    private function checkExchangerConstraints(Tier $kyc, Group $exchanger){
-        if ($kyc->getCode() != "KYC2") {
-            throw new HttpException(
-                400,
-                sprintf("Exchanger (%s) KYC lower than KYC2.", $exchanger->getId()));
-        }
-        if (!$exchanger->getActive()) {
-            throw new HttpException(
-                400,
-                printf("Exchanger (%s) is not active.", $exchanger->getId()));
-        }
+    private function isCsvFile($url){
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
 
-        if (!$exchanger->getKycManager()->isEnabled()) {
-            throw new HttpException(
-                400,
-                printf("Exchanger (%s) user is not enabled.", $exchanger->getId()));
-        }
-        if (!$exchanger->getKycManager()->isAccountNonLocked()) {
-            throw new HttpException(
-                400,
-                sprintf("Exchanger (%s) user is locked.", $exchanger->getId()));
-        }
-    }
+        # get the content type
+        $type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 
-    private function checkAccountConstraints(Group $account){
-        if (!$account->getActive()) {
-            throw new HttpException(
-                400,
-                printf("Account (%s) is not active.", $account->getId()));
-        }
-
-        if (!$account->getKycManager()->isEnabled()) {
-            throw new HttpException(
-                400,
-                sprintf("Account (%s) user is not enabled.", $account->getId()));
-        }
-        if (!$account->getKycManager()->isAccountNonLocked()) {
-            throw new HttpException(
-                400,
-                sprintf("Account (%s) user is locked.", $account->getId()));
-        }
-    }
-
-    private function checkSenderConstraints(Tier $kyc, Group $sender_account){
-        if ($kyc->getCode() != "KYC2") {
-            throw new HttpException(
-                400,
-                sprintf("Sender (%s) KYC lower than KYC2.", $sender_account->getId()));
-        }
-
-        if (!$sender_account->getActive()) {
-            throw new HttpException(
-                400,
-                printf("Account (%s) is not active.", $sender_account->getId()));
-        }
-
-        if (!$sender_account->getKycManager()->isEnabled()) {
-            throw new HttpException(
-                400,
-                sprintf("Account (%s) user is not enabled.", $sender_account->getId()));
-        }
-        if (!$sender_account->getKycManager()->isAccountNonLocked()) {
-            throw new HttpException(
-                400,
-                sprintf("Account (%s) user is locked.", $sender_account->getId()));
+        if($type !== 'text/plain'){
+            throw new HttpException(400,"The file is not a CSV");
         }
     }
 }
