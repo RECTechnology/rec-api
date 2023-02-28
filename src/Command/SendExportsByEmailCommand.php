@@ -109,7 +109,7 @@ class SendExportsByEmailCommand extends SynchronizedContainerAwareCommand
                 } catch (Exception $e) {
                     throw new HttpException(400, "Invalid JsonPath: " . $e->getMessage(), $e);
                 }
-                if(count($found) == 0)
+                if(!$found)
                     $exportRow []= null;
                 elseif(count($found) == 1) {
                     if(is_array($found[0])) {
