@@ -53,6 +53,7 @@ class CampaignFixtures extends Fixture implements DependentFixtureInterface {
         $campaign = new Campaign();
         $campaign->setName($campaign_name);
         $campaign->setVersion(1);
+        $campaign->setStatus(Campaign::STATUS_ACTIVE);
         if($campaign_name == Campaign::BONISSIM_CAMPAIGN_NAME){
             $campaign->setTos("private_tos_campaign");
             $campaign->setCode('LTAB20');
