@@ -54,14 +54,11 @@ class AccountCampaignsController extends CRUDController {
             $response = parent::indexAction($request, $role);
             $content = json_decode($response->getContent(),true);
             $active_account_campaigns = [];
-            $today = new \DateTime();
             /** @var AccountCampaign $element */
             foreach ($content['data']['elements'] as $element){
-                $end_date = new \DateTime($element['campaign']['end_date']);
-                if($end_date > $today){
+                if($element['campaign']['status'] === Campaign::STATUS_ACTIVE){
                     $active_account_campaigns[] = $element;
                 }
-
             }
 
             //calculate all spent and accumulated in all user accounts
