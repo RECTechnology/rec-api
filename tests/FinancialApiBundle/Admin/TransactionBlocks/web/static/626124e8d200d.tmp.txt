@@ -1,5 +1,0 @@
-sender,exchanger,account,amount
-6,5,5,10
-6,5,5,11
-6,5,9,10000000
-6,5,200,465
