@@ -60,6 +60,25 @@ class CampaignTest extends AdminApiTest
         self::assertNotNull($created_data['code']);
     }
 
+    function testCreateCampaignV2WithEndDateLowerThanInitdateShouldFail(){
+        $finish = new \DateTime();
+        $start = new \DateTime('+3 days');
+        $data = array(
+            'init_date' => $start->format('Y-m-d\TH:i:sO'),
+            'end_date' => $finish->format('Y-m-d\TH:i:sO'),
+            'bonus_enabled' => 1,
+            'name' => 'Random name',
+            'tos' => 'kljhbih',
+            'balance' => 0
+        );
+        $resp = $this->requestJson('POST', '/admin/v3/campaigns', $data);
+
+        self::assertEquals(
+            400,
+            $resp->getStatusCode()
+        );
+    }
+
     function testDeleteCampaignWithOutAccountsJoinedInShouldWork()
     {
         $resp = $this->requestJson('DELETE', '/admin/v3/campaigns/4');

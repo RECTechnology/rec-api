@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
@@ -29,12 +30,14 @@ class Campaign extends AppObject {
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Groups({"public"})
+     * @Assert\Expression("value <= this.getEndDate()", message="init_date should be lower than end_date")
      */
     protected $init_date;
 
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Groups({"public"})
+     * @Assert\Expression("value >= this.getInitDate()", message="end_date should be higher than init_date")
      */
     protected $end_date;
 
