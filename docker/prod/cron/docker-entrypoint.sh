@@ -14,5 +14,7 @@ env | grep -v "^_" | while read envvar; do
   echo "$name='$value'" >> .env.local
 done
 
+app cache:warmup
+
 cron -f
 
