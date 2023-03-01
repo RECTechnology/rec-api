@@ -21,14 +21,15 @@ class MailgunController extends RestApiController {
         $signature = $request->get('signature'); //TODO: check webhook signature
         $event = $request->get('event-data');
         $delivery = $repo->findOneBy(['message_ref' => $event['message']['headers']['message-id']]);
-        if(!$delivery)
-            throw new HttpException(Response::HTTP_NOT_FOUND, "Message not found");
-        $delivery->setStatus($event['event']);
-        if ($event['event'] == MailingDelivery::STATUS_FAILED){
-            $delivery->setFailureReason($event['delivery-status']['description'] . $event['delivery-status']['message']);
+        if($delivery){
+            $delivery->setStatus($event['event']);
+            if ($event['event'] == MailingDelivery::STATUS_FAILED){
+                $delivery->setFailureReason($event['delivery-status']['description'] . $event['delivery-status']['message']);
+            }
+            $em->persist($delivery);
+            $em->flush();
         }
-        $em->persist($delivery);
-        $em->flush();
+
         return $this->rest(200, "success", "Webhook processed successfully");
     }
 }
