@@ -582,6 +582,12 @@ class Group extends BaseGroup implements Uploadable
     private $badges;
 
     /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Serializer\Groups({"user"})
+     */
+    private $b2b_products_enabled = false;
+
+    /**
      * @return mixed
      */
     public function getRedeemableAmount()
@@ -1997,5 +2003,21 @@ class Group extends BaseGroup implements Uploadable
         }
 
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isB2bProductsEnabled(): bool
+    {
+        return $this->b2b_products_enabled;
+    }
+
+    /**
+     * @param bool $b2b_products_enabled
+     */
+    public function setB2bProductsEnabled(bool $b2b_products_enabled): void
+    {
+        $this->b2b_products_enabled = $b2b_products_enabled;
     }
 }
