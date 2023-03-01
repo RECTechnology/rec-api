@@ -1,9 +1,11 @@
 services:
 
     net.app.service_provider:
+        public: true
         class: App\DependencyInjection\AppServiceProvider
 
     net.app.method_provider:
+        public: true
         class: App\DependencyInjection\AppMethodProvider
         arguments:
             - ["@net.app.out.rec.v1", "@net.app.in.rec.v1"]
@@ -30,6 +32,7 @@ services:
             - "1000000"
 
     net.app.out.rec.v1:
+        public: true
         class: App\Financial\Methods\RecMethod
         arguments:
             - "Rec"
@@ -173,6 +176,7 @@ services:
             - "1000000"
 
     net.app.refund.qbit.v1:
+        public: true
         class: App\Financial\Methods\RecMethod
         arguments:
             - "Qbit"

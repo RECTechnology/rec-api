@@ -22,11 +22,7 @@
 
 # Assets and user uploads
 /web/bundles/
-/web/uploads/
-
-# PHPUnit
-/app/phpunit.xml
-/phpunit.xml
+/public/uploads/
 
 # Build data
 /build/
