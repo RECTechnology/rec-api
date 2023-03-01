@@ -103,7 +103,7 @@ class Group extends BaseGroup implements Uploadable
 
     /**
      * @ORM\Column(type="text")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      */
     private $company_image = "";
 
@@ -316,7 +316,7 @@ class Group extends BaseGroup implements Uploadable
     /**
      * @ORM\Column(type="string")
      * @Assert\Email()
-     * @Serializer\Groups({"manager"})
+     * @Serializer\Groups({"public"})
      */
     private $email = '';
 
