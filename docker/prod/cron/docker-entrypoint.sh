@@ -16,5 +16,7 @@ done
 
 app cache:warmup
 
+chown -R www-data:www-data public/static var/cache var/log
+
 cron -f
 
