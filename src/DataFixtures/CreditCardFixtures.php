@@ -30,8 +30,11 @@ class CreditCardFixtures extends Fixture implements DependentFixtureInterface {
         $this->createCreditCard($orm, $company, $user);
 
         $thirdUser = $orm->getRepository(User::class)->findOneBy(['username' => '01234567C']);
+        $secondUser = $orm->getRepository(User::class)->findOneBy(['username' => '01234567B']);
 
         $this->createCreditCard($orm, $thirdUser->getActiveGroup(), $thirdUser);
+        $this->createCreditCard($orm, $secondUser->getActiveGroup(), $secondUser);
+
     }
 
     /**

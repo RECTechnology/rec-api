@@ -12,6 +12,7 @@ use App\Entity\AccountCampaign;
 use App\Entity\AccountChallenge;
 use App\Entity\Campaign;
 use App\Entity\CashInTokens;
+use App\Entity\CreditCard;
 use App\Entity\Document;
 use App\Entity\DocumentKind;
 use App\Entity\Group;
@@ -82,13 +83,20 @@ class AccountController extends BaseApiController {
             $resp["has_pin"] = false;
         }
 
+        $filtered_bankCards = [];
+        foreach ($resp['bank_cards'] as $card){
+            if($card['company']['id'] === $active_group->getId()){
+                $filtered_bankCards[] = $card;
+            }
+        }
+
+        $resp['bank_cards'] = $filtered_bankCards;
+
         if($active_group->getKycManager()->getId() === $user->getId()){
             $resp['is_kyc_manager'] = true;
         }else{
             $resp['is_kyc_manager'] = false;
         }
-
-
 
         return $this->rest(200, "ok", "Account info got successfully", $resp);
     }

@@ -339,7 +339,9 @@ class User extends BaseUser implements Uploadable {
 
         /** @var CreditCard $card */
         foreach ($this->getBankCards() as $card) {
-            if(!$card->isDeleted()) return $card;
+            if($card->getCompany() === $this->active_group){
+                if(!$card->isDeleted()) return $card;
+            }
         }
 
         return null;
