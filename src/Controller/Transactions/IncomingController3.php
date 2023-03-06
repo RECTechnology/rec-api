@@ -1062,7 +1062,11 @@ class IncomingController3 extends RestApiController{
                 $available_bonus = $total_bonus_accumulated - $total_bonus_spent;
                 $available_balance = $wallet->getBalance() - $available_bonus;
                 if($available_balance < $amount) {
-                    throw new HttpException(400, 'Not funds enough. You can not use bonused balance in a private transaction');
+                    if($available_bonus > 0){
+                        throw new HttpException(400, 'Not funds enough. You can not use bonused balance in a private transaction');
+                    }else{
+                        throw new HttpException(400, 'Not funds enough.');
+                    }
                 }
             }
 
