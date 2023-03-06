@@ -23,6 +23,7 @@ class CRUDSubresourcesTest extends BaseApiTest {
         $accounts = json_decode($resp->getContent())->data->accounts;
         $this->account = $accounts[0];
 
+        //TODO delete this, I don not why is created an empty product
         $resp = $this->requestJson('POST', '/user/v3/product_kinds');
         $this->product = json_decode($resp->getContent())->data;
     }

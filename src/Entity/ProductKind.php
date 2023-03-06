@@ -101,26 +101,14 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
     /**
      * @ORM\ManyToMany(
      *     targetEntity="App\Entity\Activity",
-     *     inversedBy="default_producing_products",
+     *     inversedBy="products",
      *     fetch="EXTRA_LAZY"
      * )
-     * @ORM\JoinTable(name="activities_products_producing")
+     * @ORM\JoinTable(name="activities_products")
      * @Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
-    private $default_producing_by;
-
-    /**
-     * @ORM\ManyToMany(
-     *     targetEntity="App\Entity\Activity",
-     *     inversedBy="default_consuming_products",
-     *     fetch="EXTRA_LAZY"
-     * )
-     * @ORM\JoinTable(name="activities_products_consuming")
-     * @Groups({"public"})
-     * @Serializer\MaxDepth(2)
-     */
-    private $default_consuming_by;
+    private $activities;
 
     /**
      * ProductKindOld constructor.
@@ -128,8 +116,7 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
     public function __construct() {
         $this->producing_by = new ArrayCollection();
         $this->consuming_by = new ArrayCollection();
-        $this->default_consuming_by = new ArrayCollection();
-        $this->default_producing_by = new ArrayCollection();
+        $this->activities = new ArrayCollection();
         $this->status = self::STATUS_CREATED;
     }
 
@@ -238,78 +225,6 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
     }
 
     /**
-     * @return mixed
-     */
-    public function getDefaultProducingBy()
-    {
-        return $this->default_producing_by;
-    }
-
-    /**
-     * @param mixed $activity
-     * @param bool $recursive
-     * @throws PreconditionFailedException
-     */
-    public function addDefaultProducingBy(Activity $activity, $recursive = true): void
-    {
-        if($this->default_producing_by->contains($activity)){
-            throw new PreconditionFailedException("Activity already related to this ProductKind");
-        }
-        $this->default_producing_by []= $activity;
-        if($recursive) $activity->addDefaultProducingProduct($this, false);
-    }
-
-    /**
-     * @param mixed $activity
-     * @param bool $recursive
-     * @throws PreconditionFailedException
-     */
-    public function delDefaultProducingBy(Activity $activity, $recursive = true): void
-    {
-        if(!$this->default_producing_by->contains($activity)){
-            throw new PreconditionFailedException("Activity not related to this ProductKind");
-        }
-        $this->default_producing_by->removeElement($activity);
-        //if($recursive) $activity->delDefaultProducingProduct($this, false);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDefaultConsumingBy()
-    {
-        return $this->default_consuming_by;
-    }
-
-    /**
-     * @param mixed $activity
-     * @param bool $recursive
-     * @throws PreconditionFailedException
-     */
-    public function addDefaultConsumingBy(Activity $activity, $recursive = true): void
-    {
-        if($this->consuming_by->contains($activity)){
-            throw new PreconditionFailedException("Activity already related to this ProductKind");
-        }
-        $this->default_consuming_by []= $activity;
-        if($recursive) $activity->addDefaultConsumingProducts($this, false);
-    }
-
-    /**
-     * @param mixed $activity
-     * @param bool $recursive
-     * @throws PreconditionFailedException
-     */
-    public function delDefaultConsumingBy(Activity $activity, $recursive = true): void
-    {
-        if(!$this->default_consuming_by->contains($activity)){
-            throw new PreconditionFailedException("Activity not related to this ProductKind");
-        }
-        $this->default_consuming_by->removeElement($activity);
-        //if($recursive) $activity->delDefaultConsumingProduct($this, false);
-    }
-
-    /**
      * @throws PreconditionFailedException
      */
     function isDeleteAllowed()
@@ -318,10 +233,8 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
             throw new PreconditionFailedException("Deletion forbidden: product produced by (1+) accounts");
         if(!$this->consuming_by->isEmpty())
             throw new PreconditionFailedException("Deletion forbidden: product consumed by (1+) accounts");
-        if(!$this->default_producing_by->isEmpty())
-            throw new PreconditionFailedException("Deletion forbidden: product produced by (1+) activities");
-        if(!$this->default_consuming_by->isEmpty())
-            throw new PreconditionFailedException("Deletion forbidden: product consumed by (1+) activities");
+        if(!$this->activities->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden: (1+) activities");
     }
 
     /**
@@ -403,5 +316,41 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
     public function setDescriptionCa($description_ca): void
     {
         $this->description_ca = $description_ca;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActivities()
+    {
+        return $this->activities;
+    }
+
+    /**
+     * @param mixed $activity
+     * @param bool $recursive
+     * @throws PreconditionFailedException
+     */
+    public function addActivity(Activity $activity, $recursive = true): void
+    {
+        if($this->activities->contains($activity)){
+            throw new PreconditionFailedException("Activity already related to this ProductKind");
+        }
+        $this->activities []= $activity;
+        if($recursive) $activity->addProduct($this, false);
+    }
+
+    /**
+     * @param mixed $activity
+     * @param bool $recursive
+     * @throws PreconditionFailedException
+     */
+    public function delActivity(Activity $activity, $recursive = true): void
+    {
+        if(!$this->activities->contains($activity)){
+            throw new PreconditionFailedException("Activity not related to this ProductKind");
+        }
+        $this->activities->removeElement($activity);
+        //if($recursive) $activity->delProduct($this, false);
     }
 }

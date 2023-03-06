@@ -101,37 +101,26 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
      */
     private $accounts;
 
-    /**
-     * @ORM\ManyToMany(
-     *     targetEntity="App\Entity\ProductKind",
-     *     mappedBy="default_producing_by",
-     *     fetch="EXTRA_LAZY"
-     * )
-     * @Exclude
-     * @Serializer\Groups({"public"})
-     * @Serializer\MaxDepth(2)
-     */
-    private $default_producing_products;
+
 
     /**
      * @ORM\ManyToMany(
      *     targetEntity="App\Entity\ProductKind",
-     *     mappedBy="default_consuming_by",
+     *     mappedBy="activities",
      *     fetch="EXTRA_LAZY"
      * )
      * @Exclude
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
-    private $default_consuming_products;
+    private $products;
 
     /**
      * Activity constructor.
      */
     public function __construct() {
         $this->accounts = new ArrayCollection();
-        $this->default_consuming_products = new ArrayCollection();
-        $this->default_producing_products = new ArrayCollection();
+        $this->products = new ArrayCollection();
         $this->status = self::STATUS_CREATED;
     }
 
@@ -171,85 +160,13 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     }
 
     /**
-     * @return mixed
-     */
-    public function getDefaultProducingProducts()
-    {
-        return $this->default_producing_products;
-    }
-
-    /**
-     * @param mixed $product
-     * @param bool $recursive
-     * @throws PreconditionFailedException
-     */
-    public function addDefaultProducingProduct(ProductKind $product, $recursive = true): void
-    {
-        if($this->default_producing_products->contains($product)){
-            throw new PreconditionFailedException("ProductKind already related to this Activity");
-        }
-        $this->default_producing_products []= $product;
-        if($recursive) $product->addDefaultProducingBy($this, false);
-    }
-
-    /**
-     * @param mixed $product
-     * @param bool $recursive
-     */
-    public function delDefaultProducingProduct(ProductKind $product, $recursive = true): void
-    {
-        if(!$this->default_producing_products->contains($product)){
-            throw new PreconditionFailedException("ProductKind not related to this Activity");
-        }
-        $this->default_producing_products->removeElement($product);
-        if($recursive) $product->delDefaultProducingBy($this, false);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDefaultConsumingProducts()
-    {
-        return $this->default_consuming_products;
-    }
-
-    /**
-     * @param mixed $product
-     * @param bool $recursive
-     * @throws PreconditionFailedException
-     */
-    public function addDefaultConsumingProducts(ProductKind $product, $recursive = true): void
-    {
-        if($this->default_consuming_products->contains($product)){
-            throw new PreconditionFailedException("ProductKind already related to this Activity");
-        }
-        $this->default_consuming_products []= $product;
-        if($recursive) $product->addDefaultConsumingBy($this, false);
-    }
-
-    /**
-     * @param mixed $product
-     * @param bool $recursive
-     */
-    public function delDefaultConsumingProduct(ProductKind $product, $recursive = true): void
-    {
-        if(!$this->default_consuming_products->contains($product)){
-            throw new PreconditionFailedException("ProductKind not related to this Activity");
-        }
-        $this->default_consuming_products->removeElement($product);
-        if($recursive) $product->delDefaultConsumingBy($this, false);
-    }
-
-    /**
      * @throws PreconditionFailedException
      */
     function isDeleteAllowed()
     {
         if(!$this->accounts->isEmpty())
             throw new PreconditionFailedException("Delete forbidden: activity is assigned to (1+) accounts");
-        if(!$this->default_consuming_products->isEmpty())
-            throw new PreconditionFailedException("Delete forbidden: activity has (1+) consuming products");
-        if(!$this->default_consuming_products->isEmpty())
+        if(!$this->products->isEmpty())
             throw new PreconditionFailedException("Delete forbidden: activity has (1+) consuming products");
     }
 
@@ -395,6 +312,41 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     public function setParent($parent): void
     {
         $this->parent = $parent;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProducts()
+    {
+        return $this->products;
+    }
+
+    /**
+     * @param mixed $product
+     * @param bool $recursive
+     * @throws PreconditionFailedException
+     */
+    public function addProduct(ProductKind $product, $recursive = true): void
+    {
+        if($this->products->contains($product)){
+            throw new PreconditionFailedException("ProductKind already related to this Activity");
+        }
+        $this->products []= $product;
+        if($recursive) $product->addActivity($this, false);
+    }
+
+    /**
+     * @param mixed $product
+     * @param bool $recursive
+     */
+    public function delProduct(ProductKind $product, $recursive = true): void
+    {
+        if(!$this->products->contains($product)){
+            throw new PreconditionFailedException("ProductKind not related to this Activity");
+        }
+        $this->products->removeElement($product);
+        if($recursive) $product->delActivity($this, false);
     }
 
 }
