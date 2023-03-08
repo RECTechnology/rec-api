@@ -1,0 +1,65 @@
+name: Build and Deploy [LAROSA]
+
+on:
+  push:
+    tags:
+      - '^v[0-9]+\.[0-9]+\.[0-9]+(-larosa)*$'
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtaining the code
+        uses: actions/checkout@v1
+
+      - name: Building the docker images
+        env:
+          REGISTRY: reg.rallf.com:8443
+        run: make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=larosa DOCKERFILE_DIR=docker/prod/api
+
+      - name: Login into the registry
+        env:
+          REGISTRY: reg.rallf.com:8443
+          USER: ${{secrets.DOCKER_USERNAME}}
+          PASS: ${{secrets.DOCKER_PASSWORD}}
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USER} DOCKER_PASSWORD=${PASS}
+
+      - name: Pushing images to the registry
+        env:
+          DOCKER_REGISTRY_URL: reg.rallf.com:8443
+        run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-api DOCKER_TAG=larosa
+
+      - name: Deploy
+        uses: joelwmale/webhook-action@1.0.1
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_API_LAROSA }}
+          data: "ignored"
+
+  build-cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtaining the code
+        uses: actions/checkout@v1
+
+      - name: Building the docker images
+        env:
+          REGISTRY: reg.rallf.com:8443
+        run: make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=larosa DOCKERFILE_DIR=docker/prod/cron
+
+      - name: Login into the registry
+        env:
+          REGISTRY: reg.rallf.com:8443
+          USER: ${{secrets.DOCKER_USERNAME}}
+          PASS: ${{secrets.DOCKER_PASSWORD}}
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USER} DOCKER_PASSWORD=${PASS}
+
+      - name: Pushing images to the registry
+        env:
+          DOCKER_REGISTRY_URL: reg.rallf.com:8443
+        run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-cron DOCKER_TAG=larosa
+
+      - name: Deploy
+        uses: joelwmale/webhook-action@1.0.1
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_CRON_LAROSA }}
+          data: "ignored"
