@@ -116,6 +116,27 @@ class CampaignTest extends AdminApiTest
         }
     }
 
+    function testSearchUsersByCampaignShouldWork()
+    {
+        $resp = $this->requestJson('GET', '/admin/v1/campaign/3/users?search=paco');
+        self::assertEquals(
+            200,
+            $resp->getStatusCode()
+        );
+
+        $content = json_decode($resp->getContent(), true);
+
+        $elements = $content['data']['elements'];
+        self::assertGreaterThanOrEqual(1, count($elements));
+        self::assertArrayHasKey('total_accumulated_bonus', $content['data']);
+        self::assertArrayHasKey('total_spent_bonus', $content['data']);
+        foreach ($elements as $element) {
+            self::assertArrayHasKey('accumulated_bonus', $element);
+            self::assertArrayHasKey('spent_bonus', $element);
+        }
+
+    }
+
     function testExportUsersByCampaignShouldWork()
     {
         $resp = $this->request('GET', '/admin/v1/campaign/3/users/export');
