@@ -558,19 +558,13 @@ class IncomingController3 extends RestApiController{
                 } else {
                     throw new HttpException(400, 'Param pin not found or incorrect');
                 }**/
-                if (array_key_exists('creditCardPertainsBeneficiary', $data) && $data['creditCardPertainsBeneficiary'] == false) {
-                    $credit_card = $em->getRepository('FinancialApiBundle:CreditCard')->findOneBy(array(
-                        'id' => $data['card_id'],
-                        'deleted' => false
-                    ));
-                } else {
-                    $credit_card = $em->getRepository('FinancialApiBundle:CreditCard')->findOneBy(array(
-                        'id' => $data['card_id'],
-                        'company' => $account_to_id,
-                        'deleted' => false,
-                        'user' => $user_to->getId()
-                    ));
-                }
+
+                $credit_card = $em->getRepository('FinancialApiBundle:CreditCard')->findOneBy(array(
+                    'id' => $data['card_id'],
+                    'company' => $account_to_id,
+                    'deleted' => false,
+                    'user' => $user_to->getId()
+                ));
 
                 if (!$credit_card) {
                     throw new HttpException(405, 'Credit card selected is not available');
