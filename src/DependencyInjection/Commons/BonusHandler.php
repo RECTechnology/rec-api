@@ -145,6 +145,7 @@ class BonusHandler{
         /** @var Campaign $campaign */
         $campaign = $em->getRepository(Campaign::class)->findOneBy(['name' => Campaign::CULTURE_CAMPAIGN_NAME]);
 
+        if(!$campaign) return false;
         if(!$campaign->isBonusEnabled()) return false;
         if($this->originTx->getType() !== 'in') return false;
         if($this->originTx->getMethod() !== 'lemonway') return false;
