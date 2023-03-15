@@ -90,7 +90,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_RETAILER,
             1,
             'duplicated_name',
-            1000e8
+            1000e8,
+            null,
+            1
         );
         $this->createAccount(
             $orm,
@@ -134,7 +136,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_RETAILER,
             1,
             self::TEST_SHOP_ACCOUNT['name'],
-            1000e8
+            1000e8,
+            null,
+            1
         );
 
         $admin = $orm->getRepository(User::class)
@@ -150,7 +154,10 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_TYPE_ORGANIZATION,
             self::ACCOUNT_SUBTYPE_RETAILER,
             2,
-            Campaign::BONISSIM_CAMPAIGN_NAME
+            Campaign::BONISSIM_CAMPAIGN_NAME,
+            0,
+            null,
+            2
         );
         $this->createAccount(
             $orm,
@@ -160,7 +167,10 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_TYPE_ORGANIZATION,
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2,
-            self::TEST_ACCOUNT_COMMERCE['name']
+            self::TEST_ACCOUNT_COMMERCE['name'],
+            0,
+            null,
+            2
         );
 
         //This user has a private USER account and is locked by password failures
@@ -240,7 +250,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_RETAILER,
             2,
             self::TEST_ACCOUNT_LTAB_PRIVATE['name'].'_store',
-            1000e8
+            1000e8,
+            null,
+            4
         );
 
         $user_LTAB_org = $orm->getRepository(User::class)
@@ -254,7 +266,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_RETAILER,
             2,
             self::TEST_ACCOUNT_LTAB_COMMERCE['name'],
-            1000e8
+            1000e8,
+            null,
+            4
         );
 
         $this->createAccount(
@@ -266,7 +280,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_RETAILER,
             2,
             self::TEST_ACCOUNT_CULT21_COMMERCE['name'],
-            1000e8
+            1000e8,
+            null,
+            2
         );
 
         $this->createAccount(
@@ -278,7 +294,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2,
             "CULT21",
-            100000e8
+            100000e8,
+            null,
+            2
         );
 
         $manager_pos_org = $orm->getRepository(User::class)
@@ -292,7 +310,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2,
             "POS COMMERCE",
-            100000e8
+            100000e8,
+            null,
+            2
         );
 
         $rezero_org_1 = $orm->getRepository(User::class)
@@ -306,7 +326,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2,
             self::TEST_ACCOUNT_REZERO_1['name'],
-            100000e8
+            100000e8,
+            null,
+            2
         );
 
         $rezero_org_2 = $orm->getRepository(User::class)
@@ -320,7 +342,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2,
             self::TEST_ACCOUNT_REZERO_2['name'],
-            100000e8
+            100000e8,
+            null,
+            2
         );
 
         $rezero_org_3 = $orm->getRepository(User::class)
@@ -334,7 +358,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2,
             self::TEST_ACCOUNT_REZERO_3['name'],
-            100000e8
+            100000e8,
+            null,
+            2
         );
 
         //This one has to be the last one because some tests like #testCountryNotValid are expecting this
@@ -348,7 +374,9 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             self::ACCOUNT_SUBTYPE_WHOLESALE,
             2,
             "LTAB",
-            100000e8
+            100000e8,
+            null,
+            2
         );
 
         $orm->flush();
@@ -366,7 +394,7 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
      * @param float $balance
      * @throws \Exception
      */
-    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles = [], string $type = self::ACCOUNT_TYPE_PRIVATE, string $subtype = self::ACCOUNT_SUBTYPE_NORMAL, int $tier = 1, string $name = null, float $balance=100e8, User $worker_user=null){
+    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles = [], string $type = self::ACCOUNT_TYPE_PRIVATE, string $subtype = self::ACCOUNT_SUBTYPE_NORMAL, int $tier = 1, string $name = null, float $balance=100e8, User $worker_user=null, int $activity_id=null){
 
         $account = new Account();
 
@@ -377,7 +405,8 @@ class AccountFixtures extends Fixture implements DependentFixtureInterface {
             $account->setName($faker->name);
         }
         if ($type == self::ACCOUNT_TYPE_ORGANIZATION) {
-            $activity = $orm->getRepository(Activity::class)->find($tier);
+            if(!$activity_id) $activity_id = 1;
+            $activity = $orm->getRepository(Activity::class)->find($activity_id);
             if($activity){
                 $account->setActivityMain($activity);
                 $account->addActivity($activity);

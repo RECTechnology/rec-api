@@ -116,7 +116,7 @@ class MapController extends BaseApiController{
             foreach($activities as $activity){
                 $activities_ids[] = $activity->getId();
             }
-            $and->add($qb->expr()->in('a.activity_main', $activities_ids));
+            //$and->add($qb->expr()->in('a.activity_main', $activities_ids));
         }
 
         $qb = $qb
@@ -176,6 +176,7 @@ class MapController extends BaseApiController{
         $elements = $this->secureOutput($elements);
 
         $iMax = count($elements);
+        $filtered_elements = [];
         for($i = 0; $i < $iMax; $i++){
             $offersInGroup = $em
                 ->createQuery('SELECT o FROM '.Offer::class.' o WHERE o.company = :companyid AND o.active = :active')
@@ -190,6 +191,18 @@ class MapController extends BaseApiController{
             $elements[$i]['is_commerce_verd'] = $account->isGreenCommerce();
             $elements[$i]['is_cultural'] = $account->isCultural();
 
+            if($hasActivity){
+                $current_account = $em->getRepository(Group::class)->find($elements[$i]['id']);
+                foreach ($current_account->getActivities() as $account_activity){
+                    if(in_array($account_activity->getId(), $activities_ids)){
+                        $filtered_elements[] = $elements[$i];
+                    }
+                }
+
+            }else{
+                $filtered_elements[] = $elements[$i];
+            }
+
         }
 
 
@@ -198,8 +211,8 @@ class MapController extends BaseApiController{
             "ok",
             "Request successful",
             array(
-                'total' => count($elements),
-                'elements' => $elements
+                'total' => count($filtered_elements),
+                'elements' => $filtered_elements
             )
         );
     }

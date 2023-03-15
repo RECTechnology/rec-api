@@ -142,13 +142,16 @@ class MapTest extends BaseApiTest {
         self::assertEquals('LTAB20', $response_content['data']['elements'][0]['campaign']);
     }
 
-    public function testPublicMapSearchActivity(){
-        $response = $this->requestJson('GET', '/public/map/v1/search?activity_id=1');
+    public function testPublicAndUserMapSearchActivity(){
+        $public_response = $this->requestJson('GET', '/public/map/v1/search?activity_id=1');
+        $public_response_content = json_decode($public_response->getContent(),true);
+        self::assertEquals('4', $public_response_content["data"]["total"]);
+
+
+        $this->signIn(UserFixtures::TEST_USER_CREDENTIALS);
+        $response = $this->requestJson('GET', '/user/v4/accounts/search?activity_id=1');
         $response_content = json_decode($response->getContent(),true);
-        self::assertEquals('1', $response_content["data"]["elements"][0]["activity"]);
-        foreach ($response_content["data"]["elements"] as $account){
-            self::assertEquals(true, $account['is_cultural']);
-        }
+        self::assertEquals('4', $response_content["data"]["total"]);
     }
 
     public function testMapGreenCommerceResponds200(){
