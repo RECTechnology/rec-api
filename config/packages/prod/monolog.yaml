@@ -14,3 +14,11 @@ monolog:
             type: console
             process_psr_3_messages: false
             channels: ["!event", "!doctrine"]
+        error:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%-error.log"
+            level: error
+        custom:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%-debug.log"
+            level: debug
