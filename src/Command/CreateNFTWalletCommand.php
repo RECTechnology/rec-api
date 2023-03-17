@@ -52,6 +52,8 @@ class CreateNFTWalletCommand extends SynchronizedContainerAwareCommand
 
                 }
             }
+        }else{
+            $output->writeln('web3 is disabled, if you want to use it go to settings and enable create_nft_wallet option');
         }
     }
 }
