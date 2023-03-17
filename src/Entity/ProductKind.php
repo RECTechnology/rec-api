@@ -54,13 +54,13 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @Groups({"manager"})
+     * @Groups({"public"})
      */
     private $description_es;
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @Groups({"manager"})
+     * @Groups({"public"})
      */
     private $description_ca;
 

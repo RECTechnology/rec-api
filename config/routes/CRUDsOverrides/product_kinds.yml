@@ -1,0 +1,27 @@
+
+##################### PRODUCT KINDS ############################
+product_kinds_v3_create:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\ProductKindsController::createAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(product_kind|product_kinds)"
+
+product_kinds_v3_search:
+    path:  /{role}/v3/{object}/search
+    defaults: { _controller: App\Controller\CRUD\ProductKindsController::searchAction }
+    methods: [GET]
+    requirements:
+        role: "(user|admin)"
+        object: "(product_kind|product_kinds)"
+
+product_kinds_v3_index:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\Controller\CRUD\ProductKindsController::indexAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(product_kind|product_kinds)"
+
+

@@ -182,7 +182,7 @@ products_and_activities_v3_create:
     methods: [POST]
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
-        object: "(product_kinds|activities)"
+        object: "(activities)"
 
 ##################### DELEGATED_CHANGE / V3 / (OVERRIDES CRUD) ############################
 

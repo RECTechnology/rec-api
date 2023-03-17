@@ -13,7 +13,7 @@ use App\Tests\BaseApiTest;
 class CRUDSubresourcesTest extends BaseApiTest {
 
     private $account;
-    private $product;
+    private $product_id;
 
     function setUp(): void
     {
@@ -23,9 +23,7 @@ class CRUDSubresourcesTest extends BaseApiTest {
         $accounts = json_decode($resp->getContent())->data->accounts;
         $this->account = $accounts[0];
 
-        //TODO delete this, I don not why is created an empty product
-        $resp = $this->requestJson('POST', '/user/v3/product_kinds');
-        $this->product = json_decode($resp->getContent())->data;
+        $this->product_id = 1;
     }
 
     function testAddAndRemoveProducts()
@@ -34,7 +32,7 @@ class CRUDSubresourcesTest extends BaseApiTest {
         $resp = $this->requestJson(
             'POST',
             $route,
-            ['id' => $this->product->id]
+            ['id' => $this->product_id]
         );
         self::assertEquals(
             201,
@@ -55,7 +53,7 @@ class CRUDSubresourcesTest extends BaseApiTest {
         $products = json_decode($resp->getContent())->data->elements;
         self::assertGreaterThan(0, count($products), "Expected more than 0 products in account");
 
-        $route = "/user/v3/accounts/{$this->account->id}/producing_products/{$this->product->id}";
+        $route = "/user/v3/accounts/{$this->account->id}/producing_products/{$this->product_id}";
         $resp = $this->requestJson(
             'DELETE',
             $route
@@ -70,7 +68,7 @@ class CRUDSubresourcesTest extends BaseApiTest {
 
     function tearDown(): void
     {
-        $route = "/user/v3/product_kinds/{$this->product->id}";
+        $route = "/user/v3/product_kinds/{$this->product_id}";
         $resp = $this->requestJson('DELETE', $route);
         self::assertEquals(
             Response::HTTP_FORBIDDEN,

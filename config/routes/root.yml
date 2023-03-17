@@ -46,6 +46,9 @@ CRUD_account_campaigns_overrides:
 CRUD_campaigns_overrides:
   resource: CRUDsOverrides/campaigns.yml
 
+CRUD_product_kinds_overrides:
+  resource: CRUDsOverrides/product_kinds.yml
+
 CRUD:
   resource: crud.yml
 
