@@ -47,6 +47,25 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @REC\TranslatedProperty
+     * @ORM\Column(type="string", nullable=true, unique=true)
+     * @Groups({"public"})
+     */
+    private $name_plural;
+
+    /**
+     * @ORM\Column(type="string", nullable=true, unique=true)
+     * @Groups({"public"})
+     */
+    private $name_es_plural;
+
+    /**
+     * @ORM\Column(type="string", nullable=true, unique=true)
+     * @Groups({"public"})
+     */
+    private $name_ca_plural;
+
+    /**
+     * @REC\TranslatedProperty
      * @ORM\Column(type="text", nullable=true)
      * @Groups({"public"})
      */
@@ -352,5 +371,53 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
         }
         $this->activities->removeElement($activity);
         //if($recursive) $activity->delProduct($this, false);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNamePlural()
+    {
+        return $this->name_plural;
+    }
+
+    /**
+     * @param mixed $name_plural
+     */
+    public function setNamePlural($name_plural): void
+    {
+        $this->name_plural = $name_plural;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNameEsPlural()
+    {
+        return $this->name_es_plural;
+    }
+
+    /**
+     * @param mixed $name_es_plural
+     */
+    public function setNameEsPlural($name_es_plural): void
+    {
+        $this->name_es_plural = $name_es_plural;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNameCaPlural()
+    {
+        return $this->name_ca_plural;
+    }
+
+    /**
+     * @param mixed $name_ca_plural
+     */
+    public function setNameCaPlural($name_ca_plural): void
+    {
+        $this->name_ca_plural = $name_ca_plural;
     }
 }

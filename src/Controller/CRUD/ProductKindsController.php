@@ -42,6 +42,9 @@ class ProductKindsController extends CRUDController {
                     $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%')),
                     $qb->expr()->like('p.name_es', $qb->expr()->literal('%'.$search.'%')),
                     $qb->expr()->like('p.name_ca', $qb->expr()->literal('%'.$search.'%')),
+                    $qb->expr()->like('p.name_plural', $qb->expr()->literal('%'.$search.'%')),
+                    $qb->expr()->like('p.name_ca_plural', $qb->expr()->literal('%'.$search.'%')),
+                    $qb->expr()->like('p.name_es_plural', $qb->expr()->literal('%'.$search.'%')),
                 ))
                 ->andWhere('p.status = :status')
                 ->setparameter('status', ProductKind::STATUS_REVIEWED)
@@ -155,6 +158,9 @@ class ProductKindsController extends CRUDController {
                 $qb->expr()->eq('p.name', $qb->expr()->literal($name)),
                 $qb->expr()->eq('p.name_es', $qb->expr()->literal($name)),
                 $qb->expr()->eq('p.name_ca', $qb->expr()->literal($name)),
+                $qb->expr()->eq('p.name_plural', $qb->expr()->literal($name)),
+                $qb->expr()->eq('p.name_es_plural', $qb->expr()->literal($name)),
+                $qb->expr()->eq('p.name_ca_plural', $qb->expr()->literal($name)),
             ))
             ->andWhere('p.status = :status')
             ->setparameter('status', ProductKind::STATUS_REVIEWED)
