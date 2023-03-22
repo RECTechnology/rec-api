@@ -8,3 +8,6 @@ twig:
         logo_url: '%logo_url%'
         primary_color: '%primary_color%'
         secondary_color: '%secondary_color%'
+        crypto_currency: '%crypto_currency%'
+        color_rec: '#0098DB'
+        color_larosa: '#E61872'

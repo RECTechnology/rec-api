@@ -1,11 +1,11 @@
 {% block show_account %}
-    <strong>{{ "Name" | trans }}:</strong>
+    <strong>{{ "Name" | trans({}, "messages", account.kycManager.locale) }}:</strong>
     <em>{{ account.name }}</em><br/>
-    <strong>{{ "Phone" | trans }}:</strong>
+    <strong>{{ "Phone" | trans({}, "messages", account.kycManager.locale) }}:</strong>
     <em>+{{ account.prefix }}
         {{ account.phone }}</em><br/>
     {% if account.email %}
-        <strong>{{ "Email" | trans }}:</strong>
+        <strong>{{ "Email" | trans({}, "messages", account.kycManager.locale) }}:</strong>
         <em>{{ account.email }}</em><br/>
     {% endif %}
     {% if (account.street != null) and (account.addressNumber != null) %}
