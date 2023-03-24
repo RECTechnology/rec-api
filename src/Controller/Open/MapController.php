@@ -125,6 +125,7 @@ class MapController extends BaseApiController{
             ->leftJoin('a.offers', 'o')
             ->leftJoin('a.category', 'c')
             ->leftJoin('a.campaigns', 'cp')
+            ->leftJoin('a.level', 'tr')
             ->where($and);
 
         if($badge_id){
@@ -161,6 +162,8 @@ class MapController extends BaseApiController{
             'a.schedule, ' .
             'a.public_image, ' .
             'a.web, ' .
+            'cp.code, ' .
+            'tr.code as tier, ' .
             'a.offered_products, ' .
             'a.needed_products, '.
             'identity(a.activity_main) as activity, ' .
@@ -168,11 +171,13 @@ class MapController extends BaseApiController{
 
         $elements = $qb
             ->select($select)
+            ->andWhere('tier LIKE :kyc')
+            ->orWhere('tier LIKE :kyc2')
             ->orderBy('a.id', 'DESC')
+            ->setParameter('kyc', 'KYC2')
+            ->setParameter('kyc2', 'KYC3')
             ->getQuery()
             ->getResult();
-
-
         $elements = $this->secureOutput($elements);
 
         $iMax = count($elements);
@@ -182,7 +187,8 @@ class MapController extends BaseApiController{
                 ->createQuery('SELECT o FROM '.Offer::class.' o WHERE o.company = :companyid AND o.active = :active')
                 ->setParameters(array(
                     'companyid' => $elements[$i]["id"],
-                    'active' => 1))
+                    'active' => 1,
+                ))
                 ->getResult();
 
             $elements[$i]["offers"] = $offersInGroup;

@@ -145,13 +145,14 @@ class MapTest extends BaseApiTest {
     public function testPublicAndUserMapSearchActivity(){
         $public_response = $this->requestJson('GET', '/public/map/v1/search?activity_id=1');
         $public_response_content = json_decode($public_response->getContent(),true);
-        self::assertEquals('4', $public_response_content["data"]["total"]);
-
+        //existen dos comercios con KYC2 o superior
+        self::assertEquals('2', $public_response_content["data"]["total"]);
 
         $this->signIn(UserFixtures::TEST_USER_CREDENTIALS);
         $response = $this->requestJson('GET', '/user/v4/accounts/search?activity_id=1');
         $response_content = json_decode($response->getContent(),true);
-        self::assertEquals('4', $response_content["data"]["total"]);
+        //existen dos comercios con KYC2 o superior
+        self::assertEquals('2', $response_content["data"]["total"]);
     }
 
     public function testMapGreenCommerceResponds200(){

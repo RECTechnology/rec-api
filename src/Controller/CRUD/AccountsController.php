@@ -241,6 +241,7 @@ class AccountsController extends CRUDController {
             'a.longitude, ' .
             'a.description, ' .
             'a.public_image, ' .
+            'tr.code as tier, ' .
             'identity(a.activity_main) as activity, ' .
             'a AS account, ' .
             'o.active AS offer, ' .
@@ -253,7 +254,8 @@ class AccountsController extends CRUDController {
             ->from(Group::class, 'a')
             ->leftJoin('a.category', 'c')
             ->leftJoin('a.campaigns', 'cp')
-            ->leftJoin('a.offers', 'o');
+            ->leftJoin('a.offers', 'o')
+            ->leftJoin('a.level', 'tr');
 
         if($badge_id != ''){
             $qb = $qb->leftJoin('a.badges', 'b')->setParameter('badge_id', $badge_id);
@@ -261,7 +263,11 @@ class AccountsController extends CRUDController {
             $and->add('b.id = :badge_id');
         }
 
-        $qb = $qb->where($and);
+        $qb = $qb->where($and)
+                 ->andWhere('tier LIKE :kyc')
+                 ->orWhere('tier LIKE :kyc2')
+                 ->setParameter('kyc', 'KYC2')
+                 ->setParameter('kyc2', 'KYC3');
 
         $now = new \DateTime('NOW');
 
