@@ -38,8 +38,6 @@ class ActivityController extends BaseApiController{
     public function getActivitiesV4(){
 
         $em = $this->getDoctrine()->getManager();
-        $name = 'culture';
-
 
         /** @var QueryBuilder $qb */
         $qb = $em->createQueryBuilder();
@@ -53,7 +51,6 @@ class ActivityController extends BaseApiController{
         $activities = $qb
             ->select($select)
             ->from(Activity::class, 'a')
-            ->where("lower(a.name) = '$name'")
             ->getQuery()
             ->getResult();
 
