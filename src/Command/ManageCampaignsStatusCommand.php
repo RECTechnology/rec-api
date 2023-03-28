@@ -19,6 +19,7 @@ class ManageCampaignsStatusCommand extends SynchronizedContainerAwareCommand
         $campaigns_v2 = $em->getRepository(Campaign::class)->findAll();
         $now = new \DateTime();
         $output->writeln(count($campaigns_v2).' campaigns found to manage');
+        $status_campaign='';
         /** @var Campaign $campaign */
         foreach ($campaigns_v2 as $campaign){
             if($campaign->getStatus() === Campaign::STATUS_CREATED && $campaign->getInitDate() <= $now){
@@ -26,13 +27,27 @@ class ManageCampaignsStatusCommand extends SynchronizedContainerAwareCommand
                 $em->flush();
                 $output->writeln('Campaign '.$campaign->getName().' is active now');
             }elseif ($campaign->getStatus() === Campaign::STATUS_ACTIVE && $campaign->getEndDate() < $now){
-                $campaign->setStatus(Campaign::STATUS_FINISHED);
+                if($campaign->getInitDate() > $now){
+                    $status_campaign=' is created now';
+                    $campaign->setStatus(Campaign::STATUS_CREATED);
+                }
+                else{
+                    $status_campaign=' is finished now';
+                    $campaign->setStatus(Campaign::STATUS_FINISHED);
+                }
                 $em->flush();
-                $output->writeln('Campaign '.$campaign->getName().' is finished now');
+                $output->writeln('Campaign '.$campaign->getName().$status_campaign);
             }elseif ($campaign->getStatus() === Campaign::STATUS_FINISHED && $campaign->getEndDate() > $now){
-                $campaign->setStatus(Campaign::STATUS_ACTIVE);
+                if($campaign->getInitDate() > $now){
+                    $status_campaign=' is created now';
+                    $campaign->setStatus(Campaign::STATUS_CREATED);
+                }
+                else{
+                    $status_campaign=' is reactivated now';
+                    $campaign->setStatus(Campaign::STATUS_ACTIVE);
+                }
                 $em->flush();
-                $output->writeln('Campaign '.$campaign->getName().' is reactivated now');
+                $output->writeln('Campaign '.$campaign->getName().$status_campaign);
             }
         }
     }
