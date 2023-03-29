@@ -171,8 +171,8 @@ class MapController extends BaseApiController{
 
         $elements = $qb
             ->select($select)
-            ->andWhere('tier LIKE :kyc')
-            ->orWhere('tier LIKE :kyc2')
+            ->andWhere('tr.code LIKE :kyc')
+            ->orWhere('tr.code LIKE :kyc2')
             ->orderBy('a.id', 'DESC')
             ->setParameter('kyc', 'KYC2')
             ->setParameter('kyc2', 'KYC3')

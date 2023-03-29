@@ -264,8 +264,8 @@ class AccountsController extends CRUDController {
         }
 
         $qb = $qb->where($and)
-                 ->andWhere('tier LIKE :kyc')
-                 ->orWhere('tier LIKE :kyc2')
+                 ->andWhere('tr.code LIKE :kyc')
+                 ->orWhere('tr.code LIKE :kyc2')
                  ->setParameter('kyc', 'KYC2')
                  ->setParameter('kyc2', 'KYC3');
 
