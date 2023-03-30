@@ -258,7 +258,9 @@ class DashboardController extends CRUDController {
             $since->setTime($now->format('H'),0,0,0);
             $since->modify("+1 hour");
         }
-        $qResult = $repo->statistics($since, $now, $intervalName);
+
+        $currency = $this->getParameter('crypto_currency');
+        $qResult = $repo->statistics($since, $now, $intervalName, $currency);
 
         $interval = "+1" . static::GROUPING_FUNCTIONS[$intervalName]['interval'];
         $result = [];

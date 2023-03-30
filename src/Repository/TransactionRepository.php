@@ -43,8 +43,9 @@ class TransactionRepository extends DocumentRepository {
      * @param $end_time
      * @param $interval
      * @return mixed
+     * @param $currency
      */
-    public function statistics($start_time, $end_time, $interval){
+    public function statistics($start_time, $end_time, $interval, $currency){
 
         $builder = $this->createAggregationBuilder();
         $timeExpr = $builder->expr();
@@ -65,7 +66,7 @@ class TransactionRepository extends DocumentRepository {
                 ->field('internal')->equals(false)
                 ->field('deleted')->equals(false)
                 ->field('status')->equals('success')
-                ->field('currency')->equals('REC')
+                ->field('currency')->equals($currency)
                 ->field('type')->equals('in')
                 ->field('created')
                     ->gte($start_time)
