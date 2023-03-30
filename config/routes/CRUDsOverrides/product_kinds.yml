@@ -24,4 +24,12 @@ product_kinds_v3_index:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "(product_kind|product_kinds)"
 
+product_kinds_v3_exists:
+    path: /{role}/v3/{object}/exists
+    defaults: { _controller: App\Controller\CRUD\ProductKindsController::existsAction }
+    methods: [ POST ]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(product_kind|product_kinds)"
+
 

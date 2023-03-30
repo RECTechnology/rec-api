@@ -140,6 +140,38 @@ class ProductKindsController extends CRUDController {
         return parent::createAction($request, $role);
     }
 
+    public function existsAction(Request $request, $role)
+    {
+
+        if(!$request->request->has('name') &&
+           !$request->request->has('name_es') &&
+           !$request->request->has('name_cat') &&
+           !$request->request->has('name_plural') &&
+           !$request->request->has('name_es_plural') &&
+           !$request->request->has('name_cat_plural'))
+            throw new HttpException(403, 'Param some type of name is required');
+
+        $name = $request->request->get('name');
+        $name_es = $request->request->get('name_es');
+        $name_cat = $request->request->get('name_cat');
+        $name_plural = $request->request->get('name_plural');
+        $name_es_plural = $request->request->get('name_es_plural');
+        $name_cat_plural = $request->request->get('name_cat_plural');
+
+
+        $result = $this->findProductsByNameAll($name, $name_es, $name_cat, $name_plural, $name_es_plural, $name_cat_plural);
+
+        return $this->rest(
+            self::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Request successful",
+            array(
+                'total' => count($result),
+                'elements' => $result
+            )
+        );
+    }
+
     public function indexAction(Request $request, $role)
     {
         if($role !== self::ROLE_SUPER_ADMIN){
@@ -161,6 +193,25 @@ class ProductKindsController extends CRUDController {
                 $qb->expr()->eq('p.name_plural', $qb->expr()->literal($name)),
                 $qb->expr()->eq('p.name_es_plural', $qb->expr()->literal($name)),
                 $qb->expr()->eq('p.name_ca_plural', $qb->expr()->literal($name)),
+            ))
+            ->andWhere('p.status = :status')
+            ->setparameter('status', ProductKind::STATUS_REVIEWED)
+            ->getQuery()
+            ->getResult();
+    }
+
+    private function findProductsByNameAll($name, $name_es, $name_cat, $name_plural, $name_es_plural, $name_cat_plural){
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+        return $qb->select('p')
+            ->from(ProductKind::class,'p')
+            ->where($qb->expr()->orX(
+                $qb->expr()->eq('p.name', $qb->expr()->literal($name)),
+                $qb->expr()->eq('p.name_es', $qb->expr()->literal($name_es)),
+                $qb->expr()->eq('p.name_ca', $qb->expr()->literal($name_cat)),
+                $qb->expr()->eq('p.name_plural', $qb->expr()->literal($name_plural)),
+                $qb->expr()->eq('p.name_es_plural', $qb->expr()->literal($name_es_plural)),
+                $qb->expr()->eq('p.name_ca_plural', $qb->expr()->literal($name_cat_plural)),
             ))
             ->andWhere('p.status = :status')
             ->setparameter('status', ProductKind::STATUS_REVIEWED)
