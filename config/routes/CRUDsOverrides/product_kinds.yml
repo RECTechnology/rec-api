@@ -32,4 +32,10 @@ product_kinds_v3_exists:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "(product_kind|product_kinds)"
 
-
+product_kinds_v3_searchActivity:
+    path:  /{role}/v3/{object}/searchActivity
+    defaults: { _controller: App\Controller\CRUD\ProductKindsController::searchActivityAction }
+    methods: [GET]
+    requirements:
+        role: "(admin)"
+        object: "(product_kind|product_kinds)"

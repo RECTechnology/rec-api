@@ -200,6 +200,35 @@ class ProductKindsController extends CRUDController {
             ->getResult();
     }
 
+    public function searchActivityAction(Request $request, $role){
+
+        if($role !== 'admin'){
+            throw new HttpException(403, 'You do not have the necessary permissions to perform this action');
+        }
+        if($request->query->has('activity')){
+            $activity_id = $request->query->get('activity');
+            if(!$activity_id) throw new HttpException(403, 'No activity selected');
+            $em = $this->getEntityManager();
+            $qb = $em->createQueryBuilder();
+
+            $products = $qb->select('p')
+                ->from(ProductKind::class, 'p')
+                ->leftJoin('p.activities', 'ap')
+                ->where('ap.id LIKE :activity')
+                ->setParameter('activity', $activity_id)
+                ->getQuery()
+                ->getResult();
+            $result = $this->secureOutput($products);
+
+            return $this->rest(
+                self::HTTP_STATUS_CODE_OK,
+                "ok",
+                "Request successful",
+                $result
+            );
+        }
+    }
+
     private function findProductsByNameAll($name, $name_es, $name_cat, $name_plural, $name_es_plural, $name_cat_plural){
         $em = $this->getEntityManager();
         $qb = $em->createQueryBuilder();
