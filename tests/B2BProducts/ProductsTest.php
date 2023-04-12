@@ -50,7 +50,6 @@ class ProductsTest extends BaseApiTest
             self::assertArrayHasKey('description_ca', $product);
             self::assertEquals(ProductKind::STATUS_REVIEWED, $product['status']);
         }
-
     }
 
     function testSearchProductsByNameShouldWork(){
@@ -72,6 +71,27 @@ class ProductsTest extends BaseApiTest
         $word = 'ba';
         $resp = $this->requestJson('GET', $route.$word);
         $content = json_decode($resp->getContent(),true);
+        self::assertGreaterThanOrEqual(1, $content['data']['total']);
+    }
+
+    function testSearchProductsExists(){
+        $route = "/user/v3/product_kinds/exists";
+        $name = 'Mussel';
+        $resp = $this->requestJson('POST', $route, ["name" => $name]);
+        $content = json_decode($resp->getContent(),true);
+
+        self::assertGreaterThanOrEqual(1, $content['data']['total']);
+
+        $name_es = 'Mejillón';
+        $resp = $this->requestJson('POST', $route, ["name_es" => $name_es]);
+        $content = json_decode($resp->getContent(),true);
+
+        self::assertGreaterThanOrEqual(1, $content['data']['total']);
+
+        $name_cat = 'Musclo';
+        $resp = $this->requestJson('POST', $route, ["name_cat" => $name_cat]);
+        $content = json_decode($resp->getContent(),true);
+
         self::assertGreaterThanOrEqual(1, $content['data']['total']);
     }
 
