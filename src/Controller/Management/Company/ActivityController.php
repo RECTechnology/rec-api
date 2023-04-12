@@ -54,6 +54,7 @@ class ActivityController extends BaseApiController{
             ->getQuery()
             ->getResult();
 
+        /*
         if (count($activities) > 0){
             $children_activities = $qb
                 ->where('a.parent =' . $activities[0]["id"])
@@ -61,7 +62,7 @@ class ActivityController extends BaseApiController{
                 ->getResult();
 
             $activities = array_merge($activities, $children_activities);
-        }
+        }*/
 
         return $this->rest(200, "ok", "Done", $activities);
 
