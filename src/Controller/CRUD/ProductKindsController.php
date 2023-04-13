@@ -29,7 +29,6 @@ class ProductKindsController extends CRUDController {
 
     public function searchAction(Request $request, $role)
     {
-
         if($request->query->has('search')){
             $search = $request->query->get('search');
             if(!$search) throw new HttpException(403, 'Nothing to search');
@@ -51,6 +50,36 @@ class ProductKindsController extends CRUDController {
                 ->getQuery()
                 ->getResult();
 
+            $result = $this->secureOutput($products);
+
+            return $this->rest(
+                self::HTTP_STATUS_CODE_OK,
+                "ok",
+                "Request successful",
+                array(
+                    'total' => count($result),
+                    'elements' => $result
+                )
+            );
+        }
+
+        if($request->query->has('activity')) {
+            if($role !== 'admin'){
+                throw new HttpException(403, 'You do not have the necessary permissions to perform this action');
+            }
+
+            $activity_id = $request->query->get('activity');
+
+            $em = $this->getEntityManager();
+            $qb = $em->createQueryBuilder();
+
+            $products = $qb->select('p')
+                ->from(ProductKind::class, 'p')
+                ->leftJoin('p.activities', 'ap')
+                ->where('ap.id LIKE :activity')
+                ->setParameter('activity', $activity_id)
+                ->getQuery()
+                ->getResult();
             $result = $this->secureOutput($products);
 
             return $this->rest(

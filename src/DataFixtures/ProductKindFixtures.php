@@ -3,6 +3,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Activity;
 use App\Entity\ProductKind;
 use App\Entity\Tier;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -45,6 +46,14 @@ class ProductKindFixtures extends Fixture {
         $product->setName($name);
         $product->setNameCa($name_cat);
         $product->setNameEs($name_es);
+
+        //Get activity
+        /** @var Activity $activity */
+        $activity = $orm->getRepository(Activity::class)->findall();
+        $activity_selected = $activity[0];
+
+        //Add activity in product
+        $product->addActivity($activity_selected);
 
         $orm->persist($product);
         $orm->flush();

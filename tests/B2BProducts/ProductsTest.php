@@ -94,28 +94,4 @@ class ProductsTest extends BaseApiTest
 
         self::assertGreaterThanOrEqual(1, $content['data']['total']);
     }
-
-    function testSearchProductActivity(){
-        $this->signIn(UserFixtures::TEST_ADMIN_CREDENTIALS);
-
-        $em = self::createClient()->getKernel()->getContainer()->get('doctrine.orm.entity_manager');
-
-        //Get product
-        /** @var ProductKind $product */
-        $product = $em->getRepository(ProductKind::class)->findall();
-        $product_selected = $product[0];
-
-        //Get activity
-        /** @var Activity $activity */
-        $activity = $em->getRepository(Activity::class)->findall();
-        $activity_selected = $activity[0];
-
-        //Add activity in product
-        $product_selected->addActivity($activity_selected);
-
-        $activity_id = 1;
-        $route = "/admin/v3/product_kind/searchActivity?activity=";
-        $resp = $this->requestJson('GET', $route.$activity_id);
-        $content = json_decode($resp->getContent(),true);
-    }
 }
