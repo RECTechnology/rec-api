@@ -83,7 +83,15 @@ accounts_v3_report_clients_providers:
     defaults: { _controller: App\Controller\CRUD\AccountsController::reportClientsAndProvidersAction }
     methods: [GET]
     requirements:
-        role: "(public|user|manager|self|admin|sadmin)"
+        role: "(user|manager|self|admin|sadmin)"
+        id: "[0-9]+"
+
+accounts_v3_mailing_report_clients_providers:
+    path:  /{role}/v3/accounts/{id}/mailing_report_clients_providers
+    defaults: { _controller: App\Controller\CRUD\AccountsController::emailReportClientsAndProvidersAction }
+    methods: [GET]
+    requirements:
+        role: "(user|manager|self|admin|sadmin)"
         id: "[0-9]+"
 
 accounts_v3_report_ltab:

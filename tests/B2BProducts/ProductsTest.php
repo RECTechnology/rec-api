@@ -94,4 +94,16 @@ class ProductsTest extends BaseApiTest
 
         self::assertGreaterThanOrEqual(1, $content['data']['total']);
     }
+
+    function testUserSendReportClientsAndProviders()
+    {
+        $resp = $this->requestJson("GET", "/user/v1/account");
+
+        $me = json_decode($resp->getContent())->data;
+        $route = "/user/v3/accounts/{$me->accounts[0]->id}/mailing_report_clients_providers";
+        $resp = $this->request('GET', $route);
+        self::assertResponseIsSuccessful();
+    }
+
+
 }

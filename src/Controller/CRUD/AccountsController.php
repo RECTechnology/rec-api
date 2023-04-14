@@ -461,6 +461,18 @@ class AccountsController extends CRUDController {
         return false;
     }
 
+    private function userCanAccessAccount(User $user, Group $account){
+
+        /** @var UserGroup $permission */
+        foreach ($user->getUserGroups() as $permission){
+            if($permission->getGroup()->getId() == $account->getId()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     /**
      * @param EngineInterface $templating
@@ -498,6 +510,11 @@ class AccountsController extends CRUDController {
         /** @var Group $account */
         $account = $this->findObject($id);
 
+        /** @var User $user */
+        $user = $this->getUser();
+        if ($role != 'admin' && !$this->userCanAccessAccount($user, $account))
+            throw new HttpException(403, "No permissions to read account.");
+
         $format = $request->headers->get('Accept');
         if($format == 'text/html') {
             return new Response(
@@ -517,6 +534,51 @@ class AccountsController extends CRUDController {
             );
         }
         throw new HttpException(400, "Invalid accept format " . $request->headers->get('Accept'));
+    }
+
+
+    /**
+     * @param EngineInterface $templating
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @return Response
+     */
+    public function emailReportClientsAndProvidersAction(EngineInterface $templating, Request $request, $role, $id){
+        $this->checkPermissions($role, self::CRUD_SHOW);
+
+        /** @var Group $account */
+        $account = $this->findObject($id);
+
+        /** @var User $user */
+        $user = $this->getUser();
+        if ($role != 'admin' && !$this->userCanAccessAccount($user, $account))
+            throw new HttpException(403, "No permissions to read account.");
+
+        $em = $this->getDoctrine()->getManager();
+
+        $mailing = new Mailing();
+        $mailing->setStatus(Mailing::STATUS_CREATED);
+        $mailing->setSubject("B2B Products Report");
+        $mailing->setContent('Find B2B report attached.');
+        $mailing->setScheduledAt(new \DateTime());
+        $mailing->setAttachments(['b2b_report.pdf' => 'b2b_report']);
+
+        $delivery = new MailingDelivery();
+        $delivery->setStatus(MailingDelivery::STATUS_CREATED);
+        $delivery->setAccount($account);
+        $delivery->setMailing($mailing);
+        $em->persist($mailing);
+        $mailing->setStatus(Mailing::STATUS_SCHEDULED);
+        $em->persist($mailing);
+        $em->persist($delivery);
+        $em->flush();
+
+        return $this->rest(
+            200,
+            "ok",
+            "Report sent successfully"
+        );
     }
 
     /**
