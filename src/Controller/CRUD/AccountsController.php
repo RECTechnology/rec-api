@@ -477,12 +477,16 @@ class AccountsController extends CRUDController {
     /**
      * @param EngineInterface $templating
      * @param Group $account
+     * @param string
      * @return string
      */
-    public function generateClientsAndProvidersReportHtml(EngineInterface $templating, Group $account){
+    public function generateClientsAndProvidersReportHtml(EngineInterface $templating, Group $account, $type = 'pdf'){
+
         return $templating->render(
             'Pdf/product_clients_and_providers.html.twig',
-            ['account' => $account]
+            ['account' => $account,
+             'language'=> $account,
+             'type'=> $type]
         );
     }
 
@@ -518,14 +522,14 @@ class AccountsController extends CRUDController {
         $format = $request->headers->get('Accept');
         if($format == 'text/html') {
             return new Response(
-                $this->generateClientsAndProvidersReportHtml($templating, $account),
+                $this->generateClientsAndProvidersReportHtml($templating, $account, 'html'),
                 200,
                 ['Content-Type' => 'text/html']
             );
         }
         elseif ($format == 'application/pdf'){
             return new Response(
-                $this->generateClientsAndProvidersReportPdf($templating, $account),
+                $this->generateClientsAndProvidersReportPdf($templating, $account, 'pdf'),
                 200,
                 [
                     'Content-Type' => 'application/pdf',
