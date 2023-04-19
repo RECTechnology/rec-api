@@ -104,8 +104,7 @@ class ProductKindsController extends CRUDController {
             $user = $this->getUser();
             /** @var Group $account */
             $account = $user->getActiveGroup();
-            $locale = $user->getLocale();
-
+            $id_account = $account->getId();
             $em = $this->getEntityManager();
 
             if(!$request->request->has('name')){
@@ -119,7 +118,7 @@ class ProductKindsController extends CRUDController {
             $name = $request->request->get('name');
             $type = $request->request->get('type');
 
-            $products = $this->findProductsByName($name);
+            $products = $this->findProductsByNameAndActivity($name, $type, $id_account);
 
             if(count($products) > 0){
                 //we take the first onw
@@ -127,17 +126,13 @@ class ProductKindsController extends CRUDController {
             }else{
                 //We did not find any product then we need to create a new one
                 $product = new ProductKind();
-                switch ($locale){
-                    case 'es':
-                        $product->setNameEs($name);
-                        break;
-                    case 'ca':
-                        $product->setNameCa($name);
-                        break;
-                    default:
-                        $product->setName($name);
-                        break;
-                }
+
+                $product->setName($name);
+                $product->setNameEs($name);
+                $product->setNameCa($name);
+                $product->setNamePlural($name);
+                $product->setNameEsPlural($name);
+                $product->setNameCaPlural($name);
 
                 $em->persist($product);
                 $em->flush();
@@ -193,6 +188,33 @@ class ProductKindsController extends CRUDController {
             ))
             ->andWhere('p.status = :status')
             ->setparameter('status', ProductKind::STATUS_REVIEWED)
+            ->getQuery()
+            ->getResult();
+    }
+
+    private function findProductsByNameAndActivity($name, $type, $id_account){
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+
+        $table = '';
+        if($type == 'producing'){
+            $table = 'p.producing_by';
+        }
+        else $table = 'p.consuming_by';
+
+        return $qb->select('p')
+            ->from(ProductKind::class,'p')
+            ->leftJoin($table, 'pp')
+            ->where($qb->expr()->orX(
+                $qb->expr()->eq('p.name', $qb->expr()->literal($name)),
+                $qb->expr()->eq('p.name_es', $qb->expr()->literal($name)),
+                $qb->expr()->eq('p.name_ca', $qb->expr()->literal($name)),
+                $qb->expr()->eq('p.name_plural', $qb->expr()->literal($name)),
+                $qb->expr()->eq('p.name_es_plural', $qb->expr()->literal($name)),
+                $qb->expr()->eq('p.name_ca_plural', $qb->expr()->literal($name)),
+            ))
+            ->andWhere('pp.id = :group')
+            ->setParameter('group', $id_account)
             ->getQuery()
             ->getResult();
     }
