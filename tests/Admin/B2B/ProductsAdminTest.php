@@ -30,4 +30,13 @@ class ProductsAdminTest extends BaseApiTest {
 
         self::assertEquals(14, $content['data']['total']);
     }
+
+    function testSearchProductOrder(){
+
+        $route = "/admin/v3/product_kind/search?order=desc&limit=50&offset=0&sort=status";
+        $resp = $this->requestJson('GET', $route);
+        $content = json_decode($resp->getContent(),true);
+
+        self::assertEquals(14, $content['data']['total']);
+    }
 }

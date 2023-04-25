@@ -93,6 +93,39 @@ class ProductKindsController extends CRUDController {
             );
         }
 
+        if($request->query->has('sort') && $request->query->get('sort') == 'status'){
+            if($role !== 'admin'){
+                throw new HttpException(403, 'You do not have the necessary permissions to perform this action');
+            }
+
+            $em = $this->getEntityManager();
+            $qb = $em->createQueryBuilder();
+
+            $limit = $request->query->has('limit') ? $request->query->get('limit') : 10;
+            $offset = $request->query->has('offset') ? $request->query->get('offset') : 0;
+            $order = $request->query->has('order') ? $request->query->get('order') : 'DESC';
+
+            $products = $qb->select('p')
+                ->from(ProductKind::class, 'p')
+                ->orderBy('p.status', 'ASC')
+                ->addOrderBy('p.id', $order)
+                ->setMaxResults($limit)
+                ->setFirstResult($offset)
+                ->getQuery()
+                ->getResult();
+            $result = $this->secureOutput($products);
+
+            return $this->rest(
+                self::HTTP_STATUS_CODE_OK,
+                "ok",
+                "Request successful",
+                array(
+                    'total' => count($result),
+                    'elements' => $result
+                )
+            );
+        }
+
         return parent::searchAction($request, $role);
     }
 
