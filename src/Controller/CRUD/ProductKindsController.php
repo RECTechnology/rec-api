@@ -73,11 +73,19 @@ class ProductKindsController extends CRUDController {
             $em = $this->getEntityManager();
             $qb = $em->createQueryBuilder();
 
+            $sort = $request->query->has('sort') ? $request->query->get('sort') : 'id';
+            $limit = $request->query->has('limit') ? $request->query->get('limit') : 10;
+            $offset = $request->query->has('offset') ? $request->query->get('offset') : 0;
+            $order = $request->query->has('order') ? $request->query->get('order') : 'DESC';
+
             $products = $qb->select('p')
                 ->from(ProductKind::class, 'p')
                 ->leftJoin('p.activities', 'ap')
                 ->where('ap.id LIKE :activity')
                 ->setParameter('activity', $activity_id)
+                ->orderBy('p.'.$sort, $order)
+                ->setMaxResults($limit)
+                ->setFirstResult($offset)
                 ->getQuery()
                 ->getResult();
             $result = $this->secureOutput($products);

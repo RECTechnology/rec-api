@@ -24,10 +24,10 @@ class ProductsAdminTest extends BaseApiTest {
 
         //search activity 1, culture
         $activity_id = 1;
+        $params = "&sort=id&order=DESC&limit=15";
         $route = "/admin/v3/product_kind/search?activity=";
-        $resp = $this->requestJson('GET', $route.$activity_id);
+        $resp = $this->requestJson('GET', $route.$activity_id.$params);
         $content = json_decode($resp->getContent(),true);
-
         self::assertEquals(14, $content['data']['total']);
     }
 
