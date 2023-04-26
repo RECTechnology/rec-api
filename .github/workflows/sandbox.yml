@@ -30,7 +30,7 @@ jobs:
         run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-api DOCKER_TAG=sandbox
 
       - name: Deploy
-        uses: joelwmale/webhook-action@1.0.1
+        uses: joelwmale/webhook-action@2.3.2
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_API_SANDBOX }}
           data: "ignored"
@@ -59,7 +59,7 @@ jobs:
         run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-cron DOCKER_TAG=sandbox
 
       - name: Deploy
-        uses: joelwmale/webhook-action@1.0.1
+        uses: joelwmale/webhook-action@2.3.2
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_CRON_SANDBOX }}
           data: "ignored"
